@@ -50,17 +50,17 @@ EIRMIS centralizes event creation, guest list management, invitation delivery, R
 | Team Leader | Fiel, Jack Jonel D. | `@BigDrems` |
 | Member | Caballes, Ervin James Lenzo | `@username` |
 | Member | Cerna, Ronald A. | `@Rcerna24` |
-| Member | Cormanes, Jo Mari Jess Y. | `@username` |
+| Member | Cormanes, Jo Mari Jess Y. | `@Cormz12-26` |
 | Member | Delima, Kyla Gayle | `@bluebirbb` |
 | Member | Kahano, John Andrei B. | `@Andrei Kahano` |
-| Member | Mendoza II, Exzon Y. | `@username` |
-| Member | Nocerale, Angel M. | `@username` |
+| Member | Mendoza II, Exzon Y. | `@Floranboi` |
+| Member | Nocerale, Angel M. | `@NoSeeReally` |
 | Member | Oreiro, Genesis AR S. | `@nyx-garso` |
-| Member | Ortula, Jebron R. | `@username` |
+| Member | Ortula, Jebron R. | `@Jebzzzzz` |
 | Member | Piangco, Pete Alexander N. | `@Filch119` |
-| Member | Rodriguez, Edgar Jr. A. | `@username` |
-| Member | Suico, Gian Carlo | `@username` |
-| Member | Villasotes, Jian | `@username` |
+| Member | Rodriguez, Edgar Jr. A. | `@Edgar202323` |
+| Member | Suico, Gian Carlo | `@kindocarloo` |
+| Member | Villasotes, Jian | `@trojian-00` |
 | Member | Ybas, Martin Benedict E. | `@MarteenyWeeny` |
 
 ---
