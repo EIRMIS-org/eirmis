@@ -10,8 +10,11 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-*.local
+# Environment files — never commit real credentials
 .env
+.env.local
+# .env.local.example is intentionally tracked (contains no real credentials)
+!.env.local.example
 
 # Editor directories and files
 .vscode/*
