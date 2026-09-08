@@ -26,3 +26,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+supabase/.temp/start-secrets/supabase_edge_runtime_eirmis/env/docker.env
