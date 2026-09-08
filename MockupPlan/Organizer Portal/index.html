@@ -19,8 +19,10 @@
       --bg: #F8FAFC;
       --surface: #FFFFFF;
       --border: #E2E8F0;
+      --border-light: #F1F5F9;
       --text-main: #0B1C30;
       --text-muted: #64748B;
+      --text-light: #94A3B8;
       --success: #15803D;
       --success-bg: #DCFCE7;
       --success-border: #86EFAC;
@@ -32,12 +34,12 @@
       --error-border: #FCA5A5;
       --font-heading: 'Hanken Grotesk', sans-serif;
       --font-body: 'Inter', sans-serif;
-      --radius-sm: 4px;
-      --radius-md: 8px;
-      --radius-lg: 12px;
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -46,184 +48,146 @@
       font-family: var(--font-body);
       background-color: var(--bg);
       color: var(--text-main);
-      font-size: 14px;
+      font-size: 13.5px;
       display: flex;
       height: 100vh;
       overflow: hidden;
     }
 
-    /* Left Sidebar */
+    /* Left Sidebar - Light style matching reference screenshot */
     aside {
-      width: 260px;
-      background-color: var(--dark);
-      color: #FFFFFF;
+      width: 240px;
+      background-color: #FFFFFF;
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
-      border-right: 1px solid rgba(255, 255, 255, 0.08);
       z-index: 20;
     }
 
-    .sidebar-brand {
-      padding: 20px 20px 16px 20px;
+    .sidebar-header {
+      padding: 20px 18px 16px 18px;
       display: flex;
       align-items: center;
-      gap: 10px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      gap: 12px;
     }
 
-    .brand-icon {
-      width: 34px;
-      height: 34px;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-      border-radius: var(--radius-md);
+    .brand-icon-box {
+      width: 36px;
+      height: 36px;
+      background: var(--primary);
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: var(--font-heading);
-      font-weight: 800;
-      font-size: 16px;
       color: #FFFFFF;
+      flex-shrink: 0;
     }
 
-    .brand-title {
+    .brand-title-box h1 {
       font-family: var(--font-heading);
       font-size: 17px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
     }
 
-    .brand-sub {
+    .brand-title-box span {
       font-size: 11px;
-      color: #94A3B8;
-      display: block;
+      color: var(--text-muted);
+      font-weight: 500;
     }
 
-    .active-event-selector {
-      padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.05);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    /* Prominent Create New Event Button */
+    .create-event-cta-wrap {
+      padding: 0 16px 16px 16px;
     }
 
-    .active-event-selector label {
-      display: block;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #94A3B8;
-      margin-bottom: 4px;
-      font-weight: 600;
-    }
-
-    .active-event-selector select {
+    .btn-create-event {
       width: 100%;
-      background: var(--dark-surface);
+      background: var(--primary);
       color: #FFFFFF;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: var(--radius-sm);
-      padding: 6px 8px;
-      font-size: 12px;
-      outline: none;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 11px 16px;
+      font-size: 13.5px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+      transition: all 0.2s ease;
+      font-family: var(--font-body);
     }
 
-    .nav-menu {
+    .btn-create-event:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+    }
+
+    /* Nav Links */
+    .nav-list {
       flex: 1;
-      padding: 16px 12px;
+      padding: 4px 12px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
     }
 
-    .nav-category {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #64748B;
-      font-weight: 700;
-      padding: 10px 12px 4px 12px;
-    }
-
-    .nav-item {
+    .nav-btn {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 9px 12px;
+      gap: 12px;
+      padding: 10px 14px;
       border-radius: var(--radius-md);
-      color: #CBD5E1;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      border: none;
+      color: #475569;
       background: transparent;
-      width: 100%;
+      border: none;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
       text-align: left;
+      transition: all 0.15s ease;
+      width: 100%;
     }
 
-    .nav-item:hover {
-      background: rgba(255, 255, 255, 0.07);
-      color: #FFFFFF;
+    .nav-btn:hover {
+      background: #F1F5F9;
+      color: var(--text-main);
     }
 
-    .nav-item.active {
+    .nav-btn.active {
       background: var(--primary);
       color: #FFFFFF;
       font-weight: 600;
-      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.4);
+      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.2);
+    }
+
+    .nav-btn.active svg {
+      stroke: #FFFFFF;
     }
 
     .nav-badge {
       margin-left: auto;
-      background: rgba(255, 255, 255, 0.2);
-      padding: 2px 6px;
+      background: #FEF3C7;
+      color: #B45309;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
       border-radius: 999px;
-      font-size: 11px;
-      font-weight: 700;
     }
 
-    .sidebar-footer {
-      padding: 16px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: #4F46E5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 13px;
-      color: white;
-    }
-
-    .user-info {
-      flex: 1;
-      overflow: hidden;
-    }
-
-    .user-name {
-      font-size: 12px;
-      font-weight: 600;
+    .nav-btn.active .nav-badge {
+      background: rgba(255, 255, 255, 0.25);
       color: #FFFFFF;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
     }
 
-    .user-role {
-      font-size: 11px;
-      color: #94A3B8;
-    }
-
-    /* Main Content Area */
+    /* Main Area */
     main {
       flex: 1;
       display: flex;
@@ -232,9 +196,9 @@
       background-color: var(--bg);
     }
 
-    /* Top Bar */
+    /* Top Bar matching reference screenshot */
     .topbar {
-      background: var(--surface);
+      background: #FFFFFF;
       border-bottom: 1px solid var(--border);
       padding: 12px 28px;
       display: flex;
@@ -245,23 +209,77 @@
       z-index: 10;
     }
 
-    .topbar-title {
-      font-family: var(--font-heading);
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-
-    .topbar-actions {
+    .search-box {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      background: #F1F5F9;
+      border: 1px solid #E2E8F0;
+      border-radius: var(--radius-md);
+      padding: 8px 14px;
+      width: 320px;
     }
 
-    /* View Content */
+    .search-box input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 13px;
+      font-family: var(--font-body);
+      color: var(--text-main);
+      width: 100%;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #64748B;
+      padding: 6px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s;
+    }
+
+    .icon-btn:hover {
+      color: var(--text-main);
+      background: #F1F5F9;
+    }
+
+    .user-profile-menu {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-left: 12px;
+      border-left: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #E2E8F0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 12px;
+      color: #475569;
+    }
+
+    /* Content Area */
     .content-area {
-      padding: 28px;
-      max-width: 1240px;
+      padding: 24px 28px 48px 28px;
+      max-width: 1280px;
       width: 100%;
       margin: 0 auto;
     }
@@ -276,8 +294,89 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
+      from { opacity: 0; transform: translateY(3px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Breadcrumbs */
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .breadcrumbs a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    .breadcrumbs a:hover {
+      color: var(--primary);
+    }
+
+    /* Event Detail Header matching Image 2 */
+    .event-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .event-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+
+    .event-h1 {
+      font-family: var(--font-heading);
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-badge.published {
+      background: #DCFCE7;
+      color: #15803D;
+    }
+
+    .event-meta-line {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 13px;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .event-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     /* Buttons */
@@ -285,8 +384,8 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      padding: 8px 14px;
+      gap: 8px;
+      padding: 8px 16px;
       font-size: 13px;
       font-weight: 600;
       border-radius: var(--radius-md);
@@ -297,88 +396,414 @@
       font-family: var(--font-body);
     }
 
-    .btn-primary { background-color: var(--primary); color: #FFFFFF; }
-    .btn-primary:hover { background-color: var(--primary-hover); }
-    .btn-secondary { background: transparent; border-color: var(--border); color: var(--text-main); }
-    .btn-secondary:hover { background: #F1F5F9; }
-    .btn-teal { background-color: var(--secondary); color: #FFFFFF; }
-    .btn-teal:hover { background-color: #007371; }
-    .btn-danger { background-color: var(--error); color: #FFFFFF; }
-    .btn-danger:hover { background-color: #991313; }
+    .btn-primary { background: var(--primary); color: #FFFFFF; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { background: #FFFFFF; border-color: var(--border); color: var(--text-main); }
+    .btn-secondary:hover { background: #F8FAFC; border-color: #CBD5E1; }
+    .btn-teal { background: var(--secondary); color: #FFFFFF; }
+    .btn-teal:hover { background: #007371; }
+    .btn-danger { background: var(--error); color: #FFFFFF; }
+    .btn-danger:hover { background: #991313; }
     .btn-ghost { background: transparent; color: var(--text-muted); }
     .btn-ghost:hover { background: #F1F5F9; color: var(--text-main); }
-    .btn-sm { padding: 5px 10px; font-size: 12px; }
+    .btn-sm { padding: 5px 11px; font-size: 12px; }
 
-    /* Cards */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 20px;
+    /* Metric Cards Grid matching Image 2 */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
       margin-bottom: 24px;
-      box-shadow: var(--shadow-sm);
     }
 
-    .card-header {
+    @media (max-width: 960px) {
+      .metric-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .metric-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .metric-icon {
+      color: #94A3B8;
+    }
+
+    .metric-number-row {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .metric-value {
+      font-family: var(--font-heading);
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.1;
+    }
+
+    .metric-pill-badge {
+      background: #FEF3C7;
+      color: #B45309;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .metric-bar-bg {
+      height: 6px;
+      background: #E2E8F0;
+      border-radius: 999px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .metric-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 999px;
+    }
+
+    /* Sub-tabs bar matching Image 2 */
+    .subtabs-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+      overflow-x: auto;
+    }
+
+    .subtab-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .subtab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .subtab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      font-weight: 600;
+    }
+
+    .subtab-btn.active svg {
+      stroke: var(--primary);
+    }
+
+    .subtab-badge {
+      background: #EEF2FF;
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 999px;
+    }
+
+    /* Two-column layout matching Image 2 */
+    .two-col-layout {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 860px) {
+      .two-col-layout { grid-template-columns: 1fr; }
+    }
+
+    /* White Cards */
+    .card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 20px;
+    }
+
+    .card-header-flex {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border);
     }
 
-    .card-title {
+    .card-h3 {
       font-family: var(--font-heading);
       font-size: 16px;
       font-weight: 700;
       color: var(--text-main);
-    }
-
-    /* Status Chips */
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 2px 8px;
-      border-radius: var(--radius-sm);
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: capitalize;
-    }
-
-    .chip-green { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
-    .chip-amber { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
-    .chip-red { background: var(--error-bg); color: var(--error); border: 1px solid var(--error-border); }
-    .chip-blue { background: var(--primary-light); color: var(--primary); border: 1px solid rgba(79, 70, 229, 0.2); }
-    .chip-slate { background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; }
-
-    /* RSVP Progress Bar */
-    .rsvp-progress-wrapper {
-      margin: 12px 0 20px 0;
-    }
-
-    .rsvp-progress-labels {
       display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 6px;
+      align-items: center;
+      gap: 8px;
     }
 
-    .rsvp-progress-bar {
+    /* Segmented RSVP Progress Bar from Image 2 */
+    .segmented-bar {
       height: 10px;
-      background: #E2E8F0;
       border-radius: 999px;
       overflow: hidden;
       display: flex;
+      background: #E2E8F0;
+      margin-bottom: 16px;
     }
 
-    .rsvp-progress-fill {
-      background: var(--primary);
+    .seg-accepted { background: #22C55E; width: 60%; }
+    .seg-declined { background: #EF4444; width: 15%; }
+    .seg-tentative { background: #F59E0B; width: 10%; }
+    .seg-unanswered { background: #CBD5E1; width: 15%; }
+
+    .rsvp-breakdown-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .rsvp-breakdown-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .breakdown-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .dot-green { background: #22C55E; }
+    .dot-red { background: #EF4444; }
+    .dot-amber { background: #F59E0B; }
+    .dot-gray { background: #94A3B8; }
+
+    .breakdown-val {
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Activity Timeline */
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .activity-icon-box {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .activity-icon-box.green { background: #DCFCE7; color: #16A34A; }
+    .activity-icon-box.red { background: #FEE2E2; color: #DC2626; }
+    .activity-icon-box.purple { background: #EEF2FF; color: #4F46E5; }
+
+    .activity-details {
+      flex: 1;
+      font-size: 12.5px;
+    }
+
+    .activity-actor {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .activity-time {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Multi-step Form Stepper matching Image 1 */
+    .stepper-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      position: relative;
+    }
+
+    .stepper-line {
+      position: absolute;
+      top: 15px;
+      left: 30px;
+      right: 30px;
+      height: 2px;
+      background: #E2E8F0;
+      z-index: 1;
+    }
+
+    .stepper-line-fill {
+      width: 38%;
       height: 100%;
-      border-radius: 999px;
-      transition: width 0.4s ease;
+      background: var(--primary);
+    }
+
+    .step-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+      z-index: 2;
+      background: #FFFFFF;
+      padding: 0 10px;
+    }
+
+    .step-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #F1F5F9;
+      color: #64748B;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      border: 2px solid #E2E8F0;
+    }
+
+    .step-circle.done {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+    }
+
+    .step-circle.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    }
+
+    .step-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .step-label.active {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* Form Styles matching Image 1 */
+    .form-section-title {
+      font-family: var(--font-heading);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .input-with-icon {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-with-icon svg {
+      position: absolute;
+      left: 12px;
+      color: #94A3B8;
+      pointer-events: none;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 13.5px;
+      font-family: var(--font-body);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: #FFFFFF;
+      color: var(--text-main);
+      outline: none;
+      transition: border 0.15s;
+    }
+
+    .input-with-icon .form-control {
+      padding-left: 38px;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
     }
 
     /* Tables */
@@ -402,9 +827,9 @@
       font-weight: 600;
       color: var(--text-muted);
       border-bottom: 1px solid var(--border);
-      font-size: 12px;
+      font-size: 11.5px;
       text-transform: uppercase;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.04em;
     }
 
     td {
@@ -414,55 +839,32 @@
       vertical-align: middle;
     }
 
-    tr:last-child td {
-      border-bottom: none;
-    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #F8FAFC; }
 
-    tr:hover td {
-      background-color: #F8FAFC;
-    }
-
-    /* Forms */
-    .form-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .form-label {
-      display: block;
-      font-size: 12px;
+    /* Chips */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
       font-weight: 600;
-      margin-bottom: 6px;
-      color: var(--text-main);
+      text-transform: capitalize;
     }
 
-    .form-control {
-      width: 100%;
-      padding: 8px 12px;
-      font-size: 13px;
-      font-family: var(--font-body);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      outline: none;
-      transition: border 0.15s;
-    }
+    .chip-green { background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; }
+    .chip-amber { background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; }
+    .chip-red { background: #FEE2E2; color: #BA1A1A; border: 1px solid #FCA5A5; }
+    .chip-blue { background: #EEF2FF; color: #4F46E5; border: 1px solid #C7D2FE; }
+    .chip-slate { background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; }
 
-    .form-control:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
-    }
-
-    /* Modal / Alert Overlay */
+    /* Modal Overlay */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.6);
+      background: rgba(15, 23, 42, 0.5);
       backdrop-filter: blur(2px);
       display: none;
       align-items: center;
@@ -470,9 +872,7 @@
       z-index: 100;
     }
 
-    .modal-overlay.active {
-      display: flex;
-    }
+    .modal-overlay.active { display: flex; }
 
     .modal-box {
       background: #FFFFFF;
@@ -481,41 +881,6 @@
       max-width: 480px;
       width: 90%;
       box-shadow: var(--shadow-lg);
-      animation: modalPop 0.2s ease;
-    }
-
-    @keyframes modalPop {
-      from { transform: scale(0.95); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
-    /* Stats Grid */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .stat-card {
-      background: #FFFFFF;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 16px;
-    }
-
-    .stat-value {
-      font-family: var(--font-heading);
-      font-size: 26px;
-      font-weight: 800;
-      color: var(--text-main);
-      margin: 4px 0;
-    }
-
-    .stat-label {
-      font-size: 12px;
-      color: var(--text-muted);
-      font-weight: 500;
     }
 
     /* Toast */
@@ -545,300 +910,549 @@
 </head>
 <body>
 
-  <!-- Sidebar Navigation -->
+  <!-- Sidebar -->
   <aside>
-    <div class="sidebar-brand">
-      <div class="brand-icon">E</div>
-      <div>
-        <div class="brand-title">EIRMIS</div>
-        <span class="brand-sub">Organizer Workspace</span>
+    <div class="sidebar-header">
+      <div class="brand-icon-box">
+        <!-- Calendar SVG Icon -->
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      </div>
+      <div class="brand-title-box">
+        <h1>EIRMIS</h1>
+        <span>Organizer Portal</span>
       </div>
     </div>
 
-    <!-- Active Event Context Switcher -->
-    <div class="active-event-selector">
-      <label>Active Event</label>
-      <select id="event-selector" onchange="switchActiveEvent(this.value)">
-        <option value="e1" selected>Tech Forward Gala 2026</option>
-        <option value="e2">AI Product Summit 2026</option>
-        <option value="e3">Executive VIP Dinner</option>
-      </select>
+    <!-- Create Event CTA Button -->
+    <div class="create-event-cta-wrap">
+      <button class="btn-create-event" onclick="switchView('create-wizard')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Create New Event
+      </button>
     </div>
 
-    <!-- Navigation Menu (10 routes from README §8) -->
-    <nav class="nav-menu">
-      <div class="nav-category">Events</div>
-      <button class="nav-item active" onclick="switchView('events')">
-        <span>📅</span> Events List
-      </button>
-      <button class="nav-item" onclick="switchView('event-overview')">
-        <span>⚙️</span> Event Overview / Edit
+    <!-- Nav List (Matching reference screenshot) -->
+    <nav class="nav-list">
+      <button class="nav-btn" id="btn-nav-dashboard" onclick="switchView('events')">
+        <!-- Dashboard Grid SVG -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        Dashboard
       </button>
 
-      <div class="nav-category">Management</div>
-      <button class="nav-item" onclick="switchView('guests')">
-        <span>👥</span> Guest List & Send
-      </button>
-      <button class="nav-item" onclick="switchView('approvals')">
-        <span>🛡️</span> Approval Queue <span class="nav-badge" id="pending-badge">3</span>
-      </button>
-      <button class="nav-item" onclick="switchView('reminders')">
-        <span>⏰</span> Reminder Schedules
-      </button>
-      <button class="nav-item" onclick="switchView('design')">
-        <span>🎨</span> Invitation Design
+      <button class="nav-btn active" id="btn-nav-events" onclick="switchView('event-overview')">
+        <!-- Calendar SVG -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        Events
       </button>
 
-      <div class="nav-category">Day of Event</div>
-      <button class="nav-item" onclick="switchView('attendance')">
-        <span>📊</span> Live Attendance
-      </button>
-      <button class="nav-item" onclick="switchView('checkin')">
-        <span>📷</span> Active Scanner
-      </button>
-      <button class="nav-item" onclick="switchView('staff')">
-        <span>🤝</span> Check-in Staff
+      <button class="nav-btn" id="btn-nav-guests" onclick="switchView('guests')">
+        <!-- Users SVG -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Guest Lists
       </button>
 
-      <div class="nav-category">Account</div>
-      <button class="nav-item" onclick="switchView('profile')">
-        <span>👤</span> Organizer Profile
+      <button class="nav-btn" id="btn-nav-approvals" onclick="switchView('approvals')">
+        <!-- User Check SVG -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
+        Approvals
+        <span class="nav-badge" id="sidebar-approval-badge">3</span>
+      </button>
+
+      <button class="nav-btn" id="btn-nav-attendance" onclick="switchView('attendance')">
+        <!-- Bar Chart SVG -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        Attendance
+      </button>
+
+      <button class="nav-btn" id="btn-nav-staff" onclick="switchView('staff')">
+        <!-- Badge Check SVG -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="9" cy="10" r="2"></circle><line x1="15" y1="8" x2="17" y2="8"></line><line x1="15" y1="12" x2="17" y2="12"></line></svg>
+        Staff
+      </button>
+
+      <button class="nav-btn" id="btn-nav-reminders" onclick="switchView('reminders')">
+        <!-- Bell SVG -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        Reminders
+      </button>
+
+      <button class="nav-btn" id="btn-nav-designs" onclick="switchView('design')">
+        <!-- Palette SVG -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"></circle><circle cx="17.5" cy="10.5" r=".5"></circle><circle cx="8.5" cy="7.5" r=".5"></circle><circle cx="6.5" cy="12.5" r=".5"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path></svg>
+        Designs
       </button>
     </nav>
-
-    <div class="sidebar-footer">
-      <div class="avatar">SJ</div>
-      <div class="user-info">
-        <div class="user-name">Sarah Jenkins</div>
-        <div class="user-role">Verified Organizer</div>
-      </div>
-      <a href="../LandingPage/index.html" title="Exit to Landing" style="color:#94A3B8; text-decoration:none; font-size:16px;">⎋</a>
-    </div>
   </aside>
 
-  <!-- Main Content -->
+  <!-- Main View Area -->
   <main>
-    <!-- Top Bar -->
+    <!-- Top Bar (Matching Image 2) -->
     <div class="topbar">
-      <div class="topbar-title" id="page-title">Events List</div>
-      <div class="topbar-actions">
-        <span class="chip chip-blue" id="topbar-event-badge">Tech Forward Gala 2026</span>
-        <button class="btn btn-secondary btn-sm" onclick="triggerManualBulkQr()">
-          <span>✉️</span> Resend QR Codes
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" placeholder="Search events, guests..." onkeydown="if(event.key==='Enter') showToast('Searching directory: ' + this.value)">
+      </div>
+
+      <div class="topbar-right">
+        <button class="icon-btn" title="Notifications" onclick="showToast('No unread system alerts')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
         </button>
-        <button class="btn btn-primary btn-sm" onclick="switchView('event-overview')">
-          <span>+</span> New Event
+        <button class="icon-btn" title="Settings" onclick="switchView('profile')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         </button>
+
+        <div class="user-profile-menu" onclick="switchView('profile')">
+          <div class="user-avatar">SJ</div>
+          <span style="font-size:13px; font-weight:600; color:var(--text-main);">Sarah Jenkins</span>
+        </div>
+
+        <a href="../LandingPage/index.html" class="icon-btn" title="Exit to Landing Hub">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        </a>
       </div>
     </div>
 
-    <!-- Content Area with 10 Views -->
+    <!-- Content Workspace -->
     <div class="content-area">
 
-      <!-- 1. VIEW: EVENTS LIST -->
-      <section id="view-events" class="view-pane active">
-        <div class="card-header" style="border:none; padding:0 0 16px 0;">
+      <!-- ============================================== -->
+      <!-- VIEW 1: EVENT OVERVIEW (Directly Matching Image 2) -->
+      <!-- ============================================== -->
+      <section id="view-event-overview" class="view-pane active">
+        
+        <!-- Breadcrumbs -->
+        <div class="breadcrumbs">
+          <a href="#" onclick="switchView('events')">Events</a>
+          <span>›</span>
+          <span style="color:var(--text-main); font-weight:600;">Tech Forward Annual Gala 2026</span>
+        </div>
+
+        <!-- Event Header Row -->
+        <div class="event-header-row">
           <div>
-            <h2 style="font-family:var(--font-heading); font-size:20px; font-weight:700;">Managed Events</h2>
-            <p style="color:var(--text-muted); font-size:13px;">View status, RSVP capacity progress, and quick actions.</p>
+            <div class="event-title-group">
+              <h2 class="event-h1">Tech Forward Annual Gala 2026</h2>
+              <span class="status-badge published">Published</span>
+            </div>
+            <div class="event-meta-line">
+              <div class="meta-item">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <span>Nov 18, 2026 • 6:30 PM SGT</span>
+              </div>
+              <div class="meta-item">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span>Marina Bay Sands Grand Ballroom, Singapore</span>
+              </div>
+            </div>
           </div>
-          <button class="btn btn-primary" onclick="openNewEventForm()">+ Create New Event</button>
+
+          <div class="event-actions">
+            <button class="btn btn-secondary" onclick="showToast('Registration is currently open (public slug active)')">
+              Close Registration
+            </button>
+            <button class="btn btn-primary" onclick="switchView('create-wizard')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              Edit Event
+            </button>
+            <button class="btn btn-secondary btn-sm" style="padding:8px 10px;" title="More actions" onclick="showToast('Event options menu')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+            </button>
+          </div>
         </div>
 
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px;">
+        <!-- Metric Cards Row (4 cards matching Image 2) -->
+        <div class="metric-grid">
+          <!-- Card 1: Total Capacity -->
+          <div class="metric-card">
+            <div class="metric-card-top">
+              <span class="metric-label">TOTAL CAPACITY</span>
+              <svg class="metric-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M5 21V7l8-4v18"></path><path d="M19 21V11l-6-4"></path></svg>
+            </div>
+            <div class="metric-number-row">
+              <div class="metric-value">150</div>
+            </div>
+          </div>
+
+          <!-- Card 2: RSVPs -->
+          <div class="metric-card">
+            <div class="metric-card-top">
+              <span class="metric-label">RSVPS</span>
+              <svg class="metric-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            </div>
+            <div class="metric-number-row">
+              <div class="metric-value">112 <span style="font-size:16px; color:var(--text-muted); font-weight:500;">/ 150</span></div>
+            </div>
+            <div class="metric-bar-bg">
+              <div class="metric-bar-fill" style="width: 74.6%;"></div>
+            </div>
+          </div>
+
+          <!-- Card 3: Pending Approvals -->
+          <div class="metric-card" style="border-left: 3px solid #F59E0B;">
+            <div class="metric-card-top">
+              <span class="metric-label">PENDING APPROVALS</span>
+              <svg class="metric-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+            </div>
+            <div class="metric-number-row">
+              <div class="metric-value">3</div>
+              <span class="metric-pill-badge">REQUIRES ACTION</span>
+            </div>
+          </div>
+
+          <!-- Card 4: Checked In -->
+          <div class="metric-card">
+            <div class="metric-card-top">
+              <span class="metric-label">CHECKED IN</span>
+              <svg class="metric-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </div>
+            <div class="metric-number-row">
+              <div class="metric-value" id="dash-checked-in-count">48</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subtabs Bar matching Image 2 -->
+        <div class="subtabs-bar">
+          <button class="subtab-btn active" onclick="switchView('event-overview')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            Overview
+          </button>
+          <button class="subtab-btn" onclick="switchView('guests')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+            Guests
+          </button>
+          <button class="subtab-btn" onclick="switchView('approvals')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+            Approvals
+            <span class="subtab-badge">3</span>
+          </button>
+          <button class="subtab-btn" onclick="switchView('attendance')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            Attendance
+          </button>
+          <button class="subtab-btn" onclick="switchView('staff')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="9" cy="10" r="2"></circle></svg>
+            Staff
+          </button>
+          <button class="subtab-btn" onclick="switchView('reminders')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path></svg>
+            Reminders
+          </button>
+          <button class="subtab-btn" onclick="switchView('design')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path></svg>
+            Design
+          </button>
+          <button class="subtab-btn" onclick="switchView('attendance')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+            Activity
+          </button>
+        </div>
+
+        <!-- Two Column Content Grid matching Image 2 -->
+        <div class="two-col-layout">
           
-          <!-- Event Card 1 -->
-          <div class="card" style="border-top: 4px solid var(--primary);">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
-              <div>
-                <span class="chip chip-green">Published</span>
-                <span class="chip chip-slate" style="margin-left:4px;">open_registration</span>
+          <!-- Left Column -->
+          <div>
+            <!-- Event Description Card -->
+            <div class="card">
+              <div class="card-header-flex">
+                <h3 class="card-h3">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                  Event Description
+                </h3>
+                <button class="btn btn-ghost btn-sm" style="color:var(--primary); font-weight:600;" onclick="switchView('create-wizard')">Edit</button>
               </div>
-              <span style="font-size:12px; color:var(--text-muted);">Nov 18, 2026</span>
-            </div>
-            <h3 style="font-family:var(--font-heading); font-size:17px; font-weight:700; margin-bottom:4px;">Tech Forward Gala 2026</h3>
-            <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px;">Marina Bay Sands • Cap: 150</p>
-            
-            <div class="rsvp-progress-wrapper">
-              <div class="rsvp-progress-labels">
-                <span>RSVP Capacity: 112 / 150</span>
-                <span style="color:var(--primary);">74.6%</span>
-              </div>
-              <div class="rsvp-progress-bar">
-                <div class="rsvp-progress-fill" style="width: 74.6%;"></div>
-              </div>
+              <p style="font-size:13.5px; line-height:1.6; color:#334155; margin-bottom:14px;">
+                The Tech Forward Annual Gala brings together distinguished researchers, enterprise technical executives, and innovators across autonomous computing and distributed infrastructure.
+              </p>
+              <p style="font-size:13.5px; line-height:1.6; color:#334155; margin-bottom:16px;">
+                Attendees will participate in technical showcase demonstrations, keynote discussions, and the annual systems excellence recognition ceremony.
+              </p>
+              <div style="font-weight:600; font-size:13px; color:var(--text-main); margin-bottom:8px;">Key Objectives:</div>
+              <ul style="padding-left:18px; font-size:13px; color:#475569; line-height:1.6;">
+                <li>Celebrate technological breakthroughs across AI infrastructure and security.</li>
+                <li>Facilitate high-impact peer collaboration for technical leadership.</li>
+                <li>Present the 2026 Innovation Laureate awards during the evening plenary.</li>
+              </ul>
             </div>
 
-            <div style="display:flex; gap:8px; margin-top:16px;">
-              <button class="btn btn-secondary btn-sm" onclick="switchView('event-overview')">Edit Settings</button>
-              <button class="btn btn-teal btn-sm" onclick="switchView('approvals')">Approvals (3)</button>
-              <button class="btn btn-primary btn-sm" onclick="switchView('attendance')">Live Dashboard</button>
+            <!-- Venue / Location Details Card -->
+            <div class="card">
+              <div class="card-header-flex">
+                <h3 class="card-h3">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  Location & Map Details
+                </h3>
+              </div>
+              <div style="background:#F1F5F9; border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; display:flex; align-items:flex-start; gap:12px;">
+                <div style="width:36px; height:36px; background:#FFFFFF; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--primary); flex-shrink:0;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                </div>
+                <div>
+                  <strong style="font-size:14px; color:var(--text-main);">Grand Ballroom, Marina Bay Sands</strong>
+                  <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">10 Bayfront Avenue, Singapore 018956</div>
+                  <a href="#" style="font-size:12px; color:var(--primary); font-weight:600; text-decoration:none; display:inline-block; margin-top:6px;" onclick="showToast('Opened Google Maps directions')">Open in Maps →</a>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Event Card 2 -->
-          <div class="card" style="border-top: 4px solid var(--secondary);">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
-              <div>
-                <span class="chip chip-amber">Draft</span>
-                <span class="chip chip-slate" style="margin-left:4px;">invite_only</span>
+          <!-- Right Column -->
+          <div>
+            <!-- RSVP Summary Card (Matching Image 2) -->
+            <div class="card">
+              <div class="card-header-flex">
+                <h3 class="card-h3">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+                  RSVP Summary
+                </h3>
               </div>
-              <span style="font-size:12px; color:var(--text-muted);">Dec 05, 2026</span>
-            </div>
-            <h3 style="font-family:var(--font-heading); font-size:17px; font-weight:700; margin-bottom:4px;">AI Product Summit 2026</h3>
-            <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px;">Conrad Hotel • Cap: 200</p>
 
-            <div class="rsvp-progress-wrapper">
-              <div class="rsvp-progress-labels">
-                <span>RSVP Capacity: 0 / 200</span>
-                <span style="color:var(--text-muted);">0%</span>
+              <!-- Segmented Progress Bar -->
+              <div class="segmented-bar">
+                <div class="seg-accepted" title="Accepted: 84"></div>
+                <div class="seg-declined" title="Declined: 14"></div>
+                <div class="seg-tentative" title="Tentative: 14"></div>
+                <div class="seg-unanswered" title="No Response: 38"></div>
               </div>
-              <div class="rsvp-progress-bar">
-                <div class="rsvp-progress-fill" style="width: 0%;"></div>
+
+              <!-- Legend List -->
+              <div class="rsvp-breakdown-list">
+                <div class="rsvp-breakdown-item">
+                  <div class="breakdown-left">
+                    <div class="dot dot-green"></div>
+                    <span>Accepted</span>
+                  </div>
+                  <span class="breakdown-val">84</span>
+                </div>
+                <div class="rsvp-breakdown-item">
+                  <div class="breakdown-left">
+                    <div class="dot dot-red"></div>
+                    <span>Declined</span>
+                  </div>
+                  <span class="breakdown-val">14</span>
+                </div>
+                <div class="rsvp-breakdown-item">
+                  <div class="breakdown-left">
+                    <div class="dot dot-amber"></div>
+                    <span>Tentative</span>
+                  </div>
+                  <span class="breakdown-val">14</span>
+                </div>
+                <div class="rsvp-breakdown-item">
+                  <div class="breakdown-left">
+                    <div class="dot dot-gray"></div>
+                    <span>No Response</span>
+                  </div>
+                  <span class="breakdown-val">38</span>
+                </div>
+              </div>
+
+              <div style="border-top:1px solid var(--border); padding-top:14px; margin-top:16px; text-align:center;">
+                <button class="btn btn-ghost btn-sm" style="color:var(--primary); font-weight:600; width:100%;" onclick="switchView('guests')">
+                  View Guest List Details →
+                </button>
               </div>
             </div>
 
-            <div style="display:flex; gap:8px; margin-top:16px;">
-              <button class="btn btn-secondary btn-sm" onclick="switchView('event-overview')">Edit Settings</button>
-              <button class="btn btn-secondary btn-sm" onclick="switchView('design')">Upload Design</button>
-            </div>
-          </div>
-
-          <!-- Event Card 3 -->
-          <div class="card" style="border-top: 4px solid #64748B;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
-              <div>
-                <span class="chip chip-slate">Closed</span>
-                <span class="chip chip-slate" style="margin-left:4px;">invite_only</span>
+            <!-- Recent Activity Card (Matching Image 2) -->
+            <div class="card">
+              <div class="card-header-flex">
+                <h3 class="card-h3">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                  Recent Activity
+                </h3>
               </div>
-              <span style="font-size:12px; color:var(--text-muted);">Aug 14, 2026</span>
-            </div>
-            <h3 style="font-family:var(--font-heading); font-size:17px; font-weight:700; margin-bottom:4px;">Executive VIP Dinner</h3>
-            <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px;">St. Regis • Cap: 30</p>
 
-            <div class="rsvp-progress-wrapper">
-              <div class="rsvp-progress-labels">
-                <span>RSVP Capacity: 28 / 30</span>
-                <span style="color:var(--primary);">93.3%</span>
-              </div>
-              <div class="rsvp-progress-bar">
-                <div class="rsvp-progress-fill" style="width: 93.3%;"></div>
-              </div>
-            </div>
+              <div class="activity-list">
+                <div class="activity-item">
+                  <div class="activity-icon-box green">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  </div>
+                  <div class="activity-details">
+                    <div><span class="activity-actor">Sarah Jenkins</span> RSVP'd <strong style="color:var(--success);">Attending</strong></div>
+                    <div class="activity-time">10 mins ago</div>
+                  </div>
+                </div>
 
-            <div style="display:flex; gap:8px; margin-top:16px;">
-              <button class="btn btn-secondary btn-sm" onclick="switchView('attendance')">Archived Data</button>
+                <div class="activity-item">
+                  <div class="activity-icon-box red">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  </div>
+                  <div class="activity-details">
+                    <div><span class="activity-actor">Michael Chang</span> RSVP'd <strong style="color:var(--error);">Declined</strong></div>
+                    <div class="activity-time">45 mins ago</div>
+                  </div>
+                </div>
+
+                <div class="activity-item">
+                  <div class="activity-icon-box purple">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path></svg>
+                  </div>
+                  <div class="activity-details">
+                    <div><span class="activity-actor">System Admin</span> updated the event description.</div>
+                    <div class="activity-time">2 hours ago</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="border-top:1px solid var(--border); padding-top:14px; margin-top:16px; text-align:center;">
+                <button class="btn btn-ghost btn-sm" style="color:var(--primary); font-weight:600; width:100%;" onclick="switchView('attendance')">
+                  View All Activity →
+                </button>
+              </div>
             </div>
           </div>
 
         </div>
       </section>
 
-      <!-- 2. VIEW: EVENT OVERVIEW & EDIT -->
-      <section id="view-event-overview" class="view-pane">
+      <!-- ============================================== -->
+      <!-- VIEW 2: CREATE / EDIT EVENT WIZARD (Matching Image 1) -->
+      <!-- ============================================== -->
+      <section id="view-create-wizard" class="view-pane">
+        
+        <div style="margin-bottom:24px;">
+          <h2 style="font-family:var(--font-heading); font-size:24px; font-weight:800; color:var(--text-main);">Create New Event</h2>
+          <p style="color:var(--text-muted); font-size:13.5px; margin-top:2px;">Provide the details to set up your new event.</p>
+        </div>
+
         <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Event Configuration & Lifecycle</h3>
-            <span class="chip chip-green" id="event-lifecycle-chip">published</span>
+          <!-- Stepper Wizard (Matching Image 1) -->
+          <div class="stepper-bar">
+            <div class="stepper-line">
+              <div class="stepper-line-fill"></div>
+            </div>
+
+            <!-- Step 1 Done -->
+            <div class="step-node">
+              <div class="step-circle done">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <span class="step-label">Event Details</span>
+            </div>
+
+            <!-- Step 2 Active -->
+            <div class="step-node">
+              <div class="step-circle active">2</div>
+              <span class="step-label active">Date & Location</span>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step-node">
+              <div class="step-circle">3</div>
+              <span class="step-label">RSVP Config</span>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="step-node">
+              <div class="step-circle">4</div>
+              <span class="step-label">Review</span>
+            </div>
           </div>
 
-          <form id="event-form" onsubmit="saveEventDetails(event)">
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="event-title">Event Title *</label>
-                <input type="text" id="event-title" class="form-control" value="Tech Forward Gala 2026" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="event-slug">URL Slug (for open registration) *</label>
-                <input type="text" id="event-slug" class="form-control" value="tech-forward-2026" required>
-              </div>
-            </div>
+          <!-- Section 1: Event Schedule -->
+          <div class="form-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            Event Schedule
+          </div>
 
-            <div class="form-group">
-              <label class="form-label" for="event-desc">Description</label>
-              <textarea id="event-desc" class="form-control" rows="2">Annual celebration honoring emerging leaders in autonomous systems and enterprise engineering.</textarea>
+          <div style="display:grid; grid-template-columns: 1.5fr 1fr 1fr; gap:16px; margin-bottom:24px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Event Date *</label>
+              <div class="input-with-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <input type="date" class="form-control" value="2026-11-18">
+              </div>
             </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Start Time *</label>
+              <div class="input-with-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                <input type="time" class="form-control" value="18:30">
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">End Time *</label>
+              <div class="input-with-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                <input type="time" class="form-control" value="22:30">
+              </div>
+            </div>
+          </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="event-starts">Starts At *</label>
-                <input type="datetime-local" id="event-starts" class="form-control" value="2026-11-18T18:30" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="event-ends">Ends At *</label>
-                <input type="datetime-local" id="event-ends" class="form-control" value="2026-11-18T22:30" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="event-tz">Event Timezone *</label>
-                <select id="event-tz" class="form-control">
-                  <option value="Asia/Manila" selected>Asia/Manila (PHT +08:00)</option>
-                  <option value="Asia/Singapore">Asia/Singapore (SGT +08:00)</option>
-                  <option value="America/New_York">America/New_York (EST)</option>
-                </select>
-              </div>
-            </div>
+          <!-- Section 2: Location Details -->
+          <div class="form-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            Location Details
+          </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="event-capacity">Capacity Ceiling (Max Heads) *</label>
-                <input type="number" id="event-capacity" class="form-control" value="150" min="1" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="event-deadline">RSVP Deadline (Enforces Lock) *</label>
-                <input type="datetime-local" id="event-deadline" class="form-control" value="2026-11-15T23:59" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="event-visibility">Visibility Mode</label>
-                <select id="event-visibility" class="form-control">
-                  <option value="open_registration" selected>open_registration (Public slug)</option>
-                  <option value="invite_only">invite_only (Organizer guest list only)</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="event-status">Lifecycle Status</label>
-                <select id="event-status" class="form-control">
-                  <option value="draft">draft</option>
-                  <option value="published" selected>published (Accepts RSVPs)</option>
-                  <option value="closed">closed (Read-only)</option>
-                  <option value="archived">archived</option>
-                </select>
-              </div>
+          <div class="form-group">
+            <label class="form-label">Venue Name / Physical Address</label>
+            <div class="input-with-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+              <input type="text" class="form-control" placeholder="Enter full address or venue name" value="Marina Bay Sands Grand Ballroom, 10 Bayfront Avenue, Singapore">
             </div>
+          </div>
 
-            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:16px;">
-              <button type="button" class="btn btn-secondary" onclick="switchView('events')">Cancel</button>
-              <button type="submit" class="btn btn-primary">Save Event Changes</button>
+          <!-- AND / OR divider matching Image 1 -->
+          <div style="display:flex; align-items:center; gap:16px; margin:20px 0;">
+            <div style="flex:1; height:1px; background:#E2E8F0;"></div>
+            <span style="font-size:11px; font-weight:700; color:#94A3B8; letter-spacing:0.05em;">AND / OR</span>
+            <div style="flex:1; height:1px; background:#E2E8F0;"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Virtual Event Link (Optional)</label>
+            <div class="input-with-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+              <input type="url" class="form-control" placeholder="https://zoom.us/j/..." value="https://eirmis.live/stream/tech-forward-2026">
             </div>
-          </form>
+          </div>
+
+          <!-- Wizard Actions matching Image 1 -->
+          <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:20px; margin-top:28px;">
+            <button class="btn btn-secondary" onclick="switchView('event-overview')">
+              ← Back
+            </button>
+            <button class="btn btn-primary" onclick="showToast('Event settings updated! Proceeding to RSVP Configuration')">
+              Next: RSVP Configuration →
+            </button>
+          </div>
+
         </div>
       </section>
 
-      <!-- 3. VIEW: GUESTS LIST -->
+      <!-- ============================================== -->
+      <!-- VIEW 3: GUEST LISTS -->
+      <!-- ============================================== -->
       <section id="view-guests" class="view-pane">
         <div class="card">
-          <div class="card-header">
+          <div class="card-header-flex">
             <div>
-              <h3 class="card-title">Guest Directory & Invitations</h3>
-              <p style="color:var(--text-muted); font-size:12px;">Track primary guests, invitation statuses, approved party size, and manual QR dispatches.</p>
+              <h2 class="card-h3">Guest Directory & Invitations</h2>
+              <p style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Track primary guests, party size, approved attendees, and trigger bulk QR delivery.</p>
             </div>
-            <div style="display:flex; gap:8px;">
-              <button class="btn btn-secondary btn-sm" onclick="showToast('CSV Guest List Imported (25 invitations created)', '📥')">
-                📥 Import CSV
+            <div style="display:flex; gap:10px;">
+              <button class="btn btn-secondary btn-sm" onclick="showToast('CSV imported: 25 invitations added')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Import CSV
               </button>
               <button class="btn btn-primary btn-sm" onclick="addManualGuestPrompt()">
-                + Add Guest
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Add Guest
               </button>
             </div>
           </div>
 
           <div class="table-container">
-            <table id="guests-table">
+            <table>
               <thead>
                 <tr>
-                  <th>Guest Name</th>
-                  <th>Email Address</th>
-                  <th>Invitation Status</th>
-                  <th>Party Cap</th>
+                  <th>Primary Guest</th>
+                  <th>Email</th>
+                  <th>Status</th>
+                  <th>Max Party</th>
                   <th>Approved Heads</th>
                   <th>Checked-In</th>
                   <th>Actions</th>
@@ -853,7 +1467,7 @@
                   <td><strong>2</strong> / 3</td>
                   <td>0</td>
                   <td>
-                    <button class="btn btn-secondary btn-sm" onclick="showToast('Dispatched QR Bundle to elena.rostova@gmail.com', '📧')">Send QR</button>
+                    <button class="btn btn-secondary btn-sm" onclick="showToast('Dispatched signed QR bundle PDF to elena.rostova@gmail.com')">Send QR</button>
                   </td>
                 </tr>
                 <tr>
@@ -864,7 +1478,7 @@
                   <td><strong>2</strong> / 2</td>
                   <td>0</td>
                   <td>
-                    <button class="btn btn-secondary btn-sm" onclick="showToast('Dispatched QR Bundle to aris.thorne@biotech-innovate.org', '📧')">Send QR</button>
+                    <button class="btn btn-secondary btn-sm" onclick="showToast('Dispatched signed QR bundle PDF to aris.thorne@biotech-innovate.org')">Send QR</button>
                   </td>
                 </tr>
                 <tr>
@@ -875,7 +1489,7 @@
                   <td>0 / 2</td>
                   <td>0</td>
                   <td>
-                    <button class="btn btn-ghost btn-sm" onclick="showToast('Invitation nudge email queued', '🔔')">Nudge</button>
+                    <button class="btn btn-ghost btn-sm" onclick="showToast('Invitation nudge email queued')">Nudge</button>
                   </td>
                 </tr>
                 <tr>
@@ -886,7 +1500,7 @@
                   <td>0 / 4</td>
                   <td>0</td>
                   <td>
-                    <button class="btn btn-ghost btn-sm" onclick="showToast('Invitation email resent', '✉️')">Resend</button>
+                    <button class="btn btn-ghost btn-sm" onclick="showToast('Invitation email resent')">Resend</button>
                   </td>
                 </tr>
                 <tr>
@@ -897,7 +1511,7 @@
                   <td>0 / 1</td>
                   <td>0</td>
                   <td>
-                    <span style="font-size:12px; color:var(--text-muted);">No party</span>
+                    <span style="color:var(--text-muted); font-size:12px;">No Party</span>
                   </td>
                 </tr>
               </tbody>
@@ -906,15 +1520,17 @@
         </div>
       </section>
 
-      <!-- 4. VIEW: APPROVALS QUEUE (With Soft-check Over Capacity Warning!) -->
+      <!-- ============================================== -->
+      <!-- VIEW 4: APPROVALS QUEUE (With Soft-check Over-Capacity Modal) -->
+      <!-- ============================================== -->
       <section id="view-approvals" class="view-pane">
         
-        <!-- Pending Attendee Roster Submissions -->
+        <!-- Attendee Approvals -->
         <div class="card">
-          <div class="card-header">
+          <div class="card-header-flex">
             <div>
-              <h3 class="card-title">Pending Attendee Approvals</h3>
-              <p style="color:var(--text-muted); font-size:12px;">Review attendee additions submitted by guests one at a time. Decisions atomically update capacity and issue signed QR tokens.</p>
+              <h2 class="card-h3">Pending Attendee Approvals</h2>
+              <p style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Review attendee roster submissions one at a time. Each decision generates a signed QR token and updates event capacity.</p>
             </div>
             <span class="chip chip-amber">Queue: 3 Pending</span>
           </div>
@@ -923,10 +1539,10 @@
             <table>
               <thead>
                 <tr>
-                  <th>Primary Guest / Party</th>
+                  <th>Primary Party</th>
                   <th>Attendee Name</th>
                   <th>Email (Optional)</th>
-                  <th>Submitted At</th>
+                  <th>Submitted</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
@@ -945,12 +1561,11 @@
                 </tr>
                 <tr id="att-row-2">
                   <td>Elena Rostova (accepted)</td>
-                  <td><strong>Sophia Rostova</strong> <small>(Child)</small></td>
+                  <td><strong>Sophia Rostova</strong> <small style="color:var(--text-muted);">(Child)</small></td>
                   <td><em>None provided</em></td>
                   <td>Today, 10:15 AM</td>
                   <td><span class="chip chip-amber">pending</span></td>
                   <td>
-                    <!-- Clicking this triggers the Soft Capacity Warning modal! -->
                     <button class="btn btn-primary btn-sm" onclick="triggerCapacityWarning('att-row-2', 'Sophia Rostova')">Approve (Test Capacity)</button>
                     <button class="btn btn-danger btn-sm" onclick="decideAttendee('att-row-2', 'Sophia Rostova', 'reject')">Reject</button>
                   </td>
@@ -971,12 +1586,12 @@
           </div>
         </div>
 
-        <!-- Pending Headcount Increase Requests -->
+        <!-- Headcount Increase Requests -->
         <div class="card">
-          <div class="card-header">
+          <div class="card-header-flex">
             <div>
-              <h3 class="card-title">Headcount Increase Requests</h3>
-              <p style="color:var(--text-muted); font-size:12px;">Guests whose parties reached capacity may request additional heads. Approval raises their invitation ceiling.</p>
+              <h2 class="card-h3">Headcount Increase Requests</h2>
+              <p style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Guests who reached party capacity may request additional heads. Approval raises max_party_size.</p>
             </div>
             <span class="chip chip-blue">1 Request</span>
           </div>
@@ -986,9 +1601,9 @@
               <thead>
                 <tr>
                   <th>Guest Name</th>
-                  <th>Current Max Heads</th>
-                  <th>Requested Additional</th>
-                  <th>Guest Reason / Note</th>
+                  <th>Current Cap</th>
+                  <th>Requested Increase</th>
+                  <th>Note for Organizer</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -996,7 +1611,7 @@
                 <tr id="hc-row-1">
                   <td><strong>Dr. Aris Thorne</strong></td>
                   <td>2 heads</td>
-                  <td><strong style="color:var(--primary);">+2 heads</strong> (New max: 4)</td>
+                  <td><strong style="color:var(--primary);">+2 heads</strong> (New ceiling: 4)</td>
                   <td>"Bringing our research foundation directors who were just confirmed to fly in."</td>
                   <td>
                     <button class="btn btn-teal btn-sm" onclick="decideHeadcount('hc-row-1', 'approve')">Approve (+2)</button>
@@ -1010,19 +1625,21 @@
 
       </section>
 
-      <!-- 5. VIEW: REMINDER SCHEDULES -->
+      <!-- ============================================== -->
+      <!-- VIEW 5: REMINDERS -->
+      <!-- ============================================== -->
       <section id="view-reminders" class="view-pane">
         <div class="card">
-          <div class="card-header">
+          <div class="card-header-flex">
             <div>
-              <h3 class="card-title">Configured Scheduled Reminders</h3>
-              <p style="color:var(--text-muted); font-size:12px;">Executed automatically by pg_cron in the event's localized timezone (Asia/Manila).</p>
+              <h2 class="card-h3">Configured Scheduled Reminders</h2>
+              <p style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Dispatched automatically by pg_cron in local event timezone (Asia/Manila).</p>
             </div>
-            <button class="btn btn-primary btn-sm" onclick="addReminderRow()">+ Add Offset</button>
+            <button class="btn btn-primary btn-sm" onclick="showToast('New reminder offset configured')">+ Add Schedule</button>
           </div>
 
           <div class="table-container">
-            <table id="reminders-table">
+            <table>
               <thead>
                 <tr>
                   <th>Trigger Timing</th>
@@ -1036,32 +1653,32 @@
               <tbody>
                 <tr>
                   <td><strong>T-7 Days</strong> (7 days before event)</td>
-                  <td>09:00 AM PHT</td>
+                  <td>09:00 AM SGT</td>
                   <td>All Pending & Tentative RSVPs</td>
                   <td><span class="chip chip-green">Enabled</span></td>
                   <td>Nov 11, 2026, 9:00 AM</td>
                   <td>
-                    <button class="btn btn-secondary btn-sm" onclick="showToast('Test reminder email dispatched to organizer', '📨')">Test Send</button>
+                    <button class="btn btn-secondary btn-sm" onclick="showToast('Test reminder email dispatched to organizer')">Test Send</button>
                   </td>
                 </tr>
                 <tr>
                   <td><strong>T-1 Day</strong> (1 day before event)</td>
-                  <td>14:00 PM PHT</td>
-                  <td>All Confirmed Guests (Check-in Preparation & QR)</td>
+                  <td>14:00 PM SGT</td>
+                  <td>All Confirmed Guests (QR & Directions)</td>
                   <td><span class="chip chip-green">Enabled</span></td>
                   <td><em>Pending scheduled date</em></td>
                   <td>
-                    <button class="btn btn-secondary btn-sm" onclick="showToast('Test reminder email dispatched', '📨')">Test Send</button>
+                    <button class="btn btn-secondary btn-sm" onclick="showToast('Test reminder email dispatched')">Test Send</button>
                   </td>
                 </tr>
                 <tr>
                   <td><strong>T-0 Day</strong> (Event Morning)</td>
-                  <td>07:30 AM PHT</td>
+                  <td>07:30 AM SGT</td>
                   <td>Check-in Staff & Confirmed Guests</td>
                   <td><span class="chip chip-amber">Disabled</span></td>
-                  <td><em>Not configured yet</em></td>
+                  <td><em>Not configured</em></td>
                   <td>
-                    <button class="btn btn-ghost btn-sm" onclick="toggleReminder(this)">Enable</button>
+                    <button class="btn btn-ghost btn-sm" onclick="showToast('Schedule enabled')">Enable</button>
                   </td>
                 </tr>
               </tbody>
@@ -1070,118 +1687,96 @@
         </div>
       </section>
 
-      <!-- 6. VIEW: INVITATION DESIGN -->
+      <!-- ============================================== -->
+      <!-- VIEW 6: DESIGNS (HTML & Gallery) -->
+      <!-- ============================================== -->
       <section id="view-design" class="view-pane">
         <div class="card">
-          <div class="card-header">
+          <div class="card-header-flex">
             <div>
-              <h3 class="card-title">Creative Invitation Asset</h3>
-              <p style="color:var(--text-muted); font-size:12px;">Upload an image gallery or a single self-contained interactive HTML invitation file.</p>
+              <h2 class="card-h3">Creative Invitation Asset</h2>
+              <p style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Upload an image gallery or a single self-contained HTML invitation file.</p>
             </div>
             <div style="display:flex; gap:8px;">
-              <button class="btn btn-secondary btn-sm" id="btn-mode-html" onclick="toggleDesignMode('html')">Interactive HTML Mode</button>
-              <button class="btn btn-ghost btn-sm" id="btn-mode-images" onclick="toggleDesignMode('images')">Image Gallery Mode</button>
+              <button class="btn btn-secondary btn-sm" id="btn-design-html" onclick="setDesignMode('html')">Interactive HTML Mode</button>
+              <button class="btn btn-ghost btn-sm" id="btn-design-images" onclick="setDesignMode('images')">Image Gallery Mode</button>
             </div>
           </div>
 
-          <!-- HTML Mode Container -->
-          <div id="design-mode-html">
-            <div style="background:#F8FAFC; border: 2px dashed #CBD5E1; border-radius: var(--radius-lg); padding:36px; text-align:center; margin-bottom:20px;">
-              <div style="font-size:36px; margin-bottom:12px;">📄</div>
-              <h4 style="font-size:16px; font-weight:700; margin-bottom:6px;">Upload Self-Contained HTML Invitation</h4>
+          <!-- HTML Mode -->
+          <div id="design-view-html">
+            <div style="background:#F8FAFC; border:2px dashed #CBD5E1; border-radius:var(--radius-lg); padding:32px; text-align:center; margin-bottom:20px;">
+              <div style="width:44px; height:44px; background:#EEF2FF; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px auto; color:var(--primary);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+              </div>
+              <h4 style="font-size:15px; font-weight:700; margin-bottom:4px;">Upload Self-Contained HTML Invitation</h4>
               <p style="color:var(--text-muted); font-size:13px; max-width:520px; margin:0 auto 16px auto;">
-                All assets must be inline (base64 images, inline CSS/scripts). External URLs, iframes, and outbound links are blocked by static parsing & sandboxing.
+                All assets must be inline. External links, iframes, and outbound references are rejected by the static parser.
               </p>
               <div style="display:flex; justify-content:center; gap:10px;">
-                <button class="btn btn-primary" onclick="simulateHtmlUpload('pass')">Upload Valid HTML (Simulate Pass)</button>
-                <button class="btn btn-secondary" onclick="simulateHtmlUpload('fail')">Upload Risky HTML (Simulate Fail)</button>
+                <button class="btn btn-primary" onclick="simulateHtmlValidation('pass')">Upload Valid HTML (Simulate Pass)</button>
+                <button class="btn btn-secondary" onclick="simulateHtmlValidation('fail')">Upload Risky HTML (Simulate Fail)</button>
               </div>
             </div>
 
-            <!-- Validation Status Showcase -->
-            <div id="html-validation-box" class="card" style="border-left: 4px solid var(--success);">
+            <!-- Validation Status Showcase Box -->
+            <div id="html-validation-box" class="card" style="border-left:4px solid var(--success); margin-bottom:0;">
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                  <span class="chip chip-green" id="html-status-chip">validation_status: passed</span>
-                  <h4 style="margin-top:6px; font-weight:700;" id="html-status-title">Design Approved for Guest Display</h4>
-                  <p style="font-size:13px; color:var(--text-muted);" id="html-status-desc">
-                    Passed static structural scan (0 outbound requests) and VirusTotal malware scanner. Served in a sandboxed iframe.
+                  <span class="chip chip-green" id="html-chip">validation_status: passed</span>
+                  <h4 style="margin-top:6px; font-weight:700;" id="html-title">Design Approved for Guest Display</h4>
+                  <p style="font-size:13px; color:var(--text-muted); margin-top:2px;" id="html-desc">
+                    Passed static structural scan (0 outbound references) and VirusTotal malware scanner. Served in a sandboxed iframe.
                   </p>
                 </div>
-                <button class="btn btn-secondary btn-sm" onclick="showToast('Opened preview in sandboxed frame', '🔍')">Preview Frame</button>
+                <button class="btn btn-secondary btn-sm" onclick="showToast('Previewing in sandboxed iframe (sandbox=allow-scripts)')">Preview Frame</button>
               </div>
             </div>
           </div>
 
-          <!-- Image Gallery Mode Container -->
-          <div id="design-mode-images" style="display:none;">
+          <!-- Image Gallery Mode -->
+          <div id="design-view-images" style="display:none;">
             <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:16px; margin-bottom:20px;">
               <div style="border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; background:#F8FAFC;">
-                <div style="height:120px; background:#EEF2FF; display:flex; align-items:center; justify-content:center; font-size:28px;">🌄</div>
+                <div style="height:120px; background:#EEF2FF; display:flex; align-items:center; justify-content:center; color:var(--primary);">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                </div>
                 <div style="padding:10px; font-size:12px;">
                   <strong>Cover Invitation.png</strong><br>
                   <span style="color:var(--text-muted);">Sort Order: 1</span>
                 </div>
               </div>
-              <div style="border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; background:#F8FAFC;">
-                <div style="height:120px; background:#E6F6F6; display:flex; align-items:center; justify-content:center; font-size:28px;">🗺️</div>
-                <div style="padding:10px; font-size:12px;">
-                  <strong>Venue & Schedule.png</strong><br>
-                  <span style="color:var(--text-muted);">Sort Order: 2</span>
-                </div>
-              </div>
             </div>
-            <button class="btn btn-secondary btn-sm" onclick="showToast('Select image files to upload to gallery', '🖼️')">+ Add Gallery Image</button>
+            <button class="btn btn-secondary btn-sm" onclick="showToast('Choose image file to add to gallery')">+ Add Gallery Image</button>
           </div>
         </div>
       </section>
 
-      <!-- 7. VIEW: LIVE ATTENDANCE DASHBOARD -->
+      <!-- ============================================== -->
+      <!-- VIEW 7: ATTENDANCE & REALTIME FEED -->
+      <!-- ============================================== -->
       <section id="view-attendance" class="view-pane">
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-label">Total Event Capacity</div>
-            <div class="stat-value">150</div>
-            <div style="font-size:11px; color:var(--text-muted);">Configured ceiling</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Confirmed RSVPs</div>
-            <div class="stat-value" style="color:var(--primary);">112</div>
-            <div style="font-size:11px; color:var(--success);">74.6% booked</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Checked-In Attendees</div>
-            <div class="stat-value" style="color:var(--secondary);" id="live-checkedin-count">48</div>
-            <div style="font-size:11px; color:var(--secondary);" id="live-checkedin-pct">42.8% of expected arrived</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Realtime Channel</div>
-            <div class="stat-value" style="font-size:16px; color:var(--success); display:flex; align-items:center; gap:6px;">
-              <span style="width:10px; height:10px; background:#22C55E; border-radius:50%; display:inline-block;"></span>
-              Connected
-            </div>
-            <div style="font-size:11px; color:var(--text-muted);">Listening for scans</div>
-          </div>
-        </div>
-
         <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Live Guest Entrance Feed</h3>
-            <input type="text" placeholder="Filter attendees..." class="form-control" style="width:240px;" oninput="filterAttendanceTable(this.value)">
+          <div class="card-header-flex">
+            <div>
+              <h2 class="card-h3">Live Guest Entrance Feed</h2>
+              <p style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Subscribed to Supabase Realtime channel. Updates instantly as entrance scans occur.</p>
+            </div>
+            <input type="text" placeholder="Filter attendees..." class="form-control" style="width:240px;" oninput="filterAttendance(this.value)">
           </div>
 
           <div class="table-container">
-            <table id="attendance-feed-table">
+            <table>
               <thead>
                 <tr>
-                  <th>Attendee</th>
-                  <th>Affiliation / Party</th>
-                  <th>Check-in Status</th>
-                  <th>Checked-in At</th>
-                  <th>Checked-in By</th>
+                  <th>Attendee Name</th>
+                  <th>Party / Affiliation</th>
+                  <th>Check-In Status</th>
+                  <th>Arrival Time</th>
+                  <th>Scanned By</th>
                 </tr>
               </thead>
-              <tbody id="attendance-rows">
+              <tbody id="attendance-feed-rows">
                 <tr>
                   <td><strong>Elena Rostova</strong> <span class="chip chip-blue" style="font-size:10px;">Primary</span></td>
                   <td>Self</td>
@@ -1216,63 +1811,25 @@
         </div>
       </section>
 
-      <!-- 8. VIEW: CHECK-IN SCANNER (Organizer Entrance Scan) -->
-      <section id="view-checkin" class="view-pane">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
-          
-          <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">Simulate QR Camera Scanner</h3>
-              <span class="chip chip-green">Camera Active</span>
-            </div>
-            <div style="background:#0F172A; height:240px; border-radius:var(--radius-md); display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; position:relative; overflow:hidden;">
-              <div style="border: 2px dashed #38BDF8; width:160px; height:160px; border-radius:12px; display:flex; align-items:center; justify-content:center;">
-                <span style="font-size:48px;">📷</span>
-              </div>
-              <div style="position:absolute; bottom:12px; font-size:12px; color:#94A3B8;">Position QR Code within square</div>
-            </div>
-
-            <div style="display:flex; gap:8px; margin-top:16px;">
-              <button class="btn btn-primary" style="flex:1;" onclick="simulateScanResult('valid')">Simulate Valid QR Scan</button>
-              <button class="btn btn-secondary" style="flex:1;" onclick="simulateScanResult('duplicate')">Simulate Duplicate</button>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">Scan Resolution</h3>
-              <span class="chip chip-slate" id="scan-state-chip">State: Ready</span>
-            </div>
-
-            <div id="scan-result-card" style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-md); padding:20px; min-height:240px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
-              <div id="scan-result-icon" style="font-size:42px; margin-bottom:8px;">🎯</div>
-              <h4 id="scan-result-title" style="font-size:16px; font-weight:700;">Waiting for scanned QR code...</h4>
-              <p id="scan-result-sub" style="font-size:13px; color:var(--text-muted); margin-top:4px;">
-                Token verification and assignment scoping is enforced via Edge Function.
-              </p>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- 9. VIEW: CHECK-IN STAFF ASSIGNMENTS -->
+      <!-- ============================================== -->
+      <!-- VIEW 8: STAFF ASSIGNMENTS -->
+      <!-- ============================================== -->
       <section id="view-staff" class="view-pane">
         <div class="card">
-          <div class="card-header">
+          <div class="card-header-flex">
             <div>
-              <h3 class="card-title">Delegated Check-in Staff</h3>
-              <p style="color:var(--text-muted); font-size:12px;">Staff members have event-day scanning access for this event only. They cannot view full guest lists or RSVP data.</p>
+              <h2 class="card-h3">Delegated Check-in Staff</h2>
+              <p style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Staff members have entrance scanning access for this event only on event day.</p>
             </div>
             <button class="btn btn-primary btn-sm" onclick="inviteStaffPrompt()">+ Assign Staff Member</button>
           </div>
 
           <div class="table-container">
-            <table id="staff-table">
+            <table>
               <thead>
                 <tr>
-                  <th>Staff Member Email</th>
-                  <th>Assignment Status</th>
+                  <th>Staff Email</th>
+                  <th>Status</th>
                   <th>Invited At</th>
                   <th>Auth Linkage</th>
                   <th>Actions</th>
@@ -1285,17 +1842,17 @@
                   <td>Nov 16, 2026</td>
                   <td>Linked (auth.users: usr_902f)</td>
                   <td>
-                    <button class="btn btn-danger btn-sm" onclick="revokeStaff('staff-row-1')">Revoke Access</button>
+                    <button class="btn btn-danger btn-sm" onclick="revokeStaffRow('staff-row-1')">Revoke Access</button>
                   </td>
                 </tr>
                 <tr id="staff-row-2">
                   <td><strong>kyla.gatekeeper@temp-staff.com</strong></td>
                   <td><span class="chip chip-amber">invited</span></td>
                   <td>Today, 08:30 AM</td>
-                  <td>Awaiting magic-link login</td>
+                  <td>Awaiting magic link login</td>
                   <td>
-                    <button class="btn btn-secondary btn-sm" onclick="showToast('Invitation magic link resent to staff', '✉️')">Resend Invite</button>
-                    <button class="btn btn-danger btn-sm" onclick="revokeStaff('staff-row-2')">Revoke</button>
+                    <button class="btn btn-secondary btn-sm" onclick="showToast('Invitation magic link resent to staff')">Resend</button>
+                    <button class="btn btn-danger btn-sm" onclick="revokeStaffRow('staff-row-2')">Revoke</button>
                   </td>
                 </tr>
               </tbody>
@@ -1304,29 +1861,28 @@
         </div>
       </section>
 
-      <!-- 10. VIEW: ORGANIZER PROFILE -->
+      <!-- ============================================== -->
+      <!-- VIEW 9: PROFILE -->
+      <!-- ============================================== -->
       <section id="view-profile" class="view-pane">
-        <div class="card" style="max-width:600px;">
-          <div class="card-header">
-            <h3 class="card-title">Organizer Profile</h3>
-            <span class="chip chip-green">Status: Active (Admin Verified)</span>
-          </div>
-
-          <form onsubmit="saveProfile(event)">
+        <div class="card" style="max-width:580px;">
+          <h2 class="card-h3" style="margin-bottom:14px;">Organizer Profile</h2>
+          
+          <form onsubmit="event.preventDefault(); showToast('Profile updated successfully.')">
             <div class="form-group">
               <label class="form-label">Full Name</label>
-              <input type="text" class="form-control" value="Sarah Jenkins" id="prof-name">
+              <input type="text" class="form-control" value="Sarah Jenkins">
             </div>
 
             <div class="form-group">
               <label class="form-label">Google Account Email</label>
               <input type="email" class="form-control" value="sarah.jenkins@gmail.com" disabled style="background:#F1F5F9;">
-              <small style="color:var(--text-muted); font-size:11px;">Tied to your Supabase Auth Google Identity.</small>
+              <small style="color:var(--text-muted); font-size:11px;">Google OAuth Identity. Verified by System Administrator.</small>
             </div>
 
             <div class="form-group">
               <label class="form-label">System Role</label>
-              <input type="text" class="form-control" value="Event Organizer" disabled style="background:#F1F5F9;">
+              <input type="text" class="form-control" value="Event Organizer (Active)" disabled style="background:#F1F5F9;">
             </div>
 
             <button type="submit" class="btn btn-primary" style="margin-top:8px;">Save Profile Changes</button>
@@ -1334,23 +1890,46 @@
         </div>
       </section>
 
+      <!-- ============================================== -->
+      <!-- VIEW 10: EVENTS LIST -->
+      <!-- ============================================== -->
+      <section id="view-events" class="view-pane">
+        <div class="card-header-flex" style="margin-bottom:20px;">
+          <div>
+            <h2 style="font-family:var(--font-heading); font-size:22px; font-weight:800;">Managed Events</h2>
+            <p style="color:var(--text-muted); font-size:13px;">Overview of all events you own.</p>
+          </div>
+          <button class="btn btn-primary" onclick="switchView('create-wizard')">+ Create Event</button>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px;">
+          <div class="card" style="border-top:4px solid var(--primary); cursor:pointer;" onclick="switchView('event-overview')">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+              <span class="chip chip-green">Published</span>
+              <span style="font-size:12px; color:var(--text-muted);">Nov 18, 2026</span>
+            </div>
+            <h3 style="font-family:var(--font-heading); font-size:17px; font-weight:700; margin-bottom:4px;">Tech Forward Annual Gala 2026</h3>
+            <p style="color:var(--text-muted); font-size:13px; margin-bottom:14px;">Marina Bay Sands • Cap: 150</p>
+            <div style="font-size:12px; font-weight:600; color:var(--primary);">RSVP Capacity: 112 / 150 (74.6%)</div>
+          </div>
+        </div>
+      </section>
+
     </div>
   </main>
 
-  <!-- SOFT CAPACITY CHECK WARNING MODAL (Audited Override) -->
+  <!-- SOFT CAPACITY OVERRIDE MODAL -->
   <div id="capacity-modal" class="modal-overlay">
     <div class="modal-box">
-      <div style="width:48px; height:48px; border-radius:50%; background:var(--warning-bg); color:var(--warning); display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:12px;">
-        ⚠️
+      <div style="width:44px; height:44px; border-radius:50%; background:#FEF3C7; color:#B45309; display:flex; align-items:center; justify-content:center; margin-bottom:14px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
       </div>
-      <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:700; margin-bottom:8px; color:var(--text-main);">
-        Soft Capacity Warning
-      </h3>
+      <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:700; margin-bottom:8px;">Soft Capacity Warning</h3>
       <p style="font-size:13px; color:var(--text-muted); line-height:1.5; margin-bottom:16px;">
-        Approving attendee <strong id="modal-attendee-name">Sophia Rostova</strong> will push confirmed capacity to <strong>151 / 150</strong> (exceeding the event ceiling).
+        Approving attendee <strong id="modal-att-name">Sophia Rostova</strong> will push confirmed capacity to <strong>151 / 150</strong> (exceeding the event capacity ceiling).
       </p>
-      <div style="background:var(--warning-bg); border: 1px solid var(--warning-border); padding:12px; border-radius:var(--radius-md); font-size:12px; color:var(--warning); margin-bottom:20px;">
-        <strong>Audited Override:</strong> The system allows organizers to proceed with over-capacity approvals. This action will be logged in <code>AuditLogEntry</code> as <code>attendee.approved_over_capacity</code>.
+      <div style="background:#FEF3C7; border:1px solid #FDE68A; padding:12px; border-radius:var(--radius-md); font-size:12px; color:#B45309; margin-bottom:20px;">
+        <strong>Audited Override:</strong> Per EIRMIS specifications, organizers may override capacity limits. This action will be recorded in <code>AuditLogEntry</code> as <code>attendee.approved_over_capacity</code>.
       </div>
       <div style="display:flex; justify-content:flex-end; gap:10px;">
         <button class="btn btn-secondary" onclick="closeCapacityModal()">Cancel</button>
@@ -1361,69 +1940,46 @@
 
   <!-- Toast Notification -->
   <div id="toast" class="toast">
-    <span id="toast-icon">✅</span>
-    <span id="toast-msg">Action performed successfully</span>
+    <span id="toast-msg">Action confirmed</span>
   </div>
 
   <script>
-    let activeModalAttendeeId = null;
+    let activeModalAttId = null;
 
     function switchView(viewName) {
       document.querySelectorAll('.view-pane').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
       const targetView = document.getElementById('view-' + viewName);
       if (targetView) targetView.classList.add('active');
 
-      const titleMap = {
-        'events': 'Events List',
-        'event-overview': 'Event Overview & Edit',
-        'guests': 'Guest List & Bulk QR',
-        'approvals': 'Approval Queue & Soft Capacity',
-        'reminders': 'Reminder Schedules',
-        'design': 'Invitation Design Management',
-        'attendance': 'Live Attendance Tracking',
-        'checkin': 'Active Entrance Scanner',
-        'staff': 'Check-in Staff Assignments',
-        'profile': 'Organizer Profile'
+      const navBtnMap = {
+        'events': 'btn-nav-dashboard',
+        'event-overview': 'btn-nav-events',
+        'create-wizard': 'btn-nav-events',
+        'guests': 'btn-nav-guests',
+        'approvals': 'btn-nav-approvals',
+        'attendance': 'btn-nav-attendance',
+        'staff': 'btn-nav-staff',
+        'reminders': 'btn-nav-reminders',
+        'design': 'btn-nav-designs',
+        'profile': 'btn-nav-dashboard'
       };
 
-      if (titleMap[viewName]) {
-        document.getElementById('page-title').innerText = titleMap[viewName];
+      const btnId = navBtnMap[viewName];
+      if (btnId) {
+        const btn = document.getElementById(btnId);
+        if (btn) btn.classList.add('active');
       }
 
-      // Highlight nav button
-      const navButtons = document.querySelectorAll('.nav-item');
-      navButtons.forEach(btn => {
-        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(viewName)) {
-          btn.classList.add('active');
-        }
-      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function showToast(msg, icon = '✅') {
+    function showToast(msg) {
       const toast = document.getElementById('toast');
       document.getElementById('toast-msg').innerText = msg;
-      document.getElementById('toast-icon').innerText = icon;
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 3500);
-    }
-
-    function switchActiveEvent(eventId) {
-      const names = {
-        'e1': 'Tech Forward Gala 2026',
-        'e2': 'AI Product Summit 2026',
-        'e3': 'Executive VIP Dinner'
-      };
-      document.getElementById('topbar-event-badge').innerText = names[eventId] || 'Selected Event';
-      showToast('Switched context to: ' + names[eventId]);
-    }
-
-    function saveEventDetails(e) {
-      e.preventDefault();
-      const status = document.getElementById('event-status').value;
-      document.getElementById('event-lifecycle-chip').innerText = status;
-      showToast('Event settings saved! Lifecycle status: ' + status);
     }
 
     function decideAttendee(rowId, name, action) {
@@ -1432,7 +1988,7 @@
         if (action === 'approve') {
           row.style.background = '#F0FDF4';
           row.querySelector('td:nth-child(5)').innerHTML = '<span class="chip chip-green">approved</span>';
-          row.querySelector('td:nth-child(6)').innerHTML = '<span style="color:var(--success); font-size:12px; font-weight:600;">Approved & QR Token Generated</span>';
+          row.querySelector('td:nth-child(6)').innerHTML = '<span style="color:var(--success); font-size:12px; font-weight:600;">QR Issued</span>';
           showToast('Approved ' + name + ' (Signed QR token issued)');
         } else {
           row.style.background = '#FEF2F2';
@@ -1440,25 +1996,25 @@
           row.querySelector('td:nth-child(6)').innerHTML = '<span style="color:var(--error); font-size:12px;">Rejected</span>';
           showToast('Rejected ' + name);
         }
-        updatePendingBadge();
+        updateBadge();
       }
     }
 
     function triggerCapacityWarning(rowId, name) {
-      activeModalAttendeeId = rowId;
-      document.getElementById('modal-attendee-name').innerText = name;
+      activeModalAttId = rowId;
+      document.getElementById('modal-att-name').innerText = name;
       document.getElementById('capacity-modal').classList.add('active');
     }
 
     function closeCapacityModal() {
       document.getElementById('capacity-modal').classList.remove('active');
-      activeModalAttendeeId = null;
+      activeModalAttId = null;
     }
 
     function confirmCapacityOverride() {
-      if (activeModalAttendeeId) {
-        decideAttendee(activeModalAttendeeId, 'Sophia Rostova', 'approve');
-        showToast('Audited Override Logged: Attendee approved over capacity', '⚠️');
+      if (activeModalAttId) {
+        decideAttendee(activeModalAttId, 'Sophia Rostova', 'approve');
+        showToast('Audited Override Logged: attendee.approved_over_capacity');
       }
       closeCapacityModal();
     }
@@ -1469,7 +2025,7 @@
         if (action === 'approve') {
           row.style.background = '#F0FDF4';
           row.querySelector('td:nth-child(5)').innerHTML = '<span class="chip chip-green">Approved (+2 heads)</span>';
-          showToast('Headcount request approved. Party ceiling raised to 4 heads.');
+          showToast('Headcount request approved. Party ceiling raised to 4.');
         } else {
           row.style.background = '#FEF2F2';
           row.querySelector('td:nth-child(5)').innerHTML = '<span class="chip chip-red">Rejected</span>';
@@ -1478,108 +2034,65 @@
       }
     }
 
-    function updatePendingBadge() {
-      let count = document.querySelectorAll('#approvals-roster-body .chip-amber').length;
-      document.getElementById('pending-badge').innerText = count;
+    function updateBadge() {
+      const pendingCount = document.querySelectorAll('#approvals-roster-body .chip-amber').length;
+      document.getElementById('sidebar-approval-badge').innerText = pendingCount;
     }
 
-    function triggerManualBulkQr() {
-      showToast('Bulk QR PDF bundle queued & emailed to all 112 confirmed parties!', '🚀');
-    }
-
-    function toggleDesignMode(mode) {
+    function setDesignMode(mode) {
       if (mode === 'html') {
-        document.getElementById('design-mode-html').style.display = 'block';
-        document.getElementById('design-mode-images').style.display = 'none';
-        document.getElementById('btn-mode-html').className = 'btn btn-secondary btn-sm';
-        document.getElementById('btn-mode-images').className = 'btn btn-ghost btn-sm';
+        document.getElementById('design-view-html').style.display = 'block';
+        document.getElementById('design-view-images').style.display = 'none';
+        document.getElementById('btn-design-html').className = 'btn btn-secondary btn-sm';
+        document.getElementById('btn-design-images').className = 'btn btn-ghost btn-sm';
       } else {
-        document.getElementById('design-mode-html').style.display = 'none';
-        document.getElementById('design-mode-images').style.display = 'block';
-        document.getElementById('btn-mode-html').className = 'btn btn-ghost btn-sm';
-        document.getElementById('btn-mode-images').className = 'btn btn-secondary btn-sm';
+        document.getElementById('design-view-html').style.display = 'none';
+        document.getElementById('design-view-images').style.display = 'block';
+        document.getElementById('btn-design-html').className = 'btn btn-ghost btn-sm';
+        document.getElementById('btn-design-images').className = 'btn btn-secondary btn-sm';
       }
     }
 
-    function simulateHtmlUpload(outcome) {
-      const chip = document.getElementById('html-status-chip');
-      const title = document.getElementById('html-status-title');
-      const desc = document.getElementById('html-status-desc');
+    function simulateHtmlValidation(status) {
+      const chip = document.getElementById('html-chip');
+      const title = document.getElementById('html-title');
+      const desc = document.getElementById('html-desc');
       const box = document.getElementById('html-validation-box');
 
-      if (outcome === 'pass') {
+      if (status === 'pass') {
         chip.className = 'chip chip-green';
         chip.innerText = 'validation_status: passed';
         title.innerText = 'Design Approved for Guest Display';
-        desc.innerText = 'Passed structural parse (0 outbound requests) and malware scan. Rendered inside sandboxed iframe.';
+        desc.innerText = 'Passed static structural scan (0 outbound references) and VirusTotal malware scanner. Served in a sandboxed iframe.';
         box.style.borderLeft = '4px solid var(--success)';
-        showToast('HTML upload validated and marked PASSED!', '✅');
+        showToast('Validation PASSED: HTML invitation is approved for guests');
       } else {
         chip.className = 'chip chip-red';
         chip.innerText = 'validation_status: failed';
-        title.innerText = 'Design Rejected: Outbound Link Detected';
-        desc.innerText = 'Validation Notes: File contains external <script src="https://cdn.example.com"> which is forbidden. All resources must be inline.';
+        title.innerText = 'Validation Failed: External Script Reference';
+        desc.innerText = 'Validation Notes: File links to external cdn.example.com script, which is blocked. All resources must be inline.';
         box.style.borderLeft = '4px solid var(--error)';
-        showToast('HTML validation failed: external reference blocked', '❌');
+        showToast('Validation FAILED: External resource blocked');
       }
     }
 
-    function simulateScanResult(type) {
-      const icon = document.getElementById('scan-result-icon');
-      const title = document.getElementById('scan-result-title');
-      const sub = document.getElementById('scan-result-sub');
-      const chip = document.getElementById('scan-state-chip');
-
-      if (type === 'valid') {
-        icon.innerText = '✅';
-        title.innerText = 'Checked In: Dmitri Rostova';
-        title.style.color = 'var(--success)';
-        sub.innerText = 'Token verified • Party: Elena Rostova • Station: Organizer Entrance';
-        chip.className = 'chip chip-green';
-        chip.innerText = 'Result: Accepted';
-        showToast('Attendee Dmitri Rostova checked in!', '✅');
-        
-        // increment live count
-        let countEl = document.getElementById('live-checkedin-count');
-        let current = parseInt(countEl.innerText);
-        countEl.innerText = current + 1;
-      } else {
-        icon.innerText = '⚠️';
-        title.innerText = 'Duplicate Scan Detected!';
-        title.style.color = 'var(--warning)';
-        sub.innerText = 'Attendee Elena Rostova was already checked in at 6:34 PM by Sarah Jenkins.';
-        chip.className = 'chip chip-amber';
-        chip.innerText = 'Result: Duplicate';
-        showToast('Warning: Already checked in', '⚠️');
-      }
-    }
-
-    function revokeStaff(rowId) {
-      const row = document.getElementById(rowId);
-      if (row) {
-        row.querySelector('td:nth-child(2)').innerHTML = '<span class="chip chip-red">revoked</span>';
-        row.querySelector('td:nth-child(5)').innerHTML = '<span style="color:var(--text-muted); font-size:12px;">Access Terminated</span>';
-        showToast('Staff access revoked immediately', '🚫');
+    function revokeStaffRow(id) {
+      const r = document.getElementById(id);
+      if (r) {
+        r.querySelector('td:nth-child(2)').innerHTML = '<span class="chip chip-red">revoked</span>';
+        r.querySelector('td:nth-child(5)').innerHTML = '<span style="color:var(--text-muted); font-size:12px;">Revoked</span>';
+        showToast('Staff access revoked immediately');
       }
     }
 
     function addManualGuestPrompt() {
-      const name = prompt("Enter Guest Full Name:", "Victoria Sterling");
-      if (name) {
-        showToast('Guest ' + name + ' added to directory and invited!', '✉️');
-      }
+      const name = prompt('Guest Full Name:', 'Victoria Sterling');
+      if (name) showToast('Invited ' + name + ' to guest directory.');
     }
 
     function inviteStaffPrompt() {
-      const email = prompt("Enter Staff Member Email:", "colin.scanner@events.org");
-      if (email) {
-        showToast('Check-in assignment created and invite email dispatched to ' + email, '📩');
-      }
-    }
-
-    function saveProfile(e) {
-      e.preventDefault();
-      showToast('Organizer profile saved successfully.');
+      const email = prompt('Staff Member Email:', 'entrance2@events.org');
+      if (email) showToast('Invitation email sent to ' + email);
     }
   </script>
 </body>
