@@ -598,12 +598,18 @@
       padding: 32px;
       display: flex;
       flex-direction: column;
-      md-flex-direction: row;
       justify-content: space-between;
       align-items: flex-start;
       gap: 24px;
       margin-bottom: 48px;
       box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.3);
+    }
+
+    @media (min-width: 768px) {
+      .public-reg-banner {
+        flex-direction: row;
+        align-items: center;
+      }
     }
 
     .public-reg-banner h2 {
