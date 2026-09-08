@@ -31,12 +31,12 @@
       --error-border: #FCA5A5;
       --font-heading: 'Hanken Grotesk', sans-serif;
       --font-body: 'Inter', sans-serif;
-      --radius-sm: 4px;
-      --radius-md: 8px;
-      --radius-lg: 12px;
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -45,25 +45,23 @@
       font-family: var(--font-body);
       background-color: var(--bg);
       color: var(--text-main);
-      font-size: 14px;
+      font-size: 13.5px;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
-    /* Top Bar */
     header {
-      background: var(--dark);
-      color: #FFFFFF;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
       z-index: 50;
       padding: 12px 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .header-inner {
-      max-width: 540px;
+      max-width: 520px;
       margin: 0 auto;
       display: flex;
       justify-content: space-between;
@@ -77,47 +75,43 @@
     }
 
     .scanner-logo {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       background: var(--primary);
       border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 800;
-      font-size: 14px;
       color: white;
     }
 
-    /* Main Container (Mobile focused phone width) */
     main {
       flex: 1;
-      max-width: 540px;
+      max-width: 520px;
       width: 100%;
       margin: 0 auto;
       padding: 16px;
     }
 
-    /* Scoped Boundary Notice */
     .boundary-notice {
-      background: #F1F5F9;
+      background: #FFFFFF;
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      padding: 10px 14px;
-      font-size: 12px;
+      padding: 12px 14px;
+      font-size: 12.5px;
       color: var(--text-muted);
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      box-shadow: var(--shadow-sm);
     }
 
-    /* Stat Cards */
     .stats-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .stat-card {
@@ -131,7 +125,7 @@
 
     .stat-num {
       font-family: var(--font-heading);
-      font-size: 24px;
+      font-size: 26px;
       font-weight: 800;
       color: var(--text-main);
       margin-top: 2px;
@@ -140,24 +134,24 @@
     .stat-label {
       font-size: 11px;
       color: var(--text-muted);
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
-    /* Scanner Viewport */
     .viewport-card {
       background: #FFFFFF;
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
       padding: 16px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       box-shadow: var(--shadow-sm);
     }
 
     .camera-frame {
       background: #0F172A;
       border-radius: var(--radius-md);
-      height: 220px;
+      height: 200px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -168,8 +162,8 @@
     }
 
     .scan-reticle {
-      width: 150px;
-      height: 150px;
+      width: 130px;
+      height: 130px;
       border: 2px dashed #38BDF8;
       border-radius: var(--radius-md);
       display: flex;
@@ -194,17 +188,17 @@
       100% { top: 10%; opacity: 0.2; }
     }
 
-    /* Result Panel State Machine */
     .result-panel {
       border-radius: var(--radius-md);
-      padding: 16px;
-      margin-bottom: 16px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
       border: 1px solid var(--border);
       background: #FFFFFF;
-      transition: all 0.25s ease;
+      transition: all 0.2s ease;
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
     }
 
     .result-panel.accepted {
@@ -226,41 +220,49 @@
     }
 
     .result-panel.idle {
-      background: #F8FAFC;
+      background: #FFFFFF;
       border-color: var(--border);
       color: var(--text-muted);
     }
 
-    .result-icon {
-      font-size: 32px;
+    .result-icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #F1F5F9;
+      color: #64748B;
       flex-shrink: 0;
     }
 
-    .result-details {
-      flex: 1;
-    }
+    .result-panel.accepted .result-icon-box { background: #DCFCE7; color: #16A34A; }
+    .result-panel.duplicate .result-icon-box { background: #FEF3C7; color: #D97706; }
+    .result-panel.rejected .result-icon-box { background: #FEE2E2; color: #DC2626; }
+
+    .result-details { flex: 1; }
 
     .result-title {
       font-family: var(--font-heading);
       font-weight: 700;
-      font-size: 15px;
+      font-size: 14.5px;
       color: inherit;
     }
 
     .result-sub {
       font-size: 12px;
       color: inherit;
-      opacity: 0.85;
-      margin-top: 2px;
+      opacity: 0.9;
+      margin-top: 1px;
     }
 
-    /* Manual Search Section */
     .card {
       background: #FFFFFF;
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
       padding: 16px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       box-shadow: var(--shadow-sm);
     }
 
@@ -268,13 +270,14 @@
       font-family: var(--font-heading);
       font-size: 15px;
       font-weight: 700;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+      color: var(--text-main);
     }
 
     .form-control {
       width: 100%;
       padding: 9px 12px;
-      font-size: 14px;
+      font-size: 13.5px;
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
       outline: none;
@@ -286,14 +289,13 @@
       box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
     }
 
-    /* Buttons */
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
-      padding: 9px 14px;
-      font-size: 13px;
+      padding: 8px 14px;
+      font-size: 12.5px;
       font-weight: 600;
       border-radius: var(--radius-md);
       border: 1px solid transparent;
@@ -310,23 +312,19 @@
     .btn-secondary:hover { background: #F8FAFC; }
     .btn-sm { padding: 5px 10px; font-size: 12px; }
 
-    /* Chips */
     .chip {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 2px 6px;
-      border-radius: var(--radius-sm);
+      padding: 2px 7px;
+      border-radius: 4px;
       font-size: 11px;
       font-weight: 600;
     }
 
     .chip-green { background: var(--success-bg); color: var(--success); }
     .chip-amber { background: var(--warning-bg); color: var(--warning); }
-    .chip-red { background: var(--error-bg); color: var(--error); }
-    .chip-slate { background: #F1F5F9; color: #475569; }
 
-    /* Attendees List */
     .attendee-list {
       max-height: 180px;
       overflow-y: auto;
@@ -344,17 +342,14 @@
       font-size: 13px;
     }
 
-    .attendee-row:last-child {
-      border-bottom: none;
-    }
+    .attendee-row:last-child { border-bottom: none; }
 
-    /* Toast */
     .toast {
       position: fixed;
       bottom: 16px;
       left: 16px;
       right: 16px;
-      max-width: 508px;
+      max-width: 488px;
       margin: 0 auto;
       background: var(--dark);
       color: #FFFFFF;
@@ -370,10 +365,7 @@
       transition: all 0.25s ease;
     }
 
-    .toast.show {
-      transform: translateY(0);
-      opacity: 1;
-    }
+    .toast.show { transform: translateY(0); opacity: 1; }
   </style>
 </head>
 <body>
@@ -382,28 +374,30 @@
   <header>
     <div class="header-inner">
       <div class="scanner-brand">
-        <div class="scanner-logo">S</div>
+        <div class="scanner-logo">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        </div>
         <div>
-          <div style="font-weight:700; font-size:14px; line-height:1.2;">Check-in Scanner</div>
-          <div style="font-size:11px; color:#94A3B8;">Staff: Marcus (Active Assignment)</div>
+          <div style="font-weight:700; font-size:14px; color:var(--text-main);">Entrance Scanner</div>
+          <div style="font-size:11px; color:var(--text-muted);">Staff: Marcus (Active Session)</div>
         </div>
       </div>
-      <a href="../LandingPage/index.html" style="color:#94A3B8; font-size:12px; text-decoration:none;">Exit</a>
+      <a href="../LandingPage/index.html" class="btn btn-secondary btn-sm" style="color:var(--text-muted);">Exit</a>
     </div>
   </header>
 
   <main>
 
-    <!-- Boundary Indicator (Enforced scope) -->
+    <!-- Boundary Indicator -->
     <div class="boundary-notice">
       <div>
-        <strong>Scoped Event:</strong> Tech Forward Gala 2026<br>
-        <span style="font-size:11px;">Scanner Mode Only (No guest list access)</span>
+        <strong style="color:var(--text-main);">Tech Forward Gala 2026</strong><br>
+        <span style="font-size:11px;">Scanner Mode Only • Scoped Assignment</span>
       </div>
       <span class="chip chip-green">Active</span>
     </div>
 
-    <!-- Attendance Live Metrics (Read-only for Staff) -->
+    <!-- Live Metrics -->
     <div class="stats-row">
       <div class="stat-card">
         <div class="stat-label">Checked-In</div>
@@ -420,9 +414,9 @@
       <div class="camera-frame">
         <div class="scan-reticle">
           <div class="scan-laser"></div>
-          <span style="font-size:32px; opacity:0.4;">📷</span>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0.4;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
         </div>
-        <div style="font-size:11px; color:#94A3B8; margin-top:8px;">Camera active • Scanner Station #1</div>
+        <div style="font-size:11px; color:#94A3B8; margin-top:8px;">Camera Active • Station 1</div>
       </div>
 
       <!-- Simulation Buttons -->
@@ -433,20 +427,22 @@
       </div>
     </div>
 
-    <!-- Scan Result Panel (State Machine: idle -> accepted | duplicate | rejected) -->
+    <!-- Scan Result Panel -->
     <div id="result-panel" class="result-panel idle">
-      <div id="result-icon" class="result-icon">🎯</div>
+      <div id="result-icon-box" class="result-icon-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+      </div>
       <div class="result-details">
         <div id="result-title" class="result-title">Ready to Scan</div>
-        <div id="result-sub" class="result-sub">Point scanner at attendee's digital or printed QR token</div>
+        <div id="result-sub" class="result-sub">Point scanner at attendee QR token</div>
       </div>
     </div>
 
     <!-- Manual Search Fallback -->
     <div class="card">
-      <div class="card-title">Manual Name Search Fallback</div>
+      <div class="card-title">Manual Name Search</div>
       <p style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">
-        For guests with dead phone batteries or unreadable codes. Searches attendees only.
+        Searches attendees in this assigned event only.
       </p>
       
       <input type="text" id="manual-search-input" class="form-control" placeholder="Search by attendee name..." oninput="handleManualSearch(this.value)">
@@ -455,7 +451,7 @@
         <div class="attendee-row" data-name="Elena Rostova">
           <div>
             <strong>Elena Rostova</strong>
-            <div style="font-size:11px; color:var(--text-muted);">Party: Self</div>
+            <div style="font-size:11px; color:var(--text-muted);">Primary Guest</div>
           </div>
           <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Elena Rostova')">Check In</button>
         </div>
@@ -469,7 +465,7 @@
         <div class="attendee-row" data-name="Dr. Aris Thorne">
           <div>
             <strong>Dr. Aris Thorne</strong>
-            <div style="font-size:11px; color:var(--text-muted);">Party: Biotech Innovate</div>
+            <div style="font-size:11px; color:var(--text-muted);">Biotech Innovate</div>
           </div>
           <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Dr. Aris Thorne')">Check In</button>
         </div>
@@ -483,16 +479,16 @@
       </div>
     </div>
 
-    <!-- Walk-in Registration (Creates is_walk_in = true attendee) -->
+    <!-- Walk-in Registration -->
     <div class="card">
       <div class="card-title">Quick Walk-In Registration</div>
       <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">
-        Register an unscheduled guest attending at the door. Flags <code>is_walk_in = true</code>.
+        Register an unscheduled guest attending at the door. Sets <code>is_walk_in = true</code>.
       </p>
 
-      <form id="walkin-form" onsubmit="handleWalkIn(event)">
+      <form onsubmit="handleWalkIn(event)">
         <div style="display:flex; gap:8px;">
-          <input type="text" id="walkin-name" class="form-control" placeholder="Walk-in Guest Name *" required>
+          <input type="text" id="walkin-name" class="form-control" placeholder="Walk-in Guest Full Name *" required>
           <button type="submit" class="btn btn-teal" style="white-space:nowrap;">+ Check In</button>
         </div>
       </form>
@@ -500,70 +496,61 @@
 
   </main>
 
-  <!-- Toast -->
   <div id="toast" class="toast">
-    <span id="toast-icon">✅</span>
     <span id="toast-msg">Check-in confirmed</span>
   </div>
 
   <script>
     let checkedInCount = 48;
 
-    function showToast(msg, icon = '✅') {
+    function showToast(msg) {
       const toast = document.getElementById('toast');
       document.getElementById('toast-msg').innerText = msg;
-      document.getElementById('toast-icon').innerText = icon;
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
     function runSimulatedScan(state) {
       const panel = document.getElementById('result-panel');
-      const icon = document.getElementById('result-icon');
+      const iconBox = document.getElementById('result-icon-box');
       const title = document.getElementById('result-title');
       const sub = document.getElementById('result-sub');
 
-      // State resolving pulse
       panel.className = 'result-panel idle';
       title.innerText = 'Resolving signed token...';
       sub.innerText = 'Calling POST /functions/v1/checkin/scan';
-      icon.innerText = '⏳';
+      iconBox.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>';
 
       setTimeout(() => {
         if (state === 'accept') {
           panel.className = 'result-panel accepted';
-          icon.innerText = '✅';
+          iconBox.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
           title.innerText = 'Check-in Verified: Dmitri Rostova';
           sub.innerText = 'Approved Attendee • Party: Elena Rostova • 6:49 PM';
           checkedInCount++;
           document.getElementById('staff-checkedin-num').innerText = checkedInCount;
-          showToast('Dmitri Rostova checked in successfully!');
+          showToast('Dmitri Rostova checked in successfully.');
         } else if (state === 'duplicate') {
           panel.className = 'result-panel duplicate';
-          icon.innerText = '⚠️';
+          iconBox.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
           title.innerText = 'Duplicate Scan: Elena Rostova';
           sub.innerText = 'Already checked in at 6:34 PM by Staff Station 1';
-          showToast('Warning: Already checked in', '⚠️');
+          showToast('Warning: Attendee already checked in.');
         } else {
           panel.className = 'result-panel rejected';
-          icon.innerText = '❌';
+          iconBox.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
           title.innerText = 'Invalid Token Signature';
           sub.innerText = 'Token not recognized or event assignment mismatch';
-          showToast('Scan rejected: invalid token', '❌');
+          showToast('Scan rejected: invalid token.');
         }
       }, 350);
     }
 
     function handleManualSearch(query) {
       const q = query.toLowerCase().trim();
-      const rows = document.querySelectorAll('.attendee-row');
-      rows.forEach(r => {
+      document.querySelectorAll('.attendee-row').forEach(r => {
         const name = r.getAttribute('data-name').toLowerCase();
-        if (name.includes(q)) {
-          r.style.display = 'flex';
-        } else {
-          r.style.display = 'none';
-        }
+        r.style.display = name.includes(q) ? 'flex' : 'none';
       });
     }
 
@@ -579,21 +566,19 @@
 
       const panel = document.getElementById('result-panel');
       panel.className = 'result-panel accepted';
-      document.getElementById('result-icon').innerText = '✅';
+      document.getElementById('result-icon-box').innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
       document.getElementById('result-title').innerText = 'Manual Check-in: ' + name;
       document.getElementById('result-sub').innerText = 'Checked in manually by staff override';
 
-      showToast('Checked in ' + name + ' (Manual)');
+      showToast('Checked in ' + name);
     }
 
     function handleWalkIn(e) {
       e.preventDefault();
       const name = document.getElementById('walkin-name').value;
-      
       checkedInCount++;
       document.getElementById('staff-checkedin-num').innerText = checkedInCount;
 
-      // Add to manual list
       const list = document.getElementById('search-attendees-list');
       const row = document.createElement('div');
       row.className = 'attendee-row';
@@ -609,12 +594,12 @@
 
       const panel = document.getElementById('result-panel');
       panel.className = 'result-panel accepted';
-      document.getElementById('result-icon').innerText = '🚶‍♂️';
+      document.getElementById('result-icon-box').innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
       document.getElementById('result-title').innerText = 'Walk-in Recorded: ' + name;
       document.getElementById('result-sub').innerText = 'Created ad hoc attendee row (is_walk_in = true)';
 
       document.getElementById('walkin-name').value = '';
-      showToast('Walk-in guest ' + name + ' registered & checked in!');
+      showToast('Walk-in guest ' + name + ' checked in.');
     }
   </script>
 </body>
