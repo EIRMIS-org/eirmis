@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EIRMIS — Event Invitation & RSVP Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-hover: #4338CA;
+      --primary-light: #EEF2FF;
+      --secondary: #008A88;
+      --secondary-light: #E6F6F6;
+      --dark: #0F172A;
+      --dark-surface: #1E293B;
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --border: #E2E8F0;
+      --text-main: #0B1C30;
+      --text-muted: #64748B;
+      --success: #15803D;
+      --success-bg: #DCFCE7;
+      --warning: #B45309;
+      --warning-bg: #FEF3C7;
+      --error: #BA1A1A;
+      --error-bg: #FEE2E2;
+      --font-heading: 'Hanken Grotesk', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.5;
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation */
+    header {
+      background-color: var(--dark);
+      color: #FFFFFF;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: #FFFFFF;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 18px;
+      color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.4);
+    }
+
+    .brand-text {
+      font-family: var(--font-heading);
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-badge {
+      background: rgba(255, 255, 255, 0.12);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: #94A3B8;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-btn.ghost {
+      color: #CBD5E1;
+      background: transparent;
+    }
+
+    .nav-btn.ghost:hover {
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .nav-btn.primary {
+      background-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .nav-btn.primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      flex: 1;
+      width: 100%;
+    }
+
+    /* Views */
+    .view-section {
+      display: none;
+      animation: fadeIn 0.25s ease forwards;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      max-width: 860px;
+      margin: 24px auto 48px auto;
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      border: 1px solid rgba(79, 70, 229, 0.15);
+    }
+
+    .hero h1 {
+      font-family: var(--font-heading);
+      font-size: 42px;
+      line-height: 1.2;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 28px; }
+    }
+
+    .hero p {
+      font-size: 16px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* Grid of Portals */
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+
+    .section-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .portals-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .portal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .portal-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: #CBD5E1;
+    }
+
+    .portal-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .portal-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .portal-icon.organizer { background: #EEF2FF; color: var(--primary); }
+    .portal-icon.guest { background: #E6F6F6; color: var(--secondary); }
+    .portal-icon.staff { background: #FEF3C7; color: var(--warning); }
+    .portal-icon.admin { background: #F1F5F9; color: var(--dark); }
+
+    .portal-card h3 {
+      font-family: var(--font-heading);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .portal-auth-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      background: #F1F5F9;
+      color: var(--text-muted);
+    }
+
+    .portal-card p {
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 20px;
+      flex: 1;
+    }
+
+    .portal-card .card-actions {
+      display: flex;
+      gap: 8px;
+      flex-direction: column;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      font-family: var(--font-body);
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--primary-light);
+    }
+
+    .btn-teal {
+      background-color: var(--secondary);
+      color: #FFFFFF;
+    }
+
+    .btn-teal:hover {
+      background-color: #007371;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    .btn-ghost:hover {
+      background: #F1F5F9;
+      color: var(--text-main);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    /* Auth & Form Views */
+    .auth-wrapper {
+      max-width: 480px;
+      margin: 40px auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .auth-header h2 {
+      font-family: var(--font-heading);
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+
+    .auth-header p {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-family: var(--font-body);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: #FFFFFF;
+      transition: all 0.2s ease;
+      color: var(--text-main);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    .form-error {
+      color: var(--error);
+      font-size: 12px;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .form-group.has-error .form-control {
+      border-color: var(--error);
+    }
+
+    .form-group.has-error .form-error {
+      display: block;
+    }
+
+    .google-btn {
+      width: 100%;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      color: #1E293B;
+      font-weight: 600;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: all 0.2s;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .google-btn:hover {
+      background: #F8FAFC;
+      border-color: #CBD5E1;
+    }
+
+    .notice-box {
+      background: #F1F5F9;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 16px;
+      line-height: 1.5;
+    }
+
+    .notice-box.warning {
+      background: var(--warning-bg);
+      border-color: #FDE68A;
+      color: var(--warning);
+    }
+
+    .notice-box.success {
+      background: var(--success-bg);
+      border-color: #BBF7D0;
+      color: var(--success);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-badge.pending {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+
+    .status-badge.active {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--dark);
+      color: #FFFFFF;
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 100;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .mockup-switcher {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 24px;
+      overflow-x: auto;
+    }
+
+    .mockup-switcher span {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .pill-btn {
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 999px;
+      border: none;
+      background: #F1F5F9;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .pill-btn.active, .pill-btn:hover {
+      background: var(--primary);
+      color: #FFFFFF;
+    }
+
+    footer {
+      background: #FFFFFF;
+      border-top: 1px solid var(--border);
+      padding: 24px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: auto;
+    }
+
+    /* Open registration card */
+    .public-reg-banner {
+      background: linear-gradient(135deg, #4F46E5 0%, #008A88 100%);
+      border-radius: var(--radius-lg);
+      color: #FFFFFF;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      md-flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+      margin-bottom: 48px;
+      box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.3);
+    }
+
+    .public-reg-banner h2 {
+      font-family: var(--font-heading);
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .public-reg-banner p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.9);
+      max-width: 650px;
+      line-height: 1.6;
+    }
+
+    .public-reg-badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="nav-container">
+      <a href="#landing" onclick="showView('landing')" class="brand">
+        <div class="brand-logo">E</div>
+        <div>
+          <span class="brand-text">EIRMIS</span>
+          <span class="brand-badge">PROTOTYPE</span>
+        </div>
+      </a>
+      <nav class="nav-links">
+        <button onclick="showView('landing')" class="nav-btn ghost">Home</button>
+        <button onclick="showView('login')" class="nav-btn ghost">Sign In</button>
+        <button onclick="showView('guest-login')" class="nav-btn ghost">Guest RSVP</button>
+        <button onclick="showView('staff-login')" class="nav-btn ghost">Staff Scanner</button>
+        <button onclick="showView('register')" class="nav-btn primary">Public Event</button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    
+    <!-- View Switcher Bar for Reviewers -->
+    <div class="mockup-switcher">
+      <span>Simulate Route:</span>
+      <button class="pill-btn active" id="btn-view-landing" onclick="showView('landing')">/ (Landing)</button>
+      <button class="pill-btn" id="btn-view-login" onclick="showView('login')">/login (Google Auth)</button>
+      <button class="pill-btn" id="btn-view-pending" onclick="showView('pending')">/pending-verification</button>
+      <button class="pill-btn" id="btn-view-guest-login" onclick="showView('guest-login')">/guest/login</button>
+      <button class="pill-btn" id="btn-view-staff-login" onclick="showView('staff-login')">/staff/login</button>
+      <button class="pill-btn" id="btn-view-register" onclick="showView('register')">/register/:slug</button>
+    </div>
+
+    <!-- 1. LANDING VIEW -->
+    <section id="view-landing" class="view-section active">
+      <div class="hero">
+        <div class="hero-pill">
+          <span>✨</span> EIRMIS 2026 Specification Implementation
+        </div>
+        <h1>Event Invitation & RSVP Management System</h1>
+        <p>
+          A unified, auditable platform orchestrating the entire lifecycle from invitation delivery and tiered RSVP approvals to automated QR generation and day-of entrance check-in.
+        </p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="showView('login')">Organizer & Admin Portal</button>
+          <button class="btn btn-secondary" onclick="showView('guest-login')">Guest Portal (Magic Link)</button>
+          <button class="btn btn-teal" onclick="showView('register')">Explore Public RSVP</button>
+        </div>
+      </div>
+
+      <!-- Public Registration Banner -->
+      <div class="public-reg-banner">
+        <div>
+          <span class="public-reg-badge">Open Registration Feature</span>
+          <h2>Tech Forward Annual Gala 2026</h2>
+          <p>
+            Experience the public attendee self-registration workflow (`/register/tech-forward-2026`). Anyone can submit an RSVP, creating an accepted invitation and receiving a passwordless magic link to manage their party roster.
+          </p>
+        </div>
+        <button class="btn" style="background:#FFFFFF; color:#0F172A; font-weight:700; white-space:nowrap;" onclick="showView('register')">
+          Register for Event →
+        </button>
+      </div>
+
+      <!-- Portals Grid -->
+      <h2 class="section-title">System Role Portals</h2>
+      <p class="section-subtitle">Select a portal to explore its dedicated interface and workflows:</p>
+
+      <div class="portals-grid">
+        
+        <!-- Organizer Portal -->
+        <div class="portal-card">
+          <div class="portal-card-header">
+            <div class="portal-icon organizer">📋</div>
+            <div>
+              <h3>Event Organizer</h3>
+              <span class="portal-auth-badge">Google OAuth Auth</span>
+            </div>
+          </div>
+          <p>
+            Create events, upload custom invitation designs, review multi-head attendee rosters, approve headcount increases, and monitor live attendance.
+          </p>
+          <div class="card-actions">
+            <a href="../Organizer Portal/index.html" class="btn btn-primary">Open Organizer Portal →</a>
+            <button onclick="showView('login')" class="btn btn-ghost btn-sm">Simulate Google Login</button>
+          </div>
+        </div>
+
+        <!-- Guest Portal -->
+        <div class="portal-card">
+          <div class="portal-card-header">
+            <div class="portal-icon guest">✉️</div>
+            <div>
+              <h3>Guest Portal</h3>
+              <span class="portal-auth-badge">Magic Link Auth</span>
+            </div>
+          </div>
+          <p>
+            Passwordless self-service RSVP. Submit party rosters (names & optional emails), request additional heads, view sandboxed invitations, and download QR codes.
+          </p>
+          <div class="card-actions">
+            <a href="../Guest Portal/index.html" class="btn btn-teal">Open Guest Portal →</a>
+            <button onclick="showView('guest-login')" class="btn btn-ghost btn-sm">Simulate Magic Link</button>
+          </div>
+        </div>
+
+        <!-- Check-in Staff Portal -->
+        <div class="portal-card">
+          <div class="portal-card-header">
+            <div class="portal-icon staff">📱</div>
+            <div>
+              <h3>Check-in Staff</h3>
+              <span class="portal-auth-badge">Scoped Delegated Auth</span>
+            </div>
+          </div>
+          <p>
+            Mobile-first scanner strictly scoped to a single assigned event on event day. Instant QR token redemption, duplicate detection, and walk-in registration.
+          </p>
+          <div class="card-actions">
+            <a href="../Check-in Staff Portal/index.html" class="btn btn-secondary">Open Staff Scanner →</a>
+            <button onclick="showView('staff-login')" class="btn btn-ghost btn-sm">Simulate Staff Login</button>
+          </div>
+        </div>
+
+        <!-- Admin Portal -->
+        <div class="portal-card">
+          <div class="portal-card-header">
+            <div class="portal-icon admin">🛡️</div>
+            <div>
+              <h3>System Administrator</h3>
+              <span class="portal-auth-badge">Provisioned Auth</span>
+            </div>
+          </div>
+          <p>
+            The sole trust gate for organizer onboarding. Verify self-registered organizers from pending to active. Strictly isolated from private event guest lists.
+          </p>
+          <div class="card-actions">
+            <a href="../Admin Portal/index.html" class="btn btn-primary" style="background:#0F172A;">Open Admin Portal →</a>
+            <button onclick="showView('pending')" class="btn btn-ghost btn-sm">Simulate Pending Screen</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2. LOGIN VIEW (Organizer / Admin Google Auth) -->
+    <section id="view-login" class="view-section">
+      <div class="auth-wrapper">
+        <div class="auth-header">
+          <h2>Organizer & Admin Sign In</h2>
+          <p>Authenticate with your verified Google account</p>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px;">
+          <!-- Simulated Google button for active organizer -->
+          <button class="google-btn" onclick="simulateGoogleLogin('active-organizer')">
+            <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
+            Continue as Active Organizer
+          </button>
+
+          <!-- Simulated Google button for pending organizer -->
+          <button class="google-btn" onclick="simulateGoogleLogin('pending-organizer')">
+            <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-2h2zm0-4h-2V7h2z"/></svg>
+            Sign In as Unverified Organizer
+          </button>
+
+          <!-- Simulated Google button for admin -->
+          <button class="google-btn" onclick="simulateGoogleLogin('admin')">
+            <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#0F172A" d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 4a3 3 0 1 1-3 3 3 3 0 0 1 3-3zm0 14.9c-2.4-.6-4.5-2.5-5.3-5 1.3-.9 3.2-1.4 5.3-1.4s4 .5 5.3 1.4c-.8 2.5-2.9 4.4-5.3 5z"/></svg>
+            Sign In as System Administrator
+          </button>
+        </div>
+
+        <div class="notice-box">
+          <strong>Google OAuth Notice:</strong> Sign in supports <em>any</em> standard Google account. There is no domain restriction. Newly registered organizers are flagged <code>pending</code> until verified by a System Administrator.
+        </div>
+
+        <div style="margin-top: 20px; text-align: center;">
+          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none;">← Return to Home</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. PENDING VERIFICATION VIEW -->
+    <section id="view-pending" class="view-section">
+      <div class="auth-wrapper" style="text-align: center;">
+        <div style="width: 64px; height: 64px; background: var(--warning-bg); color: var(--warning); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 20px auto;">
+          ⏳
+        </div>
+        <div class="status-badge pending" style="margin-bottom: 16px;">
+          Account Status: Pending Verification
+        </div>
+        <h2 style="font-family: var(--font-heading); font-size: 22px; font-weight: 700; margin-bottom: 8px;">
+          Approval in Progress
+        </h2>
+        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px; line-height: 1.6;">
+          Thank you for signing in, <strong>sarah.jenkins@gmail.com</strong>. Because EIRMIS permits any Google account, an Administrator must verify your profile before you can create and manage events.
+        </p>
+
+        <div class="notice-box warning" style="text-align: left; margin-bottom: 24px;">
+          <strong>Why is this required?</strong> System manual verification is the sole trust gate preventing unauthorized event publication. You will receive an email confirmation once verified.
+        </div>
+
+        <div style="display: flex; gap: 12px; justify-content: center;">
+          <a href="../Admin Portal/index.html" class="btn btn-secondary btn-sm">Switch to Admin to Approve</a>
+          <button class="btn btn-ghost btn-sm" onclick="showView('landing')">Back to Home</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. GUEST LOGIN VIEW -->
+    <section id="view-guest-login" class="view-section">
+      <div class="auth-wrapper">
+        <div class="auth-header">
+          <div style="font-size: 36px; margin-bottom: 12px;">✉️</div>
+          <h2>Guest Passwordless Login</h2>
+          <p>No password or account creation required. We'll email you a secure magic link.</p>
+        </div>
+
+        <form id="guest-login-form" onsubmit="handleGuestLogin(event)">
+          <div class="form-group" id="guest-email-group">
+            <label class="form-label" for="guest-email">Your Email Address</label>
+            <input type="email" id="guest-email" class="form-control" placeholder="guest@example.com" required value="elena.rostova@gmail.com">
+            <div class="form-error">Please enter a valid email address.</div>
+          </div>
+          <button type="submit" class="btn btn-teal" style="width: 100%;">
+            Send Magic Link →
+          </button>
+        </form>
+
+        <div id="guest-magic-sent" style="display:none; margin-top: 20px;" class="notice-box success">
+          <strong>Magic Link Dispatched!</strong> A secure one-time login link has been sent to <span id="sent-guest-email"></span>.
+          <div style="margin-top: 12px;">
+            <a href="../Guest Portal/index.html" class="btn btn-teal btn-sm" style="width:100%; text-align:center;">
+              Simulate Opening Email Link (Launch Portal) →
+            </a>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px; text-align: center;">
+          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none;">← Return to Home</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. STAFF LOGIN VIEW -->
+    <section id="view-staff-login" class="view-section">
+      <div class="auth-wrapper">
+        <div class="auth-header">
+          <div style="font-size: 36px; margin-bottom: 12px;">📱</div>
+          <h2>Check-in Staff Sign In</h2>
+          <p>Enter the email address where you received your check-in delegation invite.</p>
+        </div>
+
+        <form id="staff-login-form" onsubmit="handleStaffLogin(event)">
+          <div class="form-group" id="staff-email-group">
+            <label class="form-label" for="staff-email">Staff Member Email</label>
+            <input type="email" id="staff-email" class="form-control" placeholder="staff@example.com" required value="marcus.staff@events.org">
+            <div class="form-error">Please enter a valid staff email.</div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">
+            Send Staff Access Link →
+          </button>
+        </form>
+
+        <div id="staff-magic-sent" style="display:none; margin-top: 20px;" class="notice-box success">
+          <strong>Staff Access Link Dispatched!</strong> Access token generated for <span id="sent-staff-email"></span>.
+          <div style="margin-top: 12px;">
+            <a href="../Check-in Staff Portal/index.html" class="btn btn-primary btn-sm" style="width:100%; text-align:center;">
+              Simulate Magic Link Entry (Open Scanner) →
+            </a>
+          </div>
+        </div>
+
+        <div class="notice-box" style="margin-top: 18px;">
+          <strong>Security Scope:</strong> Check-in staff access is granted strictly per event for the day of the event. Staff have no access to full guest lists or attendee contact information.
+        </div>
+
+        <div style="margin-top: 20px; text-align: center;">
+          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none;">← Return to Home</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. PUBLIC OPEN-REGISTRATION VIEW -->
+    <section id="view-register" class="view-section">
+      <div style="max-width: 680px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-md);">
+        
+        <div style="border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 24px;">
+          <span class="status-badge active" style="margin-bottom: 8px;">Public Open Registration</span>
+          <h1 style="font-family: var(--font-heading); font-size: 26px; font-weight: 800; color: var(--text-main); margin-bottom: 6px;">
+            Tech Forward Annual Gala 2026
+          </h1>
+          <p style="color: var(--text-muted); font-size: 14px;">
+            📍 Grand Ballroom, Marina Bay Sands • 🗓️ November 18, 2026 at 6:30 PM SGT
+          </p>
+        </div>
+
+        <form id="public-reg-form" onsubmit="handlePublicReg(event)">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label" for="reg-name">Full Name *</label>
+              <input type="text" id="reg-name" class="form-control" required placeholder="Alex Mercer" value="Dr. Aris Thorne">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="reg-email">Email Address *</label>
+              <input type="email" id="reg-email" class="form-control" required placeholder="alex@company.com" value="aris.thorne@biotech-innovate.org">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label" for="reg-headcount">Party Size (Heads requested)</label>
+              <select id="reg-headcount" class="form-control">
+                <option value="1">1 Person (Just me)</option>
+                <option value="2" selected>2 Persons (Plus One)</option>
+                <option value="3">3 Persons</option>
+                <option value="4">4 Persons</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="reg-diet">Dietary Preferences (Optional)</label>
+              <input type="text" id="reg-diet" class="form-control" placeholder="e.g. Vegetarian, Gluten-Free" value="Pescatarian">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="reg-notes">Special Requests / Affiliation</label>
+            <textarea id="reg-notes" class="form-control" rows="3" placeholder="Organization name or accessibility needs">Keynote speaker guest, requires wheelchair accessible seating.</textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 15px;">
+            Submit RSVP & Register →
+          </button>
+        </form>
+
+        <div id="reg-success-box" style="display:none; margin-top: 24px;" class="notice-box success">
+          <h4 style="font-size:15px; margin-bottom: 4px; font-weight:700;">Registration Confirmed!</h4>
+          <p style="margin-bottom: 12px;">
+            Your RSVP has been recorded with status <strong>accepted</strong>. A confirmation email with a passwordless login magic link has been sent to <strong id="registered-email"></strong>.
+          </p>
+          <a href="../Guest Portal/index.html" class="btn btn-teal btn-sm">Proceed to Guest Portal to Complete Party Roster →</a>
+        </div>
+
+        <div style="margin-top: 24px; text-align: center;">
+          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none;">← Return to Overview</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Toast Element -->
+  <div id="toast" class="toast">
+    <span id="toast-icon">ℹ️</span>
+    <span id="toast-message">Action successful</span>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div style="max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+      <div>
+        <strong>EIRMIS</strong> — Event Invitation and RSVP Management Information System
+      </div>
+      <div>
+        Copyright © 2026 EIRMIS Team. Prototype Mockup Plan.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function showView(viewId) {
+      document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById('view-' + viewId);
+      if (target) {
+        target.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      // Update switcher buttons
+      document.querySelectorAll('.pill-btn').forEach(btn => btn.classList.remove('active'));
+      const activePill = document.getElementById('btn-view-' + viewId);
+      if (activePill) activePill.classList.add('active');
+    }
+
+    function showToast(msg, icon = '✅') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-message').innerText = msg;
+      document.getElementById('toast-icon').innerText = icon;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3500);
+    }
+
+    function simulateGoogleLogin(role) {
+      if (role === 'active-organizer') {
+        showToast('Authenticated as Sarah Jenkins (Active Organizer)');
+        setTimeout(() => {
+          window.location.href = '../Organizer Portal/index.html';
+        }, 800);
+      } else if (role === 'pending-organizer') {
+        showToast('Organizer account pending admin activation', '⏳');
+        setTimeout(() => {
+          showView('pending');
+        }, 500);
+      } else if (role === 'admin') {
+        showToast('Authenticated as System Administrator (Master Key)');
+        setTimeout(() => {
+          window.location.href = '../Admin Portal/index.html';
+        }, 800);
+      }
+    }
+
+    function handleGuestLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('guest-email').value;
+      if (!email || !email.includes('@')) {
+        document.getElementById('guest-email-group').classList.add('has-error');
+        return;
+      }
+      document.getElementById('guest-email-group').classList.remove('has-error');
+      document.getElementById('sent-guest-email').innerText = email;
+      document.getElementById('guest-magic-sent').style.display = 'block';
+      showToast('Magic link generated and sent to ' + email, '📧');
+    }
+
+    function handleStaffLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('staff-email').value;
+      if (!email || !email.includes('@')) {
+        document.getElementById('staff-email-group').classList.add('has-error');
+        return;
+      }
+      document.getElementById('staff-email-group').classList.remove('has-error');
+      document.getElementById('sent-staff-email').innerText = email;
+      document.getElementById('staff-magic-sent').style.display = 'block';
+      showToast('Check-in link dispatched for ' + email, '📱');
+    }
+
+    function handlePublicReg(e) {
+      e.preventDefault();
+      const email = document.getElementById('reg-email').value;
+      document.getElementById('registered-email').innerText = email;
+      document.getElementById('reg-success-box').style.display = 'block';
+      showToast('Registration accepted! Invitation created.', '🎉');
+    }
+
+    // Auto-select view based on URL hash if provided
+    window.addEventListener('DOMContentLoaded', () => {
+      const hash = window.location.hash.replace('#', '');
+      if (['landing', 'login', 'pending', 'guest-login', 'staff-login', 'register'].includes(hash)) {
+        showView(hash);
+      }
+    });
+  </script>
+</body>
+</html>
