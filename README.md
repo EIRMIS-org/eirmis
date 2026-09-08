@@ -391,8 +391,6 @@ Scheduled reminders (e.g. T-7-day, T-1-day before the event) are configured per 
 
 All state-changing actions are logged to `AuditLogEntry`, including: `attendee.approved`, `attendee.rejected`, `attendee.approved_over_capacity`, `headcount_request.approved`, `headcount_request.rejected`, `invitation_design.uploaded`, `invitation_design.validation_failed`, `qr.bulk_sent`, `checkin.attendee_scanned`, `checkin_assignment.granted`, `checkin_assignment.revoked`, `organizer.verified`. The audit log is append-only/immutable at the DB level.
 
----
-
 ## 7. Data Model Reference
 
 ### Entity Glossary
@@ -400,23 +398,24 @@ All state-changing actions are logged to `AuditLogEntry`, including: `attendee.a
 | Entity | Purpose |
 |---|---|
 | OrganizerProfile | Base identity for an Event Organizer (linked 1:1 to `auth.users.id`), verification status |
+| AdminProfile | Base identity for a System Administrator (linked 1:1 to `auth.users.id`); provisioned directly, not self-registered |
 | Event | An organizer-owned event: capacity, RSVP deadline, visibility mode, status lifecycle |
-| ReminderSchedule | Configured scheduled-reminder offsets (e.g. T-7, T-1) for an event |
+| ReminderSchedule | Configured scheduled-reminder offsets (e.g. T-7, T-1) with time-of-day and event timezone for an event |
 | Guest | Cross-event directory row, deduplicated by email; optionally linked to a Supabase Auth identity |
-| Invitation | Per-event, per-guest invitation; `party_size`/`checked_in_count` are cached rollups, not directly-entered values; no bare-token access field |
+| Invitation | Per-event, per-guest invitation; UNIQUE(event_id, guest_id); `party_size`/`checked_in_count` are cached rollups, not directly-entered values |
 | Attendee | One row per person in an invitation's party — the guest themself plus every additional name they submit |
-| HeadcountIncreaseRequest | A guest's request to raise their invitation's `max_party_size` |
+| HeadcountIncreaseRequest | A guest's request to raise their invitation's `max_party_size`; at most one pending request per invitation at a time |
 | InvitationDesign | An event's creative-asset configuration: image gallery or single validated HTML file |
 | InvitationImage | One image within an event's gallery-mode invitation design |
 | CheckInAssignment | A per-event delegation of check-in access to a Check-in Staff member, with its own auth linkage |
-| EmailLog | Record of every transactional email sent, across all email types |
-| AuditLogEntry | Immutable change/action record |
+| EmailLog | Record of every transactional email sent, across all email types; linked to event, invitation, and/or attendee |
+| AuditLogEntry | Immutable, append-only change/action record |
 
-### Field-Level Schema Sketch
+### Field-Level Schema
 
-This is a lightweight starting point for migration authoring, not final DDL — types, constraints, and indexes should be refined during actual schema implementation.
+> **Note:** This section reflects the authoritative, post-M1-07 schema as implemented in `supabase/migrations/`. Migration files are the ground truth for DDL; this table is the human-readable reference.
 
-**OrganizerProfile**
+**OrganizerProfile** (`organizer_profiles`)
 | Field | Type | Notes |
 |---|---|---|
 | `id` | uuid, PK | equals `auth.users.id` |
@@ -425,7 +424,15 @@ This is a lightweight starting point for migration authoring, not final DDL — 
 | `status` | enum(`pending`,`active`) | default `pending`; admin-only to change |
 | `created_at`, `updated_at` | timestamptz | |
 
-**Event**
+**AdminProfile** (`admin_profiles`) — *separate table from OrganizerProfile (D8)*
+| Field | Type | Notes |
+|---|---|---|
+| `id` | uuid, PK | equals `auth.users.id`; provisioned directly, not self-registered |
+| `email` | text, unique, not null | |
+| `full_name` | text, not null | |
+| `created_at` | timestamptz | no `updated_at` — admin rows are provisioned and do not change |
+
+**Event** (`events`)
 | Field | Type | Notes |
 |---|---|---|
 | `id` | uuid, PK | |
@@ -433,136 +440,150 @@ This is a lightweight starting point for migration authoring, not final DDL — 
 | `title` | text, not null | |
 | `slug` | text, unique, not null | used in `/register/:slug` for `open_registration` events |
 | `description` | text, nullable | |
-| `starts_at`, `ends_at` | timestamptz, not null | |
-| `location` | text, nullable | |
+| `cover_image_url` | text, nullable | optional featured image for event cards and email headers; separate from InvitationDesign (D14) |
+| `starts_at`, `ends_at` | timestamptz, not null | `ends_at > starts_at` enforced by CHECK |
+| `event_timezone` | text, not null | IANA timezone string (e.g. `Asia/Manila`); used to localise reminder send times (D9) |
+| `venue_name` | text, nullable | structured location field (D11) |
+| `address` | text, nullable | structured location field (D11) |
+| `city` | text, nullable | structured location field (D11) |
+| `location_url` | text, nullable | optional map/directions link (D11) |
 | `capacity` | int, not null | ceiling checked atomically against approved-Attendee count |
-| `rsvp_deadline` | timestamptz, not null | |
+| `rsvp_deadline` | timestamptz, not null | `rsvp_deadline ≤ starts_at` enforced by CHECK |
 | `visibility_mode` | enum(`open_registration`,`invite_only`) | not null |
 | `status` | enum(`draft`,`published`,`closed`,`archived`) | not null, default `draft` |
+| `deleted_at` | timestamptz, nullable | soft-delete; `null` = active; events are never hard-deleted (D6) |
 | `created_at`, `updated_at` | timestamptz | |
 
-**ReminderSchedule**
+**ReminderSchedule** (`reminder_schedules`)
 | Field | Type | Notes |
 |---|---|---|
 | `id` | uuid, PK | |
 | `event_id` | uuid, FK → Event, not null | |
-| `days_before_event` | int, not null | e.g. `7`, `1` |
+| `days_before_event` | int, not null, > 0 | e.g. `7`, `1`; UNIQUE(event_id, days_before_event) |
+| `send_time_of_day` | time, not null | local time in the event's `event_timezone` at which the reminder fires (D9) |
 | `enabled` | boolean, not null, default true | |
 | `last_sent_at` | timestamptz, nullable | set once the scheduled job dispatches this reminder |
 
-**Guest**
+**Guest** (`guests`)
 | Field | Type | Notes |
 |---|---|---|
 | `id` | uuid, PK | |
 | `email` | text, unique, not null | deduplication key across the directory |
 | `full_name` | text, not null | |
-| `auth_user_id` | uuid, nullable, FK → `auth.users.id` | populated on first successful magic-link login; may be `null` for organizer-added or self-registered guests who haven't logged in yet |
+| `auth_user_id` | uuid, nullable, unique, FK → `auth.users.id` | populated on first successful magic-link login; may be `null` for organizer-added or self-registered guests who haven't logged in yet |
 | `created_at`, `updated_at` | timestamptz | |
 
-**Invitation**
+**Invitation** (`invitations`)
 | Field | Type | Notes |
 |---|---|---|
 | `id` | uuid, PK | |
 | `event_id` | uuid, FK → Event, not null | |
 | `guest_id` | uuid, FK → Guest, not null | |
+| | | **UNIQUE(event_id, guest_id)** — one invitation per guest per event (D5) |
 | `status` | enum(`pending`,`accepted`,`declined`,`tentative`,`waitlisted`) | |
-| `max_party_size` | int, not null | organizer-set ceiling on total heads for this invitation, including the guest; raised by an approved `HeadcountIncreaseRequest` |
-| `party_size` | int | **cached**, trigger-maintained count of this invitation's `approved` Attendees — not directly editable |
-| `checked_in_count` | int | **cached**, trigger-maintained count of this invitation's checked-in Attendees |
-| `dietary_preference`, `special_requests` | text, nullable | |
+| `max_party_size` | int, not null, ≥ 1 | organizer-set ceiling on total heads for this invitation, including the guest; raised by an approved `HeadcountIncreaseRequest` |
+| `party_size` | int, not null, default 0 | **cached**, trigger-maintained count of this invitation's `approved` Attendees — not directly editable |
+| `checked_in_count` | int, not null, default 0 | **cached**, trigger-maintained count of this invitation's checked-in Attendees |
+| `dietary_preference`, `special_requests` | text, nullable | invitation-level (covers whole party) |
 | `invited_by` | uuid, FK → OrganizerProfile, nullable | null for guest-initiated (open-registration) invitations |
 | `invited_at`, `responded_at`, `waitlisted_at` | timestamptz, nullable | |
 | `created_at`, `updated_at` | timestamptz | |
 
-**Attendee**
+**Attendee** (`attendees`)
 | Field | Type | Notes |
 |---|---|---|
 | `id` | uuid, PK | |
-| `invitation_id` | uuid, FK, not null | |
+| `invitation_id` | uuid, FK → Invitation, not null | |
 | `full_name` | text, not null | |
 | `email` | text, nullable | **not unique** — the same email may appear on multiple Attendee rows, or be absent entirely |
 | `is_primary` | boolean, not null, default false | true only for the auto-created record representing the inviting guest |
 | `status` | enum(`pending`,`approved`,`rejected`) | `is_primary` rows are created directly as `approved` |
-| `qr_token` | text, unique, nullable | nullable until `status = approved` |
+| `qr_token` | text, unique, nullable | nullable until `status = approved`; issued by `decideAttendee` Edge Function |
 | `submitted_at` | timestamptz | |
 | `reviewed_by` | uuid, FK → OrganizerProfile, nullable | |
 | `reviewed_at`, `review_reason` | nullable | |
-| `checked_in`, `checked_in_at`, `checked_in_by` | nullable | `checked_in_by` may reference an OrganizerProfile or a CheckInAssignment |
+| `checked_in` | boolean, not null, default false | |
+| `checked_in_at` | timestamptz, nullable | |
+| `checked_in_by` | uuid, nullable, FK → `auth.users.id` | set by `scanCheckIn` Edge Function; resolves to the organizer or staff member who performed the scan via their shared `auth.users` identity (D4) |
 | `is_walk_in` | boolean, not null, default false | |
 
-**HeadcountIncreaseRequest**
+**HeadcountIncreaseRequest** (`headcount_increase_requests`)
 | Field | Type | Notes |
 |---|---|---|
 | `id` | uuid, PK | |
-| `invitation_id` | uuid, FK, not null | |
-| `requested_additional_heads` | int, not null | |
+| `invitation_id` | uuid, FK → Invitation, not null | |
+| `requested_additional_heads` | int, not null, > 0 | |
 | `status` | enum(`pending`,`approved`,`rejected`) | |
 | `note` | text, nullable | guest-provided reason |
 | `requested_at` | timestamptz | |
 | `reviewed_by`, `reviewed_at`, `review_reason` | nullable | |
+| | | **Partial UNIQUE index on (invitation_id) WHERE status = 'pending'** — at most one pending request per invitation at a time (D10) |
 
-**InvitationDesign**
+**InvitationDesign** (`invitation_designs`)
 | Field | Type | Notes |
 |---|---|---|
 | `id` | uuid, PK | |
-| `event_id` | uuid, FK, unique | an event has zero or one design |
+| `event_id` | uuid, FK → Event, unique | an event has zero or one design |
 | `design_type` | enum(`images`,`html`) | |
 | `html_storage_path` | text, nullable | required if `design_type = html`; Supabase Storage path |
-| `validation_status` | enum(`pending`,`passed`,`failed`) | only `passed` HTML designs are ever served to guests |
+| `validation_status` | enum(`pending`,`passed`,`failed`), nullable | only meaningful for `html` designs; only `passed` designs are served to guests |
 | `validation_notes` | text, nullable | plain-language message for the organizer when `failed` |
 | `validated_at` | timestamptz, nullable | |
 | `created_at`, `updated_at` | timestamptz | |
 
-**InvitationImage**
-| Field | Type | Notes |
-|---|---|---|
-| `id` | uuid, PK | |
-| `event_id` | uuid, FK, not null | |
-| `storage_path` | text, not null | Supabase Storage path |
-| `sort_order` | int, not null | gallery display order |
-| `caption` | text, nullable | |
-| `created_at` | timestamptz | |
-
-**CheckInAssignment**
+**InvitationImage** (`invitation_images`)
 | Field | Type | Notes |
 |---|---|---|
 | `id` | uuid, PK | |
 | `event_id` | uuid, FK → Event, not null | |
-| `staff_email` | text, not null | |
-| `auth_user_id` | uuid, nullable, FK → `auth.users.id` | populated on first successful magic-link login, same lazy-linkage pattern as Guest |
+| `storage_path` | text, not null | Supabase Storage path |
+| `sort_order` | int, not null | gallery display order; UNIQUE(event_id, sort_order) |
+| `caption` | text, nullable | |
+| `created_at` | timestamptz | |
+
+**CheckInAssignment** (`checkin_assignments`)
+| Field | Type | Notes |
+|---|---|---|
+| `id` | uuid, PK | |
+| `event_id` | uuid, FK → Event, not null | |
+| `staff_email` | text, not null | UNIQUE(event_id, staff_email) |
+| `auth_user_id` | uuid, nullable, unique, FK → `auth.users.id` | populated on first successful magic-link login, same lazy-linkage pattern as Guest |
 | `invited_by` | uuid, FK → OrganizerProfile, not null | |
 | `status` | enum(`invited`,`active`,`revoked`) | default `invited`; becomes `active` on first login, `revoked` when the organizer cuts off access |
 | `created_at`, `updated_at` | timestamptz | |
 
-**EmailLog**
+**EmailLog** (`email_logs`)
 | Field | Type | Notes |
 |---|---|---|
 | `id` | uuid, PK | |
 | `event_id` | uuid, FK → Event, nullable | null for org-wide/admin-facing emails |
+| `invitation_id` | uuid, FK → Invitation, nullable | enables per-invitation email history without joining on address (D7) |
+| `attendee_id` | uuid, FK → Attendee, nullable | set for attendee-specific emails (D7) |
 | `recipient_email` | text, not null | |
-| `type` | text, not null | see the type list in §6 (Reminders & Notifications) |
+| `type` | text, not null | see the full type list in §6 (Reminders & Notifications), including `invitation_nudge` for tentative invitations (D3) |
 | `provider_message_id` | text, nullable | Resend's message ID, for delivery troubleshooting |
 | `status` | enum(`queued`,`sent`,`failed`) | |
 | `sent_at` | timestamptz, nullable | |
 | `created_at` | timestamptz | |
 
-**AuditLogEntry**
+**AuditLogEntry** (`audit_log_entries`)
 | Field | Type | Notes |
 |---|---|---|
 | `id` | uuid, PK | |
-| `actor_type` | enum(`organizer`,`guest`,`system`) | `system` for scheduled-job-triggered events |
-| `actor_id` | uuid, nullable | FK to OrganizerProfile or Guest depending on `actor_type`; null when `actor_type = system` |
-| `action` | text, not null | e.g. `attendee.approved`, `checkin_assignment.revoked` |
+| `actor_type` | enum(`organizer`,`guest`,`check_in_staff`,`system`) | `check_in_staff` added (D15); `system` for scheduled-job-triggered events |
+| `actor_id` | uuid, nullable | FK semantics: OrganizerProfile.id \| Guest.id \| CheckInAssignment.id depending on `actor_type`; null when `actor_type = system` (D15) |
+| `action` | text, not null | e.g. `attendee.approved`, `checkin.attendee_scanned`, `checkin.attendee_rescanned` |
 | `entity_type`, `entity_id` | text / uuid, not null | |
 | `old_value`, `new_value` | jsonb, nullable | |
 | `reason` | text, nullable | |
-| `created_at` | timestamptz, not null | append-only/immutable at the DB level |
+| `created_at` | timestamptz, not null | append-only/immutable — UPDATE and DELETE denied for all roles via RLS |
 
 ### Relationship / Cardinality Summary
 
 | Entity A | Relationship | Entity B | Cardinality |
 |---|---|---|---|
 | OrganizerProfile | owns | Event | 1 : many |
+| AdminProfile | manages | OrganizerProfile (status only) | 1 : many |
 | Event | has | ReminderSchedule | 1 : many |
 | Event | has (via Guest) | Invitation | 1 : many |
 | Guest | has | Invitation | 1 : many, across events |
@@ -573,10 +594,26 @@ This is a lightweight starting point for migration authoring, not final DDL — 
 | Guest | linked to (optional) | `auth.users` | 1 : 0..1 |
 | Event | has | CheckInAssignment | 1 : many |
 | CheckInAssignment | linked to (optional) | `auth.users` | 1 : 0..1 |
+| Attendee.checked_in_by | references | `auth.users` | many : 1 (covers organizer and staff scanners) |
 | Any auditable entity | generates | AuditLogEntry | 1 : many |
-| Event/Guest/OrganizerProfile | generates (as recipient context) | EmailLog | 1 : many |
+| Event / Invitation / Attendee | generates (as context) | EmailLog | 1 : many |
+
+### Key DB Invariants (enforced server-side)
+
+| Invariant | Mechanism |
+|---|---|
+| One invitation per guest per event | UNIQUE(event_id, guest_id) on `invitations` |
+| At most one pending headcount request per invitation | Partial UNIQUE index on `headcount_increase_requests(invitation_id) WHERE status = 'pending'` |
+| `party_size` = count of approved Attendees | DB trigger `trg_attendee_update_invitation_counts` |
+| `checked_in_count` = count of checked-in Attendees | Same trigger |
+| Primary Attendee auto-created on invitation acceptance | DB trigger `trg_invitation_accept_create_primary_attendee` (idempotent) |
+| RSVP deadline lock | DB trigger `trg_invitations_rsvp_deadline_lock` (service role bypasses) |
+| Event capacity ceiling | Atomic check in `decideAttendee` Edge Function (soft check with audited override) |
+| `audit_log_entries` append-only | RLS `USING (false)` on UPDATE and DELETE for all roles |
+| No hard deletes for Events or Guests | RLS + no DELETE policy; `deleted_at` soft-delete for Events only |
 
 ---
+
 
 ## 8. UI/UX Sitemap & Features
 
