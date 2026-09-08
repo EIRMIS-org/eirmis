@@ -98,3 +98,23 @@ create policy "checkin_assignments: staff reads own active assignment"
 -- on first login) runs under the service role — no client UPDATE policy for
 -- those columns is granted here. The only client-visible update is the organizer
 -- changing status to 'revoked', which is covered by the organizer policy above.
+
+
+-- =============================================================================
+-- Deferred policy — applied here because checkin_assignments now exists.
+-- =============================================================================
+
+-- Check-in staff may read the single event they are assigned to.
+-- (deferred from 20260908000003_events.sql; references checkin_assignments)
+create policy "events: staff reads assigned"
+  on events for select
+  using (
+    deleted_at is null
+    and exists (
+      select 1 from checkin_assignments ca
+      where ca.event_id = events.id
+        and ca.auth_user_id = auth.uid()
+        and ca.status = 'active'
+    )
+  );
+

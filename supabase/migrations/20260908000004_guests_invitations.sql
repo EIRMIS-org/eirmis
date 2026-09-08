@@ -56,21 +56,11 @@ create policy "guests: guest updates own row"
   using (auth_user_id = auth.uid())
   with check (auth_user_id = auth.uid());
 
--- Organizers may read guests who are invited to their events.
-create policy "guests: organizer reads invited guests"
-  on guests for select
-  using (
-    exists (
-      select 1
-      from invitations i
-      join events e on e.id = i.event_id
-      where i.guest_id = guests.id
-        and e.organizer_id = auth.uid()
-    )
-  );
-
 -- Service role handles INSERT (triggered by open-registration or organizer import).
 -- No client INSERT policy is intentionally granted.
+
+-- NOTE: "guests: organizer reads invited guests" is defined at the bottom of this
+-- file, after the invitations table is created (it references invitations in its USING clause).
 
 
 -- ---------------------------------------------------------------------------
@@ -226,3 +216,38 @@ create policy "invitations: staff reads assigned event"
 -- separate migration or Supabase Auth hook configuration to avoid circular
 -- dependency issues at migration time.
 -- ---------------------------------------------------------------------------
+
+
+-- =============================================================================
+-- Deferred policies — applied here because all referenced tables now exist.
+-- =============================================================================
+
+-- Organizers may read guests who are invited to their events.
+-- (deferred from guests RLS block above; references invitations)
+create policy "guests: organizer reads invited guests"
+  on guests for select
+  using (
+    exists (
+      select 1
+      from invitations i
+      join events e on e.id = i.event_id
+      where i.guest_id = guests.id
+        and e.organizer_id = auth.uid()
+    )
+  );
+
+-- Guests may read published, non-deleted events they have an invitation to.
+-- (deferred from 20260908000003_events.sql; references invitations, guests)
+create policy "events: guest reads invited published"
+  on events for select
+  using (
+    status = 'published'
+    and deleted_at is null
+    and exists (
+      select 1
+      from invitations i
+      join guests g on g.id = i.guest_id
+      where i.event_id = events.id
+        and g.auth_user_id = auth.uid()
+    )
+  );

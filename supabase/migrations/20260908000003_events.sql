@@ -94,21 +94,6 @@ create policy "events: organizer updates own"
   using (organizer_id = auth.uid())
   with check (organizer_id = auth.uid());
 
--- Guests may read published, non-deleted events they have an invitation to.
-create policy "events: guest reads invited published"
-  on events for select
-  using (
-    status = 'published'
-    and deleted_at is null
-    and exists (
-      select 1
-      from invitations i
-      join guests g on g.id = i.guest_id
-      where i.event_id = events.id
-        and g.auth_user_id = auth.uid()
-    )
-  );
-
 -- Public: published open-registration events are readable without auth (for /register/:slug).
 -- The anon role is used here; Supabase anon key is required in the client.
 create policy "events: public reads open registration published"
@@ -119,18 +104,16 @@ create policy "events: public reads open registration published"
     and deleted_at is null
   );
 
--- Check-in staff may read the single event they are assigned to.
-create policy "events: staff reads assigned"
-  on events for select
-  using (
-    deleted_at is null
-    and exists (
-      select 1 from checkin_assignments ca
-      where ca.event_id = events.id
-        and ca.auth_user_id = auth.uid()
-        and ca.status = 'active'
-    )
-  );
+-- NOTE: Two further events policies are defined in later migrations, after the
+-- tables they reference are created:
+--
+--   "events: guest reads invited published"
+--     → deferred to 20260908000004_guests_invitations.sql
+--       (references: invitations, guests)
+--
+--   "events: staff reads assigned"
+--     → deferred to 20260908000006_checkin.sql
+--       (references: checkin_assignments)
 
 
 -- ---------------------------------------------------------------------------
