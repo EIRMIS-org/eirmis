@@ -1,0 +1,1586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EIRMIS — Organizer Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-hover: #4338CA;
+      --primary-light: #EEF2FF;
+      --secondary: #008A88;
+      --secondary-light: #E6F6F6;
+      --dark: #0F172A;
+      --dark-surface: #1E293B;
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --border: #E2E8F0;
+      --text-main: #0B1C30;
+      --text-muted: #64748B;
+      --success: #15803D;
+      --success-bg: #DCFCE7;
+      --success-border: #86EFAC;
+      --warning: #B45309;
+      --warning-bg: #FEF3C7;
+      --warning-border: #FDE68A;
+      --error: #BA1A1A;
+      --error-bg: #FEE2E2;
+      --error-border: #FCA5A5;
+      --font-heading: 'Hanken Grotesk', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-size: 14px;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Left Sidebar */
+    aside {
+      width: 260px;
+      background-color: var(--dark);
+      color: #FFFFFF;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      z-index: 20;
+    }
+
+    .sidebar-brand {
+      padding: 20px 20px 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 16px;
+      color: #FFFFFF;
+    }
+
+    .brand-title {
+      font-family: var(--font-heading);
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: #94A3B8;
+      display: block;
+    }
+
+    .active-event-selector {
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .active-event-selector label {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94A3B8;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .active-event-selector select {
+      width: 100%;
+      background: var(--dark-surface);
+      color: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-sm);
+      padding: 6px 8px;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .nav-menu {
+      flex: 1;
+      padding: 16px 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .nav-category {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #64748B;
+      font-weight: 700;
+      padding: 10px 12px 4px 12px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: var(--radius-md);
+      color: #CBD5E1;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.07);
+      color: #FFFFFF;
+    }
+
+    .nav-item.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.4);
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #4F46E5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: white;
+    }
+
+    .user-info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .user-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #FFFFFF;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .user-role {
+      font-size: 11px;
+      color: #94A3B8;
+    }
+
+    /* Main Content Area */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      background-color: var(--bg);
+    }
+
+    /* Top Bar */
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .topbar-title {
+      font-family: var(--font-heading);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* View Content */
+    .content-area {
+      padding: 28px;
+      max-width: 1240px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .view-pane {
+      display: none;
+      animation: fadeIn 0.2s ease forwards;
+    }
+
+    .view-pane.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      font-family: var(--font-body);
+    }
+
+    .btn-primary { background-color: var(--primary); color: #FFFFFF; }
+    .btn-primary:hover { background-color: var(--primary-hover); }
+    .btn-secondary { background: transparent; border-color: var(--border); color: var(--text-main); }
+    .btn-secondary:hover { background: #F1F5F9; }
+    .btn-teal { background-color: var(--secondary); color: #FFFFFF; }
+    .btn-teal:hover { background-color: #007371; }
+    .btn-danger { background-color: var(--error); color: #FFFFFF; }
+    .btn-danger:hover { background-color: #991313; }
+    .btn-ghost { background: transparent; color: var(--text-muted); }
+    .btn-ghost:hover { background: #F1F5F9; color: var(--text-main); }
+    .btn-sm { padding: 5px 10px; font-size: 12px; }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-title {
+      font-family: var(--font-heading);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Status Chips */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .chip-green { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+    .chip-amber { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
+    .chip-red { background: var(--error-bg); color: var(--error); border: 1px solid var(--error-border); }
+    .chip-blue { background: var(--primary-light); color: var(--primary); border: 1px solid rgba(79, 70, 229, 0.2); }
+    .chip-slate { background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; }
+
+    /* RSVP Progress Bar */
+    .rsvp-progress-wrapper {
+      margin: 12px 0 20px 0;
+    }
+
+    .rsvp-progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .rsvp-progress-bar {
+      height: 10px;
+      background: #E2E8F0;
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .rsvp-progress-fill {
+      background: var(--primary);
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+      background: #FFFFFF;
+    }
+
+    th {
+      background: #F8FAFC;
+      padding: 10px 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-main);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: #F8FAFC;
+    }
+
+    /* Forms */
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-main);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-family: var(--font-body);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      outline: none;
+      transition: border 0.15s;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+    }
+
+    /* Modal / Alert Overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(2px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      max-width: 480px;
+      width: 90%;
+      box-shadow: var(--shadow-lg);
+      animation: modalPop 0.2s ease;
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+    }
+
+    .stat-value {
+      font-family: var(--font-heading);
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin: 4px 0;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--dark);
+      color: #FFFFFF;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.25s ease;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Navigation -->
+  <aside>
+    <div class="sidebar-brand">
+      <div class="brand-icon">E</div>
+      <div>
+        <div class="brand-title">EIRMIS</div>
+        <span class="brand-sub">Organizer Workspace</span>
+      </div>
+    </div>
+
+    <!-- Active Event Context Switcher -->
+    <div class="active-event-selector">
+      <label>Active Event</label>
+      <select id="event-selector" onchange="switchActiveEvent(this.value)">
+        <option value="e1" selected>Tech Forward Gala 2026</option>
+        <option value="e2">AI Product Summit 2026</option>
+        <option value="e3">Executive VIP Dinner</option>
+      </select>
+    </div>
+
+    <!-- Navigation Menu (10 routes from README §8) -->
+    <nav class="nav-menu">
+      <div class="nav-category">Events</div>
+      <button class="nav-item active" onclick="switchView('events')">
+        <span>📅</span> Events List
+      </button>
+      <button class="nav-item" onclick="switchView('event-overview')">
+        <span>⚙️</span> Event Overview / Edit
+      </button>
+
+      <div class="nav-category">Management</div>
+      <button class="nav-item" onclick="switchView('guests')">
+        <span>👥</span> Guest List & Send
+      </button>
+      <button class="nav-item" onclick="switchView('approvals')">
+        <span>🛡️</span> Approval Queue <span class="nav-badge" id="pending-badge">3</span>
+      </button>
+      <button class="nav-item" onclick="switchView('reminders')">
+        <span>⏰</span> Reminder Schedules
+      </button>
+      <button class="nav-item" onclick="switchView('design')">
+        <span>🎨</span> Invitation Design
+      </button>
+
+      <div class="nav-category">Day of Event</div>
+      <button class="nav-item" onclick="switchView('attendance')">
+        <span>📊</span> Live Attendance
+      </button>
+      <button class="nav-item" onclick="switchView('checkin')">
+        <span>📷</span> Active Scanner
+      </button>
+      <button class="nav-item" onclick="switchView('staff')">
+        <span>🤝</span> Check-in Staff
+      </button>
+
+      <div class="nav-category">Account</div>
+      <button class="nav-item" onclick="switchView('profile')">
+        <span>👤</span> Organizer Profile
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="avatar">SJ</div>
+      <div class="user-info">
+        <div class="user-name">Sarah Jenkins</div>
+        <div class="user-role">Verified Organizer</div>
+      </div>
+      <a href="../LandingPage/index.html" title="Exit to Landing" style="color:#94A3B8; text-decoration:none; font-size:16px;">⎋</a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="topbar-title" id="page-title">Events List</div>
+      <div class="topbar-actions">
+        <span class="chip chip-blue" id="topbar-event-badge">Tech Forward Gala 2026</span>
+        <button class="btn btn-secondary btn-sm" onclick="triggerManualBulkQr()">
+          <span>✉️</span> Resend QR Codes
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="switchView('event-overview')">
+          <span>+</span> New Event
+        </button>
+      </div>
+    </div>
+
+    <!-- Content Area with 10 Views -->
+    <div class="content-area">
+
+      <!-- 1. VIEW: EVENTS LIST -->
+      <section id="view-events" class="view-pane active">
+        <div class="card-header" style="border:none; padding:0 0 16px 0;">
+          <div>
+            <h2 style="font-family:var(--font-heading); font-size:20px; font-weight:700;">Managed Events</h2>
+            <p style="color:var(--text-muted); font-size:13px;">View status, RSVP capacity progress, and quick actions.</p>
+          </div>
+          <button class="btn btn-primary" onclick="openNewEventForm()">+ Create New Event</button>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px;">
+          
+          <!-- Event Card 1 -->
+          <div class="card" style="border-top: 4px solid var(--primary);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+              <div>
+                <span class="chip chip-green">Published</span>
+                <span class="chip chip-slate" style="margin-left:4px;">open_registration</span>
+              </div>
+              <span style="font-size:12px; color:var(--text-muted);">Nov 18, 2026</span>
+            </div>
+            <h3 style="font-family:var(--font-heading); font-size:17px; font-weight:700; margin-bottom:4px;">Tech Forward Gala 2026</h3>
+            <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px;">Marina Bay Sands • Cap: 150</p>
+            
+            <div class="rsvp-progress-wrapper">
+              <div class="rsvp-progress-labels">
+                <span>RSVP Capacity: 112 / 150</span>
+                <span style="color:var(--primary);">74.6%</span>
+              </div>
+              <div class="rsvp-progress-bar">
+                <div class="rsvp-progress-fill" style="width: 74.6%;"></div>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:16px;">
+              <button class="btn btn-secondary btn-sm" onclick="switchView('event-overview')">Edit Settings</button>
+              <button class="btn btn-teal btn-sm" onclick="switchView('approvals')">Approvals (3)</button>
+              <button class="btn btn-primary btn-sm" onclick="switchView('attendance')">Live Dashboard</button>
+            </div>
+          </div>
+
+          <!-- Event Card 2 -->
+          <div class="card" style="border-top: 4px solid var(--secondary);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+              <div>
+                <span class="chip chip-amber">Draft</span>
+                <span class="chip chip-slate" style="margin-left:4px;">invite_only</span>
+              </div>
+              <span style="font-size:12px; color:var(--text-muted);">Dec 05, 2026</span>
+            </div>
+            <h3 style="font-family:var(--font-heading); font-size:17px; font-weight:700; margin-bottom:4px;">AI Product Summit 2026</h3>
+            <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px;">Conrad Hotel • Cap: 200</p>
+
+            <div class="rsvp-progress-wrapper">
+              <div class="rsvp-progress-labels">
+                <span>RSVP Capacity: 0 / 200</span>
+                <span style="color:var(--text-muted);">0%</span>
+              </div>
+              <div class="rsvp-progress-bar">
+                <div class="rsvp-progress-fill" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:16px;">
+              <button class="btn btn-secondary btn-sm" onclick="switchView('event-overview')">Edit Settings</button>
+              <button class="btn btn-secondary btn-sm" onclick="switchView('design')">Upload Design</button>
+            </div>
+          </div>
+
+          <!-- Event Card 3 -->
+          <div class="card" style="border-top: 4px solid #64748B;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+              <div>
+                <span class="chip chip-slate">Closed</span>
+                <span class="chip chip-slate" style="margin-left:4px;">invite_only</span>
+              </div>
+              <span style="font-size:12px; color:var(--text-muted);">Aug 14, 2026</span>
+            </div>
+            <h3 style="font-family:var(--font-heading); font-size:17px; font-weight:700; margin-bottom:4px;">Executive VIP Dinner</h3>
+            <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px;">St. Regis • Cap: 30</p>
+
+            <div class="rsvp-progress-wrapper">
+              <div class="rsvp-progress-labels">
+                <span>RSVP Capacity: 28 / 30</span>
+                <span style="color:var(--primary);">93.3%</span>
+              </div>
+              <div class="rsvp-progress-bar">
+                <div class="rsvp-progress-fill" style="width: 93.3%;"></div>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:16px;">
+              <button class="btn btn-secondary btn-sm" onclick="switchView('attendance')">Archived Data</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 2. VIEW: EVENT OVERVIEW & EDIT -->
+      <section id="view-event-overview" class="view-pane">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Event Configuration & Lifecycle</h3>
+            <span class="chip chip-green" id="event-lifecycle-chip">published</span>
+          </div>
+
+          <form id="event-form" onsubmit="saveEventDetails(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="event-title">Event Title *</label>
+                <input type="text" id="event-title" class="form-control" value="Tech Forward Gala 2026" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="event-slug">URL Slug (for open registration) *</label>
+                <input type="text" id="event-slug" class="form-control" value="tech-forward-2026" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="event-desc">Description</label>
+              <textarea id="event-desc" class="form-control" rows="2">Annual celebration honoring emerging leaders in autonomous systems and enterprise engineering.</textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="event-starts">Starts At *</label>
+                <input type="datetime-local" id="event-starts" class="form-control" value="2026-11-18T18:30" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="event-ends">Ends At *</label>
+                <input type="datetime-local" id="event-ends" class="form-control" value="2026-11-18T22:30" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="event-tz">Event Timezone *</label>
+                <select id="event-tz" class="form-control">
+                  <option value="Asia/Manila" selected>Asia/Manila (PHT +08:00)</option>
+                  <option value="Asia/Singapore">Asia/Singapore (SGT +08:00)</option>
+                  <option value="America/New_York">America/New_York (EST)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="event-capacity">Capacity Ceiling (Max Heads) *</label>
+                <input type="number" id="event-capacity" class="form-control" value="150" min="1" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="event-deadline">RSVP Deadline (Enforces Lock) *</label>
+                <input type="datetime-local" id="event-deadline" class="form-control" value="2026-11-15T23:59" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="event-visibility">Visibility Mode</label>
+                <select id="event-visibility" class="form-control">
+                  <option value="open_registration" selected>open_registration (Public slug)</option>
+                  <option value="invite_only">invite_only (Organizer guest list only)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="event-status">Lifecycle Status</label>
+                <select id="event-status" class="form-control">
+                  <option value="draft">draft</option>
+                  <option value="published" selected>published (Accepts RSVPs)</option>
+                  <option value="closed">closed (Read-only)</option>
+                  <option value="archived">archived</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:16px;">
+              <button type="button" class="btn btn-secondary" onclick="switchView('events')">Cancel</button>
+              <button type="submit" class="btn btn-primary">Save Event Changes</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- 3. VIEW: GUESTS LIST -->
+      <section id="view-guests" class="view-pane">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Guest Directory & Invitations</h3>
+              <p style="color:var(--text-muted); font-size:12px;">Track primary guests, invitation statuses, approved party size, and manual QR dispatches.</p>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-secondary btn-sm" onclick="showToast('CSV Guest List Imported (25 invitations created)', '📥')">
+                📥 Import CSV
+              </button>
+              <button class="btn btn-primary btn-sm" onclick="addManualGuestPrompt()">
+                + Add Guest
+              </button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table id="guests-table">
+              <thead>
+                <tr>
+                  <th>Guest Name</th>
+                  <th>Email Address</th>
+                  <th>Invitation Status</th>
+                  <th>Party Cap</th>
+                  <th>Approved Heads</th>
+                  <th>Checked-In</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Elena Rostova</strong></td>
+                  <td>elena.rostova@gmail.com</td>
+                  <td><span class="chip chip-green">accepted</span></td>
+                  <td>3 heads</td>
+                  <td><strong>2</strong> / 3</td>
+                  <td>0</td>
+                  <td>
+                    <button class="btn btn-secondary btn-sm" onclick="showToast('Dispatched QR Bundle to elena.rostova@gmail.com', '📧')">Send QR</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Dr. Aris Thorne</strong></td>
+                  <td>aris.thorne@biotech-innovate.org</td>
+                  <td><span class="chip chip-green">accepted</span></td>
+                  <td>2 heads</td>
+                  <td><strong>2</strong> / 2</td>
+                  <td>0</td>
+                  <td>
+                    <button class="btn btn-secondary btn-sm" onclick="showToast('Dispatched QR Bundle to aris.thorne@biotech-innovate.org', '📧')">Send QR</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Carlos Gutierrez</strong></td>
+                  <td>carlos.g@venturecap.co</td>
+                  <td><span class="chip chip-amber">tentative</span></td>
+                  <td>2 heads</td>
+                  <td>0 / 2</td>
+                  <td>0</td>
+                  <td>
+                    <button class="btn btn-ghost btn-sm" onclick="showToast('Invitation nudge email queued', '🔔')">Nudge</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Mei-Ling Zhou</strong></td>
+                  <td>ml.zhou@cloudfoundry.net</td>
+                  <td><span class="chip chip-amber">pending</span></td>
+                  <td>4 heads</td>
+                  <td>0 / 4</td>
+                  <td>0</td>
+                  <td>
+                    <button class="btn btn-ghost btn-sm" onclick="showToast('Invitation email resent', '✉️')">Resend</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Robert Downey</strong></td>
+                  <td>rdowney@hollywood.com</td>
+                  <td><span class="chip chip-red">declined</span></td>
+                  <td>1 head</td>
+                  <td>0 / 1</td>
+                  <td>0</td>
+                  <td>
+                    <span style="font-size:12px; color:var(--text-muted);">No party</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. VIEW: APPROVALS QUEUE (With Soft-check Over Capacity Warning!) -->
+      <section id="view-approvals" class="view-pane">
+        
+        <!-- Pending Attendee Roster Submissions -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Pending Attendee Approvals</h3>
+              <p style="color:var(--text-muted); font-size:12px;">Review attendee additions submitted by guests one at a time. Decisions atomically update capacity and issue signed QR tokens.</p>
+            </div>
+            <span class="chip chip-amber">Queue: 3 Pending</span>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Primary Guest / Party</th>
+                  <th>Attendee Name</th>
+                  <th>Email (Optional)</th>
+                  <th>Submitted At</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="approvals-roster-body">
+                <tr id="att-row-1">
+                  <td>Elena Rostova (accepted)</td>
+                  <td><strong>Dmitri Rostova</strong></td>
+                  <td>dmitri.r@gmail.com</td>
+                  <td>Today, 10:14 AM</td>
+                  <td><span class="chip chip-amber">pending</span></td>
+                  <td>
+                    <button class="btn btn-primary btn-sm" onclick="decideAttendee('att-row-1', 'Dmitri Rostova', 'approve')">Approve</button>
+                    <button class="btn btn-danger btn-sm" onclick="decideAttendee('att-row-1', 'Dmitri Rostova', 'reject')">Reject</button>
+                  </td>
+                </tr>
+                <tr id="att-row-2">
+                  <td>Elena Rostova (accepted)</td>
+                  <td><strong>Sophia Rostova</strong> <small>(Child)</small></td>
+                  <td><em>None provided</em></td>
+                  <td>Today, 10:15 AM</td>
+                  <td><span class="chip chip-amber">pending</span></td>
+                  <td>
+                    <!-- Clicking this triggers the Soft Capacity Warning modal! -->
+                    <button class="btn btn-primary btn-sm" onclick="triggerCapacityWarning('att-row-2', 'Sophia Rostova')">Approve (Test Capacity)</button>
+                    <button class="btn btn-danger btn-sm" onclick="decideAttendee('att-row-2', 'Sophia Rostova', 'reject')">Reject</button>
+                  </td>
+                </tr>
+                <tr id="att-row-3">
+                  <td>Dr. Aris Thorne (accepted)</td>
+                  <td><strong>Kallie Thorne</strong></td>
+                  <td>kallie@biotech-innovate.org</td>
+                  <td>Today, 11:30 AM</td>
+                  <td><span class="chip chip-amber">pending</span></td>
+                  <td>
+                    <button class="btn btn-primary btn-sm" onclick="decideAttendee('att-row-3', 'Kallie Thorne', 'approve')">Approve</button>
+                    <button class="btn btn-danger btn-sm" onclick="decideAttendee('att-row-3', 'Kallie Thorne', 'reject')">Reject</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pending Headcount Increase Requests -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Headcount Increase Requests</h3>
+              <p style="color:var(--text-muted); font-size:12px;">Guests whose parties reached capacity may request additional heads. Approval raises their invitation ceiling.</p>
+            </div>
+            <span class="chip chip-blue">1 Request</span>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Guest Name</th>
+                  <th>Current Max Heads</th>
+                  <th>Requested Additional</th>
+                  <th>Guest Reason / Note</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr id="hc-row-1">
+                  <td><strong>Dr. Aris Thorne</strong></td>
+                  <td>2 heads</td>
+                  <td><strong style="color:var(--primary);">+2 heads</strong> (New max: 4)</td>
+                  <td>"Bringing our research foundation directors who were just confirmed to fly in."</td>
+                  <td>
+                    <button class="btn btn-teal btn-sm" onclick="decideHeadcount('hc-row-1', 'approve')">Approve (+2)</button>
+                    <button class="btn btn-danger btn-sm" onclick="decideHeadcount('hc-row-1', 'reject')">Reject</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- 5. VIEW: REMINDER SCHEDULES -->
+      <section id="view-reminders" class="view-pane">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Configured Scheduled Reminders</h3>
+              <p style="color:var(--text-muted); font-size:12px;">Executed automatically by pg_cron in the event's localized timezone (Asia/Manila).</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addReminderRow()">+ Add Offset</button>
+          </div>
+
+          <div class="table-container">
+            <table id="reminders-table">
+              <thead>
+                <tr>
+                  <th>Trigger Timing</th>
+                  <th>Send Time (Local)</th>
+                  <th>Target Audience</th>
+                  <th>Status</th>
+                  <th>Last Sent At</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>T-7 Days</strong> (7 days before event)</td>
+                  <td>09:00 AM PHT</td>
+                  <td>All Pending & Tentative RSVPs</td>
+                  <td><span class="chip chip-green">Enabled</span></td>
+                  <td>Nov 11, 2026, 9:00 AM</td>
+                  <td>
+                    <button class="btn btn-secondary btn-sm" onclick="showToast('Test reminder email dispatched to organizer', '📨')">Test Send</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>T-1 Day</strong> (1 day before event)</td>
+                  <td>14:00 PM PHT</td>
+                  <td>All Confirmed Guests (Check-in Preparation & QR)</td>
+                  <td><span class="chip chip-green">Enabled</span></td>
+                  <td><em>Pending scheduled date</em></td>
+                  <td>
+                    <button class="btn btn-secondary btn-sm" onclick="showToast('Test reminder email dispatched', '📨')">Test Send</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>T-0 Day</strong> (Event Morning)</td>
+                  <td>07:30 AM PHT</td>
+                  <td>Check-in Staff & Confirmed Guests</td>
+                  <td><span class="chip chip-amber">Disabled</span></td>
+                  <td><em>Not configured yet</em></td>
+                  <td>
+                    <button class="btn btn-ghost btn-sm" onclick="toggleReminder(this)">Enable</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. VIEW: INVITATION DESIGN -->
+      <section id="view-design" class="view-pane">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Creative Invitation Asset</h3>
+              <p style="color:var(--text-muted); font-size:12px;">Upload an image gallery or a single self-contained interactive HTML invitation file.</p>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-secondary btn-sm" id="btn-mode-html" onclick="toggleDesignMode('html')">Interactive HTML Mode</button>
+              <button class="btn btn-ghost btn-sm" id="btn-mode-images" onclick="toggleDesignMode('images')">Image Gallery Mode</button>
+            </div>
+          </div>
+
+          <!-- HTML Mode Container -->
+          <div id="design-mode-html">
+            <div style="background:#F8FAFC; border: 2px dashed #CBD5E1; border-radius: var(--radius-lg); padding:36px; text-align:center; margin-bottom:20px;">
+              <div style="font-size:36px; margin-bottom:12px;">📄</div>
+              <h4 style="font-size:16px; font-weight:700; margin-bottom:6px;">Upload Self-Contained HTML Invitation</h4>
+              <p style="color:var(--text-muted); font-size:13px; max-width:520px; margin:0 auto 16px auto;">
+                All assets must be inline (base64 images, inline CSS/scripts). External URLs, iframes, and outbound links are blocked by static parsing & sandboxing.
+              </p>
+              <div style="display:flex; justify-content:center; gap:10px;">
+                <button class="btn btn-primary" onclick="simulateHtmlUpload('pass')">Upload Valid HTML (Simulate Pass)</button>
+                <button class="btn btn-secondary" onclick="simulateHtmlUpload('fail')">Upload Risky HTML (Simulate Fail)</button>
+              </div>
+            </div>
+
+            <!-- Validation Status Showcase -->
+            <div id="html-validation-box" class="card" style="border-left: 4px solid var(--success);">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <span class="chip chip-green" id="html-status-chip">validation_status: passed</span>
+                  <h4 style="margin-top:6px; font-weight:700;" id="html-status-title">Design Approved for Guest Display</h4>
+                  <p style="font-size:13px; color:var(--text-muted);" id="html-status-desc">
+                    Passed static structural scan (0 outbound requests) and VirusTotal malware scanner. Served in a sandboxed iframe.
+                  </p>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="showToast('Opened preview in sandboxed frame', '🔍')">Preview Frame</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Image Gallery Mode Container -->
+          <div id="design-mode-images" style="display:none;">
+            <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:16px; margin-bottom:20px;">
+              <div style="border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; background:#F8FAFC;">
+                <div style="height:120px; background:#EEF2FF; display:flex; align-items:center; justify-content:center; font-size:28px;">🌄</div>
+                <div style="padding:10px; font-size:12px;">
+                  <strong>Cover Invitation.png</strong><br>
+                  <span style="color:var(--text-muted);">Sort Order: 1</span>
+                </div>
+              </div>
+              <div style="border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; background:#F8FAFC;">
+                <div style="height:120px; background:#E6F6F6; display:flex; align-items:center; justify-content:center; font-size:28px;">🗺️</div>
+                <div style="padding:10px; font-size:12px;">
+                  <strong>Venue & Schedule.png</strong><br>
+                  <span style="color:var(--text-muted);">Sort Order: 2</span>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="showToast('Select image files to upload to gallery', '🖼️')">+ Add Gallery Image</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. VIEW: LIVE ATTENDANCE DASHBOARD -->
+      <section id="view-attendance" class="view-pane">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Event Capacity</div>
+            <div class="stat-value">150</div>
+            <div style="font-size:11px; color:var(--text-muted);">Configured ceiling</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Confirmed RSVPs</div>
+            <div class="stat-value" style="color:var(--primary);">112</div>
+            <div style="font-size:11px; color:var(--success);">74.6% booked</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Checked-In Attendees</div>
+            <div class="stat-value" style="color:var(--secondary);" id="live-checkedin-count">48</div>
+            <div style="font-size:11px; color:var(--secondary);" id="live-checkedin-pct">42.8% of expected arrived</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Realtime Channel</div>
+            <div class="stat-value" style="font-size:16px; color:var(--success); display:flex; align-items:center; gap:6px;">
+              <span style="width:10px; height:10px; background:#22C55E; border-radius:50%; display:inline-block;"></span>
+              Connected
+            </div>
+            <div style="font-size:11px; color:var(--text-muted);">Listening for scans</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Live Guest Entrance Feed</h3>
+            <input type="text" placeholder="Filter attendees..." class="form-control" style="width:240px;" oninput="filterAttendanceTable(this.value)">
+          </div>
+
+          <div class="table-container">
+            <table id="attendance-feed-table">
+              <thead>
+                <tr>
+                  <th>Attendee</th>
+                  <th>Affiliation / Party</th>
+                  <th>Check-in Status</th>
+                  <th>Checked-in At</th>
+                  <th>Checked-in By</th>
+                </tr>
+              </thead>
+              <tbody id="attendance-rows">
+                <tr>
+                  <td><strong>Elena Rostova</strong> <span class="chip chip-blue" style="font-size:10px;">Primary</span></td>
+                  <td>Self</td>
+                  <td><span class="chip chip-green">Checked In</span></td>
+                  <td>6:34 PM</td>
+                  <td>Sarah Jenkins (Organizer)</td>
+                </tr>
+                <tr>
+                  <td><strong>Marcus Finch</strong></td>
+                  <td>Walk-in Guest</td>
+                  <td><span class="chip chip-green">Checked In</span></td>
+                  <td>6:39 PM</td>
+                  <td>Staff Station 1 (Marcus)</td>
+                </tr>
+                <tr>
+                  <td><strong>Dr. Aris Thorne</strong> <span class="chip chip-blue" style="font-size:10px;">Primary</span></td>
+                  <td>Biotech Innovate</td>
+                  <td><span class="chip chip-green">Checked In</span></td>
+                  <td>6:45 PM</td>
+                  <td>Staff Station 1 (Marcus)</td>
+                </tr>
+                <tr>
+                  <td><strong>Dmitri Rostova</strong></td>
+                  <td>Elena Rostova Party</td>
+                  <td><span class="chip chip-slate">Not Arrived</span></td>
+                  <td>—</td>
+                  <td>—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8. VIEW: CHECK-IN SCANNER (Organizer Entrance Scan) -->
+      <section id="view-checkin" class="view-pane">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+          
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Simulate QR Camera Scanner</h3>
+              <span class="chip chip-green">Camera Active</span>
+            </div>
+            <div style="background:#0F172A; height:240px; border-radius:var(--radius-md); display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; position:relative; overflow:hidden;">
+              <div style="border: 2px dashed #38BDF8; width:160px; height:160px; border-radius:12px; display:flex; align-items:center; justify-content:center;">
+                <span style="font-size:48px;">📷</span>
+              </div>
+              <div style="position:absolute; bottom:12px; font-size:12px; color:#94A3B8;">Position QR Code within square</div>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:16px;">
+              <button class="btn btn-primary" style="flex:1;" onclick="simulateScanResult('valid')">Simulate Valid QR Scan</button>
+              <button class="btn btn-secondary" style="flex:1;" onclick="simulateScanResult('duplicate')">Simulate Duplicate</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Scan Resolution</h3>
+              <span class="chip chip-slate" id="scan-state-chip">State: Ready</span>
+            </div>
+
+            <div id="scan-result-card" style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-md); padding:20px; min-height:240px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
+              <div id="scan-result-icon" style="font-size:42px; margin-bottom:8px;">🎯</div>
+              <h4 id="scan-result-title" style="font-size:16px; font-weight:700;">Waiting for scanned QR code...</h4>
+              <p id="scan-result-sub" style="font-size:13px; color:var(--text-muted); margin-top:4px;">
+                Token verification and assignment scoping is enforced via Edge Function.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 9. VIEW: CHECK-IN STAFF ASSIGNMENTS -->
+      <section id="view-staff" class="view-pane">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Delegated Check-in Staff</h3>
+              <p style="color:var(--text-muted); font-size:12px;">Staff members have event-day scanning access for this event only. They cannot view full guest lists or RSVP data.</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="inviteStaffPrompt()">+ Assign Staff Member</button>
+          </div>
+
+          <div class="table-container">
+            <table id="staff-table">
+              <thead>
+                <tr>
+                  <th>Staff Member Email</th>
+                  <th>Assignment Status</th>
+                  <th>Invited At</th>
+                  <th>Auth Linkage</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr id="staff-row-1">
+                  <td><strong>marcus.staff@events.org</strong></td>
+                  <td><span class="chip chip-green">active</span></td>
+                  <td>Nov 16, 2026</td>
+                  <td>Linked (auth.users: usr_902f)</td>
+                  <td>
+                    <button class="btn btn-danger btn-sm" onclick="revokeStaff('staff-row-1')">Revoke Access</button>
+                  </td>
+                </tr>
+                <tr id="staff-row-2">
+                  <td><strong>kyla.gatekeeper@temp-staff.com</strong></td>
+                  <td><span class="chip chip-amber">invited</span></td>
+                  <td>Today, 08:30 AM</td>
+                  <td>Awaiting magic-link login</td>
+                  <td>
+                    <button class="btn btn-secondary btn-sm" onclick="showToast('Invitation magic link resent to staff', '✉️')">Resend Invite</button>
+                    <button class="btn btn-danger btn-sm" onclick="revokeStaff('staff-row-2')">Revoke</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10. VIEW: ORGANIZER PROFILE -->
+      <section id="view-profile" class="view-pane">
+        <div class="card" style="max-width:600px;">
+          <div class="card-header">
+            <h3 class="card-title">Organizer Profile</h3>
+            <span class="chip chip-green">Status: Active (Admin Verified)</span>
+          </div>
+
+          <form onsubmit="saveProfile(event)">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-control" value="Sarah Jenkins" id="prof-name">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Google Account Email</label>
+              <input type="email" class="form-control" value="sarah.jenkins@gmail.com" disabled style="background:#F1F5F9;">
+              <small style="color:var(--text-muted); font-size:11px;">Tied to your Supabase Auth Google Identity.</small>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">System Role</label>
+              <input type="text" class="form-control" value="Event Organizer" disabled style="background:#F1F5F9;">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="margin-top:8px;">Save Profile Changes</button>
+          </form>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- SOFT CAPACITY CHECK WARNING MODAL (Audited Override) -->
+  <div id="capacity-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="width:48px; height:48px; border-radius:50%; background:var(--warning-bg); color:var(--warning); display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:12px;">
+        ⚠️
+      </div>
+      <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:700; margin-bottom:8px; color:var(--text-main);">
+        Soft Capacity Warning
+      </h3>
+      <p style="font-size:13px; color:var(--text-muted); line-height:1.5; margin-bottom:16px;">
+        Approving attendee <strong id="modal-attendee-name">Sophia Rostova</strong> will push confirmed capacity to <strong>151 / 150</strong> (exceeding the event ceiling).
+      </p>
+      <div style="background:var(--warning-bg); border: 1px solid var(--warning-border); padding:12px; border-radius:var(--radius-md); font-size:12px; color:var(--warning); margin-bottom:20px;">
+        <strong>Audited Override:</strong> The system allows organizers to proceed with over-capacity approvals. This action will be logged in <code>AuditLogEntry</code> as <code>attendee.approved_over_capacity</code>.
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button class="btn btn-secondary" onclick="closeCapacityModal()">Cancel</button>
+        <button class="btn btn-danger" onclick="confirmCapacityOverride()">Proceed with Override (Audited)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">
+    <span id="toast-icon">✅</span>
+    <span id="toast-msg">Action performed successfully</span>
+  </div>
+
+  <script>
+    let activeModalAttendeeId = null;
+
+    function switchView(viewName) {
+      document.querySelectorAll('.view-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+      const targetView = document.getElementById('view-' + viewName);
+      if (targetView) targetView.classList.add('active');
+
+      const titleMap = {
+        'events': 'Events List',
+        'event-overview': 'Event Overview & Edit',
+        'guests': 'Guest List & Bulk QR',
+        'approvals': 'Approval Queue & Soft Capacity',
+        'reminders': 'Reminder Schedules',
+        'design': 'Invitation Design Management',
+        'attendance': 'Live Attendance Tracking',
+        'checkin': 'Active Entrance Scanner',
+        'staff': 'Check-in Staff Assignments',
+        'profile': 'Organizer Profile'
+      };
+
+      if (titleMap[viewName]) {
+        document.getElementById('page-title').innerText = titleMap[viewName];
+      }
+
+      // Highlight nav button
+      const navButtons = document.querySelectorAll('.nav-item');
+      navButtons.forEach(btn => {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(viewName)) {
+          btn.classList.add('active');
+        }
+      });
+    }
+
+    function showToast(msg, icon = '✅') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      document.getElementById('toast-icon').innerText = icon;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    function switchActiveEvent(eventId) {
+      const names = {
+        'e1': 'Tech Forward Gala 2026',
+        'e2': 'AI Product Summit 2026',
+        'e3': 'Executive VIP Dinner'
+      };
+      document.getElementById('topbar-event-badge').innerText = names[eventId] || 'Selected Event';
+      showToast('Switched context to: ' + names[eventId]);
+    }
+
+    function saveEventDetails(e) {
+      e.preventDefault();
+      const status = document.getElementById('event-status').value;
+      document.getElementById('event-lifecycle-chip').innerText = status;
+      showToast('Event settings saved! Lifecycle status: ' + status);
+    }
+
+    function decideAttendee(rowId, name, action) {
+      const row = document.getElementById(rowId);
+      if (row) {
+        if (action === 'approve') {
+          row.style.background = '#F0FDF4';
+          row.querySelector('td:nth-child(5)').innerHTML = '<span class="chip chip-green">approved</span>';
+          row.querySelector('td:nth-child(6)').innerHTML = '<span style="color:var(--success); font-size:12px; font-weight:600;">Approved & QR Token Generated</span>';
+          showToast('Approved ' + name + ' (Signed QR token issued)');
+        } else {
+          row.style.background = '#FEF2F2';
+          row.querySelector('td:nth-child(5)').innerHTML = '<span class="chip chip-red">rejected</span>';
+          row.querySelector('td:nth-child(6)').innerHTML = '<span style="color:var(--error); font-size:12px;">Rejected</span>';
+          showToast('Rejected ' + name);
+        }
+        updatePendingBadge();
+      }
+    }
+
+    function triggerCapacityWarning(rowId, name) {
+      activeModalAttendeeId = rowId;
+      document.getElementById('modal-attendee-name').innerText = name;
+      document.getElementById('capacity-modal').classList.add('active');
+    }
+
+    function closeCapacityModal() {
+      document.getElementById('capacity-modal').classList.remove('active');
+      activeModalAttendeeId = null;
+    }
+
+    function confirmCapacityOverride() {
+      if (activeModalAttendeeId) {
+        decideAttendee(activeModalAttendeeId, 'Sophia Rostova', 'approve');
+        showToast('Audited Override Logged: Attendee approved over capacity', '⚠️');
+      }
+      closeCapacityModal();
+    }
+
+    function decideHeadcount(rowId, action) {
+      const row = document.getElementById(rowId);
+      if (row) {
+        if (action === 'approve') {
+          row.style.background = '#F0FDF4';
+          row.querySelector('td:nth-child(5)').innerHTML = '<span class="chip chip-green">Approved (+2 heads)</span>';
+          showToast('Headcount request approved. Party ceiling raised to 4 heads.');
+        } else {
+          row.style.background = '#FEF2F2';
+          row.querySelector('td:nth-child(5)').innerHTML = '<span class="chip chip-red">Rejected</span>';
+          showToast('Headcount request rejected.');
+        }
+      }
+    }
+
+    function updatePendingBadge() {
+      let count = document.querySelectorAll('#approvals-roster-body .chip-amber').length;
+      document.getElementById('pending-badge').innerText = count;
+    }
+
+    function triggerManualBulkQr() {
+      showToast('Bulk QR PDF bundle queued & emailed to all 112 confirmed parties!', '🚀');
+    }
+
+    function toggleDesignMode(mode) {
+      if (mode === 'html') {
+        document.getElementById('design-mode-html').style.display = 'block';
+        document.getElementById('design-mode-images').style.display = 'none';
+        document.getElementById('btn-mode-html').className = 'btn btn-secondary btn-sm';
+        document.getElementById('btn-mode-images').className = 'btn btn-ghost btn-sm';
+      } else {
+        document.getElementById('design-mode-html').style.display = 'none';
+        document.getElementById('design-mode-images').style.display = 'block';
+        document.getElementById('btn-mode-html').className = 'btn btn-ghost btn-sm';
+        document.getElementById('btn-mode-images').className = 'btn btn-secondary btn-sm';
+      }
+    }
+
+    function simulateHtmlUpload(outcome) {
+      const chip = document.getElementById('html-status-chip');
+      const title = document.getElementById('html-status-title');
+      const desc = document.getElementById('html-status-desc');
+      const box = document.getElementById('html-validation-box');
+
+      if (outcome === 'pass') {
+        chip.className = 'chip chip-green';
+        chip.innerText = 'validation_status: passed';
+        title.innerText = 'Design Approved for Guest Display';
+        desc.innerText = 'Passed structural parse (0 outbound requests) and malware scan. Rendered inside sandboxed iframe.';
+        box.style.borderLeft = '4px solid var(--success)';
+        showToast('HTML upload validated and marked PASSED!', '✅');
+      } else {
+        chip.className = 'chip chip-red';
+        chip.innerText = 'validation_status: failed';
+        title.innerText = 'Design Rejected: Outbound Link Detected';
+        desc.innerText = 'Validation Notes: File contains external <script src="https://cdn.example.com"> which is forbidden. All resources must be inline.';
+        box.style.borderLeft = '4px solid var(--error)';
+        showToast('HTML validation failed: external reference blocked', '❌');
+      }
+    }
+
+    function simulateScanResult(type) {
+      const icon = document.getElementById('scan-result-icon');
+      const title = document.getElementById('scan-result-title');
+      const sub = document.getElementById('scan-result-sub');
+      const chip = document.getElementById('scan-state-chip');
+
+      if (type === 'valid') {
+        icon.innerText = '✅';
+        title.innerText = 'Checked In: Dmitri Rostova';
+        title.style.color = 'var(--success)';
+        sub.innerText = 'Token verified • Party: Elena Rostova • Station: Organizer Entrance';
+        chip.className = 'chip chip-green';
+        chip.innerText = 'Result: Accepted';
+        showToast('Attendee Dmitri Rostova checked in!', '✅');
+        
+        // increment live count
+        let countEl = document.getElementById('live-checkedin-count');
+        let current = parseInt(countEl.innerText);
+        countEl.innerText = current + 1;
+      } else {
+        icon.innerText = '⚠️';
+        title.innerText = 'Duplicate Scan Detected!';
+        title.style.color = 'var(--warning)';
+        sub.innerText = 'Attendee Elena Rostova was already checked in at 6:34 PM by Sarah Jenkins.';
+        chip.className = 'chip chip-amber';
+        chip.innerText = 'Result: Duplicate';
+        showToast('Warning: Already checked in', '⚠️');
+      }
+    }
+
+    function revokeStaff(rowId) {
+      const row = document.getElementById(rowId);
+      if (row) {
+        row.querySelector('td:nth-child(2)').innerHTML = '<span class="chip chip-red">revoked</span>';
+        row.querySelector('td:nth-child(5)').innerHTML = '<span style="color:var(--text-muted); font-size:12px;">Access Terminated</span>';
+        showToast('Staff access revoked immediately', '🚫');
+      }
+    }
+
+    function addManualGuestPrompt() {
+      const name = prompt("Enter Guest Full Name:", "Victoria Sterling");
+      if (name) {
+        showToast('Guest ' + name + ' added to directory and invited!', '✉️');
+      }
+    }
+
+    function inviteStaffPrompt() {
+      const email = prompt("Enter Staff Member Email:", "colin.scanner@events.org");
+      if (email) {
+        showToast('Check-in assignment created and invite email dispatched to ' + email, '📩');
+      }
+    }
+
+    function saveProfile(e) {
+      e.preventDefault();
+      showToast('Organizer profile saved successfully.');
+    }
+  </script>
+</body>
+</html>
