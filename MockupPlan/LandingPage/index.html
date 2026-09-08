@@ -11,29 +11,43 @@
     :root {
       --primary: #4F46E5;
       --primary-hover: #4338CA;
-      --primary-light: #EEF2FF;
-      --secondary: #008A88;
-      --secondary-light: #E6F6F6;
+      --primary-subtle: #EEF2FF;
+      --primary-border: #C7D2FE;
+      --secondary: #0D9488;
+      --secondary-hover: #0F766E;
+      --secondary-subtle: #F0FDFA;
       --dark: #0F172A;
+      --dark-surface: #1E293B;
       --bg: #F8FAFC;
-      --surface: #FFFFFF;
+      --surface: rgba(255, 255, 255, 0.94);
       --border: #E2E8F0;
-      --text-main: #0B1C30;
+      --border-subtle: #F1F5F9;
+      --text-main: #0F172A;
       --text-muted: #64748B;
+      --text-subtle: #94A3B8;
+
       --success: #15803D;
       --success-bg: #DCFCE7;
+      --success-border: #86EFAC;
       --warning: #B45309;
       --warning-bg: #FEF3C7;
-      --error: #BA1A1A;
+      --warning-border: #FDE68A;
+      --error: #B91C1C;
       --error-bg: #FEE2E2;
-      --font-heading: 'Hanken Grotesk', sans-serif;
-      --font-body: 'Inter', sans-serif;
-      --radius-sm: 6px;
-      --radius-md: 10px;
-      --radius-lg: 14px;
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+
+      --font-heading: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 22px;
+      --radius-pill: 9999px;
+
+      --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 6px 20px -3px rgba(15, 23, 42, 0.07), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+      --shadow-lg: 0 20px 40px -6px rgba(15, 23, 42, 0.1), 0 6px 12px -3px rgba(15, 23, 42, 0.04);
+
+      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -47,11 +61,14 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Top Navigation */
+    /* Top Glassmorphic Navigation */
     header {
-      background: #FFFFFF;
+      background: var(--surface);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
       border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
@@ -70,50 +87,53 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       text-decoration: none;
-      color: var(--primary);
+      color: var(--text-main);
     }
 
     .brand-logo {
-      width: 34px;
-      height: 34px;
-      background: var(--primary);
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--primary) 0%, #3730A3 100%);
       border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
       color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
     }
 
     .brand-text {
       font-family: var(--font-heading);
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 800;
       letter-spacing: -0.02em;
-      color: var(--primary);
+      color: var(--text-main);
     }
 
     .brand-badge {
-      background: var(--primary-light);
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 600;
+      background: var(--primary-subtle);
+      border: 1px solid var(--primary-border);
+      padding: 3px 9px;
+      border-radius: var(--radius-pill);
+      font-size: 10.5px;
+      font-weight: 700;
       color: var(--primary);
+      letter-spacing: 0.04em;
     }
 
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .nav-btn {
-      padding: 7px 14px;
-      border-radius: var(--radius-md);
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
       font-size: 13px;
-      font-weight: 500;
+      font-weight: 600;
       text-decoration: none;
       cursor: pointer;
       transition: all 0.15s ease;
@@ -121,14 +141,12 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-    }
-
-    .nav-btn.ghost {
-      color: var(--text-muted);
       background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-body);
     }
 
-    .nav-btn.ghost:hover {
+    .nav-btn:hover {
       color: var(--text-main);
       background: #F1F5F9;
     }
@@ -136,109 +154,134 @@
     .nav-btn.primary {
       background: var(--primary);
       color: #FFFFFF;
-      font-weight: 600;
+      box-shadow: 0 1px 2px rgba(79, 70, 229, 0.2);
     }
 
     .nav-btn.primary:hover {
       background: var(--primary-hover);
     }
 
-    /* Container */
+    /* Main Container */
     .container {
       max-width: 1240px;
       margin: 0 auto;
-      padding: 28px 24px;
+      padding: 24px;
       flex: 1;
       width: 100%;
     }
 
-    .view-section {
-      display: none;
-      animation: fadeIn 0.2s ease forwards;
-    }
-
-    .view-section.active { display: block; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Switcher bar */
-    .mockup-switcher {
+    /* Route Switcher Segmented Strip */
+    .route-switcher-bar {
       background: #FFFFFF;
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      padding: 8px 12px;
+      padding: 6px 10px;
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 24px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow-sm);
       overflow-x: auto;
     }
 
-    .mockup-switcher span {
-      font-size: 12px;
-      font-weight: 600;
+    .route-switcher-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       color: var(--text-muted);
       white-space: nowrap;
+      margin-right: 4px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
 
-    .pill-btn {
-      padding: 4px 10px;
+    .route-pill {
+      padding: 6px 12px;
       font-size: 12px;
-      font-weight: 500;
-      border-radius: 999px;
-      border: none;
+      font-weight: 600;
+      border-radius: var(--radius-pill);
+      border: 1px solid transparent;
       background: #F1F5F9;
       color: var(--text-muted);
       cursor: pointer;
       white-space: nowrap;
-      transition: all 0.15s;
+      transition: all 0.18s var(--ease-spring);
+      font-family: var(--font-body);
     }
 
-    .pill-btn.active, .pill-btn:hover {
+    .route-pill.active, .route-pill:hover {
       background: var(--primary);
       color: #FFFFFF;
-      font-weight: 600;
+      border-color: var(--primary);
+      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.2);
     }
 
-    /* Hero */
+    /* View Section Transitions */
+    .view-section {
+      display: none;
+      animation: sectionFade 0.25s var(--ease-spring) forwards;
+    }
+
+    .view-section.active { display: block; }
+
+    @keyframes sectionFade {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Hero Section */
     .hero {
       text-align: center;
-      max-width: 820px;
-      margin: 32px auto 44px auto;
+      max-width: 860px;
+      margin: 24px auto 48px auto;
     }
 
-    .hero-pill {
+    .hero-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: var(--primary-light);
+      gap: 8px;
+      background: var(--primary-subtle);
       color: var(--primary);
-      padding: 5px 12px;
-      border-radius: 999px;
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
       font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 18px;
-      border: 1px solid rgba(79, 70, 229, 0.12);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin-bottom: 20px;
+      border: 1px solid var(--primary-border);
+    }
+
+    .hero-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--primary);
     }
 
     .hero h1 {
       font-family: var(--font-heading);
-      font-size: 38px;
-      line-height: 1.2;
+      font-size: 42px;
+      line-height: 1.15;
       font-weight: 800;
       color: var(--text-main);
       letter-spacing: -0.03em;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
+    }
+
+    .hero-gradient-text {
+      background: linear-gradient(135deg, var(--primary) 0%, #0D9488 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .hero p {
-      font-size: 15px;
+      font-size: 16px;
       color: var(--text-muted);
       line-height: 1.6;
-      margin-bottom: 28px;
+      max-width: 740px;
+      margin: 0 auto 32px auto;
     }
 
     .hero-actions {
@@ -248,87 +291,108 @@
       flex-wrap: wrap;
     }
 
-    /* Banner */
+    /* Feature Banner: Open Registration */
     .public-reg-banner {
-      background: linear-gradient(135deg, #4F46E5 0%, #008A88 100%);
+      background: linear-gradient(135deg, #1E1B4B 0%, #0F172A 60%, #064E3B 100%);
       border-radius: var(--radius-lg);
       color: #FFFFFF;
-      padding: 28px 32px;
+      padding: 32px 36px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 20px;
-      margin-bottom: 40px;
+      gap: 24px;
+      margin-bottom: 48px;
       box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
     }
 
-    @media (min-width: 768px) {
+    @media (min-width: 840px) {
       .public-reg-banner {
         flex-direction: row;
         align-items: center;
       }
     }
 
-    .public-reg-banner h2 {
+    .public-reg-banner::after {
+      content: "";
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(13, 148, 136, 0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .public-reg-content h2 {
       font-family: var(--font-heading);
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 6px;
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      margin-bottom: 8px;
     }
 
-    .public-reg-banner p {
-      font-size: 13.5px;
-      color: rgba(255, 255, 255, 0.9);
-      max-width: 620px;
-      line-height: 1.5;
+    .public-reg-content p {
+      font-size: 14px;
+      color: #CBD5E1;
+      max-width: 640px;
+      line-height: 1.6;
     }
 
-    .public-reg-badge {
-      background: rgba(255, 255, 255, 0.2);
-      padding: 3px 10px;
-      border-radius: 999px;
+    .public-reg-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
       font-size: 11px;
-      font-weight: 600;
-      display: inline-block;
-      margin-bottom: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+      color: #6EE7B7;
     }
 
-    /* Grid of Portals */
+    /* 4 Role Portal Entry Cards Grid */
     .section-title {
       font-family: var(--font-heading);
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 4px;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
       color: var(--text-main);
+      margin-bottom: 4px;
     }
 
     .section-subtitle {
-      font-size: 13px;
+      font-size: 13.5px;
       color: var(--text-muted);
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
 
     .portals-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
       gap: 20px;
-      margin-bottom: 44px;
+      margin-bottom: 48px;
     }
 
     .portal-card {
-      background: var(--surface);
+      background: #FFFFFF;
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
-      padding: 22px;
+      padding: 24px;
       display: flex;
       flex-direction: column;
       box-shadow: var(--shadow-sm);
-      transition: all 0.2s ease;
+      transition: all 0.22s var(--ease-spring);
+      position: relative;
     }
 
     .portal-card:hover {
-      transform: translateY(-2px);
+      transform: translateY(-3px);
       box-shadow: var(--shadow-md);
       border-color: #CBD5E1;
     }
@@ -337,12 +401,12 @@
       display: flex;
       align-items: center;
       gap: 14px;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
 
     .portal-icon-box {
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: var(--radius-md);
       display: flex;
       align-items: center;
@@ -351,29 +415,33 @@
     }
 
     .portal-icon-box.organizer { background: #EEF2FF; color: var(--primary); }
-    .portal-icon-box.guest { background: #E6F6F6; color: var(--secondary); }
+    .portal-icon-box.guest { background: #F0FDFA; color: var(--secondary); }
     .portal-icon-box.staff { background: #FEF3C7; color: var(--warning); }
     .portal-icon-box.admin { background: #F1F5F9; color: var(--dark); }
 
     .portal-card h3 {
       font-family: var(--font-heading);
-      font-size: 16px;
-      font-weight: 700;
+      font-size: 17px;
+      font-weight: 800;
       color: var(--text-main);
+      letter-spacing: -0.01em;
       margin-bottom: 2px;
     }
 
     .portal-auth-badge {
-      font-size: 11px;
+      font-size: 11.5px;
       color: var(--text-muted);
-      font-weight: 500;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
 
     .portal-card p {
       color: var(--text-muted);
       font-size: 13px;
-      line-height: 1.5;
-      margin-bottom: 18px;
+      line-height: 1.55;
+      margin-bottom: 20px;
       flex: 1;
     }
 
@@ -388,62 +456,156 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      padding: 9px 16px;
+      gap: 8px;
+      padding: 10px 18px;
       font-size: 13px;
       font-weight: 600;
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-sm);
       border: 1px solid transparent;
       cursor: pointer;
       text-decoration: none;
-      transition: all 0.15s ease;
+      transition: all 0.18s var(--ease-spring);
       font-family: var(--font-body);
     }
 
-    .btn-primary { background: var(--primary); color: #FFFFFF; }
-    .btn-primary:hover { background: var(--primary-hover); }
-    .btn-secondary { background: #FFFFFF; border-color: var(--border); color: var(--text-main); }
-    .btn-secondary:hover { background: #F8FAFC; }
-    .btn-teal { background: var(--secondary); color: #FFFFFF; }
-    .btn-teal:hover { background: #007371; }
-    .btn-ghost { background: transparent; color: var(--text-muted); }
-    .btn-ghost:hover { background: #F1F5F9; color: var(--text-main); }
-    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn:active {
+      transform: scale(0.98);
+    }
 
-    /* Auth Wrapper */
-    .auth-wrapper {
-      max-width: 460px;
-      margin: 32px auto;
-      background: var(--surface);
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      box-shadow: 0 1px 2px rgba(79, 70, 229, 0.2);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    }
+
+    .btn-secondary {
+      background: #FFFFFF;
+      border-color: var(--border);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: #F8FAFC;
+      border-color: #CBD5E1;
+    }
+
+    .btn-teal {
+      background: var(--secondary);
+      color: #FFFFFF;
+      box-shadow: 0 1px 2px rgba(13, 148, 136, 0.2);
+    }
+
+    .btn-teal:hover {
+      background: var(--secondary-hover);
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+    }
+
+    .btn-dark {
+      background: var(--dark);
+      color: #FFFFFF;
+    }
+
+    .btn-dark:hover {
+      background: #1E293B;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    .btn-ghost:hover {
+      background: #F1F5F9;
+      color: var(--text-main);
+    }
+
+    .btn-sm {
+      padding: 7px 12px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
+
+    /* Auth Wrapper Card */
+    .auth-card {
+      max-width: 480px;
+      margin: 36px auto;
+      background: #FFFFFF;
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
-      padding: 30px;
-      box-shadow: var(--shadow-sm);
+      padding: 32px;
+      box-shadow: var(--shadow-md);
     }
 
     .auth-header {
       text-align: center;
-      margin-bottom: 22px;
+      margin-bottom: 24px;
+    }
+
+    .auth-avatar-wrap {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px auto;
     }
 
     .auth-header h2 {
       font-family: var(--font-heading);
       font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 6px;
+      font-weight: 800;
       color: var(--text-main);
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
     }
 
     .auth-header p {
       font-size: 13px;
       color: var(--text-muted);
+      line-height: 1.5;
     }
 
-    .form-group { margin-bottom: 16px; }
+    .google-btn {
+      width: 100%;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      font-weight: 600;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: all 0.18s var(--ease-spring);
+      font-size: 13.5px;
+      font-family: var(--font-body);
+    }
+
+    .google-btn:hover {
+      background: #F8FAFC;
+      border-color: #CBD5E1;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .google-btn:active {
+      transform: scale(0.99);
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
 
     .form-label {
       display: block;
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 600;
       color: var(--text-main);
       margin-bottom: 6px;
@@ -451,11 +613,11 @@
 
     .form-control {
       width: 100%;
-      padding: 9px 12px;
+      padding: 10px 12px;
       font-size: 13.5px;
       font-family: var(--font-body);
       border: 1px solid var(--border);
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-sm);
       background: #FFFFFF;
       color: var(--text-main);
       outline: none;
@@ -464,51 +626,32 @@
 
     .form-control:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
-    }
-
-    .google-btn {
-      width: 100%;
-      background: #FFFFFF;
-      border: 1px solid var(--border);
-      color: #1E293B;
-      font-weight: 600;
-      padding: 11px 16px;
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: all 0.15s;
-      font-size: 13.5px;
-    }
-
-    .google-btn:hover {
-      background: #F8FAFC;
-      border-color: #CBD5E1;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
     }
 
     .notice-box {
-      background: #F1F5F9;
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      font-size: 12.5px;
+      line-height: 1.55;
+      margin-top: 18px;
+    }
+
+    .notice-box.neutral {
+      background: #F8FAFC;
       border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 12px 14px;
-      font-size: 12px;
       color: var(--text-muted);
-      margin-top: 16px;
-      line-height: 1.5;
     }
 
     .notice-box.warning {
       background: var(--warning-bg);
-      border-color: #FDE68A;
+      border: 1px solid var(--warning-border);
       color: var(--warning);
     }
 
     .notice-box.success {
       background: var(--success-bg);
-      border-color: #86EFAC;
+      border: 1px solid var(--success-border);
       color: var(--success);
     }
 
@@ -516,40 +659,50 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 3px 10px;
-      border-radius: 999px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
       font-size: 11.5px;
-      font-weight: 600;
+      font-weight: 700;
     }
 
-    .status-badge.pending { background: var(--warning-bg); color: var(--warning); }
-    .status-badge.active { background: var(--success-bg); color: var(--success); }
+    .status-badge.pending { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
+    .status-badge.active { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
 
-    /* Toast */
+    /* Toast Notification */
     .toast {
       position: fixed;
       bottom: 24px;
       right: 24px;
-      background: var(--dark);
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
       color: #FFFFFF;
-      padding: 12px 18px;
+      padding: 12px 20px;
       border-radius: var(--radius-md);
       box-shadow: var(--shadow-lg);
       display: flex;
       align-items: center;
-      gap: 10px;
-      z-index: 100;
+      gap: 12px;
+      z-index: 1000;
       transform: translateY(100px);
       opacity: 0;
-      transition: all 0.25s ease;
+      transition: all 0.3s var(--ease-spring);
     }
 
-    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast-icon {
+      color: #34D399;
+      display: flex;
+      align-items: center;
+    }
 
     footer {
       background: #FFFFFF;
       border-top: 1px solid var(--border);
-      padding: 20px 24px;
+      padding: 24px;
       text-align: center;
       font-size: 12.5px;
       color: var(--text-muted);
@@ -559,233 +712,285 @@
 </head>
 <body>
 
-  <!-- Top Header -->
+  <!-- Top Glassmorphic Navigation -->
   <header>
     <div class="nav-container">
       <a href="#landing" onclick="showView('landing')" class="brand">
         <div class="brand-logo">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
         </div>
         <div>
           <span class="brand-text">EIRMIS</span>
-          <span class="brand-badge">PROTOTYPE</span>
+          <span class="brand-badge">ARCHITECTURE READY</span>
         </div>
       </a>
+
       <nav class="nav-links">
-        <button onclick="showView('landing')" class="nav-btn ghost">Home</button>
-        <button onclick="showView('login')" class="nav-btn ghost">Sign In</button>
-        <button onclick="showView('guest-login')" class="nav-btn ghost">Guest RSVP</button>
-        <button onclick="showView('staff-login')" class="nav-btn ghost">Staff Scanner</button>
-        <button onclick="showView('register')" class="nav-btn primary">Public Event</button>
+        <button onclick="showView('landing')" class="nav-btn">Home</button>
+        <button onclick="showView('login')" class="nav-btn">Google Auth</button>
+        <button onclick="showView('guest-login')" class="nav-btn">Guest Access</button>
+        <button onclick="showView('staff-login')" class="nav-btn">Staff Scanner</button>
+        <button onclick="showView('register')" class="nav-btn primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Public RSVP Form
+        </button>
       </nav>
     </div>
   </header>
 
   <div class="container">
-    
-    <!-- View Switcher -->
-    <div class="mockup-switcher">
-      <span>Simulate Route:</span>
-      <button class="pill-btn active" id="btn-view-landing" onclick="showView('landing')">/ (Landing)</button>
-      <button class="pill-btn" id="btn-view-login" onclick="showView('login')">/login (Google Auth)</button>
-      <button class="pill-btn" id="btn-view-pending" onclick="showView('pending')">/pending-verification</button>
-      <button class="pill-btn" id="btn-view-guest-login" onclick="showView('guest-login')">/guest/login</button>
-      <button class="pill-btn" id="btn-view-staff-login" onclick="showView('staff-login')">/staff/login</button>
-      <button class="pill-btn" id="btn-view-register" onclick="showView('register')">/register/:slug</button>
+
+    <!-- Route Simulator Segmented Pill Bar -->
+    <div class="route-switcher-bar">
+      <div class="route-switcher-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        Simulate Route:
+      </div>
+      <button class="route-pill active" id="btn-view-landing" onclick="showView('landing')">/ (Landing Hub)</button>
+      <button class="route-pill" id="btn-view-login" onclick="showView('login')">/login (Google Auth)</button>
+      <button class="route-pill" id="btn-view-pending" onclick="showView('pending')">/pending-verification</button>
+      <button class="route-pill" id="btn-view-guest-login" onclick="showView('guest-login')">/guest/login</button>
+      <button class="route-pill" id="btn-view-staff-login" onclick="showView('staff-login')">/staff/login</button>
+      <button class="route-pill" id="btn-view-register" onclick="showView('register')">/register/:slug</button>
     </div>
 
     <!-- 1. LANDING VIEW -->
     <section id="view-landing" class="view-section active">
       <div class="hero">
-        <div class="hero-pill">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          EIRMIS Specification Implementation
+        <div class="hero-badge">
+          <span class="hero-badge-dot"></span>
+          EIRMIS End-to-End Architecture
         </div>
-        <h1>Event Invitation & RSVP Management System</h1>
+        <h1>
+          Event Invitation & <br>
+          <span class="hero-gradient-text">RSVP Management System</span>
+        </h1>
         <p>
-          A unified, auditable platform orchestrating the entire lifecycle from invitation delivery and tiered RSVP approvals to automated QR generation and day-of entrance check-in.
+          A unified, auditable platform orchestrating the entire lifecycle: invitation delivery, tiered RSVP approvals, passwordless guest rosters, Apple Wallet VIP passes, and real-time camera entrance scanning.
         </p>
         <div class="hero-actions">
-          <button class="btn btn-primary" onclick="showView('login')">Organizer & Admin Portal</button>
-          <button class="btn btn-secondary" onclick="showView('guest-login')">Guest Portal (Magic Link)</button>
-          <button class="btn btn-teal" onclick="showView('register')">Explore Public RSVP</button>
+          <button class="btn btn-primary" onclick="showView('login')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+            Sign In with Google
+          </button>
+          <button class="btn btn-secondary" onclick="showView('guest-login')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22 6 12 13 2 6"></polyline></svg>
+            Guest Passwordless RSVP
+          </button>
+          <button class="btn btn-teal" onclick="showView('register')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            Test Open Registration
+          </button>
         </div>
       </div>
 
-      <!-- Public Registration Banner -->
+      <!-- Open Registration Feature Banner -->
       <div class="public-reg-banner">
-        <div>
-          <span class="public-reg-badge">Open Registration Feature</span>
+        <div class="public-reg-content">
+          <div class="public-reg-tag">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Self-Service Public Ingress
+          </div>
           <h2>Tech Forward Annual Gala 2026</h2>
           <p>
-            Experience the public attendee self-registration workflow (/register/tech-forward-2026). Anyone can submit an RSVP, creating an accepted invitation and receiving a passwordless magic link to manage their party roster.
+            Experience the public attendee self-registration workflow (/register/tech-forward-2026). Anyone can register without pre-existing accounts, generating an accepted invitation and receiving a magic link to manage their party roster.
           </p>
         </div>
-        <button class="btn" style="background:#FFFFFF; color:#0F172A; font-weight:700; white-space:nowrap;" onclick="showView('register')">
-          Register for Event →
+        <button class="btn" style="background:#FFFFFF; color:var(--dark); font-weight:700; white-space:nowrap; padding:12px 20px;" onclick="showView('register')">
+          Open Registration Form
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
         </button>
       </div>
 
-      <!-- Portals Grid -->
+      <!-- 4 Role Portals Grid -->
       <h2 class="section-title">System Role Portals</h2>
-      <p class="section-subtitle">Select a portal to explore its dedicated interface and workflows:</p>
+      <p class="section-subtitle">Dedicated operational spaces governed by strict boundary permissions:</p>
 
       <div class="portals-grid">
-        
-        <!-- Organizer Portal -->
+        <!-- 1. Organizer Portal -->
         <div class="portal-card">
           <div class="portal-card-header">
             <div class="portal-icon-box organizer">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
             </div>
             <div>
               <h3>Event Organizer</h3>
-              <span class="portal-auth-badge">Google OAuth</span>
+              <span class="portal-auth-badge">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                Google OAuth + Admin Gate
+              </span>
             </div>
           </div>
           <p>
-            Create events, upload custom invitation designs, review multi-head attendee rosters, approve headcount increases, and monitor live attendance.
+            Create events, upload HTML invitation assets with VirusTotal scanning, review party rosters, override capacity limits with audit trails, and broadcast reminder emails.
           </p>
           <div class="card-actions">
-            <a href="../Organizer Portal/index.html" class="btn btn-primary">Open Organizer Portal →</a>
+            <a href="../Organizer Portal/index.html" class="btn btn-primary">Launch Organizer Portal →</a>
             <button onclick="showView('login')" class="btn btn-ghost btn-sm">Simulate Google Login</button>
           </div>
         </div>
 
-        <!-- Guest Portal -->
+        <!-- 2. Guest Portal -->
         <div class="portal-card">
           <div class="portal-card-header">
             <div class="portal-icon-box guest">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22 6 12 13 2 6"></polyline></svg>
             </div>
             <div>
               <h3>Guest Portal</h3>
-              <span class="portal-auth-badge">Magic Link Auth</span>
+              <span class="portal-auth-badge">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                Passwordless Magic Link
+              </span>
             </div>
           </div>
           <p>
-            Passwordless self-service RSVP. Submit party rosters (names & optional emails), request additional heads, view sandboxed invitations, and download QR codes.
+            Self-service RSVP response (Accept, Tentative, Decline), multi-head party roster management, additional headcount requests, and Apple Wallet VIP boarding passes.
           </p>
           <div class="card-actions">
-            <a href="../Guest Portal/index.html" class="btn btn-teal">Open Guest Portal →</a>
+            <a href="../Guest Portal/index.html" class="btn btn-teal">Launch Guest Portal →</a>
             <button onclick="showView('guest-login')" class="btn btn-ghost btn-sm">Simulate Magic Link</button>
           </div>
         </div>
 
-        <!-- Check-in Staff Portal -->
+        <!-- 3. Check-in Staff Portal -->
         <div class="portal-card">
           <div class="portal-card-header">
             <div class="portal-icon-box staff">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
             </div>
             <div>
               <h3>Check-in Staff</h3>
-              <span class="portal-auth-badge">Delegated Event Scope</span>
+              <span class="portal-auth-badge">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                Event-Day Scoped Token
+              </span>
             </div>
           </div>
           <p>
-            Mobile-first scanner strictly scoped to a single assigned event on event day. Instant QR token redemption, duplicate detection, and walk-in registration.
+            Mobile-first entrance viewfinder with simulated camera laser, haptic vibrations, duplicate token alerts, and door walk-in registrations. No attendee PII access.
           </p>
           <div class="card-actions">
-            <a href="../Check-in Staff Portal/index.html" class="btn btn-secondary">Open Staff Scanner →</a>
-            <button onclick="showView('staff-login')" class="btn btn-ghost btn-sm">Simulate Staff Login</button>
+            <a href="../Check-in Staff Portal/index.html" class="btn btn-secondary">Launch Staff Scanner →</a>
+            <button onclick="showView('staff-login')" class="btn btn-ghost btn-sm">Simulate Staff Auth</button>
           </div>
         </div>
 
-        <!-- Admin Portal -->
+        <!-- 4. System Admin Portal -->
         <div class="portal-card">
           <div class="portal-card-header">
             <div class="portal-icon-box admin">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             </div>
             <div>
               <h3>System Administrator</h3>
-              <span class="portal-auth-badge">Provisioned Auth</span>
+              <span class="portal-auth-badge">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                Root Trust Gate
+              </span>
             </div>
           </div>
           <p>
-            The sole trust gate for organizer onboarding. Verify self-registered organizers from pending to active. Strictly isolated from private event guest lists.
+            The sole trust gate authorizing newly registered Google accounts to create events. Governs org settings and email domains. Strictly zero-knowledge over event guest lists.
           </p>
           <div class="card-actions">
-            <a href="../Admin Portal/index.html" class="btn btn-primary" style="background:#0F172A;">Open Admin Portal →</a>
+            <a href="../Admin Portal/index.html" class="btn btn-dark">Launch Admin Portal →</a>
             <button onclick="showView('pending')" class="btn btn-ghost btn-sm">Simulate Pending Screen</button>
           </div>
         </div>
-
       </div>
     </section>
 
-    <!-- 2. LOGIN VIEW -->
+    <!-- 2. LOGIN VIEW (GOOGLE AUTH) -->
     <section id="view-login" class="view-section">
-      <div class="auth-wrapper">
+      <div class="auth-card">
         <div class="auth-header">
+          <div class="auth-avatar-wrap" style="background:var(--primary-subtle); color:var(--primary);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+          </div>
           <h2>Organizer & Admin Sign In</h2>
-          <p>Authenticate with your verified Google account</p>
+          <p>Sign in using your Google account to access authorized event operations</p>
         </div>
 
         <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px;">
+          <!-- Active Organizer -->
           <button class="google-btn" onclick="simulateGoogleLogin('active-organizer')">
             <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
             Continue as Active Organizer
           </button>
 
+          <!-- Pending Organizer -->
           <button class="google-btn" onclick="simulateGoogleLogin('pending-organizer')">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
-            Sign In as Unverified Organizer
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Sign In as Pending Organizer
           </button>
 
+          <!-- Admin -->
           <button class="google-btn" onclick="simulateGoogleLogin('admin')">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--dark)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             Sign In as System Administrator
           </button>
         </div>
 
-        <div class="notice-box">
-          <strong>Google OAuth Notice:</strong> Sign in supports <em>any</em> standard Google account. There is no domain restriction. Newly registered organizers remain <code>pending</code> until verified by an Administrator.
+        <div class="notice-box neutral">
+          <strong>Open Google OAuth:</strong> EIRMIS permits sign in from any valid Google account without restrictive domain whitelisting. First-time sign-ins enter an audited <code>pending</code> queue awaiting administrator activation.
         </div>
 
-        <div style="margin-top:20px; text-align:center;">
-          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none;">← Return to Home</a>
+        <div style="margin-top:24px; text-align:center;">
+          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">
+            ← Return to Landing Hub
+          </a>
         </div>
       </div>
     </section>
 
     <!-- 3. PENDING VERIFICATION VIEW -->
     <section id="view-pending" class="view-section">
-      <div class="auth-wrapper" style="text-align:center;">
-        <div style="width:54px; height:54px; background:var(--warning-bg); color:var(--warning); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px auto;">
+      <div class="auth-card" style="text-align:center;">
+        <div class="auth-avatar-wrap" style="background:var(--warning-bg); color:var(--warning);">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
         </div>
+
         <div class="status-badge pending" style="margin-bottom:14px;">
-          Account Status: Pending Verification
+          Account Status: Pending Review
         </div>
-        <h2 style="font-family:var(--font-heading); font-size:20px; font-weight:700; margin-bottom:8px;">
-          Approval in Progress
+
+        <h2 style="font-family:var(--font-heading); font-size:22px; font-weight:800; color:var(--text-main); margin-bottom:8px;">
+          Verification in Progress
         </h2>
+
         <p style="color:var(--text-muted); font-size:13.5px; margin-bottom:20px; line-height:1.6;">
-          Thank you for signing in, <strong>sarah.jenkins@gmail.com</strong>. Because EIRMIS permits any Google account, an Administrator must verify your profile before you can publish events.
+          Signed in as <strong>sarah.jenkins@gmail.com</strong>. Because any Google account can register, an Administrator must verify your profile before you can publish events or dispatch invitations.
         </p>
 
-        <div class="notice-box warning" style="text-align:left; margin-bottom:20px;">
-          <strong>Why is this required?</strong> System manual verification is the sole trust gate preventing unauthorized event creation. You will receive an email once activated.
+        <div class="notice-box warning" style="text-align:left; margin-bottom:24px;">
+          <strong>Security Gate:</strong> The manual verification gate ensures trust and platform accountability. You will receive an automated confirmation email once activated.
         </div>
 
         <div style="display:flex; gap:10px; justify-content:center;">
-          <a href="../Admin Portal/index.html" class="btn btn-secondary btn-sm">Switch to Admin to Approve</a>
+          <a href="../Admin Portal/index.html" class="btn btn-secondary btn-sm">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            Switch to Admin Portal
+          </a>
           <button class="btn btn-ghost btn-sm" onclick="showView('landing')">Back to Home</button>
         </div>
       </div>
     </section>
 
-    <!-- 4. GUEST LOGIN VIEW -->
+    <!-- 4. GUEST LOGIN VIEW (MAGIC LINK) -->
     <section id="view-guest-login" class="view-section">
-      <div class="auth-wrapper">
+      <div class="auth-card">
         <div class="auth-header">
-          <div style="width:48px; height:48px; background:#E6F6F6; color:var(--secondary); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px auto;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          <div class="auth-avatar-wrap" style="background:var(--secondary-subtle); color:var(--secondary);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22 6 12 13 2 6"></polyline></svg>
           </div>
-          <h2>Guest Passwordless Login</h2>
-          <p>No password or account creation required. We'll email you a secure magic link.</p>
+          <h2>Guest Passwordless Access</h2>
+          <p>No password needed. Enter your email to receive a secure, one-click magic link.</p>
         </div>
 
         <form onsubmit="handleGuestLogin(event)">
@@ -793,35 +998,38 @@
             <label class="form-label" for="guest-email">Your Email Address</label>
             <input type="email" id="guest-email" class="form-control" placeholder="guest@example.com" required value="elena.rostova@gmail.com">
           </div>
-          <button type="submit" class="btn btn-teal" style="width:100%;">
-            Send Magic Link →
+          <button type="submit" class="btn btn-teal" style="width:100%; padding:11px;">
+            Send Magic Link
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
           </button>
         </form>
 
         <div id="guest-magic-sent" style="display:none; margin-top:20px;" class="notice-box success">
-          <strong>Magic Link Dispatched:</strong> A secure one-time login link has been sent to <span id="sent-guest-email"></span>.
-          <div style="margin-top:12px;">
+          <strong>Magic Link Dispatched:</strong> A secure tokenized sign-in link has been sent to <span id="sent-guest-email" style="font-family:monospace; font-weight:700;"></span>.
+          <div style="margin-top:14px;">
             <a href="../Guest Portal/index.html" class="btn btn-teal btn-sm" style="width:100%; text-align:center;">
-              Simulate Opening Email Link (Launch Portal) →
+              Simulate Email Link Click (Launch Guest Portal) →
             </a>
           </div>
         </div>
 
-        <div style="margin-top:20px; text-align:center;">
-          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none;">← Return to Home</a>
+        <div style="margin-top:24px; text-align:center;">
+          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">
+            ← Return to Landing Hub
+          </a>
         </div>
       </div>
     </section>
 
     <!-- 5. STAFF LOGIN VIEW -->
     <section id="view-staff-login" class="view-section">
-      <div class="auth-wrapper">
+      <div class="auth-card">
         <div class="auth-header">
-          <div style="width:48px; height:48px; background:#EEF2FF; color:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px auto;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+          <div class="auth-avatar-wrap" style="background:#FEF3C7; color:var(--warning);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
           </div>
           <h2>Check-in Staff Sign In</h2>
-          <p>Enter the email address where you received your check-in delegation invite.</p>
+          <p>Enter the email address where your check-in delegation invite was received</p>
         </div>
 
         <form onsubmit="handleStaffLogin(event)">
@@ -829,57 +1037,67 @@
             <label class="form-label" for="staff-email">Staff Member Email</label>
             <input type="email" id="staff-email" class="form-control" placeholder="staff@example.com" required value="marcus.staff@events.org">
           </div>
-          <button type="submit" class="btn btn-primary" style="width:100%;">
-            Send Staff Access Link →
+          <button type="submit" class="btn btn-primary" style="width:100%; padding:11px;">
+            Send Staff Scanner Token
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
           </button>
         </form>
 
         <div id="staff-magic-sent" style="display:none; margin-top:20px;" class="notice-box success">
-          <strong>Staff Access Link Dispatched:</strong> Access token generated for <span id="sent-staff-email"></span>.
-          <div style="margin-top:12px;">
+          <strong>Staff Access Link Dispatched:</strong> Scoped check-in token generated for <span id="sent-staff-email" style="font-family:monospace; font-weight:700;"></span>.
+          <div style="margin-top:14px;">
             <a href="../Check-in Staff Portal/index.html" class="btn btn-primary btn-sm" style="width:100%; text-align:center;">
-              Simulate Magic Link Entry (Open Scanner) →
+              Simulate Token Entry (Open Staff Scanner) →
             </a>
           </div>
         </div>
 
-        <div class="notice-box" style="margin-top:16px;">
-          <strong>Security Scope:</strong> Check-in staff access is granted strictly per event for the day of the event. Staff have no access to full guest lists or attendee contact information.
+        <div class="notice-box neutral" style="margin-top:20px;">
+          <strong>Day-of Security Scope:</strong> Check-in staff access is strictly restricted to their assigned event and active only on event day. Staff have no access to full guest lists or contact data.
         </div>
 
-        <div style="margin-top:20px; text-align:center;">
-          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none;">← Return to Home</a>
+        <div style="margin-top:24px; text-align:center;">
+          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">
+            ← Return to Landing Hub
+          </a>
         </div>
       </div>
     </section>
 
-    <!-- 6. PUBLIC OPEN-REGISTRATION VIEW -->
+    <!-- 6. PUBLIC OPEN-REGISTRATION VIEW (/register/:slug) -->
     <section id="view-register" class="view-section">
-      <div style="max-width:640px; margin:0 auto; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:28px; box-shadow:var(--shadow-sm);">
+      <div style="max-width:680px; margin:0 auto; background:#FFFFFF; border:1px solid var(--border); border-radius:var(--radius-lg); padding:32px; box-shadow:var(--shadow-md);">
         
-        <div style="border-bottom:1px solid var(--border); padding-bottom:18px; margin-bottom:20px;">
-          <span class="status-badge active" style="margin-bottom:8px;">Public Open Registration</span>
-          <h1 style="font-family:var(--font-heading); font-size:24px; font-weight:800; color:var(--text-main); margin-bottom:4px;">
+        <div style="border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:24px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span class="status-badge active">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Public Open Registration
+            </span>
+            <span style="font-size:11px; color:var(--text-muted); font-family:monospace;">/register/tech-forward-2026</span>
+          </div>
+          <h1 style="font-family:var(--font-heading); font-size:26px; font-weight:800; color:var(--text-main); margin-bottom:6px; letter-spacing:-0.02em;">
             Tech Forward Annual Gala 2026
           </h1>
-          <p style="color:var(--text-muted); font-size:13px;">
+          <p style="color:var(--text-muted); font-size:13.5px; display:flex; align-items:center; gap:6px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
             Marina Bay Sands Grand Ballroom, Singapore • November 18, 2026 at 6:30 PM SGT
           </p>
         </div>
 
         <form onsubmit="handlePublicReg(event)">
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
             <div class="form-group" style="margin-bottom:0;">
               <label class="form-label" for="reg-name">Full Name *</label>
-              <input type="text" id="reg-name" class="form-control" required placeholder="Alex Mercer" value="Dr. Aris Thorne">
+              <input type="text" id="reg-name" class="form-control" required placeholder="Full Name" value="Dr. Aris Thorne">
             </div>
             <div class="form-group" style="margin-bottom:0;">
               <label class="form-label" for="reg-email">Email Address *</label>
-              <input type="email" id="reg-email" class="form-control" required placeholder="alex@company.com" value="aris.thorne@biotech-innovate.org">
+              <input type="email" id="reg-email" class="form-control" required placeholder="email@company.com" value="aris.thorne@biotech-innovate.org">
             </div>
           </div>
 
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
             <div class="form-group" style="margin-bottom:0;">
               <label class="form-label" for="reg-headcount">Party Size</label>
               <select id="reg-headcount" class="form-control">
@@ -900,21 +1118,27 @@
             <textarea id="reg-notes" class="form-control" rows="2">Keynote speaker guest, requires wheelchair accessible seating.</textarea>
           </div>
 
-          <button type="submit" class="btn btn-primary" style="width:100%; padding:11px; font-size:14px;">
-            Submit RSVP & Register →
+          <button type="submit" class="btn btn-primary" style="width:100%; padding:12px; font-size:14px; margin-top:8px;">
+            Submit RSVP & Register
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
           </button>
         </form>
 
         <div id="reg-success-box" style="display:none; margin-top:20px;" class="notice-box success">
-          <h4 style="font-size:14px; margin-bottom:4px; font-weight:700;">Registration Confirmed</h4>
-          <p style="margin-bottom:10px;">
-            Your RSVP has been recorded with status <strong>accepted</strong>. A confirmation email with a passwordless login magic link has been sent to <strong id="registered-email"></strong>.
+          <h4 style="font-size:14px; margin-bottom:4px; font-weight:800; display:flex; align-items:center; gap:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Registration Confirmed
+          </h4>
+          <p style="margin-bottom:12px;">
+            Your RSVP has been recorded with status <strong>accepted</strong>. A confirmation email with a passwordless magic link has been sent to <strong id="registered-email"></strong>.
           </p>
           <a href="../Guest Portal/index.html" class="btn btn-teal btn-sm">Proceed to Guest Portal to Complete Party Roster →</a>
         </div>
 
-        <div style="margin-top:20px; text-align:center;">
-          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none;">← Return to Overview</a>
+        <div style="margin-top:24px; text-align:center;">
+          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">
+            ← Return to Overview
+          </a>
         </div>
       </div>
     </section>
@@ -923,6 +1147,9 @@
 
   <!-- Toast -->
   <div id="toast" class="toast">
+    <span class="toast-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </span>
     <span id="toast-message">Action successful</span>
   </div>
 
@@ -939,7 +1166,7 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
 
-      document.querySelectorAll('.pill-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.route-pill').forEach(btn => btn.classList.remove('active'));
       const activePill = document.getElementById('btn-view-' + viewId);
       if (activePill) activePill.classList.add('active');
     }
