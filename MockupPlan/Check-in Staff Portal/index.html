@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EIRMIS — Check-in Staff Entrance Scanner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-hover: #4338CA;
+      --primary-light: #EEF2FF;
+      --secondary: #008A88;
+      --secondary-light: #E6F6F6;
+      --dark: #0F172A;
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --border: #E2E8F0;
+      --text-main: #0B1C30;
+      --text-muted: #64748B;
+      --success: #15803D;
+      --success-bg: #DCFCE7;
+      --success-border: #86EFAC;
+      --warning: #B45309;
+      --warning-bg: #FEF3C7;
+      --warning-border: #FDE68A;
+      --error: #BA1A1A;
+      --error-bg: #FEE2E2;
+      --error-border: #FCA5A5;
+      --font-heading: 'Hanken Grotesk', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Bar */
+    header {
+      background: var(--dark);
+      color: #FFFFFF;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-inner {
+      max-width: 540px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .scanner-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .scanner-logo {
+      width: 28px;
+      height: 28px;
+      background: var(--primary);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      color: white;
+    }
+
+    /* Main Container (Mobile focused phone width) */
+    main {
+      flex: 1;
+      max-width: 540px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    /* Scoped Boundary Notice */
+    .boundary-notice {
+      background: #F1F5F9;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Stat Cards */
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stat-num {
+      font-family: var(--font-heading);
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-top: 2px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    /* Scanner Viewport */
+    .viewport-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .camera-frame {
+      background: #0F172A;
+      border-radius: var(--radius-md);
+      height: 220px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      color: white;
+    }
+
+    .scan-reticle {
+      width: 150px;
+      height: 150px;
+      border: 2px dashed #38BDF8;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .scan-laser {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #38BDF8;
+      box-shadow: 0 0 8px #38BDF8;
+      animation: scanLaser 2s infinite ease-in-out;
+    }
+
+    @keyframes scanLaser {
+      0% { top: 10%; opacity: 0.2; }
+      50% { top: 90%; opacity: 1; }
+      100% { top: 10%; opacity: 0.2; }
+    }
+
+    /* Result Panel State Machine */
+    .result-panel {
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      background: #FFFFFF;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .result-panel.accepted {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+      color: var(--success);
+    }
+
+    .result-panel.duplicate {
+      background: var(--warning-bg);
+      border-color: var(--warning-border);
+      color: var(--warning);
+    }
+
+    .result-panel.rejected {
+      background: var(--error-bg);
+      border-color: var(--error-border);
+      color: var(--error);
+    }
+
+    .result-panel.idle {
+      background: #F8FAFC;
+      border-color: var(--border);
+      color: var(--text-muted);
+    }
+
+    .result-icon {
+      font-size: 32px;
+      flex-shrink: 0;
+    }
+
+    .result-details {
+      flex: 1;
+    }
+
+    .result-title {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 15px;
+      color: inherit;
+    }
+
+    .result-sub {
+      font-size: 12px;
+      color: inherit;
+      opacity: 0.85;
+      margin-top: 2px;
+    }
+
+    /* Manual Search Section */
+    .card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-title {
+      font-family: var(--font-heading);
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 9px 12px;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      outline: none;
+      transition: all 0.15s;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+      font-family: var(--font-body);
+    }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-teal { background: var(--secondary); color: white; }
+    .btn-secondary { background: white; border-color: var(--border); color: var(--text-main); }
+    .btn-secondary:hover { background: #F8FAFC; }
+    .btn-sm { padding: 5px 10px; font-size: 12px; }
+
+    /* Chips */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .chip-green { background: var(--success-bg); color: var(--success); }
+    .chip-amber { background: var(--warning-bg); color: var(--warning); }
+    .chip-red { background: var(--error-bg); color: var(--error); }
+    .chip-slate { background: #F1F5F9; color: #475569; }
+
+    /* Attendees List */
+    .attendee-list {
+      max-height: 180px;
+      overflow-y: auto;
+      margin-top: 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+
+    .attendee-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .attendee-row:last-child {
+      border-bottom: none;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      max-width: 508px;
+      margin: 0 auto;
+      background: var(--dark);
+      color: #FFFFFF;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.25s ease;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header>
+    <div class="header-inner">
+      <div class="scanner-brand">
+        <div class="scanner-logo">S</div>
+        <div>
+          <div style="font-weight:700; font-size:14px; line-height:1.2;">Check-in Scanner</div>
+          <div style="font-size:11px; color:#94A3B8;">Staff: Marcus (Active Assignment)</div>
+        </div>
+      </div>
+      <a href="../LandingPage/index.html" style="color:#94A3B8; font-size:12px; text-decoration:none;">Exit</a>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- Boundary Indicator (Enforced scope) -->
+    <div class="boundary-notice">
+      <div>
+        <strong>Scoped Event:</strong> Tech Forward Gala 2026<br>
+        <span style="font-size:11px;">Scanner Mode Only (No guest list access)</span>
+      </div>
+      <span class="chip chip-green">Active</span>
+    </div>
+
+    <!-- Attendance Live Metrics (Read-only for Staff) -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Checked-In</div>
+        <div class="stat-num" style="color:var(--secondary);" id="staff-checkedin-num">48</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Expected Total</div>
+        <div class="stat-num">112</div>
+      </div>
+    </div>
+
+    <!-- Scanner Viewport -->
+    <div class="viewport-card">
+      <div class="camera-frame">
+        <div class="scan-reticle">
+          <div class="scan-laser"></div>
+          <span style="font-size:32px; opacity:0.4;">📷</span>
+        </div>
+        <div style="font-size:11px; color:#94A3B8; margin-top:8px;">Camera active • Scanner Station #1</div>
+      </div>
+
+      <!-- Simulation Buttons -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; margin-top:12px;">
+        <button class="btn btn-primary btn-sm" onclick="runSimulatedScan('accept')">Valid QR</button>
+        <button class="btn btn-secondary btn-sm" onclick="runSimulatedScan('duplicate')">Duplicate</button>
+        <button class="btn btn-secondary btn-sm" onclick="runSimulatedScan('invalid')">Bad Token</button>
+      </div>
+    </div>
+
+    <!-- Scan Result Panel (State Machine: idle -> accepted | duplicate | rejected) -->
+    <div id="result-panel" class="result-panel idle">
+      <div id="result-icon" class="result-icon">🎯</div>
+      <div class="result-details">
+        <div id="result-title" class="result-title">Ready to Scan</div>
+        <div id="result-sub" class="result-sub">Point scanner at attendee's digital or printed QR token</div>
+      </div>
+    </div>
+
+    <!-- Manual Search Fallback -->
+    <div class="card">
+      <div class="card-title">Manual Name Search Fallback</div>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">
+        For guests with dead phone batteries or unreadable codes. Searches attendees only.
+      </p>
+      
+      <input type="text" id="manual-search-input" class="form-control" placeholder="Search by attendee name..." oninput="handleManualSearch(this.value)">
+
+      <div class="attendee-list" id="search-attendees-list">
+        <div class="attendee-row" data-name="Elena Rostova">
+          <div>
+            <strong>Elena Rostova</strong>
+            <div style="font-size:11px; color:var(--text-muted);">Party: Self</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Elena Rostova')">Check In</button>
+        </div>
+        <div class="attendee-row" data-name="Dmitri Rostova">
+          <div>
+            <strong>Dmitri Rostova</strong>
+            <div style="font-size:11px; color:var(--text-muted);">Party: Elena Rostova</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Dmitri Rostova')">Check In</button>
+        </div>
+        <div class="attendee-row" data-name="Dr. Aris Thorne">
+          <div>
+            <strong>Dr. Aris Thorne</strong>
+            <div style="font-size:11px; color:var(--text-muted);">Party: Biotech Innovate</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Dr. Aris Thorne')">Check In</button>
+        </div>
+        <div class="attendee-row" data-name="Sophia Rostova">
+          <div>
+            <strong>Sophia Rostova</strong>
+            <div style="font-size:11px; color:var(--text-muted);">Party: Elena Rostova (Child)</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Sophia Rostova')">Check In</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Walk-in Registration (Creates is_walk_in = true attendee) -->
+    <div class="card">
+      <div class="card-title">Quick Walk-In Registration</div>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">
+        Register an unscheduled guest attending at the door. Flags <code>is_walk_in = true</code>.
+      </p>
+
+      <form id="walkin-form" onsubmit="handleWalkIn(event)">
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="walkin-name" class="form-control" placeholder="Walk-in Guest Name *" required>
+          <button type="submit" class="btn btn-teal" style="white-space:nowrap;">+ Check In</button>
+        </div>
+      </form>
+    </div>
+
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="toast">
+    <span id="toast-icon">✅</span>
+    <span id="toast-msg">Check-in confirmed</span>
+  </div>
+
+  <script>
+    let checkedInCount = 48;
+
+    function showToast(msg, icon = '✅') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      document.getElementById('toast-icon').innerText = icon;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function runSimulatedScan(state) {
+      const panel = document.getElementById('result-panel');
+      const icon = document.getElementById('result-icon');
+      const title = document.getElementById('result-title');
+      const sub = document.getElementById('result-sub');
+
+      // State resolving pulse
+      panel.className = 'result-panel idle';
+      title.innerText = 'Resolving signed token...';
+      sub.innerText = 'Calling POST /functions/v1/checkin/scan';
+      icon.innerText = '⏳';
+
+      setTimeout(() => {
+        if (state === 'accept') {
+          panel.className = 'result-panel accepted';
+          icon.innerText = '✅';
+          title.innerText = 'Check-in Verified: Dmitri Rostova';
+          sub.innerText = 'Approved Attendee • Party: Elena Rostova • 6:49 PM';
+          checkedInCount++;
+          document.getElementById('staff-checkedin-num').innerText = checkedInCount;
+          showToast('Dmitri Rostova checked in successfully!');
+        } else if (state === 'duplicate') {
+          panel.className = 'result-panel duplicate';
+          icon.innerText = '⚠️';
+          title.innerText = 'Duplicate Scan: Elena Rostova';
+          sub.innerText = 'Already checked in at 6:34 PM by Staff Station 1';
+          showToast('Warning: Already checked in', '⚠️');
+        } else {
+          panel.className = 'result-panel rejected';
+          icon.innerText = '❌';
+          title.innerText = 'Invalid Token Signature';
+          sub.innerText = 'Token not recognized or event assignment mismatch';
+          showToast('Scan rejected: invalid token', '❌');
+        }
+      }, 350);
+    }
+
+    function handleManualSearch(query) {
+      const q = query.toLowerCase().trim();
+      const rows = document.querySelectorAll('.attendee-row');
+      rows.forEach(r => {
+        const name = r.getAttribute('data-name').toLowerCase();
+        if (name.includes(q)) {
+          r.style.display = 'flex';
+        } else {
+          r.style.display = 'none';
+        }
+      });
+    }
+
+    function manualCheckInAttendee(btn, name) {
+      btn.disabled = true;
+      btn.className = 'btn btn-sm';
+      btn.style.background = '#DCFCE7';
+      btn.style.color = '#15803D';
+      btn.innerText = 'Checked In';
+
+      checkedInCount++;
+      document.getElementById('staff-checkedin-num').innerText = checkedInCount;
+
+      const panel = document.getElementById('result-panel');
+      panel.className = 'result-panel accepted';
+      document.getElementById('result-icon').innerText = '✅';
+      document.getElementById('result-title').innerText = 'Manual Check-in: ' + name;
+      document.getElementById('result-sub').innerText = 'Checked in manually by staff override';
+
+      showToast('Checked in ' + name + ' (Manual)');
+    }
+
+    function handleWalkIn(e) {
+      e.preventDefault();
+      const name = document.getElementById('walkin-name').value;
+      
+      checkedInCount++;
+      document.getElementById('staff-checkedin-num').innerText = checkedInCount;
+
+      // Add to manual list
+      const list = document.getElementById('search-attendees-list');
+      const row = document.createElement('div');
+      row.className = 'attendee-row';
+      row.setAttribute('data-name', name);
+      row.innerHTML = `
+        <div>
+          <strong>${name}</strong> <span class="chip chip-amber" style="font-size:10px;">Walk-in</span>
+          <div style="font-size:11px; color:var(--text-muted);">Ad hoc door entry</div>
+        </div>
+        <span class="chip chip-green">Checked In</span>
+      `;
+      list.prepend(row);
+
+      const panel = document.getElementById('result-panel');
+      panel.className = 'result-panel accepted';
+      document.getElementById('result-icon').innerText = '🚶‍♂️';
+      document.getElementById('result-title').innerText = 'Walk-in Recorded: ' + name;
+      document.getElementById('result-sub').innerText = 'Created ad hoc attendee row (is_walk_in = true)';
+
+      document.getElementById('walkin-name').value = '';
+      showToast('Walk-in guest ' + name + ' registered & checked in!');
+    }
+  </script>
+</body>
+</html>
