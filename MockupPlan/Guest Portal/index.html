@@ -2,44 +2,47 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>EIRMIS — Guest Self-Service Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: #4F46E5;
       --primary-hover: #4338CA;
       --primary-light: #EEF2FF;
-      --secondary: #008A88;
-      --secondary-light: #E6F6F6;
+      --primary-glow: rgba(79, 70, 229, 0.15);
+      --secondary: #0D9488;
       --dark: #0F172A;
       --bg: #F8FAFC;
       --surface: #FFFFFF;
-      --border: #E2E8F0;
-      --text-main: #0B1C30;
+      --surface-glass: rgba(255, 255, 255, 0.85);
+      --border: rgba(226, 232, 240, 0.8);
+      --text-main: #0F172A;
       --text-muted: #64748B;
-      --success: #15803D;
-      --success-bg: #DCFCE7;
-      --success-border: #86EFAC;
-      --warning: #B45309;
-      --warning-bg: #FEF3C7;
+      --success: #10B981;
+      --success-bg: #ECFDF5;
+      --success-border: #A7F3D0;
+      --warning: #F59E0B;
+      --warning-bg: #FFFBEB;
       --warning-border: #FDE68A;
-      --error: #BA1A1A;
-      --error-bg: #FEE2E2;
-      --error-border: #FCA5A5;
-      --font-heading: 'Hanken Grotesk', sans-serif;
-      --font-body: 'Inter', sans-serif;
-      --radius-sm: 6px;
-      --radius-md: 10px;
-      --radius-lg: 14px;
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+      --error: #EF4444;
+      --error-bg: #FEF2F2;
+      --error-border: #FECACA;
+      --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 26px;
+      --shadow-subtle: 0 1px 3px rgba(15, 23, 42, 0.04);
+      --shadow-card: 0 4px 16px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+      --shadow-float: 0 16px 32px -6px rgba(15, 23, 42, 0.12);
+      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
     body {
       font-family: var(--font-body);
@@ -50,10 +53,14 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      -webkit-font-smoothing: antialiased;
     }
 
+    /* iOS Glassmorphic Top Nav */
     header {
-      background: #FFFFFF;
+      background: var(--surface-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
@@ -61,9 +68,9 @@
     }
 
     .header-content {
-      max-width: 820px;
+      max-width: 680px;
       margin: 0 auto;
-      padding: 14px 20px;
+      padding: 12px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -77,108 +84,109 @@
       color: var(--text-main);
     }
 
-    .brand-badge {
-      width: 32px;
-      height: 32px;
-      border-radius: var(--radius-sm);
-      background: var(--primary);
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%);
       color: #FFFFFF;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 3px 8px rgba(79, 70, 229, 0.25);
     }
 
-    .brand-name {
-      font-family: var(--font-heading);
-      font-weight: 700;
+    .brand-title {
+      font-family: var(--font-display);
+      font-weight: 800;
       font-size: 17px;
       letter-spacing: -0.02em;
     }
 
-    .guest-session-info {
+    .session-badge {
       display: flex;
       align-items: center;
-      gap: 12px;
-    }
-
-    .session-email {
+      gap: 6px;
       font-size: 12px;
-      color: var(--text-muted);
       font-weight: 500;
+      color: var(--text-muted);
+      background: #F1F5F9;
+      padding: 4px 10px;
+      border-radius: 999px;
     }
 
+    /* Main Content Container (Mobile-first iPhone/PWA width) */
     main {
       flex: 1;
-      max-width: 780px;
+      max-width: 680px;
       width: 100%;
       margin: 0 auto;
-      padding: 24px 16px 48px 16px;
+      padding: 20px 16px 64px 16px;
     }
 
-    .tabs-bar {
+    /* iOS Inset Segmented Tabs Bar */
+    .segmented-tabs {
       display: flex;
-      background: #FFFFFF;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 4px;
-      margin-bottom: 24px;
+      background: #E2E8F0;
+      padding: 3px;
+      border-radius: 12px;
+      margin-bottom: 22px;
       overflow-x: auto;
-      gap: 4px;
-      box-shadow: var(--shadow-sm);
+      gap: 2px;
     }
 
-    .tab-btn {
+    .seg-tab-btn {
       flex: 1;
-      padding: 8px 12px;
+      padding: 8px 10px;
       font-size: 12.5px;
       font-weight: 600;
-      border-radius: var(--radius-sm);
+      font-family: var(--font-display);
+      border-radius: 9px;
       border: none;
       background: transparent;
       color: var(--text-muted);
       cursor: pointer;
       white-space: nowrap;
-      transition: all 0.15s ease;
+      transition: all 0.18s var(--ease-spring);
       text-align: center;
+      user-select: none;
     }
 
-    .tab-btn:hover {
+    .seg-tab-btn.active {
+      background: #FFFFFF;
       color: var(--text-main);
-      background: #F8FAFC;
-    }
-
-    .tab-btn.active {
-      background: var(--primary);
-      color: #FFFFFF;
-      box-shadow: 0 1px 3px rgba(79, 70, 229, 0.2);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
     }
 
     .view-pane {
       display: none;
-      animation: fadeIn 0.2s ease forwards;
+      animation: viewSlide 0.25s var(--ease-spring) forwards;
     }
 
     .view-pane.active { display: block; }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
+    @keyframes viewSlide {
+      from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* Cards */
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
-      padding: 22px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow-sm);
+      padding: 24px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow-card);
+      position: relative;
     }
 
     .card-title {
-      font-family: var(--font-heading);
-      font-size: 17px;
-      font-weight: 700;
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
       color: var(--text-main);
+      letter-spacing: -0.02em;
       margin-bottom: 4px;
     }
 
@@ -188,143 +196,212 @@
       margin-bottom: 16px;
     }
 
+    /* Buttons */
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
-      padding: 8px 16px;
+      padding: 10px 18px;
       font-size: 13px;
       font-weight: 600;
       border-radius: var(--radius-md);
       border: 1px solid transparent;
       cursor: pointer;
       text-decoration: none;
-      transition: all 0.15s ease;
+      transition: all 0.15s var(--ease-spring);
       font-family: var(--font-body);
+      user-select: none;
     }
 
-    .btn-primary { background-color: var(--primary); color: #FFFFFF; }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary { background-color: var(--primary); color: #FFFFFF; box-shadow: 0 4px 12px var(--primary-glow); }
     .btn-primary:hover { background-color: var(--primary-hover); }
     .btn-teal { background-color: var(--secondary); color: #FFFFFF; }
-    .btn-teal:hover { background-color: #007371; }
     .btn-secondary { background: #FFFFFF; border-color: var(--border); color: var(--text-main); }
     .btn-secondary:hover { background: #F8FAFC; }
     .btn-ghost { background: transparent; color: var(--text-muted); }
     .btn-ghost:hover { background: #F1F5F9; color: var(--text-main); }
-    .btn-sm { padding: 5px 11px; font-size: 12px; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
 
+    /* Chips */
     .chip {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 3px 8px;
-      border-radius: var(--radius-sm);
-      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11.5px;
       font-weight: 600;
       text-transform: capitalize;
     }
 
-    .chip-green { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
-    .chip-amber { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
-    .chip-red { background: var(--error-bg); color: var(--error); border: 1px solid var(--error-border); }
-    .chip-blue { background: var(--primary-light); color: var(--primary); border: 1px solid rgba(79, 70, 229, 0.2); }
+    .chip-green { background: #DCFCE7; color: #15803D; border: 1px solid #BBF7D0; }
+    .chip-amber { background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; }
+    .chip-red { background: #FEE2E2; color: #BA1A1A; border: 1px solid #FECACA; }
+    .chip-blue { background: #EEF2FF; color: #4F46E5; border: 1px solid #C7D2FE; }
 
-    .form-group { margin-bottom: 16px; }
-
-    .form-label {
-      display: block;
-      font-size: 12.5px;
-      font-weight: 600;
-      margin-bottom: 6px;
-      color: var(--text-main);
-    }
-
-    .form-control {
-      width: 100%;
-      padding: 9px 12px;
-      font-size: 13.5px;
-      font-family: var(--font-body);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      background: #FFFFFF;
-      outline: none;
-      transition: all 0.15s;
-    }
-
-    .form-control:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
-    }
-
+    /* RSVP Selector Buttons with Tactile Spring States */
     .rsvp-selector-group {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
-      margin: 16px 0;
+      margin: 18px 0;
     }
 
     .rsvp-option-btn {
-      padding: 14px 10px;
+      padding: 16px 12px;
       border: 2px solid var(--border);
       border-radius: var(--radius-md);
       background: #FFFFFF;
       text-align: center;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s var(--ease-spring);
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
     }
+
+    .rsvp-option-btn:hover { border-color: #CBD5E1; }
+    .rsvp-option-btn:active { transform: scale(0.96); }
 
     .rsvp-option-btn.selected-accept {
       border-color: var(--success);
-      background: #F0FDF4;
+      background: #ECFDF5;
       color: var(--success);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
     }
 
     .rsvp-option-btn.selected-tentative {
       border-color: var(--warning);
       background: #FFFBEB;
       color: var(--warning);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
     }
 
     .rsvp-option-btn.selected-decline {
       border-color: var(--error);
       background: #FEF2F2;
       color: var(--error);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+    }
+
+    /* iOS Inset Grouped Attendees List */
+    .inset-grouped-list {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 20px;
     }
 
     .attendee-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 14px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      margin-bottom: 10px;
+      padding: 14px 16px;
       background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
     }
+
+    .attendee-item:last-child { border-bottom: none; }
 
     .attendee-item.primary {
       border-left: 4px solid var(--primary);
-      background: #FAFAFE;
     }
 
-    .qr-card {
+    /* Form Styles */
+    .form-group { margin-bottom: 16px; }
+
+    .form-label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 13.5px;
+      font-family: var(--font-body);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      padding: 16px;
-      text-align: center;
       background: #FFFFFF;
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.15s;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    /* Apple Wallet Style Ticket Pass */
+    .wallet-pass {
+      background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%);
+      color: #FFFFFF;
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-float);
+      margin-bottom: 24px;
+    }
+
+    .wallet-pass::after {
+      content: "";
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 140px;
+      height: 140px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .wallet-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .wallet-event-name {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .wallet-venue {
+      font-size: 12px;
+      color: #94A3B8;
+      margin-top: 2px;
+    }
+
+    .wallet-qr-section {
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      padding: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      box-shadow: var(--shadow-sm);
+      color: #0F172A;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
     }
 
-    .qr-code-box {
-      width: 140px;
-      height: 140px;
+    .wallet-qr-box {
+      width: 160px;
+      height: 160px;
       background: #0F172A;
-      border-radius: var(--radius-md);
+      border-radius: 12px;
       padding: 10px;
       display: flex;
       align-items: center;
@@ -332,22 +409,26 @@
       margin: 12px 0;
     }
 
+    /* Toast */
     .toast {
       position: fixed;
       bottom: 24px;
-      right: 24px;
-      background: var(--dark);
+      left: 20px;
+      right: 20px;
+      max-width: 440px;
+      margin: 0 auto;
+      background: #0F172A;
       color: #FFFFFF;
-      padding: 12px 18px;
+      padding: 12px 20px;
       border-radius: var(--radius-md);
-      box-shadow: var(--shadow-lg);
+      box-shadow: var(--shadow-float);
       display: flex;
       align-items: center;
       gap: 10px;
       z-index: 1000;
       transform: translateY(100px);
       opacity: 0;
-      transition: all 0.25s ease;
+      transition: all 0.25s var(--ease-spring);
     }
 
     .toast.show { transform: translateY(0); opacity: 1; }
@@ -355,55 +436,54 @@
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- Glassmorphic Header -->
   <header>
     <div class="header-content">
       <a href="#dashboard" onclick="switchView('dashboard')" class="brand-link">
-        <div class="brand-badge">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        <div class="brand-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
         </div>
         <div>
-          <span class="brand-name">EIRMIS</span>
-          <span style="font-size:11px; color:var(--primary); font-weight:600; display:block;">Guest Portal</span>
+          <span class="brand-title">EIRMIS</span>
+          <span style="font-size:11px; color:var(--primary); font-weight:700; display:block;">GUEST PORTAL</span>
         </div>
       </a>
-      <div class="guest-session-info">
-        <span class="session-email">elena.rostova@gmail.com</span>
-        <a href="../LandingPage/index.html" class="btn btn-ghost btn-sm" title="Log Out">Exit</a>
+      <div class="session-badge">
+        <span style="width:7px; height:7px; background:#10B981; border-radius:50%; display:inline-block;"></span>
+        <span>elena.rostova@gmail.com</span>
+        <a href="../LandingPage/index.html" style="color:var(--text-muted); text-decoration:none; margin-left:6px;" title="Exit">Exit</a>
       </div>
     </div>
   </header>
 
   <main>
     
-    <!-- Tab Navigation -->
-    <div class="tabs-bar">
-      <button class="tab-btn active" id="tab-dashboard" onclick="switchView('dashboard')">1. Dashboard</button>
-      <button class="tab-btn" id="tab-event" onclick="switchView('event')">2. Invitation RSVP</button>
-      <button class="tab-btn" id="tab-attendees" onclick="switchView('attendees')">3. Party Roster</button>
-      <button class="tab-btn" id="tab-headcount" onclick="switchView('headcount')">4. Request Heads</button>
-      <button class="tab-btn" id="tab-qr" onclick="switchView('qr')">5. Party QR Codes</button>
+    <!-- iOS Inset Segmented Tabs Bar -->
+    <div class="segmented-tabs">
+      <button class="seg-tab-btn active" id="tab-dashboard" onclick="switchView('dashboard')">Dashboard</button>
+      <button class="seg-tab-btn" id="tab-event" onclick="switchView('event')">RSVP</button>
+      <button class="seg-tab-btn" id="tab-attendees" onclick="switchView('attendees')">Roster</button>
+      <button class="seg-tab-btn" id="tab-headcount" onclick="switchView('headcount')">Heads</button>
+      <button class="seg-tab-btn" id="tab-qr" onclick="switchView('qr')">Passes</button>
     </div>
 
-    <!-- 1. DASHBOARD -->
+    <!-- 1. GUEST DASHBOARD -->
     <section id="view-dashboard" class="view-pane active">
-      <div class="card" style="background: linear-gradient(135deg, #4F46E5 0%, #008A88 100%); color:white;">
-        <h2 style="font-family:var(--font-heading); font-size:22px; font-weight:700; margin-bottom:4px;">Welcome, Elena Rostova</h2>
-        <p style="font-size:13px; opacity:0.9;">
-          You are authenticated via passwordless magic link. Manage your invitations below:
+      <div class="card" style="background: linear-gradient(135deg, #4F46E5 0%, #312E81 100%); color:white;">
+        <span style="font-size:12px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:#A5B4FC;">Guest Self-Service</span>
+        <h2 style="font-family:var(--font-display); font-size:22px; font-weight:800; margin:4px 0 6px 0;">Welcome, Elena Rostova</h2>
+        <p style="font-size:13.5px; opacity:0.9; line-height:1.5;">
+          Authenticated via secure magic link. You have 1 confirmed invitation for event day access.
         </p>
       </div>
 
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
-          <div>
-            <span class="chip chip-green" id="dash-status-chip">accepted</span>
-            <span style="font-size:12px; color:var(--text-muted); margin-left:8px;">RSVP Deadline: Nov 15, 2026</span>
-          </div>
-          <span style="font-weight:700; color:var(--primary); font-size:13px;">Party: 2/3 Confirmed</span>
+          <span class="chip chip-green" id="dash-status-chip">accepted</span>
+          <span style="font-weight:700; color:var(--primary); font-size:12.5px;">Party: 2/3 Confirmed</span>
         </div>
 
-        <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:700; color:var(--text-main); margin-bottom:4px;">
+        <h3 style="font-family:var(--font-display); font-size:18px; font-weight:800; color:var(--text-main); margin-bottom:4px;">
           Tech Forward Annual Gala 2026
         </h3>
         <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px;">
@@ -411,9 +491,9 @@
         </p>
 
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <button class="btn btn-primary" onclick="switchView('event')">Manage RSVP & Details →</button>
-          <button class="btn btn-secondary" onclick="switchView('attendees')">Edit Party Roster (2 of 3)</button>
-          <button class="btn btn-teal" onclick="switchView('qr')">View QR Codes</button>
+          <button class="btn btn-primary" onclick="switchView('event')">Manage RSVP →</button>
+          <button class="btn btn-secondary" onclick="switchView('attendees')">Party Roster (2 of 3)</button>
+          <button class="btn btn-teal" onclick="switchView('qr')">View Entry Pass</button>
         </div>
       </div>
     </section>
@@ -423,33 +503,33 @@
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
           <h2 class="card-title">Invitation Response</h2>
-          <span class="chip chip-green" id="rsvp-display-chip">Status: accepted</span>
+          <span class="chip chip-green" id="rsvp-display-chip">accepted</span>
         </div>
 
         <p style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">
-          Please select your attendance status for <strong>Tech Forward Annual Gala 2026</strong>. Accepting reserves your seat and enables party roster submission.
+          Confirm your attendance for <strong>Tech Forward Annual Gala 2026</strong>. Accepting reserves capacity and unlocks your party roster.
         </p>
 
         <div class="rsvp-selector-group">
           <div class="rsvp-option-btn selected-accept" id="opt-accept" onclick="setRsvp('accepted')">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-bottom:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            <div><strong>Accept</strong></div>
-            <div style="font-size:11px; opacity:0.8;">Attending</div>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <strong>Accept</strong>
+            <span style="font-size:11px; opacity:0.8;">Attending</span>
           </div>
           <div class="rsvp-option-btn" id="opt-tentative" onclick="setRsvp('tentative')">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom:4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
-            <div><strong>Tentative</strong></div>
-            <div style="font-size:11px; opacity:0.8;">Uncertain</div>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+            <strong>Tentative</strong>
+            <span style="font-size:11px; opacity:0.8;">Uncertain</span>
           </div>
           <div class="rsvp-option-btn" id="opt-decline" onclick="setRsvp('declined')">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-bottom:4px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            <div><strong>Decline</strong></div>
-            <div style="font-size:11px; opacity:0.8;">Cannot Attend</div>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <strong>Decline</strong>
+            <span style="font-size:11px; opacity:0.8;">Can't Attend</span>
           </div>
         </div>
 
         <div class="form-group" style="margin-top:20px;">
-          <label class="form-label" for="dietary-input">Dietary Preferences (Covers your party)</label>
+          <label class="form-label" for="dietary-input">Dietary Preferences (Covers entire party)</label>
           <input type="text" id="dietary-input" class="form-control" value="1 Vegetarian, 1 Pescatarian">
         </div>
 
@@ -463,17 +543,17 @@
         </button>
       </div>
 
-      <!-- Sandboxed Frame Simulation -->
+      <!-- Sandboxed Frame Card -->
       <div class="card">
-        <h3 class="card-title" style="font-size:15px;">Creative Invitation Card</h3>
-        <p class="card-sub">Rendered in a sandboxed iframe with strict Content-Security-Policy.</p>
+        <h3 class="card-title" style="font-size:15px;">Official Event Invitation Card</h3>
+        <p class="card-sub">Sandboxed client render (sandbox="allow-scripts", strict CSP)</p>
         
-        <div style="border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; background:linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%); color:white; padding:24px; text-align:center;">
-          <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:#818CF8; margin-bottom:6px;">You Are Cordially Invited</div>
-          <h2 style="font-family:var(--font-heading); font-size:24px; font-weight:800; margin-bottom:8px; color:#F8FAFC;">
+        <div style="border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; background:linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%); color:white; padding:26px; text-align:center;">
+          <div style="font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:#818CF8; margin-bottom:6px;">You Are Cordially Invited</div>
+          <h2 style="font-family:var(--font-display); font-size:24px; font-weight:800; margin-bottom:8px; color:#F8FAFC;">
             Tech Forward Gala 2026
           </h2>
-          <p style="font-size:13px; color:#CBD5E1; max-width:460px; margin:0 auto 14px auto;">
+          <p style="font-size:13px; color:#CBD5E1; max-width:440px; margin:0 auto 14px auto;">
             Honoring innovation and distinguished contributions to digital infrastructure.
           </p>
           <div style="display:inline-block; background:rgba(255,255,255,0.1); padding:6px 14px; border-radius:999px; font-size:11.5px; color:#E2E8F0;">
@@ -490,17 +570,18 @@
           <div>
             <h2 class="card-title">Party Roster Submission</h2>
             <p class="card-sub" style="margin-bottom:0;">
-              Your organizer allocated up to <strong id="roster-max-heads">3</strong> heads for your invitation.
+              Your invitation ceiling is <strong id="roster-max-heads">3</strong> heads.
             </p>
           </div>
           <span class="chip chip-blue" id="roster-count-chip">2 of 3 Heads Submitted</span>
         </div>
 
-        <div style="background:#F1F5F9; border-radius:var(--radius-md); padding:10px 14px; font-size:12px; color:var(--text-muted); margin-bottom:18px;">
-          Primary guest is auto-approved. Additional guests enter <strong>pending</strong> review by the organizer. Emails are optional and non-unique.
+        <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 14px; font-size:12px; color:var(--text-muted); margin-bottom:18px;">
+          Primary guest is auto-approved. Additional party members are reviewed by the organizer. Emails are optional and non-unique.
         </div>
 
-        <div id="attendees-list">
+        <!-- Inset Grouped List -->
+        <div class="inset-grouped-list" id="attendees-list">
           <div class="attendee-item primary">
             <div>
               <div style="display:flex; align-items:center; gap:8px;">
@@ -512,7 +593,7 @@
                 elena.rostova@gmail.com • Auto-confirmed
               </div>
             </div>
-            <span style="font-size:12px; color:var(--success); font-weight:600;">QR Issued</span>
+            <span style="font-size:12px; color:var(--success); font-weight:600;">Pass Issued</span>
           </div>
 
           <div class="attendee-item">
@@ -529,12 +610,13 @@
           </div>
         </div>
 
+        <!-- Add Form -->
         <div id="add-attendee-container" style="border-top:1px solid var(--border); padding-top:18px; margin-top:16px;">
           <h4 style="font-size:13.5px; font-weight:700; margin-bottom:10px;">Add Person to Party (1 Slot Remaining)</h4>
           <form onsubmit="handleAddAttendee(event)">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
               <input type="text" id="att-name-input" class="form-control" placeholder="Full Name (Required) *" required>
-              <input type="email" id="att-email-input" class="form-control" placeholder="Email (Optional)">
+              <input type="email" id="att-email-input" class="form-control" placeholder="Email (Optional, e.g. for child)">
             </div>
             <button type="submit" class="btn btn-primary btn-sm">
               + Submit Attendee for Review
@@ -542,9 +624,10 @@
           </form>
         </div>
 
-        <div id="ceiling-reached-box" style="display:none; background:var(--warning-bg); border:1px solid var(--warning-border); padding:12px; border-radius:var(--radius-md); font-size:13px; color:var(--warning); margin-top:16px;">
-          <strong>Maximum Party Size Reached:</strong> You have filled the 3-head allocation. To bring more guests, submit a <strong>Headcount Increase Request</strong> below.
-          <div style="margin-top:8px;">
+        <!-- Ceiling Limit Notice -->
+        <div id="ceiling-reached-box" style="display:none; background:#FFFBEB; border:1px solid #FDE68A; padding:14px; border-radius:var(--radius-md); font-size:13px; color:#92400E; margin-top:16px; line-height:1.5;">
+          <strong>Maximum Party Size Reached (3 Heads):</strong> You have utilized your allocated quota. Need additional tickets for colleagues or family? Submit a <strong>Headcount Increase Request</strong>.
+          <div style="margin-top:10px;">
             <button class="btn btn-teal btn-sm" onclick="switchView('headcount')">Request Additional Heads →</button>
           </div>
         </div>
@@ -556,12 +639,12 @@
       <div class="card">
         <h2 class="card-title">Request Additional Heads</h2>
         <p class="card-sub">
-          Ask the organizer to increase your party ceiling.
+          Ask the organizer to raise your invitation's maximum party ceiling.
         </p>
 
         <form onsubmit="handleHeadcountRequest(event)">
           <div class="form-group">
-            <label class="form-label" for="req-heads-num">Number of Additional Heads Requested *</label>
+            <label class="form-label" for="req-heads-num">Additional Heads Requested *</label>
             <select id="req-heads-num" class="form-control">
               <option value="1">+1 Person</option>
               <option value="2" selected>+2 Persons</option>
@@ -570,8 +653,8 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="req-heads-note">Reason / Note for the Organizer</label>
-            <textarea id="req-heads-note" class="form-control" rows="3">Would like to bring our lead research associate to present findings.</textarea>
+            <label class="form-label" for="req-heads-note">Reason for Organizer Review</label>
+            <textarea id="req-heads-note" class="form-control" rows="3">Would like to bring our lead research associate to present findings during the evening poster session.</textarea>
           </div>
 
           <button type="submit" class="btn btn-teal" style="width:100%;" id="btn-submit-headcount">
@@ -579,76 +662,59 @@
           </button>
         </form>
 
-        <div id="headcount-success-notice" style="display:none; margin-top:16px; background:var(--success-bg); border:1px solid var(--success-border); padding:14px; border-radius:var(--radius-md); color:var(--success);">
-          <strong>Request Submitted to Organizer:</strong> Your request for +2 heads has status <strong>pending</strong>.
+        <div id="headcount-success-notice" style="display:none; margin-top:16px; background:#ECFDF5; border:1px solid #A7F3D0; padding:14px; border-radius:var(--radius-md); color:#065F46;">
+          <strong>Request Recorded:</strong> Your request for +2 heads has status <strong>pending</strong>.
         </div>
       </div>
     </section>
 
-    <!-- 5. QR CODES -->
+    <!-- 5. QR CODES & PASSES -->
     <section id="view-qr" class="view-pane">
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+      
+      <!-- Apple Wallet Style Pass Card -->
+      <div class="wallet-pass">
+        <div class="wallet-top">
           <div>
-            <h2 class="card-title">Entrance QR Codes</h2>
-            <p class="card-sub" style="margin-bottom:0;">
-              Every approved attendee has a unique signed token for entrance check-in.
-            </p>
+            <span style="font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#818CF8;">Official Event Pass</span>
+            <div class="wallet-event-name">Tech Forward Annual Gala</div>
+            <div class="wallet-venue">Marina Bay Sands Grand Ballroom • Nov 18, 2026</div>
           </div>
-          <button class="btn btn-primary btn-sm" onclick="simulatePdfDownload()">
-            Download Party PDF
-          </button>
+          <span class="chip chip-green" style="background:#10B981; color:#FFFFFF; border:none;">VIP PASS</span>
         </div>
 
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-top:16px;">
-          <div class="qr-card">
-            <span class="chip chip-blue" style="font-size:10px;">Primary Guest</span>
-            <strong style="margin-top:6px; font-size:15px;">Elena Rostova</strong>
-            <div class="qr-code-box">
-              <svg width="120" height="120" viewBox="0 0 100 100">
-                <rect width="100" height="100" fill="#0F172A"/>
-                <rect x="10" y="10" width="30" height="30" fill="#FFFFFF"/>
-                <rect x="15" y="15" width="20" height="20" fill="#0F172A"/>
-                <rect x="20" y="20" width="10" height="10" fill="#FFFFFF"/>
-                <rect x="60" y="10" width="30" height="30" fill="#FFFFFF"/>
-                <rect x="65" y="15" width="20" height="20" fill="#0F172A"/>
-                <rect x="70" y="20" width="10" height="10" fill="#FFFFFF"/>
-                <rect x="10" y="60" width="30" height="30" fill="#FFFFFF"/>
-                <rect x="15" y="65" width="20" height="20" fill="#0F172A"/>
-                <rect x="20" y="70" width="10" height="10" fill="#FFFFFF"/>
-                <rect x="50" y="50" width="10" height="10" fill="#4F46E5"/>
-                <rect x="60" y="60" width="10" height="10" fill="#FFFFFF"/>
-                <rect x="75" y="75" width="15" height="15" fill="#FFFFFF"/>
-              </svg>
-            </div>
-            <span style="font-size:11px; font-family:monospace; color:var(--text-muted);">TOKEN: eir_90f23a1</span>
-            <span class="chip chip-green" style="margin-top:6px;">Approved</span>
-          </div>
+        <div class="wallet-qr-section">
+          <strong style="font-size:16px; color:var(--text-main);">Elena Rostova</strong>
+          <span style="font-size:12px; color:var(--text-muted); margin-top:2px;">Primary Guest • Table 4</span>
 
-          <div class="qr-card">
-            <span class="chip chip-slate" style="font-size:10px;">Party Member</span>
-            <strong style="margin-top:6px; font-size:15px;">Dmitri Rostova</strong>
-            <div class="qr-code-box">
-              <svg width="120" height="120" viewBox="0 0 100 100">
-                <rect width="100" height="100" fill="#0F172A"/>
-                <rect x="10" y="10" width="30" height="30" fill="#FFFFFF"/>
-                <rect x="15" y="15" width="20" height="20" fill="#0F172A"/>
-                <rect x="20" y="20" width="10" height="10" fill="#FFFFFF"/>
-                <rect x="60" y="10" width="30" height="30" fill="#FFFFFF"/>
-                <rect x="65" y="15" width="20" height="20" fill="#0F172A"/>
-                <rect x="70" y="20" width="10" height="10" fill="#FFFFFF"/>
-                <rect x="10" y="60" width="30" height="30" fill="#FFFFFF"/>
-                <rect x="15" y="65" width="20" height="20" fill="#0F172A"/>
-                <rect x="20" y="70" width="10" height="10" fill="#FFFFFF"/>
-                <rect x="50" y="50" width="10" height="10" fill="#22C55E"/>
-                <rect x="55" y="70" width="12" height="12" fill="#FFFFFF"/>
-                <rect x="70" y="55" width="10" height="10" fill="#FFFFFF"/>
-              </svg>
-            </div>
-            <span style="font-size:11px; font-family:monospace; color:var(--text-muted);">TOKEN: eir_819bc42</span>
-            <span class="chip chip-green" style="margin-top:6px;">Approved</span>
+          <div class="wallet-qr-box">
+            <svg width="130" height="130" viewBox="0 0 100 100">
+              <rect width="100" height="100" fill="#0F172A"/>
+              <rect x="10" y="10" width="30" height="30" fill="#FFFFFF"/>
+              <rect x="15" y="15" width="20" height="20" fill="#0F172A"/>
+              <rect x="20" y="20" width="10" height="10" fill="#FFFFFF"/>
+              <rect x="60" y="10" width="30" height="30" fill="#FFFFFF"/>
+              <rect x="65" y="15" width="20" height="20" fill="#0F172A"/>
+              <rect x="70" y="20" width="10" height="10" fill="#FFFFFF"/>
+              <rect x="10" y="60" width="30" height="30" fill="#FFFFFF"/>
+              <rect x="15" y="65" width="20" height="20" fill="#0F172A"/>
+              <rect x="20" y="70" width="10" height="10" fill="#FFFFFF"/>
+              <rect x="50" y="50" width="10" height="10" fill="#4F46E5"/>
+              <rect x="60" y="60" width="10" height="10" fill="#FFFFFF"/>
+              <rect x="75" y="75" width="15" height="15" fill="#FFFFFF"/>
+            </svg>
           </div>
+          <span style="font-size:11px; font-family:monospace; color:var(--text-muted);">TOKEN: eir_90f23a1</span>
         </div>
+      </div>
+
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <button class="btn btn-primary" style="flex:1;" onclick="simulatePdfDownload()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Download PDF Bundle
+        </button>
+        <button class="btn btn-secondary" style="flex:1;" onclick="showToast('Pass added to Apple Wallet format')">
+          Add to Apple Wallet
+        </button>
       </div>
     </section>
 
@@ -664,7 +730,7 @@
 
     function switchView(viewName) {
       document.querySelectorAll('.view-pane').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.seg-tab-btn').forEach(btn => btn.classList.remove('active'));
 
       const target = document.getElementById('view-' + viewName);
       if (target) target.classList.add('active');
@@ -679,7 +745,7 @@
       const toast = document.getElementById('toast');
       document.getElementById('toast-msg').innerText = msg;
       toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 3500);
+      setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
     function setRsvp(choice) {
@@ -687,21 +753,21 @@
       if (choice === 'accepted') {
         document.getElementById('opt-accept').className = 'rsvp-option-btn selected-accept';
         document.getElementById('rsvp-display-chip').className = 'chip chip-green';
-        document.getElementById('rsvp-display-chip').innerText = 'Status: accepted';
+        document.getElementById('rsvp-display-chip').innerText = 'accepted';
       } else if (choice === 'tentative') {
         document.getElementById('opt-tentative').className = 'rsvp-option-btn selected-tentative';
         document.getElementById('rsvp-display-chip').className = 'chip chip-amber';
-        document.getElementById('rsvp-display-chip').innerText = 'Status: tentative';
+        document.getElementById('rsvp-display-chip').innerText = 'tentative';
       } else {
         document.getElementById('opt-decline').className = 'rsvp-option-btn selected-decline';
         document.getElementById('rsvp-display-chip').className = 'chip chip-red';
-        document.getElementById('rsvp-display-chip').innerText = 'Status: declined';
+        document.getElementById('rsvp-display-chip').innerText = 'declined';
       }
-      showToast('RSVP updated: ' + choice);
+      showToast('RSVP preference updated: ' + choice);
     }
 
     function saveRsvpPreferences() {
-      showToast('Preferences saved.');
+      showToast('RSVP preferences saved.');
       setTimeout(() => switchView('attendees'), 400);
     }
 
@@ -720,7 +786,7 @@
         <div>
           <div style="display:flex; align-items:center; gap:8px;">
             <strong>${name}</strong>
-            <span class="chip chip-amber">pending review</span>
+            <span class="chip chip-amber">pending</span>
           </div>
           <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">${email}</div>
         </div>
@@ -731,7 +797,7 @@
       updateRosterState();
       document.getElementById('att-name-input').value = '';
       document.getElementById('att-email-input').value = '';
-      showToast('Submitted ' + name + ' for review.');
+      showToast('Attendee ' + name + ' submitted for review.');
     }
 
     function removeAttendee(btn, name) {
@@ -756,12 +822,12 @@
       e.preventDefault();
       document.getElementById('headcount-success-notice').style.display = 'block';
       document.getElementById('btn-submit-headcount').disabled = true;
-      document.getElementById('btn-submit-headcount').innerText = 'Request Pending Organizer Review';
-      showToast('Headcount request submitted.');
+      document.getElementById('btn-submit-headcount').innerText = 'Request Pending Review';
+      showToast('Headcount request submitted to organizer.');
     }
 
     function simulatePdfDownload() {
-      showToast('Generating party QR PDF bundle...');
+      showToast('Generating party QR PDF bundle via Edge Function...');
       setTimeout(() => showToast('Downloaded TechForward_Gala_QRCodes.pdf'), 1000);
     }
   </script>
