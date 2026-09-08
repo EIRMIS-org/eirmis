@@ -172,19 +172,8 @@ create policy "attendees: organizer reads event attendees"
     )
   );
 
--- Check-in staff may read attendees for their assigned event.
-create policy "attendees: staff reads assigned event attendees"
-  on attendees for select
-  using (
-    exists (
-      select 1
-      from invitations i
-      join checkin_assignments ca on ca.event_id = i.event_id
-      where i.id = attendees.invitation_id
-        and ca.auth_user_id = auth.uid()
-        and ca.status = 'active'
-    )
-  );
+-- NOTE: "attendees: staff reads assigned event attendees" is defined in
+-- 20260908000006_checkin.sql, after checkin_assignments is created.
 
 -- NOTE: Organizer approve/reject and staff check-in writes go through Edge Functions
 -- (decideAttendee, scanCheckIn) using the service role. No client UPDATE policy

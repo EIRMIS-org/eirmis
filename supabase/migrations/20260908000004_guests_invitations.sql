@@ -187,18 +187,8 @@ create policy "invitations: organizer updates for own event"
     )
   );
 
--- Check-in staff may read invitation rows for their assigned event
--- (needed for attendance-tracking dashboard counts).
-create policy "invitations: staff reads assigned event"
-  on invitations for select
-  using (
-    exists (
-      select 1 from checkin_assignments ca
-      where ca.event_id = invitations.event_id
-        and ca.auth_user_id = auth.uid()
-        and ca.status = 'active'
-    )
-  );
+-- NOTE: "invitations: staff reads assigned event" is defined in
+-- 20260908000006_checkin.sql, after checkin_assignments is created.
 
 
 -- ---------------------------------------------------------------------------

@@ -101,7 +101,7 @@ create policy "checkin_assignments: staff reads own active assignment"
 
 
 -- =============================================================================
--- Deferred policy — applied here because checkin_assignments now exists.
+-- Deferred policies — applied here because checkin_assignments now exists.
 -- =============================================================================
 
 -- Check-in staff may read the single event they are assigned to.
@@ -113,6 +113,34 @@ create policy "events: staff reads assigned"
     and exists (
       select 1 from checkin_assignments ca
       where ca.event_id = events.id
+        and ca.auth_user_id = auth.uid()
+        and ca.status = 'active'
+    )
+  );
+
+-- Check-in staff may read invitation rows for their assigned event.
+-- (deferred from 20260908000004_guests_invitations.sql; references checkin_assignments)
+create policy "invitations: staff reads assigned event"
+  on invitations for select
+  using (
+    exists (
+      select 1 from checkin_assignments ca
+      where ca.event_id = invitations.event_id
+        and ca.auth_user_id = auth.uid()
+        and ca.status = 'active'
+    )
+  );
+
+-- Check-in staff may read attendees for their assigned event.
+-- (deferred from 20260908000005_attendees.sql; references checkin_assignments)
+create policy "attendees: staff reads assigned event attendees"
+  on attendees for select
+  using (
+    exists (
+      select 1
+      from invitations i
+      join checkin_assignments ca on ca.event_id = i.event_id
+      where i.id = attendees.invitation_id
         and ca.auth_user_id = auth.uid()
         and ca.status = 'active'
     )
