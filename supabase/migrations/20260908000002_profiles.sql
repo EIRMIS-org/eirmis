@@ -41,7 +41,33 @@ create trigger trg_organizer_profiles_updated_at
   before update on organizer_profiles
   for each row execute function set_updated_at();
 
+-- ---------------------------------------------------------------------------
+-- admin_profiles
+-- One row per System Administrator, provisioned directly (not self-registered).
+-- Admins manage org-wide settings and organizer verification only.
+-- They have no access to individual event guest lists, RSVP content, or
+-- attendee data — that exclusion is enforced by RLS on all other tables.
+-- ---------------------------------------------------------------------------
+create table admin_profiles (
+  id         uuid        primary key references auth.users (id) on delete cascade,
+  email      text        not null unique,
+  full_name  text        not null,
+  created_at timestamptz not null default now()
+);
+
+comment on table  admin_profiles           is 'One row per System Administrator, linked 1:1 to auth.users. Provisioned directly, not self-registered.';
+comment on column admin_profiles.id        is 'Equals auth.users.id — the Supabase Auth primary key.';
+
+-- =============================================================================
 -- Row Level Security
+-- Both tables are defined above; all policies are declared here so that
+-- forward references (e.g. admin_profiles inside organizer_profiles policies)
+-- are always resolved against an already-existing table.
+-- =============================================================================
+
+-- ---------------------------------------------------------------------------
+-- organizer_profiles RLS
+-- ---------------------------------------------------------------------------
 alter table organizer_profiles enable row level security;
 
 -- Organizers may read and update their own row only.
@@ -73,25 +99,9 @@ create policy "organizer_profiles: admin updates status"
 -- Insert is done by the auth trigger (see note below), not by the client.
 -- Service role handles the insert; no client INSERT policy is granted.
 
-
 -- ---------------------------------------------------------------------------
--- admin_profiles
--- One row per System Administrator, provisioned directly (not self-registered).
--- Admins manage org-wide settings and organizer verification only.
--- They have no access to individual event guest lists, RSVP content, or
--- attendee data — that exclusion is enforced by RLS on all other tables.
+-- admin_profiles RLS
 -- ---------------------------------------------------------------------------
-create table admin_profiles (
-  id         uuid        primary key references auth.users (id) on delete cascade,
-  email      text        not null unique,
-  full_name  text        not null,
-  created_at timestamptz not null default now()
-);
-
-comment on table  admin_profiles           is 'One row per System Administrator, linked 1:1 to auth.users. Provisioned directly, not self-registered.';
-comment on column admin_profiles.id        is 'Equals auth.users.id — the Supabase Auth primary key.';
-
--- Row Level Security
 alter table admin_profiles enable row level security;
 
 -- Admins may read their own row (to confirm their identity/session).
@@ -100,7 +110,6 @@ create policy "admin_profiles: admin reads own row"
   using (auth.uid() = id);
 
 -- No INSERT or UPDATE policy for clients — admins are provisioned via service role only.
-
 
 -- ---------------------------------------------------------------------------
 -- NOTE: organizer_profiles row creation on first Google Sign-In
