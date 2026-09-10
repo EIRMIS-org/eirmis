@@ -19,4 +19,14 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  // shadcn/ui generated components intentionally co-export CVA variant helpers
+  // (e.g. buttonVariants) alongside React components in the same file.
+  // This pattern is conventional in the shadcn ecosystem; suppress the
+  // react-refresh warning only for the ui/ directory.
+  {
+    files: ['src/components/ui/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])
