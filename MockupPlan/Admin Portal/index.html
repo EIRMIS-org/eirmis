@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EIRMIS — System Administrator Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../assets/eirmis.css">
   <style>
     :root {
       --primary: #4F46E5;
@@ -23,7 +27,7 @@
       --text-main: #0F172A;
       --text-muted: #64748B;
       --text-subtle: #94A3B8;
-      
+
       --success: #15803D;
       --success-bg: #DCFCE7;
       --success-border: #86EFAC;
@@ -33,8 +37,8 @@
       --error: #B91C1C;
       --error-bg: #FEE2E2;
 
-      --font-heading: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-heading: 'Hanken Grotesk', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
 
       --radius-sm: 8px;
       --radius-md: 14px;
@@ -48,7 +52,11 @@
       --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       font-family: var(--font-body);
@@ -261,7 +269,7 @@
       gap: 4px;
     }
 
-    /* iOS Segmented Control Navigation */
+    /* Segmented Control Navigation */
     .segmented-nav-wrap {
       display: flex;
       justify-content: space-between;
@@ -308,11 +316,20 @@
       animation: fadeIn 0.25s var(--ease-spring) forwards;
     }
 
-    .view-pane.active { display: block; }
+    .view-pane.active {
+      display: block;
+    }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* Cards */
@@ -416,8 +433,13 @@
       transition: background 0.15s;
     }
 
-    tbody tr:last-child td { border-bottom: none; }
-    tbody tr:hover td { background: #F8FAFC; }
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover td {
+      background: #F8FAFC;
+    }
 
     /* Chips */
     .chip {
@@ -564,7 +586,7 @@
       cursor: not-allowed;
     }
 
-    /* iOS Toggle Switch */
+    /* Toggle Switch */
     .toggle-row {
       display: flex;
       align-items: center;
@@ -606,7 +628,10 @@
     .slider {
       position: absolute;
       cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background-color: #CBD5E1;
       transition: 0.3s;
       border-radius: 24px;
@@ -622,14 +647,14 @@
       background-color: white;
       transition: 0.3s;
       border-radius: 50%;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     }
 
-    input:checked + .slider {
+    input:checked+.slider {
       background-color: var(--primary);
     }
 
-    input:checked + .slider:before {
+    input:checked+.slider:before {
       transform: translateX(20px);
     }
 
@@ -647,11 +672,18 @@
       animation: modalFadeIn 0.2s ease forwards;
     }
 
-    .modal-overlay.active { display: flex; }
+    .modal-overlay.active {
+      display: flex;
+    }
 
     @keyframes modalFadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
 
     .modal-box {
@@ -666,7 +698,9 @@
     }
 
     @keyframes modalPop {
-      to { transform: scale(1); }
+      to {
+        transform: scale(1);
+      }
     }
 
     .modal-icon-badge {
@@ -733,11 +767,17 @@
     }
 
     @media (max-width: 900px) {
-      .kpi-strip { grid-template-columns: repeat(2, 1fr); }
-      .settings-grid { grid-template-columns: 1fr; }
+      .kpi-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .settings-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
+
 <body>
 
   <!-- Top Enterprise Header -->
@@ -745,7 +785,8 @@
     <div class="header-inner">
       <div class="brand-box">
         <div class="brand-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
           </svg>
         </div>
@@ -763,8 +804,9 @@
           <div class="user-meta-name">Root Security Officer</div>
           <div class="user-meta-role">sysadmin@eirmis.internal</div>
         </div>
-        <a href="../LandingPage/index.html" class="btn btn-secondary btn-sm">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <a href="../LandingPage/index.html" class="btn btn-secondary btn-sm" aria-label="Exit to Home">
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
             <polyline points="16 17 21 12 16 7"></polyline>
             <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -781,7 +823,8 @@
     <div class="boundary-banner">
       <div class="boundary-banner-left">
         <div class="boundary-icon-wrap">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
@@ -792,7 +835,8 @@
             <span class="chip chip-green" style="font-size:10px; padding:2px 6px;">ENFORCED BY POLICY</span>
           </div>
           <div class="boundary-desc">
-            System Administrators govern organizer verification and platform security defaults only. Admins have zero database read or write permissions over event guest lists, invitations, or attendee rosters.
+            System Administrators govern organizer verification and platform security defaults only. Admins have zero
+            database read or write permissions over event guest lists, invitations, or attendee rosters.
           </div>
         </div>
       </div>
@@ -803,7 +847,11 @@
       <div class="kpi-card">
         <div class="kpi-label">
           <span>Pending Organizers</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--warning)"
+            stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
         </div>
         <div class="kpi-value" id="kpi-pending" style="color:var(--warning);">2</div>
         <div class="kpi-sub">Awaiting manual gate review</div>
@@ -812,7 +860,11 @@
       <div class="kpi-card">
         <div class="kpi-label">
           <span>Active Organizers</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--success)"
+            stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
         </div>
         <div class="kpi-value" id="kpi-active">24</div>
         <div class="kpi-sub">Authorized to create events</div>
@@ -821,27 +873,34 @@
       <div class="kpi-card">
         <div class="kpi-label">
           <span>Malware Engine</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)"
+            stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
         </div>
-        <div class="kpi-value" style="font-size:20px; margin-top:10px; color:var(--success);">VirusTotal v3</div>
+        <div class="kpi-value" style="font-size:20px; margin-top:10px; color:var(--success);">Malware Engine v3</div>
         <div class="kpi-sub">Static sandbox parsing: Active</div>
       </div>
 
       <div class="kpi-card">
         <div class="kpi-label">
           <span>Audit Log Stream</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)"
+            stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
         </div>
         <div class="kpi-value" style="font-size:20px; margin-top:10px;">100% Intact</div>
         <div class="kpi-sub">Immutable append-only ledger</div>
       </div>
     </div>
 
-    <!-- iOS Segmented Control -->
+    <!-- Segmented Control -->
     <div class="segmented-nav-wrap">
       <div class="segmented-control">
         <button class="segmented-btn active" id="tab-organizers" onclick="switchTab('organizers')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
             <circle cx="9" cy="7" r="4"></circle>
             <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -850,16 +909,23 @@
           Organizer Verification Queue
         </button>
         <button class="segmented-btn" id="tab-settings" onclick="switchTab('settings')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+            </path>
           </svg>
           Organization-Wide Settings
         </button>
       </div>
 
       <div style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 14 14"></polyline>
+        </svg>
         Last sync: Just now
       </div>
     </div>
@@ -871,14 +937,19 @@
           <div>
             <h2 class="card-title">Organizer Verification Queue</h2>
             <p class="card-subtitle">
-              Manual verification is the sole trust gate authorizing event creation for self-registered Google accounts.
+              Manual verification is the sole trust gate authorizing event creation for self-registered SSO accounts.
             </p>
           </div>
 
           <div class="table-toolbar">
             <div class="search-input-box">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input type="text" id="organizer-search" placeholder="Filter by name or email..." oninput="filterOrganizers()">
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)"
+                stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="organizer-search" placeholder="Filter by name or email..."
+                oninput="filterOrganizers()">
             </div>
             <span class="chip chip-amber" id="queue-pending-chip">
               <span class="chip-dot"></span>
@@ -892,7 +963,7 @@
             <thead>
               <tr>
                 <th>Full Name</th>
-                <th>Google Account Email</th>
+                <th>SSO Account Email</th>
                 <th>Registered At</th>
                 <th>Status</th>
                 <th style="text-align:right;">Audit Action</th>
@@ -912,8 +983,12 @@
                   <span class="chip chip-amber"><span class="chip-dot"></span>pending</span>
                 </td>
                 <td style="text-align:right;">
-                  <button class="btn btn-primary btn-sm" onclick="promptActivateOrganizer('org-row-1', 'Arthur Vance', 'arthur.vance@techventures.co', 'Tech Ventures Guild')">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <button class="btn btn-primary btn-sm"
+                    onclick="promptActivateOrganizer('org-row-1', 'Arthur Vance', 'arthur.vance@techventures.co', 'Tech Ventures Guild')">
+                    <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.5">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
                     Activate Organizer
                   </button>
                 </td>
@@ -925,15 +1000,19 @@
                   <div style="font-size:11px; color:var(--text-muted);">Organization: Apex Healthcare Summit</div>
                 </td>
                 <td>
-                  <span style="font-family:monospace; font-size:12px;">marissa.liu.events@gmail.com</span>
+                  <span style="font-family:monospace; font-size:12px;">marissa.liu.events@example.com</span>
                 </td>
                 <td>Sep 08, 2026 11:45 AM</td>
                 <td>
                   <span class="chip chip-amber"><span class="chip-dot"></span>pending</span>
                 </td>
                 <td style="text-align:right;">
-                  <button class="btn btn-primary btn-sm" onclick="promptActivateOrganizer('org-row-2', 'Marissa Liu', 'marissa.liu.events@gmail.com', 'Apex Healthcare Summit')">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <button class="btn btn-primary btn-sm"
+                    onclick="promptActivateOrganizer('org-row-2', 'Marissa Liu', 'marissa.liu.events@example.com', 'Apex Healthcare Summit')">
+                    <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.5">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
                     Activate Organizer
                   </button>
                 </td>
@@ -942,18 +1021,23 @@
               <tr id="org-row-3" style="opacity:0.85;">
                 <td>
                   <div style="font-weight:700; color:var(--text-main);">Sarah Jenkins</div>
-                  <div style="font-size:11px; color:var(--text-muted);">Organization: University Faculty Association</div>
+                  <div style="font-size:11px; color:var(--text-muted);">Organization: University Faculty Association
+                  </div>
                 </td>
                 <td>
-                  <span style="font-family:monospace; font-size:12px;">sarah.jenkins@gmail.com</span>
+                  <span style="font-family:monospace; font-size:12px;">sarah.jenkins@example.com</span>
                 </td>
                 <td>Aug 14, 2026 02:20 PM</td>
                 <td>
                   <span class="chip chip-green"><span class="chip-dot"></span>active</span>
                 </td>
                 <td style="text-align:right;">
-                  <span style="font-size:12px; color:var(--success); font-weight:600; display:inline-flex; align-items:center; gap:4px;">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span
+                    style="font-size:12px; color:var(--success); font-weight:600; display:inline-flex; align-items:center; gap:4px;">
+                    <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.5">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
                     Verified & Active
                   </span>
                 </td>
@@ -972,8 +1056,12 @@
                   <span class="chip chip-green"><span class="chip-dot"></span>active</span>
                 </td>
                 <td style="text-align:right;">
-                  <span style="font-size:12px; color:var(--success); font-weight:600; display:inline-flex; align-items:center; gap:4px;">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span
+                    style="font-size:12px; color:var(--success); font-weight:600; display:inline-flex; align-items:center; gap:4px;">
+                    <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.5">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
                     Verified & Active
                   </span>
                 </td>
@@ -1000,10 +1088,17 @@
           <!-- General & Defaults -->
           <div class="settings-section">
             <div class="settings-section-title">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)"
+                stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                </path>
+              </svg>
               Instance Identity & Timezone
             </div>
-            <div class="settings-section-desc">Global metadata attached to invitation dispatches and ICS calendar files.</div>
+            <div class="settings-section-desc">Global metadata attached to invitation dispatches and ICS calendar files.
+            </div>
 
             <div class="form-group">
               <label class="form-label" for="org-name">Organization / System Instance Name</label>
@@ -1029,19 +1124,22 @@
           <!-- Security & Malware Sandbox -->
           <div class="settings-section">
             <div class="settings-section-title">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)"
+                stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
               Security Sandbox & Email Gateway
             </div>
-            <div class="settings-section-desc">VirusTotal static scanning engine and transactional dispatch settings.</div>
+            <div class="settings-section-desc">Static scanning engine and transactional dispatch settings.</div>
 
             <div class="form-group">
-              <label class="form-label" for="resend-domain">Resend Verified Sender Domain</label>
-              <input type="text" id="resend-domain" class="form-control" value="invites.eirmis.org" disabled>
+              <label class="form-label" for="sender-domain">Verified Sender Domain</label>
+              <input type="text" id="sender-domain" class="form-control" value="invites.eirmis.org" disabled>
             </div>
 
             <div class="toggle-row">
               <div>
-                <div class="toggle-label-title">VirusTotal Malware Sandbox</div>
+                <div class="toggle-label-title">Malware Sandbox</div>
                 <div class="toggle-label-desc">Require clean hash verdict before serving custom HTML invitations</div>
               </div>
               <label class="switch">
@@ -1056,7 +1154,8 @@
                 <div class="toggle-label-desc">New organizers remain pending until administrator review</div>
               </div>
               <label class="switch">
-                <input type="checkbox" checked id="toggle-gate" onchange="showToast('Verification gate policy updated.')">
+                <input type="checkbox" checked id="toggle-gate"
+                  onchange="showToast('Verification gate policy updated.')">
                 <span class="slider"></span>
               </label>
             </div>
@@ -1065,7 +1164,12 @@
 
         <div style="margin-top:24px; display:flex; justify-content:flex-end;">
           <button class="btn btn-primary" onclick="showToast('Organization settings successfully saved.')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
             Save Organization Settings
           </button>
         </div>
@@ -1075,30 +1179,47 @@
   </main>
 
   <!-- CONFIRM ACTIVATION MODAL -->
-  <div id="activation-modal" class="modal-overlay">
+  <div id="activation-modal" class="modal-overlay" role="dialog" aria-modal="true"
+    aria-labelledby="activation-modal-title">
     <div class="modal-box">
       <div class="modal-icon-badge">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
       </div>
-      <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:var(--text-main); margin-bottom:6px;">
+      <h3 id="activation-modal-title"
+        style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:var(--text-main); margin-bottom:6px;">
         Confirm Organizer Activation
       </h3>
       <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">
-        You are about to authorize <strong id="modal-org-name" style="color:var(--text-main);">Arthur Vance</strong> (<span id="modal-org-email" style="font-family:monospace;"></span>) from <strong id="modal-org-affil"></strong> to create and publish events.
+        You are about to authorize <strong id="modal-org-name" style="color:var(--text-main);">Arthur Vance</strong>
+        (<span id="modal-org-email" style="font-family:monospace;"></span>) from <strong id="modal-org-affil"></strong>
+        to create and publish events.
       </p>
 
       <div class="audit-callout">
-        <div style="font-weight:700; color:var(--text-main); margin-bottom:3px; display:flex; align-items:center; gap:6px;">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <div
+          style="font-weight:700; color:var(--text-main); margin-bottom:3px; display:flex; align-items:center; gap:6px;">
+          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
           Audit Ledger Notice
         </div>
-        Sets account status to <code>active</code>, issues verification notification email via Resend, and records <code>organizer.verified</code> with admin actor timestamp in <code>AuditLogEntry</code>.
+        Sets account status to <code>active</code>, issues verification notification email, and records
+        <code>organizer.verified</code> with admin actor timestamp in <code>AuditLogEntry</code>.
       </div>
 
       <div style="display:flex; justify-content:flex-end; gap:10px;">
         <button class="btn btn-secondary" onclick="closeActivationModal()">Cancel</button>
         <button class="btn btn-primary" onclick="confirmActivation()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
           Confirm & Activate
         </button>
       </div>
@@ -1108,7 +1229,10 @@
   <!-- Toast Notification -->
   <div id="toast" class="toast">
     <span class="toast-icon">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.5">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
     </span>
     <span id="toast-msg">Action performed successfully</span>
   </div>
@@ -1154,9 +1278,9 @@
         const row = document.getElementById(activeRowId);
         if (row) {
           row.querySelector('td:nth-child(4)').innerHTML = '<span class="chip chip-green"><span class="chip-dot"></span>active</span>';
-          row.querySelector('td:nth-child(5)').innerHTML = '<span style="color:var(--success); font-size:12px; font-weight:600; display:inline-flex; align-items:center; gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Verified & Active</span>';
+          row.querySelector('td:nth-child(5)').innerHTML = '<span style="color:var(--success); font-size:12px; font-weight:600; display:inline-flex; align-items:center; gap:4px;"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Verified & Active</span>';
           row.style.opacity = '0.85';
-          
+
           pendingCount--;
           activeCount++;
           document.getElementById('kpi-pending').innerText = pendingCount;
@@ -1175,7 +1299,29 @@
         const text = row.innerText.toLowerCase();
         row.style.display = text.includes(query) ? '' : 'none';
       });
+      toggleEmptyState('#organizers-tbody', query, 'No organizers match your search.');
+    }
+
+    function toggleEmptyState(containerSelector, query, message) {
+      const container = document.querySelector(containerSelector);
+      if (!container) return;
+      const rows = Array.from(container.querySelectorAll('tr'));
+      const anyVisible = rows.some(r => r.style.display !== 'none');
+      let empty = container.querySelector('.eirmis-empty-row');
+      if (!query || anyVisible) {
+        if (empty) empty.remove();
+        return;
+      }
+      if (!empty) {
+        empty = document.createElement('tr');
+        empty.className = 'eirmis-empty-row';
+        empty.innerHTML = '<td colspan="10"><div class="eirmis-empty"><div class="eirmis-empty-title">No results</div><div style="font-size:12px;">' + message + '</div></div></td>';
+        container.appendChild(empty);
+      }
     }
   </script>
+  <script src="../assets/eirmis.js"></script>
+  <script>EIRMIS.init({ portal: 'admin' });</script>
 </body>
+
 </html>

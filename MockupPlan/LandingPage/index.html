@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EIRMIS — Event Invitation & RSVP Management System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../assets/eirmis.css">
   <style>
     :root {
       --primary: #4F46E5;
@@ -35,8 +39,8 @@
       --error: #B91C1C;
       --error-bg: #FEE2E2;
 
-      --font-heading: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-heading: 'Hanken Grotesk', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
 
       --radius-sm: 8px;
       --radius-md: 14px;
@@ -50,7 +54,11 @@
       --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       font-family: var(--font-body);
@@ -211,7 +219,8 @@
       font-family: var(--font-body);
     }
 
-    .route-pill.active, .route-pill:hover {
+    .route-pill.active,
+    .route-pill:hover {
       background: var(--primary);
       color: #FFFFFF;
       border-color: var(--primary);
@@ -224,11 +233,20 @@
       animation: sectionFade 0.25s var(--ease-spring) forwards;
     }
 
-    .view-section.active { display: block; }
+    .view-section.active {
+      display: block;
+    }
 
     @keyframes sectionFade {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* Hero Section */
@@ -414,10 +432,25 @@
       flex-shrink: 0;
     }
 
-    .portal-icon-box.organizer { background: #EEF2FF; color: var(--primary); }
-    .portal-icon-box.guest { background: #F0FDFA; color: var(--secondary); }
-    .portal-icon-box.staff { background: #FEF3C7; color: var(--warning); }
-    .portal-icon-box.admin { background: #F1F5F9; color: var(--dark); }
+    .portal-icon-box.organizer {
+      background: #EEF2FF;
+      color: var(--primary);
+    }
+
+    .portal-icon-box.guest {
+      background: #F0FDFA;
+      color: var(--secondary);
+    }
+
+    .portal-icon-box.staff {
+      background: #FEF3C7;
+      color: var(--warning);
+    }
+
+    .portal-icon-box.admin {
+      background: #F1F5F9;
+      color: var(--dark);
+    }
 
     .portal-card h3 {
       font-family: var(--font-heading);
@@ -571,7 +604,7 @@
       line-height: 1.5;
     }
 
-    .google-btn {
+    .sso-btn {
       width: 100%;
       background: #FFFFFF;
       border: 1px solid var(--border);
@@ -589,13 +622,13 @@
       font-family: var(--font-body);
     }
 
-    .google-btn:hover {
+    .sso-btn:hover {
       background: #F8FAFC;
       border-color: #CBD5E1;
       box-shadow: var(--shadow-sm);
     }
 
-    .google-btn:active {
+    .sso-btn:active {
       transform: scale(0.99);
     }
 
@@ -665,8 +698,17 @@
       font-weight: 700;
     }
 
-    .status-badge.pending { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
-    .status-badge.active { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+    .status-badge.pending {
+      background: var(--warning-bg);
+      color: var(--warning);
+      border: 1px solid var(--warning-border);
+    }
+
+    .status-badge.active {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid var(--success-border);
+    }
 
     /* Toast Notification */
     .toast {
@@ -710,6 +752,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <!-- Top Glassmorphic Navigation -->
@@ -717,7 +760,8 @@
     <div class="nav-container">
       <a href="#landing" onclick="showView('landing')" class="brand">
         <div class="brand-logo">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
             <line x1="16" y1="2" x2="16" y2="6"></line>
             <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -732,11 +776,13 @@
 
       <nav class="nav-links">
         <button onclick="showView('landing')" class="nav-btn">Home</button>
-        <button onclick="showView('login')" class="nav-btn">Google Auth</button>
+        <button onclick="showView('login')" class="nav-btn">SSO Auth</button>
         <button onclick="showView('guest-login')" class="nav-btn">Guest Access</button>
         <button onclick="showView('staff-login')" class="nav-btn">Staff Scanner</button>
         <button onclick="showView('register')" class="nav-btn primary">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
           Public RSVP Form
         </button>
       </nav>
@@ -748,15 +794,19 @@
     <!-- Route Simulator Segmented Pill Bar -->
     <div class="route-switcher-bar">
       <div class="route-switcher-label">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
         Simulate Route:
       </div>
       <button class="route-pill active" id="btn-view-landing" onclick="showView('landing')">/ (Landing Hub)</button>
-      <button class="route-pill" id="btn-view-login" onclick="showView('login')">/login (Google Auth)</button>
+      <button class="route-pill" id="btn-view-login" onclick="showView('login')">/login (SSO Auth)</button>
       <button class="route-pill" id="btn-view-pending" onclick="showView('pending')">/pending-verification</button>
       <button class="route-pill" id="btn-view-guest-login" onclick="showView('guest-login')">/guest/login</button>
       <button class="route-pill" id="btn-view-staff-login" onclick="showView('staff-login')">/staff/login</button>
       <button class="route-pill" id="btn-view-register" onclick="showView('register')">/register/:slug</button>
+      <button class="route-pill" id="btn-view-docs" onclick="showView('docs')">/docs (API)</button>
     </div>
 
     <!-- 1. LANDING VIEW -->
@@ -771,19 +821,31 @@
           <span class="hero-gradient-text">RSVP Management System</span>
         </h1>
         <p>
-          A unified, auditable platform orchestrating the entire lifecycle: invitation delivery, tiered RSVP approvals, passwordless guest rosters, Apple Wallet VIP passes, and real-time camera entrance scanning.
+          A unified, auditable platform orchestrating the entire lifecycle: invitation delivery, tiered RSVP approvals,
+          passwordless guest rosters, digital wallet VIP passes, and real-time camera entrance scanning.
         </p>
         <div class="hero-actions">
           <button class="btn btn-primary" onclick="showView('login')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
-            Sign In with Google
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+              <polyline points="10 17 15 12 10 7"></polyline>
+              <line x1="15" y1="12" x2="3" y2="12"></line>
+            </svg>
+            Sign In with SSO
           </button>
           <button class="btn btn-secondary" onclick="showView('guest-login')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22 6 12 13 2 6"></polyline></svg>
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22 6 12 13 2 6"></polyline>
+            </svg>
             Guest Passwordless RSVP
           </button>
           <button class="btn btn-teal" onclick="showView('register')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
             Test Open Registration
           </button>
         </div>
@@ -793,17 +855,26 @@
       <div class="public-reg-banner">
         <div class="public-reg-content">
           <div class="public-reg-tag">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
             Self-Service Public Ingress
           </div>
           <h2>Tech Forward Annual Gala 2026</h2>
           <p>
-            Experience the public attendee self-registration workflow (/register/tech-forward-2026). Anyone can register without pre-existing accounts, generating an accepted invitation and receiving a magic link to manage their party roster.
+            Experience the public attendee self-registration workflow (/register/tech-forward-2026). Anyone can register
+            without pre-existing accounts, generating an accepted invitation and receiving a magic link to manage their
+            party roster.
           </p>
         </div>
-        <button class="btn" style="background:#FFFFFF; color:var(--dark); font-weight:700; white-space:nowrap; padding:12px 20px;" onclick="showView('register')">
+        <button class="btn"
+          style="background:#FFFFFF; color:var(--dark); font-weight:700; white-space:nowrap; padding:12px 20px;"
+          onclick="showView('register')">
           Open Registration Form
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
         </button>
       </div>
 
@@ -816,22 +887,31 @@
         <div class="portal-card">
           <div class="portal-card-header">
             <div class="portal-icon-box organizer">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
             </div>
             <div>
               <h3>Event Organizer</h3>
               <span class="portal-auth-badge">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                Google OAuth + Admin Gate
+                <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                OAuth + Admin Gate
               </span>
             </div>
           </div>
           <p>
-            Create events, upload HTML invitation assets with VirusTotal scanning, review party rosters, override capacity limits with audit trails, and broadcast reminder emails.
+            Create events, upload HTML invitation assets with malware scanning, review party rosters, override capacity
+            limits with audit trails, and broadcast reminder emails.
           </p>
           <div class="card-actions">
             <a href="../Organizer Portal/index.html" class="btn btn-primary">Launch Organizer Portal →</a>
-            <button onclick="showView('login')" class="btn btn-ghost btn-sm">Simulate Google Login</button>
+            <button onclick="showView('login')" class="btn btn-ghost btn-sm">Simulate SSO Login</button>
           </div>
         </div>
 
@@ -839,18 +919,26 @@
         <div class="portal-card">
           <div class="portal-card-header">
             <div class="portal-icon-box guest">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22 6 12 13 2 6"></polyline></svg>
+              <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22 6 12 13 2 6"></polyline>
+              </svg>
             </div>
             <div>
               <h3>Guest Portal</h3>
               <span class="portal-auth-badge">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
                 Passwordless Magic Link
               </span>
             </div>
           </div>
           <p>
-            Self-service RSVP response (Accept, Tentative, Decline), multi-head party roster management, additional headcount requests, and Apple Wallet VIP boarding passes.
+            Self-service RSVP response (Accept, Tentative, Decline), multi-head party roster management, additional
+            headcount requests, and digital wallet VIP boarding passes.
           </p>
           <div class="card-actions">
             <a href="../Guest Portal/index.html" class="btn btn-teal">Launch Guest Portal →</a>
@@ -862,18 +950,26 @@
         <div class="portal-card">
           <div class="portal-card-header">
             <div class="portal-icon-box staff">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+              <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+              </svg>
             </div>
             <div>
               <h3>Check-in Staff</h3>
               <span class="portal-auth-badge">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
                 Event-Day Scoped Token
               </span>
             </div>
           </div>
           <p>
-            Mobile-first entrance viewfinder with simulated camera laser, haptic vibrations, duplicate token alerts, and door walk-in registrations. No attendee PII access.
+            Mobile-first entrance viewfinder with simulated camera laser, haptic vibrations, duplicate token alerts, and
+            door walk-in registrations. No attendee PII access.
           </p>
           <div class="card-actions">
             <a href="../Check-in Staff Portal/index.html" class="btn btn-secondary">Launch Staff Scanner →</a>
@@ -885,18 +981,25 @@
         <div class="portal-card">
           <div class="portal-card-header">
             <div class="portal-icon-box admin">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
             </div>
             <div>
               <h3>System Administrator</h3>
               <span class="portal-auth-badge">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
                 Root Trust Gate
               </span>
             </div>
           </div>
           <p>
-            The sole trust gate authorizing newly registered Google accounts to create events. Governs org settings and email domains. Strictly zero-knowledge over event guest lists.
+            The sole trust gate authorizing newly registered SSO accounts to create events. Governs org settings and
+            email domains. Strictly zero-knowledge over event guest lists.
           </p>
           <div class="card-actions">
             <a href="../Admin Portal/index.html" class="btn btn-dark">Launch Admin Portal →</a>
@@ -906,43 +1009,58 @@
       </div>
     </section>
 
-    <!-- 2. LOGIN VIEW (GOOGLE AUTH) -->
+    <!-- 2. LOGIN VIEW (SSO AUTH) -->
     <section id="view-login" class="view-section">
       <div class="auth-card">
         <div class="auth-header">
           <div class="auth-avatar-wrap" style="background:var(--primary-subtle); color:var(--primary);">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+              <polyline points="10 17 15 12 10 7"></polyline>
+              <line x1="15" y1="12" x2="3" y2="12"></line>
+            </svg>
           </div>
           <h2>Organizer & Admin Sign In</h2>
-          <p>Sign in using your Google account to access authorized event operations</p>
+          <p>Sign in using your SSO account to access authorized event operations</p>
         </div>
 
         <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px;">
           <!-- Active Organizer -->
-          <button class="google-btn" onclick="simulateGoogleLogin('active-organizer')">
-            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
+          <button class="sso-btn" onclick="simulateSsoLogin('active-organizer')">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
             Continue as Active Organizer
           </button>
 
           <!-- Pending Organizer -->
-          <button class="google-btn" onclick="simulateGoogleLogin('pending-organizer')">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <button class="sso-btn" onclick="simulateSsoLogin('pending-organizer')">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
             Sign In as Pending Organizer
           </button>
 
           <!-- Admin -->
-          <button class="google-btn" onclick="simulateGoogleLogin('admin')">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--dark)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <button class="sso-btn" onclick="simulateSsoLogin('admin')">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--dark)" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
             Sign In as System Administrator
           </button>
         </div>
 
         <div class="notice-box neutral">
-          <strong>Open Google OAuth:</strong> EIRMIS permits sign in from any valid Google account without restrictive domain whitelisting. First-time sign-ins enter an audited <code>pending</code> queue awaiting administrator activation.
+          <strong>Open OAuth:</strong> EIRMIS permits sign in from any valid SSO account without restrictive domain
+          whitelisting. First-time sign-ins enter an audited <code>pending</code> queue awaiting administrator
+          activation.
         </div>
 
         <div style="margin-top:24px; text-align:center;">
-          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">
+          <a href="#landing" onclick="showView('landing')"
+            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">
             ← Return to Landing Hub
           </a>
         </div>
@@ -953,28 +1071,36 @@
     <section id="view-pending" class="view-section">
       <div class="auth-card" style="text-align:center;">
         <div class="auth-avatar-wrap" style="background:var(--warning-bg); color:var(--warning);">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+          <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 14 14"></polyline>
+          </svg>
         </div>
 
         <div class="status-badge pending" style="margin-bottom:14px;">
           Account Status: Pending Review
         </div>
 
-        <h2 style="font-family:var(--font-heading); font-size:22px; font-weight:800; color:var(--text-main); margin-bottom:8px;">
+        <h2
+          style="font-family:var(--font-heading); font-size:22px; font-weight:800; color:var(--text-main); margin-bottom:8px;">
           Verification in Progress
         </h2>
 
         <p style="color:var(--text-muted); font-size:13.5px; margin-bottom:20px; line-height:1.6;">
-          Signed in as <strong>sarah.jenkins@gmail.com</strong>. Because any Google account can register, an Administrator must verify your profile before you can publish events or dispatch invitations.
+          Signed in as <strong>sarah.jenkins@example.com</strong>. Because any SSO account can register, an
+          Administrator must verify your profile before you can publish events or dispatch invitations.
         </p>
 
         <div class="notice-box warning" style="text-align:left; margin-bottom:24px;">
-          <strong>Security Gate:</strong> The manual verification gate ensures trust and platform accountability. You will receive an automated confirmation email once activated.
+          <strong>Security Gate:</strong> The manual verification gate ensures trust and platform accountability. You
+          will receive an automated confirmation email once activated.
         </div>
 
         <div style="display:flex; gap:10px; justify-content:center;">
           <a href="../Admin Portal/index.html" class="btn btn-secondary btn-sm">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
             Switch to Admin Portal
           </a>
           <button class="btn btn-ghost btn-sm" onclick="showView('landing')">Back to Home</button>
@@ -987,7 +1113,10 @@
       <div class="auth-card">
         <div class="auth-header">
           <div class="auth-avatar-wrap" style="background:var(--secondary-subtle); color:var(--secondary);">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22 6 12 13 2 6"></polyline></svg>
+            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22 6 12 13 2 6"></polyline>
+            </svg>
           </div>
           <h2>Guest Passwordless Access</h2>
           <p>No password needed. Enter your email to receive a secure, one-click magic link.</p>
@@ -996,16 +1125,21 @@
         <form onsubmit="handleGuestLogin(event)">
           <div class="form-group">
             <label class="form-label" for="guest-email">Your Email Address</label>
-            <input type="email" id="guest-email" class="form-control" placeholder="guest@example.com" required value="elena.rostova@gmail.com">
+            <input type="email" id="guest-email" class="form-control" placeholder="guest@example.com" required
+              value="elena.rostova@example.com">
           </div>
           <button type="submit" class="btn btn-teal" style="width:100%; padding:11px;">
             Send Magic Link
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
           </button>
         </form>
 
         <div id="guest-magic-sent" style="display:none; margin-top:20px;" class="notice-box success">
-          <strong>Magic Link Dispatched:</strong> A secure tokenized sign-in link has been sent to <span id="sent-guest-email" style="font-family:monospace; font-weight:700;"></span>.
+          <strong>Magic Link Dispatched:</strong> A secure tokenized sign-in link has been sent to <span
+            id="sent-guest-email" style="font-family:monospace; font-weight:700;"></span>.
           <div style="margin-top:14px;">
             <a href="../Guest Portal/index.html" class="btn btn-teal btn-sm" style="width:100%; text-align:center;">
               Simulate Email Link Click (Launch Guest Portal) →
@@ -1014,7 +1148,8 @@
         </div>
 
         <div style="margin-top:24px; text-align:center;">
-          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">
+          <a href="#landing" onclick="showView('landing')"
+            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">
             ← Return to Landing Hub
           </a>
         </div>
@@ -1026,7 +1161,10 @@
       <div class="auth-card">
         <div class="auth-header">
           <div class="auth-avatar-wrap" style="background:#FEF3C7; color:var(--warning);">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+              <line x1="12" y1="18" x2="12.01" y2="18"></line>
+            </svg>
           </div>
           <h2>Check-in Staff Sign In</h2>
           <p>Enter the email address where your check-in delegation invite was received</p>
@@ -1035,29 +1173,37 @@
         <form onsubmit="handleStaffLogin(event)">
           <div class="form-group">
             <label class="form-label" for="staff-email">Staff Member Email</label>
-            <input type="email" id="staff-email" class="form-control" placeholder="staff@example.com" required value="marcus.staff@events.org">
+            <input type="email" id="staff-email" class="form-control" placeholder="staff@example.com" required
+              value="marcus.staff@events.org">
           </div>
           <button type="submit" class="btn btn-primary" style="width:100%; padding:11px;">
             Send Staff Scanner Token
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
           </button>
         </form>
 
         <div id="staff-magic-sent" style="display:none; margin-top:20px;" class="notice-box success">
-          <strong>Staff Access Link Dispatched:</strong> Scoped check-in token generated for <span id="sent-staff-email" style="font-family:monospace; font-weight:700;"></span>.
+          <strong>Staff Access Link Dispatched:</strong> Scoped check-in token generated for <span id="sent-staff-email"
+            style="font-family:monospace; font-weight:700;"></span>.
           <div style="margin-top:14px;">
-            <a href="../Check-in Staff Portal/index.html" class="btn btn-primary btn-sm" style="width:100%; text-align:center;">
+            <a href="../Check-in Staff Portal/index.html" class="btn btn-primary btn-sm"
+              style="width:100%; text-align:center;">
               Simulate Token Entry (Open Staff Scanner) →
             </a>
           </div>
         </div>
 
         <div class="notice-box neutral" style="margin-top:20px;">
-          <strong>Day-of Security Scope:</strong> Check-in staff access is strictly restricted to their assigned event and active only on event day. Staff have no access to full guest lists or contact data.
+          <strong>Day-of Security Scope:</strong> Check-in staff access is strictly restricted to their assigned event
+          and active only on event day. Staff have no access to full guest lists or contact data.
         </div>
 
         <div style="margin-top:24px; text-align:center;">
-          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">
+          <a href="#landing" onclick="showView('landing')"
+            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">
             ← Return to Landing Hub
           </a>
         </div>
@@ -1066,21 +1212,29 @@
 
     <!-- 6. PUBLIC OPEN-REGISTRATION VIEW (/register/:slug) -->
     <section id="view-register" class="view-section">
-      <div style="max-width:680px; margin:0 auto; background:#FFFFFF; border:1px solid var(--border); border-radius:var(--radius-lg); padding:32px; box-shadow:var(--shadow-md);">
-        
+      <div
+        style="max-width:680px; margin:0 auto; background:#FFFFFF; border:1px solid var(--border); border-radius:var(--radius-lg); padding:32px; box-shadow:var(--shadow-md);">
+
         <div style="border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:24px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <span class="status-badge active">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
               Public Open Registration
             </span>
-            <span style="font-size:11px; color:var(--text-muted); font-family:monospace;">/register/tech-forward-2026</span>
+            <span
+              style="font-size:11px; color:var(--text-muted); font-family:monospace;">/register/tech-forward-2026</span>
           </div>
-          <h1 style="font-family:var(--font-heading); font-size:26px; font-weight:800; color:var(--text-main); margin-bottom:6px; letter-spacing:-0.02em;">
+          <h1
+            style="font-family:var(--font-heading); font-size:26px; font-weight:800; color:var(--text-main); margin-bottom:6px; letter-spacing:-0.02em;">
             Tech Forward Annual Gala 2026
           </h1>
           <p style="color:var(--text-muted); font-size:13.5px; display:flex; align-items:center; gap:6px;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
             Marina Bay Sands Grand Ballroom, Singapore • November 18, 2026 at 6:30 PM SGT
           </p>
         </div>
@@ -1089,11 +1243,13 @@
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
             <div class="form-group" style="margin-bottom:0;">
               <label class="form-label" for="reg-name">Full Name *</label>
-              <input type="text" id="reg-name" class="form-control" required placeholder="Full Name" value="Dr. Aris Thorne">
+              <input type="text" id="reg-name" class="form-control" required placeholder="Full Name"
+                value="Dr. Aris Thorne">
             </div>
             <div class="form-group" style="margin-bottom:0;">
               <label class="form-label" for="reg-email">Email Address *</label>
-              <input type="email" id="reg-email" class="form-control" required placeholder="email@company.com" value="aris.thorne@biotech-innovate.org">
+              <input type="email" id="reg-email" class="form-control" required placeholder="email@company.com"
+                value="aris.thorne@biotech-innovate.org">
             </div>
           </div>
 
@@ -1115,29 +1271,143 @@
 
           <div class="form-group">
             <label class="form-label" for="reg-notes">Special Requests / Affiliation</label>
-            <textarea id="reg-notes" class="form-control" rows="2">Keynote speaker guest, requires wheelchair accessible seating.</textarea>
+            <textarea id="reg-notes" class="form-control"
+              rows="2">Keynote speaker guest, requires wheelchair accessible seating.</textarea>
           </div>
 
-          <button type="submit" class="btn btn-primary" style="width:100%; padding:12px; font-size:14px; margin-top:8px;">
+          <button type="submit" class="btn btn-primary"
+            style="width:100%; padding:12px; font-size:14px; margin-top:8px;">
             Submit RSVP & Register
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
           </button>
         </form>
 
         <div id="reg-success-box" style="display:none; margin-top:20px;" class="notice-box success">
           <h4 style="font-size:14px; margin-bottom:4px; font-weight:800; display:flex; align-items:center; gap:6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
             Registration Confirmed
           </h4>
           <p style="margin-bottom:12px;">
-            Your RSVP has been recorded with status <strong>accepted</strong>. A confirmation email with a passwordless magic link has been sent to <strong id="registered-email"></strong>.
+            Your RSVP has been recorded with status <strong>accepted</strong>. A confirmation email with a passwordless
+            magic link has been sent to <strong id="registered-email"></strong>.
           </p>
-          <a href="../Guest Portal/index.html" class="btn btn-teal btn-sm">Proceed to Guest Portal to Complete Party Roster →</a>
+          <a href="../Guest Portal/index.html" class="btn btn-teal btn-sm">Proceed to Guest Portal to Complete Party
+            Roster →</a>
         </div>
 
         <div style="margin-top:24px; text-align:center;">
-          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">
+          <a href="#landing" onclick="showView('landing')"
+            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">
             ← Return to Overview
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. API DOCS VIEW (/docs — Redoc) -->
+    <section id="view-docs" class="view-section">
+      <div
+        style="max-width:900px; margin:0 auto; background:#FFFFFF; border:1px solid var(--border); border-radius:var(--radius-lg); padding:32px; box-shadow:var(--shadow-md);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <div>
+            <h1
+              style="font-family:var(--font-heading); font-size:24px; font-weight:800; color:var(--text-main); letter-spacing:-0.02em;">
+              API Reference</h1>
+            <p style="color:var(--text-muted); font-size:13px; margin-top:4px;">
+              Redoc view of <code
+                style="background:#F1F5F9; padding:2px 6px; border-radius:4px;">contract/openapi.yaml</code>
+              — the single source of truth for every callable endpoint.
+            </p>
+          </div>
+          <span class="status-badge active">
+            <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            OpenAPI 3.1
+          </span>
+        </div>
+
+        <div class="notice-box neutral" style="margin-bottom:20px;">
+          <strong>Auth-gated outside development:</strong> this route is open in development and requires an
+          authenticated session in deployed environments. Operations are grouped by portal (Organizer / Admin / Guest /
+          Check-in Staff / Public).
+        </div>
+
+        <!-- Simulated Redoc sidebar + operation list -->
+        <div style="display:grid; grid-template-columns: 240px 1fr; gap:24px;">
+          <div style="border-right:1px solid var(--border); padding-right:16px;">
+            <div
+              style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:12px;">
+              Tag Groups</div>
+            <div style="display:flex; flex-direction:column; gap:6px; font-size:13px;">
+              <span style="color:var(--primary); font-weight:600;">Organizer</span>
+              <span style="color:var(--text-muted);">Admin</span>
+              <span style="color:var(--text-muted);">Guest</span>
+              <span style="color:var(--text-muted);">Check-in Staff</span>
+              <span style="color:var(--text-muted);">Public</span>
+            </div>
+          </div>
+
+          <div>
+            <div
+              style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:12px;">
+              Edge Function Operations</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; align-items:center; gap:8px; font-size:13px;">
+                <span
+                  style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
+                <code style="font-family:monospace;">/functions/v1/invitation-html</code>
+                <span style="color:var(--text-muted); margin-left:auto;">uploadInvitationHtml</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px; font-size:13px;">
+                <span
+                  style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
+                <code style="font-family:monospace;">/functions/v1/attendees/{id}/decision</code>
+                <span style="color:var(--text-muted); margin-left:auto;">decideAttendee</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px; font-size:13px;">
+                <span
+                  style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
+                <code style="font-family:monospace;">/functions/v1/headcount-requests/{id}/decision</code>
+                <span style="color:var(--text-muted); margin-left:auto;">decideHeadcountRequest</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px; font-size:13px;">
+                <span
+                  style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
+                <code style="font-family:monospace;">/functions/v1/qr-bundle</code>
+                <span style="color:var(--text-muted); margin-left:auto;">dispatchQrBundle</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px; font-size:13px;">
+                <span
+                  style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
+                <code style="font-family:monospace;">/functions/v1/checkin/scan</code>
+                <span style="color:var(--text-muted); margin-left:auto;">scanCheckIn</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px; font-size:13px;">
+                <span
+                  style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
+                <code style="font-family:monospace;">/functions/v1/reminders/dispatch</code>
+                <span style="color:var(--text-muted); margin-left:auto;">sendReminders</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px; font-size:13px;">
+                <span
+                  style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
+                <code style="font-family:monospace;">/functions/v1/waitlist/promote</code>
+                <span style="color:var(--text-muted); margin-left:auto;">promoteWaitlist</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <a href="#landing" onclick="showView('landing')"
+            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">
+            ← Return to Landing Hub
           </a>
         </div>
       </div>
@@ -1148,7 +1418,9 @@
   <!-- Toast -->
   <div id="toast" class="toast">
     <span class="toast-icon">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
     </span>
     <span id="toast-message">Action successful</span>
   </div>
@@ -1178,15 +1450,18 @@
       setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
-    function simulateGoogleLogin(role) {
+    function simulateSsoLogin(role) {
       if (role === 'active-organizer') {
-        showToast('Authenticated as Sarah Jenkins (Active Organizer)');
+        EIRMIS.signIn('Organizer', 'Sarah Jenkins', 'sarah.jenkins@example.com');
+        EIRMIS.toast('Authenticated as Sarah Jenkins (Active Organizer)');
         setTimeout(() => window.location.href = '../Organizer Portal/index.html', 800);
       } else if (role === 'pending-organizer') {
-        showToast('Organizer account pending admin activation');
+        EIRMIS.signIn('Organizer (pending)', 'Sarah Jenkins', 'sarah.jenkins@example.com');
+        EIRMIS.toast('Organizer account pending admin activation', 'info');
         setTimeout(() => showView('pending'), 500);
       } else if (role === 'admin') {
-        showToast('Authenticated as System Administrator');
+        EIRMIS.signIn('Administrator', 'Root Security Officer', 'sysadmin@eirmis.internal');
+        EIRMIS.toast('Authenticated as System Administrator');
         setTimeout(() => window.location.href = '../Admin Portal/index.html', 800);
       }
     }
@@ -1217,10 +1492,13 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       const hash = window.location.hash.replace('#', '');
-      if (['landing', 'login', 'pending', 'guest-login', 'staff-login', 'register'].includes(hash)) {
+      if (['landing', 'login', 'pending', 'guest-login', 'staff-login', 'register', 'docs'].includes(hash)) {
         showView(hash);
       }
     });
   </script>
+  <script src="../assets/eirmis.js"></script>
+  <script>EIRMIS.init({ portal: 'landing' });</script>
 </body>
+
 </html>

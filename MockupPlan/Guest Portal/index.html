@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EIRMIS — Guest Self-Service Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../assets/eirmis.css">
   <style>
     :root {
       --primary: #4F46E5;
@@ -30,8 +34,8 @@
       --error: #EF4444;
       --error-bg: #FEF2F2;
       --error-border: #FECACA;
-      --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-display: 'Hanken Grotesk', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
       --radius-sm: 8px;
       --radius-md: 14px;
       --radius-lg: 20px;
@@ -42,7 +46,12 @@
       --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
 
     body {
       font-family: var(--font-body);
@@ -56,7 +65,7 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* iOS Glassmorphic Top Nav */
+    /* Glassmorphic Top Nav */
     header {
       background: var(--surface-glass);
       backdrop-filter: blur(20px);
@@ -115,7 +124,7 @@
       border-radius: 999px;
     }
 
-    /* Main Content Container (Mobile-first iPhone/PWA width) */
+    /* Main Content Container (Mobile-first PWA width) */
     main {
       flex: 1;
       max-width: 680px;
@@ -124,7 +133,7 @@
       padding: 20px 16px 64px 16px;
     }
 
-    /* iOS Inset Segmented Tabs Bar */
+    /* Inset Segmented Tabs Bar */
     .segmented-tabs {
       display: flex;
       background: #E2E8F0;
@@ -163,11 +172,20 @@
       animation: viewSlide 0.25s var(--ease-spring) forwards;
     }
 
-    .view-pane.active { display: block; }
+    .view-pane.active {
+      display: block;
+    }
 
     @keyframes viewSlide {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* Cards */
@@ -214,16 +232,49 @@
       user-select: none;
     }
 
-    .btn:active { transform: scale(0.97); }
+    .btn:active {
+      transform: scale(0.97);
+    }
 
-    .btn-primary { background-color: var(--primary); color: #FFFFFF; box-shadow: 0 4px 12px var(--primary-glow); }
-    .btn-primary:hover { background-color: var(--primary-hover); }
-    .btn-teal { background-color: var(--secondary); color: #FFFFFF; }
-    .btn-secondary { background: #FFFFFF; border-color: var(--border); color: var(--text-main); }
-    .btn-secondary:hover { background: #F8FAFC; }
-    .btn-ghost { background: transparent; color: var(--text-muted); }
-    .btn-ghost:hover { background: #F1F5F9; color: var(--text-main); }
-    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-primary {
+      background-color: var(--primary);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-teal {
+      background-color: var(--secondary);
+      color: #FFFFFF;
+    }
+
+    .btn-secondary {
+      background: #FFFFFF;
+      border-color: var(--border);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: #F8FAFC;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    .btn-ghost:hover {
+      background: #F1F5F9;
+      color: var(--text-main);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
 
     /* Chips */
     .chip {
@@ -237,10 +288,29 @@
       text-transform: capitalize;
     }
 
-    .chip-green { background: #DCFCE7; color: #15803D; border: 1px solid #BBF7D0; }
-    .chip-amber { background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; }
-    .chip-red { background: #FEE2E2; color: #BA1A1A; border: 1px solid #FECACA; }
-    .chip-blue { background: #EEF2FF; color: #4F46E5; border: 1px solid #C7D2FE; }
+    .chip-green {
+      background: #DCFCE7;
+      color: #15803D;
+      border: 1px solid #BBF7D0;
+    }
+
+    .chip-amber {
+      background: #FEF3C7;
+      color: #B45309;
+      border: 1px solid #FDE68A;
+    }
+
+    .chip-red {
+      background: #FEE2E2;
+      color: #BA1A1A;
+      border: 1px solid #FECACA;
+    }
+
+    .chip-blue {
+      background: #EEF2FF;
+      color: #4F46E5;
+      border: 1px solid #C7D2FE;
+    }
 
     /* RSVP Selector Buttons with Tactile Spring States */
     .rsvp-selector-group {
@@ -265,8 +335,13 @@
       gap: 4px;
     }
 
-    .rsvp-option-btn:hover { border-color: #CBD5E1; }
-    .rsvp-option-btn:active { transform: scale(0.96); }
+    .rsvp-option-btn:hover {
+      border-color: #CBD5E1;
+    }
+
+    .rsvp-option-btn:active {
+      transform: scale(0.96);
+    }
 
     .rsvp-option-btn.selected-accept {
       border-color: var(--success);
@@ -289,7 +364,7 @@
       box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
     }
 
-    /* iOS Inset Grouped Attendees List */
+    /* Inset Grouped Attendees List */
     .inset-grouped-list {
       background: #F8FAFC;
       border: 1px solid var(--border);
@@ -308,14 +383,18 @@
       transition: background 0.15s;
     }
 
-    .attendee-item:last-child { border-bottom: none; }
+    .attendee-item:last-child {
+      border-bottom: none;
+    }
 
     .attendee-item.primary {
       border-left: 4px solid var(--primary);
     }
 
     /* Form Styles */
-    .form-group { margin-bottom: 16px; }
+    .form-group {
+      margin-bottom: 16px;
+    }
 
     .form-label {
       display: block;
@@ -343,7 +422,7 @@
       box-shadow: 0 0 0 3px var(--primary-glow);
     }
 
-    /* Apple Wallet Style Ticket Pass */
+    /* Digital Wallet Style Ticket Pass */
     .wallet-pass {
       background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%);
       color: #FFFFFF;
@@ -431,9 +510,24 @@
       transition: all 0.25s var(--ease-spring);
     }
 
-    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Desktop enhancement (mobile-first base) */
+    @media (min-width: 768px) {
+      main {
+        max-width: 720px;
+      }
+
+      .rsvp-selector-group {
+        gap: 16px;
+      }
+    }
   </style>
 </head>
+
 <body>
 
   <!-- Glassmorphic Header -->
@@ -441,7 +535,13 @@
     <div class="header-content">
       <a href="#dashboard" onclick="switchView('dashboard')" class="brand-link">
         <div class="brand-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5">
+            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
         </div>
         <div>
           <span class="brand-title">EIRMIS</span>
@@ -450,15 +550,16 @@
       </a>
       <div class="session-badge">
         <span style="width:7px; height:7px; background:#10B981; border-radius:50%; display:inline-block;"></span>
-        <span>elena.rostova@gmail.com</span>
-        <a href="../LandingPage/index.html" style="color:var(--text-muted); text-decoration:none; margin-left:6px;" title="Exit">Exit</a>
+        <span>elena.rostova@example.com</span>
+        <a href="../LandingPage/index.html" style="color:var(--text-muted); text-decoration:none; margin-left:6px;"
+          title="Exit" aria-label="Exit to Landing Hub">Exit</a>
       </div>
     </div>
   </header>
 
   <main>
-    
-    <!-- iOS Inset Segmented Tabs Bar -->
+
+    <!-- Inset Segmented Tabs Bar -->
     <div class="segmented-tabs">
       <button class="seg-tab-btn active" id="tab-dashboard" onclick="switchView('dashboard')">Dashboard</button>
       <button class="seg-tab-btn" id="tab-event" onclick="switchView('event')">RSVP</button>
@@ -470,30 +571,67 @@
     <!-- 1. GUEST DASHBOARD -->
     <section id="view-dashboard" class="view-pane active">
       <div class="card" style="background: linear-gradient(135deg, #4F46E5 0%, #312E81 100%); color:white;">
-        <span style="font-size:12px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:#A5B4FC;">Guest Self-Service</span>
-        <h2 style="font-family:var(--font-display); font-size:22px; font-weight:800; margin:4px 0 6px 0;">Welcome, Elena Rostova</h2>
+        <span
+          style="font-size:12px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:#A5B4FC;">Guest
+          Self-Service</span>
+        <h2 style="font-family:var(--font-display); font-size:22px; font-weight:800; margin:4px 0 6px 0;">Welcome, Elena
+          Rostova</h2>
         <p style="font-size:13.5px; opacity:0.9; line-height:1.5;">
           Authenticated via secure magic link. You have 1 confirmed invitation for event day access.
         </p>
       </div>
 
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
-          <span class="chip chip-green" id="dash-status-chip">accepted</span>
-          <span style="font-weight:700; color:var(--primary); font-size:12.5px;">Party: 2/3 Confirmed</span>
-        </div>
-
-        <h3 style="font-family:var(--font-display); font-size:18px; font-weight:800; color:var(--text-main); margin-bottom:4px;">
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div
+          style="height:110px; background:linear-gradient(135deg,#4F46E5 0%,#312E81 60%,#0D9488 100%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:16px;">
           Tech Forward Annual Gala 2026
-        </h3>
-        <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px;">
-          Marina Bay Sands Grand Ballroom, Singapore • Nov 18, 2026 at 6:30 PM SGT
-        </p>
+        </div>
+        <div style="padding:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+            <span class="chip chip-green" id="dash-status-chip">accepted</span>
+            <span style="font-weight:700; color:var(--primary); font-size:12.5px;">Party: 2/3 Confirmed</span>
+          </div>
 
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <button class="btn btn-primary" onclick="switchView('event')">Manage RSVP →</button>
-          <button class="btn btn-secondary" onclick="switchView('attendees')">Party Roster (2 of 3)</button>
-          <button class="btn btn-teal" onclick="switchView('qr')">View Entry Pass</button>
+          <h3
+            style="font-family:var(--font-display); font-size:18px; font-weight:800; color:var(--text-main); margin-bottom:4px;">
+            Tech Forward Annual Gala 2026
+          </h3>
+          <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px;">
+            Marina Bay Sands Grand Ballroom, Singapore • Nov 18, 2026 at 6:30 PM SGT
+          </p>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="switchView('event')">Manage RSVP →</button>
+            <button class="btn btn-secondary" onclick="switchView('attendees')">Party Roster (2 of 3)</button>
+            <button class="btn btn-teal" onclick="switchView('qr')">View Entry Pass</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div
+          style="height:110px; background:linear-gradient(135deg,#0D9488 0%,#0F766E 60%,#134E4A 100%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:16px;">
+          Southeast Asia Founders Summit 2026
+        </div>
+        <div style="padding:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+            <span class="chip chip-amber" id="dash-status-chip-2">tentative</span>
+            <span style="font-weight:700; color:var(--text-muted); font-size:12.5px;">Party: 1/2 Confirmed</span>
+          </div>
+
+          <h3
+            style="font-family:var(--font-display); font-size:18px; font-weight:800; color:var(--text-main); margin-bottom:4px;">
+            Southeast Asia Founders Summit 2026
+          </h3>
+          <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px;">
+            The Fullerton Hotel, Singapore • Dec 4, 2026 at 9:00 AM SGT
+          </p>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="switchView('event')">Manage RSVP →</button>
+            <button class="btn btn-secondary" onclick="switchView('attendees')">Party Roster (1 of 2)</button>
+            <button class="btn btn-teal" onclick="switchView('qr')">View Entry Pass</button>
+          </div>
         </div>
       </div>
     </section>
@@ -507,22 +645,34 @@
         </div>
 
         <p style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">
-          Confirm your attendance for <strong>Tech Forward Annual Gala 2026</strong>. Accepting reserves capacity and unlocks your party roster.
+          Confirm your attendance for <strong>Tech Forward Annual Gala 2026</strong>. Accepting reserves capacity and
+          unlocks your party roster.
         </p>
 
         <div class="rsvp-selector-group">
           <div class="rsvp-option-btn selected-accept" id="opt-accept" onclick="setRsvp('accepted')">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
             <strong>Accept</strong>
             <span style="font-size:11px; opacity:0.8;">Attending</span>
           </div>
           <div class="rsvp-option-btn" id="opt-tentative" onclick="setRsvp('tentative')">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 14 14"></polyline>
+            </svg>
             <strong>Tentative</strong>
             <span style="font-size:11px; opacity:0.8;">Uncertain</span>
           </div>
           <div class="rsvp-option-btn" id="opt-decline" onclick="setRsvp('declined')">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
             <strong>Decline</strong>
             <span style="font-size:11px; opacity:0.8;">Can't Attend</span>
           </div>
@@ -535,7 +685,8 @@
 
         <div class="form-group">
           <label class="form-label" for="special-reqs">Special Requests or Accessibility Needs</label>
-          <textarea id="special-reqs" class="form-control" rows="2">Please seat near front stage for presentations.</textarea>
+          <textarea id="special-reqs" class="form-control"
+            rows="2">Please seat near front stage for presentations.</textarea>
         </div>
 
         <button class="btn btn-primary" style="width:100%;" onclick="saveRsvpPreferences()">
@@ -547,17 +698,43 @@
       <div class="card">
         <h3 class="card-title" style="font-size:15px;">Official Event Invitation Card</h3>
         <p class="card-sub">Sandboxed client render (sandbox="allow-scripts", strict CSP)</p>
-        
-        <div style="border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; background:linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%); color:white; padding:26px; text-align:center;">
-          <div style="font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:#818CF8; margin-bottom:6px;">You Are Cordially Invited</div>
-          <h2 style="font-family:var(--font-display); font-size:24px; font-weight:800; margin-bottom:8px; color:#F8FAFC;">
+
+        <div
+          style="border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; background:linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%); color:white; padding:26px; text-align:center;">
+          <div
+            style="font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:#818CF8; margin-bottom:6px;">
+            You Are Cordially Invited</div>
+          <h2
+            style="font-family:var(--font-display); font-size:24px; font-weight:800; margin-bottom:8px; color:#F8FAFC;">
             Tech Forward Gala 2026
           </h2>
           <p style="font-size:13px; color:#CBD5E1; max-width:440px; margin:0 auto 14px auto;">
             Honoring innovation and distinguished contributions to digital infrastructure.
           </p>
-          <div style="display:inline-block; background:rgba(255,255,255,0.1); padding:6px 14px; border-radius:999px; font-size:11.5px; color:#E2E8F0;">
+          <div
+            style="display:inline-block; background:rgba(255,255,255,0.1); padding:6px 14px; border-radius:999px; font-size:11.5px; color:#E2E8F0;">
             November 18, 2026 • Marina Bay Sands Grand Ballroom
+          </div>
+        </div>
+      </div>
+
+      <!-- Gallery (images-mode) Invitation Card -->
+      <div class="card">
+        <h3 class="card-title" style="font-size:15px;">Invitation Gallery</h3>
+        <p class="card-sub">Images-mode invitation design — tap a thumbnail to open the lightbox.</p>
+
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">
+          <div onclick="openLightbox(0)"
+            style="height:90px; border-radius:var(--radius-md); background:linear-gradient(135deg,#4F46E5,#312E81); display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; font-size:11px; font-weight:700;">
+            Cover
+          </div>
+          <div onclick="openLightbox(1)"
+            style="height:90px; border-radius:var(--radius-md); background:linear-gradient(135deg,#0D9488,#064E3B); display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; font-size:11px; font-weight:700;">
+            Venue
+          </div>
+          <div onclick="openLightbox(2)"
+            style="height:90px; border-radius:var(--radius-md); background:linear-gradient(135deg,#0F172A,#1E293B); display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; font-size:11px; font-weight:700;">
+            Program
           </div>
         </div>
       </div>
@@ -576,8 +753,10 @@
           <span class="chip chip-blue" id="roster-count-chip">2 of 3 Heads Submitted</span>
         </div>
 
-        <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 14px; font-size:12px; color:var(--text-muted); margin-bottom:18px;">
-          Primary guest is auto-approved. Additional party members are reviewed by the organizer. Emails are optional and non-unique.
+        <div
+          style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 14px; font-size:12px; color:var(--text-muted); margin-bottom:18px;">
+          Primary guest is auto-approved. Additional party members are reviewed by the organizer. Emails are optional
+          and non-unique.
         </div>
 
         <!-- Inset Grouped List -->
@@ -590,7 +769,7 @@
                 <span class="chip chip-green">approved</span>
               </div>
               <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
-                elena.rostova@gmail.com • Auto-confirmed
+                elena.rostova@example.com • Auto-confirmed
               </div>
             </div>
             <span style="font-size:12px; color:var(--success); font-weight:600;">Pass Issued</span>
@@ -603,7 +782,7 @@
                 <span class="chip chip-green">approved</span>
               </div>
               <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
-                dmitri.r@gmail.com
+                dmitri.r@example.com
               </div>
             </div>
             <button class="btn btn-ghost btn-sm" onclick="removeAttendee(this, 'Dmitri Rostova')">Remove</button>
@@ -616,7 +795,8 @@
           <form onsubmit="handleAddAttendee(event)">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
               <input type="text" id="att-name-input" class="form-control" placeholder="Full Name (Required) *" required>
-              <input type="email" id="att-email-input" class="form-control" placeholder="Email (Optional, e.g. for child)">
+              <input type="email" id="att-email-input" class="form-control"
+                placeholder="Email (Optional, e.g. for child)">
             </div>
             <button type="submit" class="btn btn-primary btn-sm">
               + Submit Attendee for Review
@@ -625,8 +805,10 @@
         </div>
 
         <!-- Ceiling Limit Notice -->
-        <div id="ceiling-reached-box" style="display:none; background:#FFFBEB; border:1px solid #FDE68A; padding:14px; border-radius:var(--radius-md); font-size:13px; color:#92400E; margin-top:16px; line-height:1.5;">
-          <strong>Maximum Party Size Reached (3 Heads):</strong> You have utilized your allocated quota. Need additional tickets for colleagues or family? Submit a <strong>Headcount Increase Request</strong>.
+        <div id="ceiling-reached-box"
+          style="display:none; background:#FFFBEB; border:1px solid #FDE68A; padding:14px; border-radius:var(--radius-md); font-size:13px; color:#92400E; margin-top:16px; line-height:1.5;">
+          <strong>Maximum Party Size Reached (3 Heads):</strong> You have utilized your allocated quota. Need additional
+          tickets for colleagues or family? Submit a <strong>Headcount Increase Request</strong>.
           <div style="margin-top:10px;">
             <button class="btn btn-teal btn-sm" onclick="switchView('headcount')">Request Additional Heads →</button>
           </div>
@@ -654,7 +836,8 @@
 
           <div class="form-group">
             <label class="form-label" for="req-heads-note">Reason for Organizer Review</label>
-            <textarea id="req-heads-note" class="form-control" rows="3">Would like to bring our lead research associate to present findings during the evening poster session.</textarea>
+            <textarea id="req-heads-note" class="form-control"
+              rows="3">Would like to bring our lead research associate to present findings during the evening poster session.</textarea>
           </div>
 
           <button type="submit" class="btn btn-teal" style="width:100%;" id="btn-submit-headcount">
@@ -662,7 +845,8 @@
           </button>
         </form>
 
-        <div id="headcount-success-notice" style="display:none; margin-top:16px; background:#ECFDF5; border:1px solid #A7F3D0; padding:14px; border-radius:var(--radius-md); color:#065F46;">
+        <div id="headcount-success-notice"
+          style="display:none; margin-top:16px; background:#ECFDF5; border:1px solid #A7F3D0; padding:14px; border-radius:var(--radius-md); color:#065F46;">
           <strong>Request Recorded:</strong> Your request for +2 heads has status <strong>pending</strong>.
         </div>
       </div>
@@ -670,37 +854,39 @@
 
     <!-- 5. QR CODES & PASSES -->
     <section id="view-qr" class="view-pane">
-      
-      <!-- Apple Wallet Style Pass Card -->
+
+      <!-- Digital Wallet Style Pass Card -->
       <div class="wallet-pass">
         <div class="wallet-top">
           <div>
-            <span style="font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#818CF8;">Official Event Pass</span>
+            <span
+              style="font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#818CF8;">Official
+              Event Pass</span>
             <div class="wallet-event-name">Tech Forward Annual Gala</div>
             <div class="wallet-venue">Marina Bay Sands Grand Ballroom • Nov 18, 2026</div>
           </div>
-          <span class="chip chip-green" style="background:#10B981; color:#FFFFFF; border:none;">VIP PASS</span>
+          <span class="chip chip-green" style="background:#10B981; color:#FFFFFF; border:none;">CONFIRMED</span>
         </div>
 
         <div class="wallet-qr-section">
           <strong style="font-size:16px; color:var(--text-main);">Elena Rostova</strong>
-          <span style="font-size:12px; color:var(--text-muted); margin-top:2px;">Primary Guest • Table 4</span>
+          <span style="font-size:12px; color:var(--text-muted); margin-top:2px;">Primary Guest</span>
 
           <div class="wallet-qr-box">
-            <svg width="130" height="130" viewBox="0 0 100 100">
-              <rect width="100" height="100" fill="#0F172A"/>
-              <rect x="10" y="10" width="30" height="30" fill="#FFFFFF"/>
-              <rect x="15" y="15" width="20" height="20" fill="#0F172A"/>
-              <rect x="20" y="20" width="10" height="10" fill="#FFFFFF"/>
-              <rect x="60" y="10" width="30" height="30" fill="#FFFFFF"/>
-              <rect x="65" y="15" width="20" height="20" fill="#0F172A"/>
-              <rect x="70" y="20" width="10" height="10" fill="#FFFFFF"/>
-              <rect x="10" y="60" width="30" height="30" fill="#FFFFFF"/>
-              <rect x="15" y="65" width="20" height="20" fill="#0F172A"/>
-              <rect x="20" y="70" width="10" height="10" fill="#FFFFFF"/>
-              <rect x="50" y="50" width="10" height="10" fill="#4F46E5"/>
-              <rect x="60" y="60" width="10" height="10" fill="#FFFFFF"/>
-              <rect x="75" y="75" width="15" height="15" fill="#FFFFFF"/>
+            <svg role="img" aria-label="QR code for event check-in" width="130" height="130" viewBox="0 0 100 100">
+              <rect width="100" height="100" fill="#0F172A" />
+              <rect x="10" y="10" width="30" height="30" fill="#FFFFFF" />
+              <rect x="15" y="15" width="20" height="20" fill="#0F172A" />
+              <rect x="20" y="20" width="10" height="10" fill="#FFFFFF" />
+              <rect x="60" y="10" width="30" height="30" fill="#FFFFFF" />
+              <rect x="65" y="15" width="20" height="20" fill="#0F172A" />
+              <rect x="70" y="20" width="10" height="10" fill="#FFFFFF" />
+              <rect x="10" y="60" width="30" height="30" fill="#FFFFFF" />
+              <rect x="15" y="65" width="20" height="20" fill="#0F172A" />
+              <rect x="20" y="70" width="10" height="10" fill="#FFFFFF" />
+              <rect x="50" y="50" width="10" height="10" fill="#4F46E5" />
+              <rect x="60" y="60" width="10" height="10" fill="#FFFFFF" />
+              <rect x="75" y="75" width="15" height="15" fill="#FFFFFF" />
             </svg>
           </div>
           <span style="font-size:11px; font-family:monospace; color:var(--text-muted);">TOKEN: eir_90f23a1</span>
@@ -709,16 +895,35 @@
 
       <div style="display:flex; gap:12px; flex-wrap:wrap;">
         <button class="btn btn-primary" style="flex:1;" onclick="simulatePdfDownload()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
           Download PDF Bundle
         </button>
-        <button class="btn btn-secondary" style="flex:1;" onclick="showToast('Pass added to Apple Wallet format')">
-          Add to Apple Wallet
+        <button class="btn btn-secondary" style="flex:1;" onclick="showToast('QR bundle copied to clipboard')">
+          Copy QR Bundle
         </button>
       </div>
     </section>
 
   </main>
+
+  <!-- Gallery Lightbox -->
+  <div id="lightbox" role="dialog" aria-modal="true" aria-label="Invitation gallery"
+    style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.9); z-index:2000; align-items:center; justify-content:center; flex-direction:column; gap:16px; padding:24px;">
+    <div id="lightbox-image"
+      style="width:100%; max-width:480px; height:320px; border-radius:var(--radius-lg); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-size:20px; font-weight:800;">
+    </div>
+    <div style="display:flex; gap:12px; align-items:center;">
+      <button class="btn btn-secondary" onclick="lightboxNav(-1)">← Prev</button>
+      <span id="lightbox-counter" style="color:#fff; font-size:13px;">1 / 3</span>
+      <button class="btn btn-secondary" onclick="lightboxNav(1)">Next →</button>
+    </div>
+    <button class="btn btn-ghost" style="color:#fff;" onclick="closeLightbox()">Close (Esc)</button>
+  </div>
 
   <div id="toast" class="toast">
     <span id="toast-msg">Updated</span>
@@ -727,8 +932,21 @@
   <script>
     let currentPartyCount = 2;
     let maxPartySize = 3;
+    let currentRsvp = 'accepted';
+    let lightboxIndex = 0;
+    const gallerySlides = [
+      { label: 'Cover', bg: 'linear-gradient(135deg,#4F46E5,#312E81)' },
+      { label: 'Venue', bg: 'linear-gradient(135deg,#0D9488,#064E3B)' },
+      { label: 'Program', bg: 'linear-gradient(135deg,#0F172A,#1E293B)' }
+    ];
 
     function switchView(viewName) {
+      // Enforce the tentative/declined lock: roster & headcount require an accepted RSVP.
+      if ((viewName === 'attendees' || viewName === 'headcount') && currentRsvp !== 'accepted') {
+        showToast('Accept the invitation to unlock your party roster.');
+        return;
+      }
+
       document.querySelectorAll('.view-pane').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.seg-tab-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -763,10 +981,27 @@
         document.getElementById('rsvp-display-chip').className = 'chip chip-red';
         document.getElementById('rsvp-display-chip').innerText = 'declined';
       }
+      currentRsvp = choice;
+      updateRsvpLock();
       showToast('RSVP preference updated: ' + choice);
     }
 
+    function updateRsvpLock() {
+      const locked = currentRsvp !== 'accepted';
+      const rosterTab = document.getElementById('tab-attendees');
+      const headcountTab = document.getElementById('tab-headcount');
+      if (rosterTab) rosterTab.style.opacity = locked ? '0.4' : '1';
+      if (headcountTab) headcountTab.style.opacity = locked ? '0.4' : '1';
+      if (locked) {
+        showToast('Roster & headcount locked until RSVP is accepted.');
+      }
+    }
+
     function saveRsvpPreferences() {
+      if (currentRsvp !== 'accepted') {
+        showToast('Accept the invitation to unlock your party roster.');
+        return;
+      }
       showToast('RSVP preferences saved.');
       setTimeout(() => switchView('attendees'), 400);
     }
@@ -820,6 +1055,10 @@
 
     function handleHeadcountRequest(e) {
       e.preventDefault();
+      if (currentPartyCount < maxPartySize) {
+        showToast('You are below your party ceiling (' + maxPartySize + '). Add attendees first.');
+        return;
+      }
       document.getElementById('headcount-success-notice').style.display = 'block';
       document.getElementById('btn-submit-headcount').disabled = true;
       document.getElementById('btn-submit-headcount').innerText = 'Request Pending Review';
@@ -830,6 +1069,37 @@
       showToast('Generating party QR PDF bundle via Edge Function...');
       setTimeout(() => showToast('Downloaded TechForward_Gala_QRCodes.pdf'), 1000);
     }
+
+    /* Gallery Lightbox */
+    function openLightbox(index) {
+      lightboxIndex = index;
+      renderLightbox();
+      const lb = document.getElementById('lightbox');
+      lb.style.display = 'flex';
+    }
+
+    function renderLightbox() {
+      const slide = gallerySlides[lightboxIndex];
+      document.getElementById('lightbox-image').style.background = slide.bg;
+      document.getElementById('lightbox-image').innerText = slide.label;
+      document.getElementById('lightbox-counter').innerText = (lightboxIndex + 1) + ' / ' + gallerySlides.length;
+    }
+
+    function lightboxNav(dir) {
+      lightboxIndex = (lightboxIndex + dir + gallerySlides.length) % gallerySlides.length;
+      renderLightbox();
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').style.display = 'none';
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
   </script>
+  <script src="../assets/eirmis.js"></script>
+  <script>EIRMIS.init({ portal: 'guest' });</script>
 </body>
+
 </html>

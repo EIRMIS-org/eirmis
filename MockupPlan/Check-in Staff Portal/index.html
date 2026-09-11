@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EIRMIS — Check-in Staff Entrance Scanner</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../assets/eirmis.css">
   <style>
     :root {
       --primary: #4F46E5;
@@ -30,8 +34,8 @@
       --error: #EF4444;
       --error-bg: #FEF2F2;
       --error-border: #FECACA;
-      --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-display: 'Hanken Grotesk', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
       --radius-sm: 8px;
       --radius-md: 14px;
       --radius-lg: 20px;
@@ -42,7 +46,12 @@
       --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
 
     body {
       font-family: var(--font-body);
@@ -148,7 +157,7 @@
       letter-spacing: 0.05em;
     }
 
-    /* Apple-styled Camera Viewfinder */
+    /* Camera Viewfinder */
     .viewport-card {
       background: #FFFFFF;
       border: 1px solid var(--border);
@@ -183,7 +192,8 @@
       position: relative;
     }
 
-    .scan-reticle::before, .scan-reticle::after {
+    .scan-reticle::before,
+    .scan-reticle::after {
       content: "";
       position: absolute;
       width: 16px;
@@ -193,13 +203,15 @@
     }
 
     .scan-reticle::before {
-      top: -2px; left: -2px;
+      top: -2px;
+      left: -2px;
       border-width: 3px 0 0 3px;
       border-radius: 4px 0 0 0;
     }
 
     .scan-reticle::after {
-      bottom: -2px; right: -2px;
+      bottom: -2px;
+      right: -2px;
       border-width: 0 3px 3px 0;
       border-radius: 0 0 4px 0;
     }
@@ -215,9 +227,20 @@
     }
 
     @keyframes scanLaser {
-      0% { top: 12%; opacity: 0.2; }
-      50% { top: 88%; opacity: 1; }
-      100% { top: 12%; opacity: 0.2; }
+      0% {
+        top: 12%;
+        opacity: 0.2;
+      }
+
+      50% {
+        top: 88%;
+        opacity: 1;
+      }
+
+      100% {
+        top: 12%;
+        opacity: 0.2;
+      }
     }
 
     /* Result Panel */
@@ -267,11 +290,24 @@
       flex-shrink: 0;
     }
 
-    .result-panel.accepted .result-icon-box { background: #DCFCE7; color: #059669; }
-    .result-panel.duplicate .result-icon-box { background: #FEF3C7; color: #D97706; }
-    .result-panel.rejected .result-icon-box { background: #FEE2E2; color: #DC2626; }
+    .result-panel.accepted .result-icon-box {
+      background: #DCFCE7;
+      color: #059669;
+    }
 
-    .result-details { flex: 1; }
+    .result-panel.duplicate .result-icon-box {
+      background: #FEF3C7;
+      color: #D97706;
+    }
+
+    .result-panel.rejected .result-icon-box {
+      background: #FEE2E2;
+      color: #DC2626;
+    }
+
+    .result-details {
+      flex: 1;
+    }
 
     .result-title {
       font-family: var(--font-display);
@@ -336,14 +372,39 @@
       user-select: none;
     }
 
-    .btn:active { transform: scale(0.97); }
+    .btn:active {
+      transform: scale(0.97);
+    }
 
-    .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 10px var(--primary-glow); }
-    .btn-primary:hover { background: var(--primary-hover); }
-    .btn-teal { background: var(--secondary); color: white; }
-    .btn-secondary { background: white; border-color: var(--border); color: var(--text-main); }
-    .btn-secondary:hover { background: #F8FAFC; }
-    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 10px var(--primary-glow);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-teal {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: white;
+      border-color: var(--border);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: #F8FAFC;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
 
     .chip {
       display: inline-flex;
@@ -355,8 +416,17 @@
       font-weight: 600;
     }
 
-    .chip-green { background: #DCFCE7; color: #15803D; border: 1px solid #BBF7D0; }
-    .chip-amber { background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; }
+    .chip-green {
+      background: #DCFCE7;
+      color: #15803D;
+      border: 1px solid #BBF7D0;
+    }
+
+    .chip-amber {
+      background: #FEF3C7;
+      color: #B45309;
+      border: 1px solid #FDE68A;
+    }
 
     .attendee-list {
       max-height: 180px;
@@ -375,7 +445,9 @@
       font-size: 13px;
     }
 
-    .attendee-row:last-child { border-bottom: none; }
+    .attendee-row:last-child {
+      border-bottom: none;
+    }
 
     .toast {
       position: fixed;
@@ -398,23 +470,46 @@
       transition: all 0.25s var(--ease-spring);
     }
 
-    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Desktop enhancement (mobile-first base) */
+    @media (min-width: 768px) {
+      main {
+        max-width: 720px;
+      }
+
+      .stats-row {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
   </style>
 </head>
+
 <body>
 
   <header>
     <div class="header-inner">
       <div class="scanner-brand">
         <div class="scanner-logo">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5">
+            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
         </div>
         <div>
-          <div style="font-weight:700; font-size:14px; font-family:var(--font-display); color:var(--text-main);">Entrance Scanner</div>
+          <div style="font-weight:700; font-size:14px; font-family:var(--font-display); color:var(--text-main);">
+            Entrance Scanner</div>
           <div style="font-size:11px; color:var(--text-muted);">Staff: Marcus (Station 1)</div>
         </div>
       </div>
-      <a href="../LandingPage/index.html" class="btn btn-secondary btn-sm" style="color:var(--text-muted);">Exit</a>
+      <a href="../LandingPage/index.html" class="btn btn-secondary btn-sm" style="color:var(--text-muted);"
+        aria-label="Exit to Landing Hub">Exit</a>
     </div>
   </header>
 
@@ -445,7 +540,11 @@
       <div class="camera-frame">
         <div class="scan-reticle">
           <div class="scan-laser"></div>
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0.4;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+          <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" style="opacity:0.4;">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+          </svg>
         </div>
         <div style="font-size:11px; color:#94A3B8; margin-top:8px;">Camera active • Scanner Station 1</div>
       </div>
@@ -458,9 +557,13 @@
     </div>
 
     <!-- Scan Result Panel (ScannerContext state machine) -->
-    <div id="result-panel" class="result-panel idle">
+    <div id="result-panel" class="result-panel idle" aria-live="polite" aria-atomic="true">
       <div id="result-icon-box" class="result-icon-box">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 14 14"></polyline>
+        </svg>
       </div>
       <div class="result-details">
         <div id="result-title" class="result-title">Ready to Scan</div>
@@ -474,8 +577,9 @@
       <p style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">
         For guests with unreadable passes or dead phone batteries.
       </p>
-      
-      <input type="text" id="manual-search-input" class="form-control" placeholder="Search by attendee name..." oninput="handleManualSearch(this.value)">
+
+      <input type="text" id="manual-search-input" class="form-control" placeholder="Search by attendee name..."
+        oninput="handleManualSearch(this.value)">
 
       <div class="attendee-list" id="search-attendees-list">
         <div class="attendee-row" data-name="Elena Rostova">
@@ -483,28 +587,32 @@
             <strong>Elena Rostova</strong>
             <div style="font-size:11px; color:var(--text-muted);">Primary Guest</div>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Elena Rostova')">Check In</button>
+          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Elena Rostova')">Check
+            In</button>
         </div>
         <div class="attendee-row" data-name="Dmitri Rostova">
           <div>
             <strong>Dmitri Rostova</strong>
             <div style="font-size:11px; color:var(--text-muted);">Party: Elena Rostova</div>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Dmitri Rostova')">Check In</button>
+          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Dmitri Rostova')">Check
+            In</button>
         </div>
         <div class="attendee-row" data-name="Dr. Aris Thorne">
           <div>
             <strong>Dr. Aris Thorne</strong>
             <div style="font-size:11px; color:var(--text-muted);">Biotech Innovate</div>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Dr. Aris Thorne')">Check In</button>
+          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Dr. Aris Thorne')">Check
+            In</button>
         </div>
         <div class="attendee-row" data-name="Sophia Rostova">
           <div>
             <strong>Sophia Rostova</strong>
             <div style="font-size:11px; color:var(--text-muted);">Party: Elena Rostova (Child)</div>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Sophia Rostova')">Check In</button>
+          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Sophia Rostova')">Check
+            In</button>
         </div>
       </div>
     </div>
@@ -548,12 +656,12 @@
       panel.className = 'result-panel idle';
       title.innerText = 'Resolving signed token...';
       sub.innerText = 'Calling POST /functions/v1/checkin/scan';
-      iconBox.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>';
+      iconBox.innerHTML = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>';
 
       setTimeout(() => {
         if (state === 'accept') {
           panel.className = 'result-panel accepted';
-          iconBox.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+          iconBox.innerHTML = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
           title.innerText = 'Check-in Verified: Dmitri Rostova';
           sub.innerText = 'Approved Attendee • Party: Elena Rostova • 6:49 PM';
           checkedInCount++;
@@ -561,13 +669,13 @@
           showToast('Dmitri Rostova checked in successfully.');
         } else if (state === 'duplicate') {
           panel.className = 'result-panel duplicate';
-          iconBox.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
+          iconBox.innerHTML = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
           title.innerText = 'Duplicate Scan: Elena Rostova';
           sub.innerText = 'Already checked in at 6:34 PM by Staff Station 1';
           showToast('Warning: Attendee already checked in.');
         } else {
           panel.className = 'result-panel rejected';
-          iconBox.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+          iconBox.innerHTML = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
           title.innerText = 'Invalid Token Signature';
           sub.innerText = 'Token not recognized or event assignment mismatch';
           showToast('Scan rejected: invalid token.');
@@ -581,6 +689,19 @@
         const name = r.getAttribute('data-name').toLowerCase();
         r.style.display = name.includes(q) ? 'flex' : 'none';
       });
+      const list = document.getElementById('search-attendees-list');
+      const anyVisible = Array.from(list.querySelectorAll('.attendee-row')).some(r => r.style.display !== 'none');
+      let empty = list.querySelector('.eirmis-empty');
+      if (!q || anyVisible) {
+        if (empty) empty.remove();
+        return;
+      }
+      if (!empty) {
+        empty = document.createElement('div');
+        empty.className = 'eirmis-empty';
+        empty.innerHTML = '<div class="eirmis-empty-title">No results</div><div style="font-size:12px;">No attendees match your search.</div>';
+        list.appendChild(empty);
+      }
     }
 
     function manualCheckInAttendee(btn, name) {
@@ -595,7 +716,7 @@
 
       const panel = document.getElementById('result-panel');
       panel.className = 'result-panel accepted';
-      document.getElementById('result-icon-box').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      document.getElementById('result-icon-box').innerHTML = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
       document.getElementById('result-title').innerText = 'Manual Check-in: ' + name;
       document.getElementById('result-sub').innerText = 'Checked in manually by staff override';
 
@@ -623,7 +744,7 @@
 
       const panel = document.getElementById('result-panel');
       panel.className = 'result-panel accepted';
-      document.getElementById('result-icon-box').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      document.getElementById('result-icon-box').innerHTML = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
       document.getElementById('result-title').innerText = 'Walk-in Recorded: ' + name;
       document.getElementById('result-sub').innerText = 'Created ad hoc attendee row (is_walk_in = true)';
 
@@ -631,5 +752,8 @@
       showToast('Walk-in guest ' + name + ' checked in.');
     }
   </script>
+  <script src="../assets/eirmis.js"></script>
+  <script>EIRMIS.init({ portal: 'staff' });</script>
 </body>
+
 </html>
