@@ -1,0 +1,226 @@
+# ─── CI Baseline ────────────────────────────────────────────────────────────
+# Runs on every PR and on pushes to main / develop.
+# Required status checks (wire these in GitHub Settings → Branches):
+#   • CI / lint
+#   • CI / typecheck
+#   • CI / build
+#   • CI / contract-lint   (skipped — not failed — until contract/openapi.yaml exists)
+#
+# Secrets audit: NO secrets are referenced in this file.
+#   • VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY are public-by-construction
+#     (compiled into the client bundle). Stub values are used here so the
+#     build step can resolve imports without a real Supabase project.
+#   • SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, VIRUSTOTAL_API_KEY are Edge
+#     Function secrets set via `supabase secrets set` — never workflow vars.
+# ────────────────────────────────────────────────────────────────────────────
+
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - develop
+  pull_request:
+    branches:
+      - main
+      - staging
+      - develop
+
+# Cancel in-progress runs for the same ref so a force-push doesn't queue
+# a second run behind the first.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Install ────────────────────────────────────────────────────────────────
+  # Shared install step: all check jobs depend on this one so npm ci runs
+  # exactly once per workflow trigger, and the node_modules cache is reused.
+  install:
+    name: Install dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Cache node_modules so parallel jobs (lint / typecheck / build) don't
+      # each run npm ci independently.
+      - name: Save node_modules to cache
+        uses: actions/cache/save@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+  # ── Lint ───────────────────────────────────────────────────────────────────
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Restore node_modules from cache
+        uses: actions/cache/restore@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Run ESLint
+        run: npm run lint
+
+  # ── TypeScript typecheck ───────────────────────────────────────────────────
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Restore node_modules from cache
+        uses: actions/cache/restore@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Run TypeScript typecheck
+        run: npm run typecheck
+
+  # ── Build ──────────────────────────────────────────────────────────────────
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Restore node_modules from cache
+        uses: actions/cache/restore@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Build
+        # VITE_ variables are public-by-construction (compiled into the client
+        # bundle). Stub values let the build resolve without a live Supabase
+        # project. They are NOT secrets — do not add them to GitHub Secrets.
+        env:
+          VITE_SUPABASE_URL: https://placeholder.supabase.co
+          VITE_SUPABASE_ANON_KEY: placeholder-anon-key
+          VITE_SITE_URL: http://localhost:5173
+          VITE_STORAGE_BUCKET_DESIGNS: invitation-designs
+        run: npm run build
+
+  # ── Contract lint ──────────────────────────────────────────────────────────
+  # Skipped (exit 0) when contract/openapi.yaml does not yet exist so the
+  # pipeline stays green during early development. Once the contract file
+  # lands this step becomes a hard gate automatically — no workflow edit needed.
+  contract-lint:
+    name: Contract lint
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Restore node_modules from cache
+        uses: actions/cache/restore@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Check whether contract file exists
+        id: contract_exists
+        run: |
+          if [ -f "contract/openapi.yaml" ]; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::contract/openapi.yaml not found — contract-lint skipped."
+          fi
+
+      - name: Run Redocly contract lint
+        if: steps.contract_exists.outputs.found == 'true'
+        run: npm run contract:lint
+
+  # ── Unit / component tests ─────────────────────────────────────────────────
+  # TODO (M1-xx): Enable once Vitest is configured and tests exist.
+  # test:
+  #   name: Unit tests
+  #   runs-on: ubuntu-latest
+  #   needs: install
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with: { node-version: "20", cache: "npm" }
+  #     - uses: actions/cache/restore@v4
+  #       with:
+  #         path: node_modules
+  #         key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+  #     - run: npm run test
+
+  # ── Database Migration Check ───────────────────────────────────────────────
+  # Ensures that the Supabase database can start up locally and all SQL
+  # migrations apply successfully without syntax errors.
+  database:
+    name: Database check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase locally
+        run: supabase start
+
+  # ── Contract freshness + PostgREST drift check ────────────────────────────
+  # TODO: Enable in a future branch when contract/openapi.yaml is created.
+  # Once ready, you can configure this to check the local Supabase instance
+  # (which is started in the 'database' step above) against the OpenAPI file.
+  # contract-check:
+  #   name: Contract check (freshness + drift)
+  #   runs-on: ubuntu-latest
+  #   needs: [database, contract-lint]
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - run: npm run contract:check
