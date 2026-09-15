@@ -1321,7 +1321,12 @@
     }
   </script>
   <script src="../assets/eirmis.js"></script>
-  <script>EIRMIS.init({ portal: 'admin' });</script>
+  <script>
+    EIRMIS.init({ portal: 'admin' });
+    if (!EIRMIS.session()) {
+      EIRMIS.signIn('Administrator', 'Root Admin', 'admin@eirmis.internal');
+    }
+  </script>
 </body>
 
 </html>

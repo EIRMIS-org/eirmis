@@ -1,22 +1,23 @@
 /* =============================================================================
-   EIRMIS — Shared Mockup Runtime
-   Provides a lightweight "backend" simulation so the mockups feel like a real
-   product: a persistent session, a localStorage-backed data store, a global
-   toast system, a cross-portal navigation bar, and a boot loading overlay.
-
-   Load this AFTER the page's own markup (before </body>), and call
-   EIRMIS.init({ portal: 'landing' }) to mount the global chrome.
+   EIRMIS — Shared Mockup Runtime (Production Visual Edition)
+   Manages session state, global toast notifications, cross-portal navigation,
+   and shared mock data across all 5 EIRMIS portals.
    ============================================================================= */
 (function (global) {
     'use strict';
 
-    var STORAGE_KEY = 'eirmis.mockup.v1';
+    var STORAGE_KEY = 'eirmis.mockup.v2';
 
     /* ---------------------------------------------------------------------------
-     * Default seed data — realistic sample records shared across portals.
+     * Default seed data — realistic sample records shared across portals
      * ------------------------------------------------------------------------- */
     var DEFAULT_STATE = {
-        session: null, // { role, name, email, initials }
+        session: {
+            role: 'Organizer',
+            name: 'Sarah Jenkins',
+            email: 'sarah.jenkins@example.com',
+            initials: 'SJ'
+        },
         events: [
             {
                 id: 'evt-tech-forward',
@@ -71,14 +72,13 @@
     };
 
     /* ---------------------------------------------------------------------------
-     * Store — load from localStorage or seed, with a save() helper.
+     * Store — load from localStorage or seed
      * ------------------------------------------------------------------------- */
     function loadState() {
         try {
             var raw = localStorage.getItem(STORAGE_KEY);
             if (raw) {
                 var parsed = JSON.parse(raw);
-                // shallow-merge over defaults so new fields don't break old saves
                 return Object.assign({}, DEFAULT_STATE, parsed);
             }
         } catch (e) { /* ignore corrupt storage */ }
@@ -99,18 +99,29 @@
     }
 
     /* ---------------------------------------------------------------------------
-     * Toast
+     * Production Toast Notification with Progress Bar
      * ------------------------------------------------------------------------- */
     var toastEl = null;
     var toastTimer = null;
+
+    var ICONS = {
+        success: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+        warning: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+        error: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
+        info: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>'
+    };
 
     function ensureToast() {
         if (toastEl) return toastEl;
         toastEl = document.createElement('div');
         toastEl.className = 'eirmis-toast';
         toastEl.innerHTML =
-            '<span class="eirmis-toast-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg></span>' +
-            '<span class="eirmis-toast-msg"></span>';
+            '<span class="eirmis-toast-icon"></span>' +
+            '<span class="eirmis-toast-msg"></span>' +
+            '<button class="eirmis-toast-close" onclick="EIRMIS.hideToast()" aria-label="Close">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' +
+            '</button>' +
+            '<div class="eirmis-toast-progress"></div>';
         document.body.appendChild(toastEl);
         return toastEl;
     }
@@ -119,17 +130,33 @@
         var el = ensureToast();
         type = type || 'success';
         el.className = 'eirmis-toast ' + type;
+        el.querySelector('.eirmis-toast-icon').innerHTML = ICONS[type] || ICONS.success;
         el.querySelector('.eirmis-toast-msg').textContent = message;
-        // force reflow to restart animation
+
+        // Restart animation
         void el.offsetWidth;
         el.classList.add('show');
         clearTimeout(toastTimer);
-        toastTimer = setTimeout(function () { el.classList.remove('show'); }, 3200);
+        toastTimer = setTimeout(function () {
+            el.classList.remove('show');
+        }, 3200);
+    }
+
+    function hideToast() {
+        if (toastEl) toastEl.classList.remove('show');
+        clearTimeout(toastTimer);
     }
 
     /* ---------------------------------------------------------------------------
-     * Session
+     * Session Management & Quick Switcher
      * ------------------------------------------------------------------------- */
+    var PRESET_USERS = {
+        organizer: { role: 'Organizer', name: 'Sarah Jenkins', email: 'sarah.jenkins@example.com', initials: 'SJ' },
+        admin: { role: 'Administrator', name: 'Root Admin', email: 'admin@eirmis.internal', initials: 'RA' },
+        guest: { role: 'Guest', name: 'Elena Rostova', email: 'elena.rostova@example.com', initials: 'ER' },
+        staff: { role: 'Check-in Staff', name: 'Marcus Staff', email: 'marcus.staff@events.org', initials: 'MS' }
+    };
+
     function signIn(role, name, email) {
         var initials = (name || '?').split(/\s+/).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
         state.session = { role: role, name: name, email: email, initials: initials };
@@ -137,11 +164,19 @@
         renderSession();
     }
 
+    function switchPresetUser(userKey) {
+        var u = PRESET_USERS[userKey];
+        if (u) {
+            signIn(u.role, u.name, u.email);
+            toast('Switched identity to ' + u.name + ' (' + u.role + ')', 'info');
+        }
+    }
+
     function signOut() {
         state.session = null;
         save();
         renderSession();
-        toast('Signed out', 'info');
+        toast('Signed out of session', 'info');
     }
 
     function currentSession() {
@@ -149,24 +184,21 @@
     }
 
     /* ---------------------------------------------------------------------------
-     * Global navigation bar
+     * Global Navigation Bar
      * ------------------------------------------------------------------------- */
     var PORTALS = [
-        { key: 'landing', label: 'Home', href: 'LandingPage/index.html' },
-        { key: 'organizer', label: 'Organizer', href: 'Organizer Portal/index.html' },
-        { key: 'admin', label: 'Admin', href: 'Admin Portal/index.html' },
-        { key: 'guest', label: 'Guest', href: 'Guest Portal/index.html' },
-        { key: 'staff', label: 'Check-in', href: 'Check-in Staff Portal/index.html' }
+        { key: 'landing', label: 'Public Hub', href: 'LandingPage/index.html' },
+        { key: 'organizer', label: 'Organizer Portal', href: 'Organizer Portal/index.html' },
+        { key: 'admin', label: 'Admin Portal', href: 'Admin Portal/index.html' },
+        { key: 'guest', label: 'Guest Portal', href: 'Guest Portal/index.html' },
+        { key: 'staff', label: 'Staff Scanner', href: 'Check-in Staff Portal/index.html' }
     ];
 
     function basePath() {
-        // Determine whether we're at MockupPlan root or inside a portal folder.
         var path = window.location.pathname;
         var parts = path.split('/').filter(Boolean);
-        // If the last segment is a folder (no .html), we're at root; otherwise inside a folder.
         var last = parts[parts.length - 1] || '';
         if (last.indexOf('.html') !== -1) {
-            // inside a portal folder -> assets are one level up
             return '../';
         }
         return '';
@@ -189,8 +221,9 @@
         nav.innerHTML =
             '<div class="eirmis-global-nav-inner">' +
             '<a class="eirmis-nav-brand" href="' + base + 'LandingPage/index.html">' +
-            '<span class="eirmis-nav-logo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>' +
+            '<span class="eirmis-nav-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>' +
             '<span class="eirmis-nav-brand-name">EIRMIS</span>' +
+            '<span class="eirmis-nav-pill-badge">PRODUCTION PREVIEW</span>' +
             '</a>' +
             '<div class="eirmis-nav-links">' + linksHtml + '</div>' +
             '<div class="eirmis-nav-session" id="eirmis-nav-session"></div>' +
@@ -205,21 +238,22 @@
         if (!container) return;
         var s = state.session;
         if (!s) {
-            container.innerHTML = '<a class="eirmis-btn eirmis-btn-primary" style="padding:6px 14px;font-size:12px;" href="' + basePath() + 'LandingPage/index.html">Sign in</a>';
+            container.innerHTML =
+                '<a class="eirmis-btn eirmis-btn-primary" style="padding:6px 14px;font-size:12px;" href="' + basePath() + 'LandingPage/index.html#login">Sign in</a>';
             return;
         }
+
         container.innerHTML =
-            '<div class="eirmis-session-pill">' +
+            '<div class="eirmis-session-pill" title="Signed in as ' + s.email + '">' +
             '<span class="eirmis-session-avatar">' + s.initials + '</span>' +
-            '<span>' + s.name + '</span>' +
+            '<span style="max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + s.name + '</span>' +
             '<span class="eirmis-session-role">' + s.role + '</span>' +
             '</div>' +
             '<button class="eirmis-nav-signout" onclick="EIRMIS.signOut()">Sign out</button>';
     }
 
     /* ---------------------------------------------------------------------------
-     * Boot loading overlay — simulates an initial data fetch so the app feels
-     * like it's talking to a real backend on first paint.
+     * Boot Loading Shimmer Overlay
      * ------------------------------------------------------------------------- */
     function showBootOverlay() {
         var overlay = document.createElement('div');
@@ -227,27 +261,27 @@
         overlay.style.cssText =
             'position:fixed;inset:0;z-index:5000;background:#F8FAFC;display:flex;' +
             'flex-direction:column;align-items:center;justify-content:center;gap:16px;' +
-            'transition:opacity 0.35s ease;';
+            'transition:opacity 0.25s ease;';
         overlay.innerHTML =
-            '<div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#4F46E5,#3730A3);' +
-            'display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 14px rgba(79,70,229,0.35);">' +
-            '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">' +
+            '<div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#4F46E5,#312E81);' +
+            'display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 6px 20px rgba(79,70,229,0.35);">' +
+            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">' +
             '<rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line>' +
             '<line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>' +
-            '<div style="font-family:Inter,system-ui,sans-serif;font-size:13px;color:#64748B;font-weight:600;">' +
-            'Loading EIRMIS…</div>' +
-            '<div style="width:120px;height:4px;background:#E2E8F0;border-radius:999px;overflow:hidden;">' +
-            '<div style="height:100%;width:40%;background:#4F46E5;border-radius:999px;animation:eirmis-bootbar 0.9s ease-in-out infinite;"></div></div>';
+            '<div style="font-family:Inter,system-ui,sans-serif;font-size:13.5px;color:#0F172A;font-weight:700;">' +
+            'EIRMIS Architecture</div>' +
+            '<div style="width:140px;height:4px;background:#E2E8F0;border-radius:999px;overflow:hidden;">' +
+            '<div style="height:100%;width:45%;background:#4F46E5;border-radius:999px;animation:eirmisBootBar 0.85s ease-in-out infinite;"></div></div>';
         document.body.appendChild(overlay);
 
         var style = document.createElement('style');
-        style.textContent = '@keyframes eirmis-bootbar{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}';
+        style.textContent = '@keyframes eirmisBootBar{0%{transform:translateX(-100%)}100%{transform:translateX(320%)}}';
         document.head.appendChild(style);
 
         setTimeout(function () {
             overlay.style.opacity = '0';
-            setTimeout(function () { overlay.remove(); }, 380);
-        }, 550);
+            setTimeout(function () { overlay.remove(); }, 250);
+        }, 350);
     }
 
     /* ---------------------------------------------------------------------------
@@ -260,7 +294,9 @@
             showBootOverlay();
         },
         toast: toast,
+        hideToast: hideToast,
         signIn: signIn,
+        switchPresetUser: switchPresetUser,
         signOut: signOut,
         session: currentSession,
         getState: function () { return state; },

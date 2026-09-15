@@ -391,6 +391,47 @@
       border-left: 4px solid var(--primary);
     }
 
+    .attendee-item.rejected {
+      border-left: 4px solid var(--error);
+      background: #FEF7F7;
+    }
+
+    /* Quota Progress Bar */
+    .quota-bar-track {
+      height: 6px;
+      background: #E2E8F0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0 4px;
+    }
+
+    .quota-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #4F46E5, #0D9488);
+      transition: width 0.5s var(--ease-spring);
+    }
+
+    /* Inline Edit & Resubmit Form */
+    .resubmit-form {
+      display: none;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-top: 10px;
+    }
+
+    .resubmit-form.open {
+      display: block;
+      animation: fadeSlideIn 0.2s var(--ease-spring) forwards;
+    }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     /* Form Styles */
     .form-group {
       margin-bottom: 16px;
@@ -753,6 +794,17 @@
           <span class="chip chip-blue" id="roster-count-chip">2 of 3 Heads Submitted</span>
         </div>
 
+        <!-- Quota Progress Bar -->
+        <div style="margin-bottom:16px;">
+          <div style="display:flex; justify-content:space-between; font-size:11.5px; color:var(--text-muted); font-weight:600;">
+            <span>Quota Used</span>
+            <span id="quota-label">2 / 3 heads</span>
+          </div>
+          <div class="quota-bar-track">
+            <div class="quota-bar-fill" id="quota-bar" style="width:66.6%;"></div>
+          </div>
+        </div>
+
         <div
           style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 14px; font-size:12px; color:var(--text-muted); margin-bottom:18px;">
           Primary guest is auto-approved. Additional party members are reviewed by the organizer. Emails are optional
@@ -786,6 +838,38 @@
               </div>
             </div>
             <button class="btn btn-ghost btn-sm" onclick="removeAttendee(this, 'Dmitri Rostova')">Remove</button>
+          </div>
+
+          <!-- REJECTED ATTENDEE — Edit & Resubmit Workflow -->
+          <div class="attendee-item rejected" id="rejected-row-viktor">
+            <div style="flex:1;">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
+                <strong>Viktor Ostrovsky</strong>
+                <span class="chip chip-red">rejected</span>
+              </div>
+              <div style="font-size:12px; color:var(--text-muted);">
+                viktor@example.com
+              </div>
+              <div style="font-size:11.5px; color:var(--error); margin-top:4px; line-height:1.4;">
+                <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle; margin-right:3px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <strong>Rejection reason:</strong> Attendee name already exists on the roster for another invitation slot. Please verify spelling or use a unique name.
+              </div>
+              <!-- Inline Edit & Resubmit Form -->
+              <div class="resubmit-form" id="resubmit-form-viktor">
+                <p style="font-size:12px; font-weight:700; margin-bottom:10px; color:var(--text-main);">Edit &amp; Resubmit Attendee</p>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                  <input type="text" id="resubmit-name" class="form-control" value="Viktor Ostrovsky" placeholder="Full Name *">
+                  <input type="email" id="resubmit-email" class="form-control" value="viktor@example.com" placeholder="Email (Optional)">
+                </div>
+                <div style="display:flex; gap:8px;">
+                  <button class="btn btn-primary btn-sm" onclick="handleResubmit('rejected-row-viktor', 'resubmit-form-viktor')">Resubmit for Review</button>
+                  <button class="btn btn-ghost btn-sm" onclick="document.getElementById('resubmit-form-viktor').classList.remove('open')">Cancel</button>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" style="flex-shrink:0; margin-left:12px;" onclick="document.getElementById('resubmit-form-viktor').classList.toggle('open')">
+              Edit &amp; Resubmit
+            </button>
           </div>
         </div>
 
@@ -1042,8 +1126,36 @@
       showToast('Removed ' + name);
     }
 
+    function handleResubmit(rowId, formId) {
+      const newName = document.getElementById('resubmit-name').value.trim();
+      const newEmail = document.getElementById('resubmit-email').value.trim();
+      const row = document.getElementById(rowId);
+      if (!newName) { showToast('Name is required'); return; }
+      // Update the row to show pending state
+      row.classList.remove('rejected');
+      row.querySelector('strong').innerText = newName;
+      row.querySelector('.chip.chip-red').className = 'chip chip-amber';
+      row.querySelector('.chip.chip-amber').innerText = 'pending review';
+      // Remove rejection reason & edit form
+      const rejectionNote = row.querySelector('[style*="color:var(--error)"]');
+      if (rejectionNote) rejectionNote.remove();
+      const form = document.getElementById(formId);
+      if (form) form.remove();
+      const editBtn = row.querySelector('button');
+      if (editBtn) editBtn.remove();
+      showToast('Resubmitted ' + newName + ' for organizer review.');
+    }
+
     function updateRosterState() {
       document.getElementById('roster-count-chip').innerText = `${currentPartyCount} of ${maxPartySize} Heads Submitted`;
+      // Update quota bar
+      const pct = Math.min(100, (currentPartyCount / maxPartySize) * 100);
+      const bar = document.getElementById('quota-bar');
+      const label = document.getElementById('quota-label');
+      if (bar) bar.style.width = pct + '%';
+      if (label) label.innerText = `${currentPartyCount} / ${maxPartySize} heads`;
+      // Update bar color near capacity
+      if (bar) bar.style.background = pct >= 100 ? '#EF4444' : pct >= 75 ? '#F59E0B' : 'linear-gradient(90deg, #4F46E5, #0D9488)';
       if (currentPartyCount >= maxPartySize) {
         document.getElementById('add-attendee-container').style.display = 'none';
         document.getElementById('ceiling-reached-box').style.display = 'block';
@@ -1099,7 +1211,12 @@
     });
   </script>
   <script src="../assets/eirmis.js"></script>
-  <script>EIRMIS.init({ portal: 'guest' });</script>
+  <script>
+    EIRMIS.init({ portal: 'guest' });
+    if (!EIRMIS.session()) {
+      EIRMIS.signIn('Guest', 'Elena Rostova', 'elena.rostova@example.com');
+    }
+  </script>
 </body>
 
 </html>

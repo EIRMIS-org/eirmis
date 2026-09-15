@@ -1202,6 +1202,72 @@
       transform: translateY(0);
       opacity: 1;
     }
+
+    /* Dropdown Menu Styles */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      min-width: 200px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-float);
+      padding: 6px;
+      z-index: 50;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: all 0.15s var(--ease-spring);
+    }
+
+    .dropdown-menu.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 12px;
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-main);
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: var(--font-body);
+    }
+
+    .dropdown-item:hover {
+      background: #F1F5F9;
+      color: var(--text-main);
+    }
+
+    .dropdown-item.dropdown-item-danger {
+      color: var(--error);
+    }
+
+    .dropdown-item.dropdown-item-danger:hover {
+      background: var(--error-bg);
+    }
+
+    .dropdown-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 6px 0;
+    }
   </style>
 </head>
 
@@ -1256,18 +1322,35 @@
         </svg>
         Profile
       </button>
-
-      <button class="nav-btn" id="btn-nav-settings" onclick="switchView('profile')">
-        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"></circle>
-          <path
-            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-          </path>
-        </svg>
-        Settings
-      </button>
     </nav>
+
+    <!-- Pinned Organizer Profile Footer to remove negative space -->
+    <div
+      style="margin-top:auto; padding:16px; border-top:1px solid var(--border); background:rgba(255,255,255,0.6); display:flex; align-items:center; justify-content:space-between; gap:10px;">
+      <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+        <div
+          style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #4F46E5 0%, #3730A3 100%); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0; box-shadow:0 2px 6px rgba(79,70,229,0.3);">
+          SJ
+        </div>
+        <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+          <div
+            style="font-size:13px; font-weight:700; color:var(--text-main); text-overflow:ellipsis; overflow:hidden;">
+            Sarah Jenkins</div>
+          <div style="font-size:11px; color:var(--text-muted); text-overflow:ellipsis; overflow:hidden;">Organizer</div>
+        </div>
+      </div>
+      <button onclick="EIRMIS.signOut(); location.reload();" title="Sign Out"
+        style="background:none; border:none; cursor:pointer; color:var(--text-muted); padding:6px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; transition:0.15s;"
+        onmouseover="this.style.color='#EF4444'; this.style.background='#FEE2E2'"
+        onmouseout="this.style.color='var(--text-muted)'; this.style.background='none'">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </button>
+    </div>
   </aside>
 
   <!-- Event-scoped Sub-sidebar (second column) -->
@@ -1359,10 +1442,10 @@
       <button class="sub-nav-btn" id="sub-nav-checkin" onclick="switchView('checkin')">
         <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-          <circle cx="12" cy="13" r="4"></circle>
+          <path d="M9 11l3 3L22 4"></path>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
         </svg>
-        Check-in
+        Check-in Setup
       </button>
 
       <button class="sub-nav-btn" id="sub-nav-waitlist" onclick="switchView('waitlist')">
@@ -1487,15 +1570,79 @@
               </svg>
               Edit Event
             </button>
-            <button class="btn btn-secondary btn-sm" style="padding:8px 10px;" title="More options"
-              aria-label="More options" onclick="showToast('Event settings menu')">
-              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2.5">
-                <circle cx="12" cy="12" r="1"></circle>
-                <circle cx="19" cy="12" r="1"></circle>
-                <circle cx="5" cy="12" r="1"></circle>
-              </svg>
-            </button>
+            <div class="dropdown" id="event-settings-dropdown">
+              <button class="btn btn-secondary btn-sm dropdown-toggle" style="padding:8px 10px;" title="More options"
+                aria-label="More options" aria-expanded="false" aria-haspopup="true"
+                onclick="toggleEventSettingsDropdown(event)">
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2.5">
+                  <circle cx="12" cy="12" r="1"></circle>
+                  <circle cx="19" cy="12" r="1"></circle>
+                  <circle cx="5" cy="12" r="1"></circle>
+                </svg>
+              </button>
+              <div class="dropdown-menu" role="menu" aria-label="Event settings">
+                <button class="dropdown-item" role="menuitem"
+                  onclick="switchView('create-wizard'); closeDropdown('event-settings-dropdown')">
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                  Edit Event
+                </button>
+                <button class="dropdown-item" role="menuitem"
+                  onclick="showToast('Duplicating event...'); closeDropdown('event-settings-dropdown')">
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  Duplicate Event
+                </button>
+                <button class="dropdown-item" role="menuitem"
+                  onclick="showToast('Archiving event...'); closeDropdown('event-settings-dropdown')">
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                  </svg>
+                  Archive Event
+                </button>
+                <hr class="dropdown-divider" />
+                <button class="dropdown-item" role="menuitem"
+                  onclick="showToast('Exporting guest list as CSV...'); closeDropdown('event-settings-dropdown')">
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  Export Guest List (CSV)
+                </button>
+                <button class="dropdown-item" role="menuitem"
+                  onclick="showToast('Exporting attendance report...'); closeDropdown('event-settings-dropdown')">
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                  </svg>
+                  Export Attendance Report
+                </button>
+                <hr class="dropdown-divider" />
+                <button class="dropdown-item dropdown-item-danger" role="menuitem"
+                  onclick="showToast('Delete event confirmation required'); closeDropdown('event-settings-dropdown')">
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                  Delete Event
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -2472,30 +2619,62 @@
       <!-- VIEW 9: PROFILE -->
       <!-- ============================================== -->
       <section id="view-profile" class="view-pane">
-        <div class="card" style="max-width:580px;">
-          <h2 class="card-h3" style="margin-bottom:14px;">Organizer Profile</h2>
+        <div class="card" style="max-width:640px;">
+          <div
+            style="display:flex; align-items:center; gap:20px; padding-bottom:20px; border-bottom:1px solid var(--border); margin-bottom:22px;">
+            <div
+              style="width:68px; height:68px; border-radius:50%; background:linear-gradient(135deg, #4F46E5 0%, #3730A3 100%); color:#fff; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:800; box-shadow:0 8px 16px rgba(79,70,229,0.3); flex-shrink:0;">
+              SJ
+            </div>
+            <div>
+              <h2 style="font-size:18px; font-weight:800; color:var(--text-main); margin-bottom:4px;">Sarah Jenkins</h2>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="chip chip-blue">Lead Event Organizer</span>
+                <span class="chip chip-green">SSO Verified</span>
+              </div>
+            </div>
+          </div>
 
           <form onsubmit="event.preventDefault(); showToast('Profile updated successfully.')">
-            <div class="form-group">
-              <label class="form-label">Full Name</label>
-              <input type="text" class="form-control" value="Sarah Jenkins">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control" value="Sarah Jenkins">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Job Title / Department</label>
+                <input type="text" class="form-control" value="Director of Corporate Operations">
+              </div>
             </div>
 
             <div class="form-group">
               <label class="form-label">SSO Account Email</label>
               <input type="email" class="form-control" value="sarah.jenkins@example.com" disabled
                 style="background:#F1F5F9;">
-              <small style="color:var(--text-muted); font-size:11px;">OAuth Identity. Verified by System
-                Administrator.</small>
+              <small style="color:var(--text-muted); font-size:11px;">OAuth Identity (Google Workspace). Provisioned by
+                System Administrator.</small>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">System Role</label>
-              <input type="text" class="form-control" value="Event Organizer (Active)" disabled
-                style="background:#F1F5F9;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+              <div class="form-group">
+                <label class="form-label">System Role</label>
+                <input type="text" class="form-control" value="Event Organizer (Active)" disabled
+                  style="background:#F1F5F9;">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Assigned Events</label>
+                <input type="text" class="form-control" value="3 Managed Events" disabled style="background:#F1F5F9;">
+              </div>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="margin-top:8px;">Save Profile Changes</button>
+            <div
+              style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
+              <button type="submit" class="btn btn-primary">Save Profile Changes</button>
+              <button type="button" class="btn btn-secondary" onclick="EIRMIS.signOut(); location.reload();">Sign Out of
+                Session</button>
+            </div>
           </form>
         </div>
       </section>
@@ -2549,7 +2728,8 @@
             </div>
           </div>
 
-          <div style="display:flex; gap:14px; padding:16px 20px; align-items:flex-start;">
+          <div
+            style="display:flex; gap:14px; padding:16px 20px; border-bottom:1px solid var(--border); align-items:flex-start;">
             <div
               style="width:36px; height:36px; border-radius:50%; background:#F1F5F9; color:var(--text-muted); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
               <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -2560,8 +2740,43 @@
             </div>
             <div style="flex:1;">
               <div style="font-weight:600; font-size:13.5px;">Reminder email scheduled for tomorrow</div>
-              <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Southeast Asia Founders Summit
-                2026 • 3 days ago</div>
+              <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Apex Healthcare Summit • 1 day ago
+              </div>
+            </div>
+          </div>
+
+          <div
+            style="display:flex; gap:14px; padding:16px 20px; border-bottom:1px solid var(--border); align-items:flex-start;">
+            <div
+              style="width:36px; height:36px; border-radius:50%; background:#FEF3C7; color:#B45309; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <div style="flex:1;">
+              <div style="font-weight:600; font-size:13.5px;">Check-in staff member activated</div>
+              <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Marcus Staff
+                (marcus.staff@events.org) logged into Station Scanner • 3 hours ago</div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:14px; padding:16px 20px; align-items:flex-start;">
+            <div
+              style="width:36px; height:36px; border-radius:50%; background:#EDE9FE; color:#6D28D9; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <polyline points="9 11 12 14 22 4"></polyline>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+              </svg>
+            </div>
+            <div style="flex:1;">
+              <div style="font-weight:600; font-size:13.5px;">FIFO Waitlist promotion completed</div>
+              <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Dmitri Rostova promoted from
+                waitlist queue to RSVP pending review • Yesterday</div>
             </div>
           </div>
         </div>
@@ -2579,91 +2794,272 @@
           <button class="btn btn-primary" onclick="switchView('create-wizard')">+ Create Event</button>
         </div>
 
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px;">
-          <div class="card" style="border-top:4px solid var(--primary); cursor:pointer; overflow:hidden; padding:0;"
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:20px;">
+
+          <!-- Event 1: Tech Forward Annual Gala -->
+          <div class="card"
+            style="border-top:4px solid var(--primary); cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
+            onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
+            onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
             onclick="switchView('event-overview')">
             <div
-              style="height:120px; background:linear-gradient(135deg,#4F46E5 0%,#312E81 60%,#0D9488 100%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:16px; letter-spacing:-0.01em;">
+              style="height:110px; background:linear-gradient(135deg,#4F46E5 0%,#312E81 55%,#0D9488 100%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:15px; letter-spacing:-0.01em; padding:0 20px; text-align:center;">
               Tech Forward Annual Gala 2026
             </div>
-            <div style="padding:20px;">
-              <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <div style="padding:18px 20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                 <span class="chip chip-green">Published</span>
                 <span style="font-size:12px; color:var(--text-muted);">Nov 18, 2026</span>
               </div>
-              <h3 style="font-family:var(--font-display); font-size:17px; font-weight:700; margin-bottom:4px;">Tech
-                Forward Annual Gala 2026</h3>
-              <p style="color:var(--text-muted); font-size:13px; margin-bottom:14px;">Marina Bay Sands • Cap: 150</p>
-              <div style="font-size:12px; font-weight:600; color:var(--primary);">RSVP Capacity: 112 / 150 (74.6%)</div>
+              <h3
+                style="font-family:var(--font-display); font-size:15px; font-weight:700; margin-bottom:3px; color:var(--text-main);">
+                Tech Forward Annual Gala 2026</h3>
+              <p style="color:var(--text-muted); font-size:12.5px; margin-bottom:14px;">Marina Bay Sands, Singapore
+                &bull; Cap: 150</p>
+              <!-- Capacity bar -->
+              <div style="margin-bottom:8px;">
+                <div
+                  style="display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">
+                  <span>RSVP Filled</span><span style="color:var(--primary);">112 / 150</span>
+                </div>
+                <div style="height:5px; background:#E2E8F0; border-radius:999px; overflow:hidden;">
+                  <div
+                    style="height:100%; width:74.6%; background:linear-gradient(90deg,#4F46E5,#0D9488); border-radius:999px;">
+                  </div>
+                </div>
+              </div>
+              <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                Open Registration &bull; 3 pending approvals
+              </div>
             </div>
           </div>
+
+          <!-- Event 2: Apex Healthcare Summit -->
+          <div class="card"
+            style="border-top:4px solid var(--secondary); cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
+            onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
+            onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
+            onclick="showToast('Switch to Apex Healthcare Summit event workspace')">
+            <div
+              style="height:110px; background:linear-gradient(135deg,#0D9488 0%,#0F766E 55%,#134E4A 100%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:15px; letter-spacing:-0.01em; padding:0 20px; text-align:center;">
+              Apex Healthcare Summit
+            </div>
+            <div style="padding:18px 20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="chip chip-green">Published</span>
+                <span style="font-size:12px; color:var(--text-muted);">Dec 02, 2026</span>
+              </div>
+              <h3
+                style="font-family:var(--font-display); font-size:15px; font-weight:700; margin-bottom:3px; color:var(--text-main);">
+                Apex Healthcare Summit</h3>
+              <p style="color:var(--text-muted); font-size:12.5px; margin-bottom:14px;">Raffles City Convention Centre,
+                Singapore &bull; Cap: 300</p>
+              <!-- Capacity bar -->
+              <div style="margin-bottom:8px;">
+                <div
+                  style="display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">
+                  <span>RSVP Filled</span><span style="color:var(--secondary);">214 / 300</span>
+                </div>
+                <div style="height:5px; background:#E2E8F0; border-radius:999px; overflow:hidden;">
+                  <div
+                    style="height:100%; width:71.3%; background:linear-gradient(90deg,#0D9488,#065F46); border-radius:999px;">
+                  </div>
+                </div>
+              </div>
+              <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                Invite-only &bull; 0 pending approvals
+              </div>
+            </div>
+          </div>
+
+          <!-- Event 3: Global Leadership Forum (Draft) -->
+          <div class="card"
+            style="border-top:4px solid #94A3B8; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card); opacity:0.85;"
+            onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)';this.style.opacity='1'"
+            onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)';this.style.opacity='0.85'"
+            onclick="showToast('Switch to Global Leadership Forum event workspace')">
+            <div
+              style="height:110px; background:linear-gradient(135deg,#1E293B 0%,#334155 55%,#475569 100%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:15px; letter-spacing:-0.01em; padding:0 20px; text-align:center;">
+              Global Leadership Forum
+            </div>
+            <div style="padding:18px 20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="chip chip-slate">Draft</span>
+                <span style="font-size:12px; color:var(--text-muted);">Jan 15, 2027</span>
+              </div>
+              <h3
+                style="font-family:var(--font-display); font-size:15px; font-weight:700; margin-bottom:3px; color:var(--text-main);">
+                Global Leadership Forum</h3>
+              <p style="color:var(--text-muted); font-size:12.5px; margin-bottom:14px;">Suntec Singapore Convention
+                Centre &bull; Cap: 500</p>
+              <!-- Capacity bar -->
+              <div style="margin-bottom:8px;">
+                <div
+                  style="display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">
+                  <span>RSVP Filled</span><span>0 / 500</span>
+                </div>
+                <div style="height:5px; background:#E2E8F0; border-radius:999px; overflow:hidden;">
+                  <div style="height:100%; width:0%; background:#94A3B8; border-radius:999px;"></div>
+                </div>
+              </div>
+              <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Not yet published &bull; Invitations not sent
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 
       <!-- ============================================== -->
-      <!-- VIEW 11: CHECK-IN SCANNING (Organizer) -->
+      <!-- VIEW 11: CHECK-IN DELEGATION & STATION CONFIG (Organizer) -->
       <!-- ============================================== -->
       <section id="view-checkin" class="view-pane">
         <div class="card">
           <div class="card-header-flex">
             <div>
-              <h2 class="card-h3">Event Check-in Scanner</h2>
-              <p style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Redeem signed QR tokens via
-                <code>scanCheckIn</code>. Manual name/email search fallback for unreadable passes.
+              <h2 class="card-h3">Entrance Check-in Operations & Delegations</h2>
+              <p style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">
+                Per EIRMIS operational specification, attendees are scanned by assigned <strong>Check-in Staff</strong>
+                via the Staff Portal. Organizers configure entry stations, monitor gate throughput, and manage staff
+                access.
               </p>
             </div>
-            <span class="chip chip-green">Scanner Active</span>
+            <span class="chip chip-green">Gate Operations Active</span>
           </div>
 
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px;">
-            <div>
-              <div
-                style="background:#020617; border-radius:var(--radius-md); height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; position:relative; overflow:hidden;">
-                <div
-                  style="width:140px; height:140px; border:2px dashed rgba(56,189,248,0.8); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center;">
-                  <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2" style="opacity:0.4;">
-                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                    <circle cx="12" cy="13" r="4"></circle>
-                  </svg>
-                </div>
-                <div style="font-size:11px; color:#94A3B8; margin-top:8px;">Camera active • Organizer Station</div>
+          <!-- Alert callout explaining roles -->
+          <div
+            style="background:rgba(79, 70, 229, 0.05); border:1px solid rgba(79, 70, 229, 0.2); border-radius:var(--radius-md); padding:14px 18px; margin-bottom:20px; display:flex; align-items:flex-start; gap:14px;">
+            <div
+              style="width:32px; height:32px; border-radius:50%; background:var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:13.5px; font-weight:700; color:var(--text-main);">Role Delegation Architecture</div>
+              <div style="font-size:12.5px; color:var(--text-muted); margin-top:3px; line-height:1.5;">
+                Entrance ticket validation and physical badge check-in is strictly handled by <strong>Check-in
+                  Staff</strong> in their dedicated mobile scanner interface. As an Organizer, you delegate access
+                credentials, set scan window policies, and review live entry sync.
               </div>
-              <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:12px;">
-                <button class="btn btn-primary btn-sm" onclick="organizerScan('accept')">Valid QR</button>
-                <button class="btn btn-secondary btn-sm" onclick="organizerScan('duplicate')">Duplicate</button>
-                <button class="btn btn-secondary btn-sm" onclick="organizerScan('invalid')">Bad Token</button>
+            </div>
+            <a href="../Check-in Staff Portal/index.html" target="_blank" class="btn btn-secondary btn-sm"
+              style="flex-shrink:0; display:inline-flex; align-items:center; gap:6px;">
+              Launch Staff Portal
+              <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+            </a>
+          </div>
+
+          <!-- Grid: Gate Status & Active Staff -->
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+            <!-- Left: Station Controls -->
+            <div
+              style="border:1px solid var(--border); border-radius:var(--radius-md); padding:18px; background:#FFFFFF;">
+              <div
+                style="font-size:14px; font-weight:700; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+                <span>Gate Configuration & Policies</span>
+                <span class="chip chip-blue">Station 1 & 2</span>
+              </div>
+
+              <div class="form-group" style="margin-bottom:14px;">
+                <label class="form-label" style="font-size:12px;">Scan Window Operational Hours</label>
+                <input type="text" class="form-control" value="08:00 AM – 11:30 AM (Nov 18, 2026)" disabled
+                  style="background:#F8FAFC; font-size:12.5px;">
+                <small style="color:var(--text-muted); font-size:11px;">Scanners only permit validation during this
+                  configured window.</small>
+              </div>
+
+              <div class="form-group" style="margin-bottom:14px;">
+                <label class="form-label" style="font-size:12px;">Security Enforcement Mode</label>
+                <select class="form-control" style="font-size:12.5px;">
+                  <option selected>Strict Single-Use Cryptographic QR</option>
+                  <option>Allow Supervised Manual Check-in Override</option>
+                  <option>Offline Sync Mode (Cached validation tokens)</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" style="font-size:12px;">Walk-in Headcount Cap</label>
+                <input type="number" class="form-control" value="25" style="font-size:12.5px;">
+                <small style="color:var(--text-muted); font-size:11px;">Emergency capacity buffer allowed for on-site
+                  staff registration.</small>
               </div>
             </div>
 
-            <div>
-              <div id="organizer-scan-result" aria-live="polite" aria-atomic="true"
-                style="border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; background:#F8FAFC; min-height:120px;">
-                <div style="font-size:12px; color:var(--text-muted); font-weight:600;">Scan Result</div>
-                <div id="organizer-scan-result-body" style="margin-top:8px; font-size:13px; color:var(--text-muted);">
-                  Point camera at an attendee QR pass to check them in.
+            <!-- Right: Assigned Staff Scanner Handlers -->
+            <div
+              style="border:1px solid var(--border); border-radius:var(--radius-md); padding:18px; background:#FFFFFF;">
+              <div
+                style="font-size:14px; font-weight:700; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+                <span>Authorized Check-in Staff</span>
+                <button class="btn btn-primary btn-sm" onclick="switchView('staff')">+ Manage Staff</button>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                <div
+                  style="display:flex; justify-content:space-between; align-items:center; padding:12px; border:1px solid var(--border); border-radius:var(--radius-sm); background:#FAFAFA;">
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <div
+                      style="width:32px; height:32px; border-radius:50%; background:#10B981; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px;">
+                      MS
+                    </div>
+                    <div>
+                      <div style="font-weight:600; font-size:13px;">Marcus Staff</div>
+                      <div style="font-size:11.5px; color:var(--text-muted);">marcus.staff@events.org • Main Entrance
+                      </div>
+                    </div>
+                  </div>
+                  <span class="chip chip-green">Scanner Online</span>
+                </div>
+
+                <div
+                  style="display:flex; justify-content:space-between; align-items:center; padding:12px; border:1px solid var(--border); border-radius:var(--radius-sm); background:#FAFAFA;">
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <div
+                      style="width:32px; height:32px; border-radius:50%; background:#F59E0B; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px;">
+                      KG
+                    </div>
+                    <div>
+                      <div style="font-weight:600; font-size:13px;">Kyla Gatekeeper</div>
+                      <div style="font-size:11.5px; color:var(--text-muted);">kyla.gatekeeper@temp-staff.com • VIP Gate
+                      </div>
+                    </div>
+                  </div>
+                  <span class="chip chip-amber">Pending Activation</span>
                 </div>
               </div>
 
-              <div style="margin-top:16px;">
-                <label class="form-label">Manual Search (name or email)</label>
-                <input type="text" class="form-control" placeholder="Search attendees..."
-                  oninput="organizerManualSearch(this.value)">
-                <div id="organizer-search-results"
-                  style="margin-top:8px; display:flex; flex-direction:column; gap:6px;">
-                  <div
-                    style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-sm);">
-                    <span><strong>Dmitri Rostova</strong> <span style="color:var(--text-muted); font-size:12px;">•
-                        Party: Elena Rostova</span></span>
-                    <button class="btn btn-secondary btn-sm" onclick="organizerManualCheckIn(this)">Check In</button>
-                  </div>
-                  <div
-                    style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-sm);">
-                    <span><strong>Sophia Rostova</strong> <span style="color:var(--text-muted); font-size:12px;">•
-                        Party: Elena Rostova (Child)</span></span>
-                    <button class="btn btn-secondary btn-sm" onclick="organizerManualCheckIn(this)">Check In</button>
-                  </div>
+              <!-- Live Throughput Quick Peek -->
+              <div
+                style="margin-top:16px; padding:12px; border-radius:var(--radius-sm); background:#EEF2FF; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-size:11.5px; font-weight:600; color:var(--primary);">Real-time Attendance Sync</div>
+                  <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-top:2px;">373 checked in /
+                    500 RSVPs</div>
                 </div>
+                <button class="btn btn-secondary btn-sm" onclick="switchView('attendance')">View Live Logs</button>
               </div>
             </div>
           </div>
@@ -2900,6 +3296,62 @@
     </div>
   </div>
 
+  <!-- ADD GUEST MODAL -->
+  <div id="add-guest-modal" class="modal-overlay" role="dialog" aria-modal="true"
+    aria-labelledby="add-guest-modal-title">
+    <div class="modal-box">
+      <h3 id="add-guest-modal-title"
+        style="font-family:var(--font-display); font-size:18px; font-weight:700; margin-bottom:8px;">Add Guest</h3>
+      <p style="font-size:13px; color:var(--text-muted); line-height:1.5; margin-bottom:20px;">Enter the primary guest's
+        details to add them to the guest directory.</p>
+      <div class="form-group">
+        <label class="form-label">Full Name *</label>
+        <input type="text" class="form-control" id="add-guest-name" placeholder="e.g., Victoria Sterling">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email *</label>
+        <input type="email" class="form-control" id="add-guest-email" placeholder="e.g., victoria@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Party Size (including primary guest) *</label>
+        <input type="number" class="form-control" id="add-guest-party" value="1" min="1" max="10">
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px;">
+        <button class="btn btn-secondary" onclick="closeAddGuestModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="confirmAddGuest()">Add Guest</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSIGN STAFF MODAL -->
+  <div id="assign-staff-modal" class="modal-overlay" role="dialog" aria-modal="true"
+    aria-labelledby="assign-staff-modal-title">
+    <div class="modal-box">
+      <h3 id="assign-staff-modal-title"
+        style="font-family:var(--font-display); font-size:18px; font-weight:700; margin-bottom:8px;">Assign Check-in
+        Staff</h3>
+      <p style="font-size:13px; color:var(--text-muted); line-height:1.5; margin-bottom:20px;">Enter the staff member's
+        email to send them an invitation with a magic link for scanner access.</p>
+      <div class="form-group">
+        <label class="form-label">Staff Email *</label>
+        <input type="email" class="form-control" id="assign-staff-email" placeholder="e.g., entrance2@events.org">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Assigned Gate</label>
+        <select class="form-control" id="assign-staff-gate">
+          <option value="main">Main Entrance</option>
+          <option value="vip">VIP Gate</option>
+          <option value="side">Side Entrance</option>
+          <option value="accessible">Accessible Entrance</option>
+        </select>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px;">
+        <button class="btn btn-secondary" onclick="closeAssignStaffModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="confirmAssignStaff()">Send Invitation</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification -->
   <div id="toast" class="toast">
     <span id="toast-msg">Action confirmed</span>
@@ -2971,6 +3423,63 @@
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 3500);
     }
+
+    /* Dropdown Menu Logic */
+    function toggleEventSettingsDropdown(event) {
+      event.stopPropagation();
+      const dropdown = document.getElementById('event-settings-dropdown');
+      const menu = dropdown.querySelector('.dropdown-menu');
+      const toggle = dropdown.querySelector('.dropdown-toggle');
+      const isOpen = menu.classList.contains('show');
+
+      // Close all other dropdowns first
+      document.querySelectorAll('.dropdown-menu.show').forEach(m => {
+        if (m !== menu) {
+          m.classList.remove('show');
+          m.closest('.dropdown').querySelector('.dropdown-toggle').setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      if (isOpen) {
+        menu.classList.remove('show');
+        toggle.setAttribute('aria-expanded', 'false');
+      } else {
+        menu.classList.add('show');
+        toggle.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    function closeDropdown(dropdownId) {
+      const dropdown = document.getElementById(dropdownId);
+      if (dropdown) {
+        const menu = dropdown.querySelector('.dropdown-menu');
+        const toggle = dropdown.querySelector('.dropdown-toggle');
+        menu.classList.remove('show');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.dropdown')) {
+        document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+          menu.classList.remove('show');
+          const toggle = menu.closest('.dropdown').querySelector('.dropdown-toggle');
+          if (toggle) toggle.setAttribute('aria-expanded', 'false');
+        });
+      }
+    });
+
+    // Close dropdowns on Escape key
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+          menu.classList.remove('show');
+          const toggle = menu.closest('.dropdown').querySelector('.dropdown-toggle');
+          if (toggle) toggle.setAttribute('aria-expanded', 'false');
+        });
+      }
+    });
 
     /* Working Wizard Logic */
     function setWizardStep(step) {
@@ -3182,50 +3691,80 @@
     }
 
     function addManualGuestPrompt() {
-      const name = prompt('Guest Full Name:', 'Victoria Sterling');
-      if (name) showToast('Invited ' + name + ' to guest directory.');
-    }
-
-    function inviteStaffPrompt() {
-      const email = prompt('Staff Member Email:', 'entrance2@events.org');
-      if (email) showToast('Invitation email sent to ' + email);
-    }
-
-    /* Organizer Check-in Scanner */
-    function organizerScan(state) {
-      const body = document.getElementById('organizer-scan-result-body');
-      const box = document.getElementById('organizer-scan-result');
-      if (state === 'accept') {
-        box.style.background = '#ECFDF5';
-        box.style.borderColor = '#A7F3D0';
-        body.innerHTML = '<strong style="color:#059669;">Check-in Verified: Dmitri Rostova</strong><br><span style="color:#065F46;">Approved Attendee • Party: Elena Rostova • 6:49 PM</span>';
-        showToast('Dmitri Rostova checked in successfully.');
-      } else if (state === 'duplicate') {
-        box.style.background = '#FFFBEB';
-        box.style.borderColor = '#FDE68A';
-        body.innerHTML = '<strong style="color:#D97706;">Duplicate Scan: Elena Rostova</strong><br><span style="color:#92400E;">Already checked in at 6:34 PM.</span>';
-        showToast('Warning: Attendee already checked in.');
-      } else {
-        box.style.background = '#FEF2F2';
-        box.style.borderColor = '#FECACA';
-        body.innerHTML = '<strong style="color:#DC2626;">Invalid Token Signature</strong><br><span style="color:#991B1B;">Token not recognized or event assignment mismatch.</span>';
-        showToast('Scan rejected: invalid token.');
+      const modal = document.getElementById('add-guest-modal');
+      if (modal) {
+        modal.classList.add('active');
+        // Focus the name input
+        setTimeout(() => {
+          const nameInput = document.getElementById('add-guest-name');
+          if (nameInput) nameInput.focus();
+        }, 100);
       }
     }
 
-    function organizerManualSearch(q) {
-      const query = q.toLowerCase();
-      document.querySelectorAll('#organizer-search-results > div').forEach(row => {
-        row.style.display = row.innerText.toLowerCase().includes(query) ? 'flex' : 'none';
-      });
+    function closeAddGuestModal() {
+      const modal = document.getElementById('add-guest-modal');
+      if (modal) {
+        modal.classList.remove('active');
+        // Clear form
+        document.getElementById('add-guest-name').value = '';
+        document.getElementById('add-guest-email').value = '';
+        document.getElementById('add-guest-party').value = '1';
+      }
     }
 
-    function organizerManualCheckIn(btn) {
-      btn.disabled = true;
-      btn.innerText = 'Checked In';
-      btn.style.background = '#DCFCE7';
-      btn.style.color = '#15803D';
-      showToast('Attendee checked in manually.');
+    function confirmAddGuest() {
+      const name = document.getElementById('add-guest-name').value.trim();
+      const email = document.getElementById('add-guest-email').value.trim();
+      const party = document.getElementById('add-guest-party').value;
+
+      if (!name || !email) {
+        showToast('Please fill in all required fields');
+        return;
+      }
+
+      closeAddGuestModal();
+      showToast('Invited ' + name + ' (' + email + ') with party of ' + party + ' to guest directory.');
+    }
+
+    function inviteStaffPrompt() {
+      const modal = document.getElementById('assign-staff-modal');
+      if (modal) {
+        modal.classList.add('active');
+        // Focus the email input
+        setTimeout(() => {
+          const emailInput = document.getElementById('assign-staff-email');
+          if (emailInput) emailInput.focus();
+        }, 100);
+      }
+    }
+
+    function closeAssignStaffModal() {
+      const modal = document.getElementById('assign-staff-modal');
+      if (modal) {
+        modal.classList.remove('active');
+        // Clear form
+        document.getElementById('assign-staff-email').value = '';
+        document.getElementById('assign-staff-gate').value = 'main';
+      }
+    }
+
+    function confirmAssignStaff() {
+      const email = document.getElementById('assign-staff-email').value.trim();
+      const gate = document.getElementById('assign-staff-gate').value;
+
+      if (!email) {
+        showToast('Please enter a staff email address');
+        return;
+      }
+
+      closeAssignStaffModal();
+      showToast('Invitation email sent to ' + email + ' for ' + gate + ' gate access.');
+    }
+
+    /* Gate Operations & Delegation */
+    function saveGateConfig() {
+      showToast('Gate operating policies and station scan windows updated.');
     }
 
     /* Waitlist FIFO Promotion */
@@ -3251,7 +3790,14 @@
     }
   </script>
   <script src="../assets/eirmis.js"></script>
-  <script>EIRMIS.init({ portal: 'organizer' });</script>
+  <script>
+    // Organizer Portal has its own navigation system (sidebar + topbar).
+    // Do NOT call EIRMIS.init() here — it would inject a duplicate global nav bar.
+    // Auto-seed organizer session for any shared components that need it.
+    if (!EIRMIS.session()) {
+      EIRMIS.signIn('Organizer', 'Sarah Jenkins', 'sarah.jenkins@example.com');
+    }
+  </script>
 </body>
 
 </html>
