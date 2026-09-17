@@ -1,5 +1,3 @@
-import { paths } from '../contract/generated/schema.js';
-
 const endpoints = [
   '/rest/v1/events',
   '/rest/v1/reminder_schedules',
