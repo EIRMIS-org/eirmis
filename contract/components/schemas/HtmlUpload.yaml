@@ -1,0 +1,35 @@
+HtmlUploadResponse:
+  type: object
+  description: >
+    Response from the `uploadInvitationHtml` Edge Function.
+    The function:
+    1. Parses the uploaded file with `linkedom` and rejects it synchronously
+       if it contains any reference that would leave the document (external URLs
+       in `href`/`src`/`action`, `<iframe>`, `<link>`, CSS `@import`/`url(http...)`,
+       meta-refresh redirects).
+    2. If the structural scan passes, stores the file in Supabase Storage and
+       creates/updates the `invitation_designs` row with `validation_status = pending`.
+    3. Queues the asynchronous malware scan (e.g. VirusTotal).
+    On structural failure the function returns 422 with this schema's `errors` field.
+  required: [design]
+  properties:
+    design:
+      $ref: './InvitationDesign.yaml#/InvitationDesign'
+    errors:
+      type: array
+      description: >
+        Present only when the structural scan failed (HTTP 422).
+        Each entry describes one rule violation found in the uploaded file.
+      items:
+        type: object
+        required: [rule, detail]
+        properties:
+          rule:
+            type: string
+            description: Which scan rule was violated.
+            example: external_href
+          detail:
+            type: string
+            description: Human-readable description of the violation.
+            example: 'Found external href: https://external.example.com/script.js'
+      example: []

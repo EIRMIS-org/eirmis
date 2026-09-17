@@ -1,0 +1,72 @@
+# =============================================================================
+# Admin Portal — PostgREST paths
+# Admins manage organizer verification and org-wide settings only.
+# They have no access to individual event guest lists, RSVP content,
+# or attendee data — that exclusion is enforced by RLS on all other tables.
+# =============================================================================
+
+/rest/v1/admin_profiles:
+  get:
+    operationId: getAdminProfile
+    summary: Read own admin profile
+    description: Returns the authenticated admin's own profile row.
+    tags: [Admin — Profile]
+    parameters:
+      - $ref: '../components/parameters.yaml#/SelectParam'
+      - name: id
+        in: query
+        schema:
+          type: string
+          example: eq.22222222-2222-2222-2222-222222222222
+    responses:
+      '200':
+        description: Admin profile.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/AdminProfile.yaml#/AdminProfile'
+              maxItems: 1
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+/rest/v1/organizer_profiles/pending:
+  get:
+    operationId: listPendingOrganizers
+    summary: List pending organizer accounts (admin verification queue)
+    description: >
+      Returns organizer profiles with `status = pending`. Used by the admin
+      to populate the verification queue. RLS restricts this to admin identities only.
+      Use `/rest/v1/organizer_profiles?status=eq.pending` with the `admin_profiles`
+      existence check enforced by RLS — this documented path uses the standard
+      PostgREST filter syntax.
+    tags: [Admin — Organizer Verification]
+    parameters:
+      - $ref: '../components/parameters.yaml#/SelectParam'
+      - $ref: '../components/parameters.yaml#/LimitParam'
+      - $ref: '../components/parameters.yaml#/OffsetParam'
+      - $ref: '../components/parameters.yaml#/OrderParam'
+      - $ref: '../components/parameters.yaml#/PreferCountParam'
+      - name: status
+        in: query
+        schema:
+          type: string
+          example: eq.pending
+        description: Filter by status. Default for the verification queue is `eq.pending`.
+    responses:
+      '200':
+        description: List of organizer profiles matching the status filter.
+        headers:
+          Content-Range:
+            $ref: '../components/headers.yaml#/ContentRange'
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/OrganizerProfile.yaml#/OrganizerProfile'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'

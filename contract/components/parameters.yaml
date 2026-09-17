@@ -1,0 +1,65 @@
+SelectParam:
+  name: select
+  in: query
+  schema:
+    type: string
+  description: >
+    PostgREST column selection. Comma-separated column names.
+    Use `related_table(col1,col2)` for embedded resource selection.
+  example: 'id,title,status'
+
+LimitParam:
+  name: limit
+  in: query
+  schema:
+    type: integer
+    minimum: 1
+    maximum: 1000
+  description: Maximum number of rows to return.
+  example: 20
+
+OffsetParam:
+  name: offset
+  in: query
+  schema:
+    type: integer
+    minimum: 0
+  description: Number of rows to skip before returning results.
+  example: 0
+
+OrderParam:
+  name: order
+  in: query
+  schema:
+    type: string
+  description: >
+    PostgREST ordering. Format: `column.direction[.nullsfirst|nullslast]`.
+  example: 'created_at.desc'
+
+PreferCountParam:
+  name: Prefer
+  in: header
+  schema:
+    type: string
+    enum:
+      - count=exact
+      - count=planned
+      - count=estimated
+  description: >
+    Request a row count. `count=exact` returns the precise count in the
+    `Content-Range` response header.
+  example: count=exact
+
+PreferReturnParam:
+  name: Prefer
+  in: header
+  schema:
+    type: string
+    enum:
+      - return=representation
+      - return=minimal
+      - return=headers-only
+  description: >
+    Control whether mutated row(s) are returned in the response body.
+    `return=representation` returns the full row.
+  example: return=representation

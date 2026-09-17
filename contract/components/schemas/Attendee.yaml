@@ -1,0 +1,154 @@
+Attendee:
+  type: object
+  description: >
+    One row per person in an invitation's party — the invited guest themselves
+    plus any additional members they submit. The primary attendee (`is_primary = true`)
+    is auto-created when the invitation is accepted.
+  required:
+    - id
+    - invitation_id
+    - full_name
+    - is_primary
+    - status
+    - submitted_at
+    - checked_in
+    - is_walk_in
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: 77777777-7777-7777-7777-777777777777
+    invitation_id:
+      type: string
+      format: uuid
+      example: 66666666-6666-6666-6666-666666666666
+    full_name:
+      type: string
+      example: Maria Santos
+    email:
+      type: ['string', 'null']
+      description: >
+        Optional. NOT UNIQUE — the same email may appear on multiple Attendee rows
+        (e.g. children without their own address, or colleagues sharing contact info).
+        An Attendee may have no email at all.
+      example: maria.santos@example.com
+    is_primary:
+      type: boolean
+      description: >
+        `true` only for the auto-created record representing the inviting guest.
+        Set by a DB trigger on invitation acceptance; clients may not set this to `true`.
+      example: false
+    status:
+      $ref: './Enums.yaml#/AttendeeStatus'
+    submitted_at:
+      type: string
+      format: date-time
+      example: '2026-10-05T14:00:00+08:00'
+    reviewed_by:
+      type: ['string', 'null']
+      format: uuid
+      description: FK to `organizer_profiles.id`. Set by the `decideAttendee` Edge Function.
+      example: null
+    reviewed_at:
+      type: ['string', 'null']
+      format: date-time
+      example: null
+    review_reason:
+      type: ['string', 'null']
+      description: Organizer's optional note on the approval or rejection decision.
+      example: null
+    qr_token:
+      type: ['string', 'null']
+      description: >
+        Signed unique token issued by the `decideAttendee` Edge Function when
+        `status` becomes `approved`. Never generated client-side. `null` until approved.
+      example: null
+    checked_in:
+      type: boolean
+      description: Whether this attendee has been scanned in.
+      example: false
+    checked_in_at:
+      type: ['string', 'null']
+      format: date-time
+      example: null
+    checked_in_by:
+      type: ['string', 'null']
+      format: uuid
+      description: >
+        FK to `auth.users.id`. Set by the `scanCheckIn` Edge Function. Identifies
+        the organizer or staff member who performed the scan.
+      example: null
+    is_walk_in:
+      type: boolean
+      description: >
+        `true` for attendees created on event day with no prior roster entry.
+        Walk-ins are created by the check-in operator, not by the guest portal.
+      example: false
+
+AttendeeCreate:
+  type: object
+  description: >
+    Request body for a guest submitting an additional (non-primary) attendee
+    for their accepted invitation.
+  required: [invitation_id, full_name]
+  properties:
+    invitation_id:
+      type: string
+      format: uuid
+      example: 66666666-6666-6666-6666-666666666666
+    full_name:
+      type: string
+      example: Jose Santos
+    email:
+      type: ['string', 'null']
+      example: null
+
+AttendeeUpdate:
+  type: object
+  description: >
+    Fields a guest may update on a rejected (non-primary) attendee to resubmit it.
+    Resubmission sets the attendee back to `pending`.
+  minProperties: 1
+  properties:
+    full_name:
+      type: string
+      example: Jose Antonio Santos
+    email:
+      type: ['string', 'null']
+      example: jose@example.com
+
+AttendeeDecisionRequest:
+  type: object
+  description: >
+    Request body for the `decideAttendee` Edge Function.
+    Approve or reject an individual attendee. Approved attendees receive a
+    signed `qr_token`. Approval performs a capacity soft-check and records an
+    audit entry. A capacity-over-limit approval is audited as an override.
+  required: [decision]
+  properties:
+    decision:
+      type: string
+      enum: [approve, reject]
+      example: approve
+    reason:
+      type: ['string', 'null']
+      description: Organizer's optional note on the decision, stored in the audit log.
+      example: null
+
+AttendeeDecisionResponse:
+  type: object
+  description: >
+    Response from the `decideAttendee` Edge Function. Includes the updated
+    attendee state. If the decision pushed the event over capacity, `capacity_warning`
+    is `true` and the organizer's audited override is recorded.
+  required: [attendee, capacity_warning]
+  properties:
+    attendee:
+      $ref: '#/Attendee'
+    capacity_warning:
+      type: boolean
+      description: >
+        `true` when this approval caused the event's approved-attendee count to exceed
+        `events.capacity`. The approval still proceeded (soft check) and the override
+        is recorded in `audit_log_entries`.
+      example: false

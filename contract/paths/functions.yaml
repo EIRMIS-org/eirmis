@@ -1,0 +1,415 @@
+# =============================================================================
+# Edge Functions — /functions/v1/ paths
+#
+# All operations requiring a secret, a privileged write, or a multi-step
+# invariant go through Supabase Edge Functions (Deno). Each function is
+# a documented contract operation with a stable operationId.
+#
+# Two operations are service-role only and NOT reachable from the SPA:
+#   - handleScanCallback  (third-party scanner webhook)
+#   - sendReminders       (pg_cron scheduled job)
+#   - promoteWaitlist     (privileged FIFO promotion, typically triggered by job)
+# These are marked x-internal: true and documented for completeness and
+# CI drift detection.
+# =============================================================================
+
+/functions/v1/invitation-html:
+  post:
+    operationId: uploadInvitationHtml
+    summary: Upload and validate an HTML invitation file
+    description: >
+      Accepts a single self-contained HTML file for an event's invitation design.
+      The function:
+      1. Parses the file with `linkedom` and rejects it synchronously if it
+         contains any reference leaving the document (external URLs in `href`,
+         `src`, `action`; `<iframe>`; `<link>`; CSS `@import`/`url(http...)`;
+         meta-refresh).
+      2. If the structural scan passes, stores the file in Supabase Storage
+         and creates/updates the `invitation_designs` row with
+         `validation_status = pending`.
+      3. Queues the asynchronous malware scan.
+      Returns 422 with field-level errors on structural scan failure.
+    tags: [Organizer — Design]
+    requestBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            required: [event_id, file]
+            properties:
+              event_id:
+                type: string
+                format: uuid
+                description: The event this design belongs to.
+                example: 55555555-5555-5555-5555-555555555555
+              file:
+                type: string
+                format: binary
+                description: >
+                  Single self-contained HTML file. Max 2 MB. Must contain
+                  no external asset references (all images/fonts must be
+                  base64-encoded inline).
+    responses:
+      '200':
+        description: Structural scan passed; design record updated to `validation_status = pending`.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/HtmlUpload.yaml#/HtmlUploadResponse'
+      '422':
+        description: Structural scan failed — the file contains prohibited external references.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/HtmlUpload.yaml#/HtmlUploadResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+
+/functions/v1/html-scan-callback:
+  post:
+    operationId: handleScanCallback
+    summary: Receive malware scan result from third-party scanner
+    description: >
+      Webhook endpoint called by the third-party file-scanning service (e.g. VirusTotal)
+      when an asynchronous HTML scan completes. Verifies the callback signature,
+      flips `invitation_designs.validation_status` to `passed` or `failed`, and
+      sends an `invitation_design_validation_failed` email to the organizer on failure.
+      **This operation is service-role only — the SPA never calls it.**
+    tags: [Internal — System]
+    x-internal: true
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/ScanCallback.yaml#/ScanCallbackRequest'
+    responses:
+      '200':
+        description: Callback processed successfully.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                processed:
+                  type: boolean
+                  example: true
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+/functions/v1/attendees/{id}/decision:
+  post:
+    operationId: decideAttendee
+    summary: Approve or reject an attendee
+    description: >
+      Approve or reject an individual attendee submission. This must go through
+      the Edge Function because it atomically: performs the capacity soft-check,
+      issues the signed `qr_token` on approval, writes the audit entry, and
+      triggers the batched notification email when the invitation's pending queue
+      newly clears to zero.
+      A capacity-over-limit approval proceeds (soft check) and is audited as an override.
+    tags: [Organizer — Approvals]
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: The attendee ID to approve or reject.
+        example: 77777777-7777-7777-7777-777777777777
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/Attendee.yaml#/AttendeeDecisionRequest'
+          examples:
+            Approve:
+              summary: Approve an attendee
+              value:
+                decision: approve
+                reason: null
+            Reject:
+              summary: Reject an attendee with a note
+              value:
+                decision: reject
+                reason: Name does not match the guest list.
+    responses:
+      '200':
+        description: Decision recorded. See `capacity_warning` for soft-check outcome.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Attendee.yaml#/AttendeeDecisionResponse'
+            examples:
+              Approved:
+                summary: Attendee approved (no capacity issue)
+                value:
+                  attendee:
+                    id: 77777777-7777-7777-7777-777777777777
+                    invitation_id: 66666666-6666-6666-6666-666666666666
+                    full_name: Jose Santos
+                    email: null
+                    is_primary: false
+                    status: approved
+                    submitted_at: '2026-10-06T10:00:00+08:00'
+                    reviewed_by: 11111111-1111-1111-1111-111111111111
+                    reviewed_at: '2026-10-07T09:00:00+08:00'
+                    review_reason: null
+                    qr_token: eyJhbGciOiJIUzI1NiJ9.token.signature
+                    checked_in: false
+                    checked_in_at: null
+                    checked_in_by: null
+                    is_walk_in: false
+                  capacity_warning: false
+              ApprovedOverCapacity:
+                summary: Attendee approved with capacity override
+                value:
+                  attendee:
+                    id: 77777777-7777-7777-7777-777777777777
+                    invitation_id: 66666666-6666-6666-6666-666666666666
+                    full_name: Jose Santos
+                    email: null
+                    is_primary: false
+                    status: approved
+                    submitted_at: '2026-10-06T10:00:00+08:00'
+                    reviewed_by: 11111111-1111-1111-1111-111111111111
+                    reviewed_at: '2026-10-07T09:00:00+08:00'
+                    review_reason: null
+                    qr_token: eyJhbGciOiJIUzI1NiJ9.token.signature
+                    checked_in: false
+                    checked_in_at: null
+                    checked_in_by: null
+                    is_walk_in: false
+                  capacity_warning: true
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '404':
+        description: Attendee not found or not accessible.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Error.yaml#/Error'
+
+/functions/v1/headcount-requests/{id}/decision:
+  post:
+    operationId: decideHeadcountRequest
+    summary: Approve or reject a headcount increase request
+    description: >
+      Approve (raises `max_party_size` by `requested_additional_heads`) or reject
+      a headcount increase request. Atomically updates `max_party_size` and records
+      the decision in the audit log. Notifies the guest by email.
+    tags: [Organizer — Approvals]
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: The headcount increase request ID.
+        example: bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/HeadcountIncreaseRequest.yaml#/HeadcountDecisionRequest'
+    responses:
+      '200':
+        description: Decision recorded.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/HeadcountIncreaseRequest.yaml#/HeadcountIncreaseRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '404':
+        description: Request not found or not accessible.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Error.yaml#/Error'
+
+/functions/v1/qr-bundle:
+  post:
+    operationId: dispatchQrBundle
+    summary: Generate and send QR code PDF to a guest
+    description: >
+      Generates a multi-page PDF (one QR code + attendee name per page) for all
+      approved attendees in an invitation's party, and emails it to the guest
+      via Resend. Supports both single-invitation and bulk-event dispatch.
+      `RESEND_API_KEY` is an Edge Function secret — this operation must not be
+      attempted client-side.
+    tags: [Organizer — QR Codes]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/QrBundle.yaml#/QrBundleRequest'
+    responses:
+      '200':
+        description: QR bundle(s) dispatched.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/QrBundle.yaml#/QrBundleResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+
+/functions/v1/checkin/scan:
+  post:
+    operationId: scanCheckIn
+    summary: Redeem a QR token and record a check-in
+    description: >
+      Verifies a scanned `qr_token` signature, checks the caller has an `active`
+      `CheckInAssignment` (or is the organizer) for the token's event, and records
+      the check-in (`checked_in = true`, `checked_in_at`, `checked_in_by`).
+      Returns a discriminated result — `accepted`, `already_checked_in`, or
+      `invalid_token` — so the UI can distinguish a re-entry from an error.
+      A client-side check-in write would be forgeable; this must go through the function.
+    tags: [Check-in Staff — Scan]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/ScanCheckIn.yaml#/ScanCheckInRequest'
+          examples:
+            ScanAttendee:
+              summary: Scan a QR token at the entrance
+              value:
+                qr_token: eyJhbGciOiJIUzI1NiJ9.attendee-token-payload.signature
+    responses:
+      '200':
+        description: Scan result. Check `result` field to distinguish accepted from re-entry.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/ScanCheckIn.yaml#/ScanCheckInResponse'
+            examples:
+              Accepted:
+                summary: First-time successful check-in
+                value:
+                  result: accepted
+                  attendee:
+                    id: 77777777-7777-7777-7777-777777777777
+                    invitation_id: 66666666-6666-6666-6666-666666666666
+                    full_name: Jose Santos
+                    email: null
+                    is_primary: false
+                    status: approved
+                    submitted_at: '2026-10-06T10:00:00+08:00'
+                    reviewed_by: 11111111-1111-1111-1111-111111111111
+                    reviewed_at: '2026-10-07T09:00:00+08:00'
+                    review_reason: null
+                    qr_token: eyJhbGciOiJIUzI1NiJ9.token.signature
+                    checked_in: true
+                    checked_in_at: '2026-12-15T18:07:00+08:00'
+                    checked_in_by: 44444444-4444-4444-4444-444444444444
+                    is_walk_in: false
+                  checked_in_at: '2026-12-15T18:07:00+08:00'
+                  message: null
+              AlreadyCheckedIn:
+                summary: Attendee was already scanned (re-entry)
+                value:
+                  result: already_checked_in
+                  attendee:
+                    id: 77777777-7777-7777-7777-777777777777
+                    invitation_id: 66666666-6666-6666-6666-666666666666
+                    full_name: Jose Santos
+                    email: null
+                    is_primary: false
+                    status: approved
+                    submitted_at: '2026-10-06T10:00:00+08:00'
+                    reviewed_by: 11111111-1111-1111-1111-111111111111
+                    reviewed_at: '2026-10-07T09:00:00+08:00'
+                    review_reason: null
+                    qr_token: eyJhbGciOiJIUzI1NiJ9.token.signature
+                    checked_in: true
+                    checked_in_at: '2026-12-15T18:07:00+08:00'
+                    checked_in_by: 44444444-4444-4444-4444-444444444444
+                    is_walk_in: false
+                  checked_in_at: '2026-12-15T18:07:00+08:00'
+                  message: This attendee was already checked in at 6:07 PM.
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+
+/functions/v1/reminders/dispatch:
+  post:
+    operationId: sendReminders
+    summary: Dispatch scheduled event reminder emails
+    description: >
+      Reads `reminder_schedules` rows due to fire today (based on `days_before_event`
+      and `send_time_of_day` in the event's timezone) and dispatches reminder emails
+      to all accepted guests via Resend. Sets `last_sent_at` on each fired schedule.
+      **This operation is triggered by `pg_cron` — the SPA never calls it.**
+    tags: [Internal — System]
+    x-internal: true
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Empty body — the function selects due schedules itself.
+    responses:
+      '200':
+        description: Reminder dispatch completed.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sent_count:
+                  type: integer
+                  description: Number of reminder emails dispatched in this run.
+                  example: 42
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+/functions/v1/waitlist/promote:
+  post:
+    operationId: promoteWaitlist
+    summary: Promote the next waitlisted invitation(s) in FIFO order
+    description: >
+      Promotes waitlisted invitations for an event in strict FIFO order
+      (keyed by `waitlisted_at`). Promotion changes the invitation `status`
+      from `waitlisted` to `accepted` and sends a `waitlist_promoted` email.
+      Any previously-submitted attendees remain `pending`; promotion only
+      unblocks the invitation, it does not auto-approve anyone.
+      Runs privileged and atomically. **Service-role only in automated runs;
+      the organizer may also trigger it manually from the attendance screen.**
+    tags: [Organizer — Waitlist]
+    x-internal: false
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/WaitlistPromote.yaml#/WaitlistPromoteRequest'
+    responses:
+      '200':
+        description: Waitlist promotion completed.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/WaitlistPromote.yaml#/WaitlistPromoteResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'

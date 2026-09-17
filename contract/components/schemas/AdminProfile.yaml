@@ -1,0 +1,28 @@
+AdminProfile:
+  type: object
+  description: >
+    Base identity for a System Administrator. Linked 1:1 to `auth.users.id`.
+    Provisioned directly — not self-registered. Admins manage organizer verification
+    and org-wide settings only; they have no access to any event's guest list,
+    RSVP content, or attendee data.
+  required: [id, email, full_name, created_at]
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Equals `auth.users.id` — the Supabase Auth primary key.
+      example: 22222222-2222-2222-2222-222222222222
+    email:
+      type: string
+      format: email
+      example: admin@example.com
+    full_name:
+      type: string
+      example: System Administrator
+    created_at:
+      type: string
+      format: date-time
+      description: >
+        No `updated_at` — admin rows are provisioned and do not change
+        through the application API.
+      example: '2026-09-01T08:00:00+08:00'

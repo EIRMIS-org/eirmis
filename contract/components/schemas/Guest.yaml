@@ -1,0 +1,63 @@
+Guest:
+  type: object
+  description: >
+    Cross-event guest directory row, deduplicated by email. A row may exist
+    before the person ever logs in — created by an organizer building an
+    invite-only list, or by public self-registration. `auth_user_id` is
+    populated lazily on first magic-link login. Guest rows are never hard-deleted.
+  required: [id, email, full_name, created_at, updated_at]
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: 33333333-3333-3333-3333-333333333333
+    email:
+      type: string
+      format: email
+      description: >
+        The canonical identity key for a guest, deduplicated across the directory.
+        Case-normalised to lowercase on insert.
+      example: guest@example.com
+    full_name:
+      type: string
+      example: Maria Santos
+    auth_user_id:
+      type: ['string', 'null']
+      format: uuid
+      description: >
+        FK to `auth.users.id`. `null` until the guest completes their first
+        magic-link login. Set by a database trigger, not by client code.
+      example: 33333333-3333-3333-3333-333333333333
+    created_at:
+      type: string
+      format: date-time
+      example: '2026-09-05T08:00:00+08:00'
+    updated_at:
+      type: string
+      format: date-time
+      example: '2026-09-05T08:00:00+08:00'
+
+GuestUpdate:
+  type: object
+  description: Fields a guest may update on their own profile.
+  minProperties: 1
+  properties:
+    full_name:
+      type: string
+      example: Maria Santos
+
+GuestCreate:
+  type: object
+  description: >
+    Request body to create a guest record (used during public open-registration).
+    On conflict with an existing `email`, the caller should use
+    `Prefer: resolution=merge-duplicates` to upsert and match the existing record.
+  required: [email, full_name]
+  properties:
+    email:
+      type: string
+      format: email
+      example: newguest@example.com
+    full_name:
+      type: string
+      example: Juan dela Cruz

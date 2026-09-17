@@ -1,0 +1,27 @@
+ScanCallbackRequest:
+  type: object
+  description: >
+    Request body received by the `handleScanCallback` Edge Function from the
+    third-party file-scanning service (e.g. VirusTotal webhook).
+    This operation is service-role only — it is NOT reachable from the SPA.
+    The function verifies the callback signature, looks up the associated
+    `invitation_designs` row, and flips `validation_status` to `passed` or `failed`.
+    On `failed`, it sets `validation_notes` and sends an `invitation_design_validation_failed`
+    email to the organizer.
+  required: [scan_id, result]
+  properties:
+    scan_id:
+      type: string
+      description: The scan job identifier returned by the third-party scanning service.
+      example: scan-job-abc123
+    result:
+      type: string
+      enum: [clean, malicious, inconclusive]
+      description: The outcome reported by the scanning service.
+      example: clean
+    notes:
+      type: ['string', 'null']
+      description: >
+        Plain-language detail from the scanner on why a file was flagged.
+        Stored in `validation_notes` and surfaced to the organizer.
+      example: null

@@ -1,0 +1,57 @@
+EmailLog:
+  type: object
+  description: >
+    Record of every transactional email dispatched through Resend.
+    Written by Edge Functions under service role only — no client INSERT.
+    Rows are write-once: no UPDATE or DELETE is permitted.
+  required: [id, recipient_email, type, status, created_at]
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee
+    event_id:
+      type: ['string', 'null']
+      format: uuid
+      description: FK to `events.id`. `null` for org-wide/admin-facing emails.
+      example: 55555555-5555-5555-5555-555555555555
+    invitation_id:
+      type: ['string', 'null']
+      format: uuid
+      description: FK to `invitations.id`. Enables per-invitation email history.
+      example: 66666666-6666-6666-6666-666666666666
+    attendee_id:
+      type: ['string', 'null']
+      format: uuid
+      description: FK to `attendees.id`. Set for attendee-specific emails.
+      example: null
+    recipient_email:
+      type: string
+      format: email
+      example: guest@example.com
+    type:
+      type: string
+      description: >
+        Email type identifier (freeform — no enum, so new types can be added
+        without a migration). Known types: `invitation_sent`,
+        `rsvp_confirmation`, `waitlist_promoted`, `reminder`,
+        `invitation_nudge`, `attendee_status_update`,
+        `headcount_request_submitted`, `headcount_request_decided`,
+        `qr_codes_issued`, `invitation_design_validation_failed`,
+        `organizer_account_verified`.
+      example: rsvp_confirmation
+    provider_message_id:
+      type: ['string', 'null']
+      description: Resend's message ID, useful for delivery troubleshooting.
+      example: null
+    status:
+      $ref: './Enums.yaml#/EmailLogStatus'
+    sent_at:
+      type: ['string', 'null']
+      format: date-time
+      description: Set when `status` transitions to `sent`.
+      example: null
+    created_at:
+      type: string
+      format: date-time
+      example: '2026-12-01T09:15:00+08:00'

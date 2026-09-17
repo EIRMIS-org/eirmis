@@ -1,0 +1,65 @@
+ReminderSchedule:
+  type: object
+  description: >
+    A configured scheduled-reminder offset for an event.
+    Consumed by the `sendReminders` Edge Function on its `pg_cron` schedule.
+    A single event cannot have two schedules for the same `days_before_event` offset.
+  required: [id, event_id, days_before_event, send_time_of_day, enabled]
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa
+    event_id:
+      type: string
+      format: uuid
+      example: 55555555-5555-5555-5555-555555555555
+    days_before_event:
+      type: integer
+      minimum: 1
+      description: >
+        Number of days before the event start at which this reminder fires.
+        e.g. `7` = seven days before, `1` = day before.
+      example: 7
+    send_time_of_day:
+      type: string
+      pattern: '^([01]\d|2[0-3]):[0-5]\d$'
+      description: >
+        Local time (in the event's `event_timezone`) at which the reminder fires
+        on the target day. Stored as `HH:MM`.
+      example: '09:00'
+    enabled:
+      type: boolean
+      description: Whether this schedule is active. Disabled schedules are skipped by the job.
+      example: true
+    last_sent_at:
+      type: ['string', 'null']
+      format: date-time
+      description: Timestamp of the last successful dispatch. `null` if not yet sent.
+      example: null
+
+ReminderScheduleUpsert:
+  type: object
+  description: >
+    Request body to create or replace a reminder schedule for an event.
+    Because UNIQUE(event_id, days_before_event) is enforced, the organizer
+    can safely POST with `Prefer: resolution=merge-duplicates` to upsert.
+  required: [event_id, days_before_event]
+  properties:
+    event_id:
+      type: string
+      format: uuid
+      example: 55555555-5555-5555-5555-555555555555
+    days_before_event:
+      type: integer
+      minimum: 1
+      example: 7
+    send_time_of_day:
+      type: string
+      pattern: '^([01]\d|2[0-3]):[0-5]\d$'
+      description: Defaults to `09:00` if omitted.
+      example: '09:00'
+    enabled:
+      type: boolean
+      description: Defaults to `true` if omitted.
+      example: true
