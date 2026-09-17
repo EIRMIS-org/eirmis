@@ -1,0 +1,41 @@
+QrBundleRequest:
+  type: object
+  description: >
+    Request body for the `dispatchQrBundle` Edge Function.
+    Can target a single invitation or all confirmed invitations for an event
+    (organizer bulk resend). The function generates a multi-page PDF (one QR code +
+    attendee name per page) and emails it to the guest's address via Resend.
+    `RESEND_API_KEY` is an Edge Function secret — never exposed to the client.
+  properties:
+    invitation_id:
+      type: ['string', 'null']
+      format: uuid
+      description: >
+        Target a single invitation. Mutually exclusive with `event_id`.
+        If provided, the PDF is sent to that invitation's guest.
+      example: 66666666-6666-6666-6666-666666666666
+    event_id:
+      type: ['string', 'null']
+      format: uuid
+      description: >
+        Target all confirmed invitations for an event (organizer bulk resend).
+        Mutually exclusive with `invitation_id`.
+      example: null
+
+QrBundleResponse:
+  type: object
+  description: Response from the `dispatchQrBundle` Edge Function.
+  required: [dispatched_count]
+  properties:
+    dispatched_count:
+      type: integer
+      description: Number of QR bundle emails successfully dispatched.
+      example: 1
+    invitation_ids:
+      type: array
+      items:
+        type: string
+        format: uuid
+      description: IDs of the invitations whose QR bundles were sent.
+      example:
+        - 66666666-6666-6666-6666-666666666666

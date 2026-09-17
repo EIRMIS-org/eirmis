@@ -1,0 +1,146 @@
+Invitation:
+  type: object
+  description: >
+    Per-event, per-guest invitation. Exactly one per `(event_id, guest_id)` pair.
+    `party_size` and `checked_in_count` are cached, trigger-maintained counts
+    and must not be set directly by clients.
+  required:
+    - id
+    - event_id
+    - guest_id
+    - status
+    - max_party_size
+    - party_size
+    - checked_in_count
+    - created_at
+    - updated_at
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: 66666666-6666-6666-6666-666666666666
+    event_id:
+      type: string
+      format: uuid
+      example: 55555555-5555-5555-5555-555555555555
+    guest_id:
+      type: string
+      format: uuid
+      example: 33333333-3333-3333-3333-333333333333
+    status:
+      $ref: './Enums.yaml#/InvitationStatus'
+    max_party_size:
+      type: integer
+      minimum: 1
+      description: >
+        Organizer-set ceiling on total heads for this invitation, including the
+        guest themselves. Raised by an approved `HeadcountIncreaseRequest`.
+      example: 4
+    party_size:
+      type: integer
+      minimum: 0
+      description: >
+        CACHED. Trigger-maintained count of this invitation's `approved` Attendees.
+        Do not set directly.
+      example: 2
+    checked_in_count:
+      type: integer
+      minimum: 0
+      description: >
+        CACHED. Trigger-maintained count of this invitation's checked-in Attendees.
+        Do not set directly.
+      example: 0
+    dietary_preference:
+      type: ['string', 'null']
+      description: Invitation-level dietary note covering the whole party.
+      example: Vegetarian
+    special_requests:
+      type: ['string', 'null']
+      description: Invitation-level special requests covering the whole party.
+      example: Wheelchair access needed
+    invited_by:
+      type: ['string', 'null']
+      format: uuid
+      description: FK to `organizer_profiles.id`. `null` for guest-initiated (open-registration) invitations.
+      example: 11111111-1111-1111-1111-111111111111
+    invited_at:
+      type: ['string', 'null']
+      format: date-time
+      description: Set when an organizer sends an invite-only invitation. `null` for open-registration.
+      example: '2026-10-01T09:00:00+08:00'
+    responded_at:
+      type: ['string', 'null']
+      format: date-time
+      description: Timestamp when the guest changed status from `pending`.
+      example: null
+    waitlisted_at:
+      type: ['string', 'null']
+      format: date-time
+      description: Timestamp when this invitation entered `waitlisted` status.
+      example: null
+    created_at:
+      type: string
+      format: date-time
+      example: '2026-10-01T09:00:00+08:00'
+    updated_at:
+      type: string
+      format: date-time
+      example: '2026-10-01T09:00:00+08:00'
+
+InvitationCreate:
+  type: object
+  description: >
+    Request body for an organizer creating an invite-only invitation,
+    or for the public registration flow creating an accepted invitation.
+  required: [event_id, guest_id]
+  properties:
+    event_id:
+      type: string
+      format: uuid
+      example: 55555555-5555-5555-5555-555555555555
+    guest_id:
+      type: string
+      format: uuid
+      example: 33333333-3333-3333-3333-333333333333
+    max_party_size:
+      type: integer
+      minimum: 1
+      description: Defaults to `1` if omitted.
+      example: 4
+    status:
+      $ref: './Enums.yaml#/InvitationStatus'
+    dietary_preference:
+      type: ['string', 'null']
+      example: null
+    special_requests:
+      type: ['string', 'null']
+      example: null
+
+InvitationRsvpUpdate:
+  type: object
+  description: >
+    Fields a guest may update on their own invitation via PATCH.
+    Primarily used for RSVP status changes and logistics fields.
+    Blocked by a DB trigger after the event's RSVP deadline.
+  minProperties: 1
+  properties:
+    status:
+      $ref: './Enums.yaml#/InvitationStatus'
+    dietary_preference:
+      type: ['string', 'null']
+      example: Vegetarian
+    special_requests:
+      type: ['string', 'null']
+      example: Wheelchair access needed
+
+InvitationOrganizerUpdate:
+  type: object
+  description: Fields an organizer may update on an invitation (e.g. adjusting max_party_size).
+  minProperties: 1
+  properties:
+    max_party_size:
+      type: integer
+      minimum: 1
+      example: 6
+    status:
+      $ref: './Enums.yaml#/InvitationStatus'

@@ -1,0 +1,67 @@
+InvitationDesign:
+  type: object
+  description: >
+    Creative invitation asset for an event. At most one per event (UNIQUE on `event_id`).
+    Either an image gallery or a single validated self-contained HTML file.
+    An event with no row in this table shows guests a default system-branded view.
+  required: [id, event_id, design_type, created_at, updated_at]
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: cccccccc-cccc-cccc-cccc-cccccccccccc
+    event_id:
+      type: string
+      format: uuid
+      example: 55555555-5555-5555-5555-555555555555
+    design_type:
+      $ref: './Enums.yaml#/DesignType'
+    html_storage_path:
+      type: ['string', 'null']
+      description: >
+        Supabase Storage path. Only set for `design_type = html`, and only after
+        passing the synchronous structural scan in the `uploadInvitationHtml`
+        Edge Function. Storage RLS forbids client writes to this bucket.
+      example: null
+    validation_status:
+      oneOf:
+        - $ref: './Enums.yaml#/DesignValidationStatus'
+        - type: 'null'
+      description: >
+        Only meaningful for `html` designs.
+        `pending` — malware scan queued, not yet resolved.
+        `passed`  — both scans cleared; file may be served to guests.
+        `failed`  — one or both scans failed; never served to guests.
+    validation_notes:
+      type: ['string', 'null']
+      description: >
+        Plain-language failure message shown to the organizer when
+        `validation_status = failed`. Guides the re-upload.
+      example: null
+    validated_at:
+      type: ['string', 'null']
+      format: date-time
+      example: null
+    created_at:
+      type: string
+      format: date-time
+      example: '2026-11-01T10:00:00+08:00'
+    updated_at:
+      type: string
+      format: date-time
+      example: '2026-11-01T10:00:00+08:00'
+
+InvitationDesignCreate:
+  type: object
+  description: >
+    Request body for an organizer creating an invitation design record (images mode).
+    For HTML mode, use the `uploadInvitationHtml` Edge Function instead — it
+    performs the synchronous structural scan before storing the file.
+  required: [event_id, design_type]
+  properties:
+    event_id:
+      type: string
+      format: uuid
+      example: 55555555-5555-5555-5555-555555555555
+    design_type:
+      $ref: './Enums.yaml#/DesignType'

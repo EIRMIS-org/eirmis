@@ -1,0 +1,89 @@
+OrganizerStatus:
+  type: string
+  enum: [pending, active]
+  description: >
+    `pending` — newly self-registered; awaiting admin verification.
+    `active`  — verified; may create and manage events.
+
+EventStatus:
+  type: string
+  enum: [draft, published, closed, archived]
+  description: >
+    `draft`     — in preparation; not visible to guests.
+    `published` — open for guest actions (RSVP, attendee submission, headcount requests).
+    `closed`    — RSVP deadline passed; read-only for guests.
+    `archived`  — fully concluded; soft-deleted or historically retained.
+
+EventVisibility:
+  type: string
+  enum: [open_registration, invite_only]
+  description: >
+    `open_registration` — public self-service via `/register/:slug`.
+    `invite_only`       — organizer builds/imports guest list; no public entry point.
+
+InvitationStatus:
+  type: string
+  enum: [pending, accepted, declined, tentative, waitlisted]
+  description: >
+    `pending`    — invitation sent; guest has not yet responded.
+    `accepted`   — guest confirmed attendance.
+    `declined`   — guest declined; no roster submission needed.
+    `tentative`  — guest indicated interest but not committed; no capacity reservation.
+    `waitlisted` — event at capacity; invitation queued in strict FIFO order.
+
+AttendeeStatus:
+  type: string
+  enum: [pending, approved, rejected]
+  description: >
+    `pending`  — submitted by guest; awaiting organizer review.
+    `approved` — organizer approved; counted toward party_size and issued a qr_token.
+    `rejected` — organizer rejected; can be edited and resubmitted by guest.
+
+HirStatus:
+  type: string
+  enum: [pending, approved, rejected]
+  description: >
+    `pending`  — submitted; awaiting organizer decision.
+    `approved` — max_party_size raised by requested_additional_heads.
+    `rejected` — request denied; guest notified.
+
+DesignType:
+  type: string
+  enum: [images, html]
+  description: >
+    `images` — ordered gallery of image files in Supabase Storage.
+    `html`   — single self-contained HTML file requiring two-stage validation.
+
+DesignValidationStatus:
+  type: string
+  enum: [pending, passed, failed]
+  description: >
+    Only meaningful for `html` designs.
+    `pending` — awaiting asynchronous malware/heuristic scan result.
+    `passed`  — both structural and malware scans cleared; may be served to guests.
+    `failed`  — one or both scans failed; never served to guests.
+
+CheckinAssignmentStatus:
+  type: string
+  enum: [invited, active, revoked]
+  description: >
+    `invited` — email sent to staff member; they have not yet logged in.
+    `active`  — staff member completed magic-link login; assignment is live.
+    `revoked` — organizer cut off access; immediately blocks further check-in.
+
+EmailLogStatus:
+  type: string
+  enum: [queued, sent, failed]
+  description: >
+    `queued` — record created; not yet dispatched.
+    `sent`   — successfully accepted by Resend.
+    `failed` — delivery attempt failed; see provider_message_id for details.
+
+AuditActorType:
+  type: string
+  enum: [organizer, guest, check_in_staff, system]
+  description: >
+    `organizer`      — action by an OrganizerProfile (actor_id = organizer_profiles.id).
+    `guest`          — action by a Guest (actor_id = guests.id).
+    `check_in_staff` — action by a CheckInAssignment holder (actor_id = checkin_assignments.id).
+    `system`         — action by a scheduled job or automated process (actor_id = null).

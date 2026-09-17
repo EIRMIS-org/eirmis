@@ -1,0 +1,7 @@
+ContentRange:
+  description: >
+    PostgREST pagination header. Format: `{start}-{end}/{total}`.
+    Total is only populated when `Prefer: count=exact` is sent.
+  schema:
+    type: string
+  example: '0-19/143'

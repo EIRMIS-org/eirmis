@@ -1,0 +1,85 @@
+HeadcountIncreaseRequest:
+  type: object
+  description: >
+    A guest's request to raise their invitation's `max_party_size`.
+    At most one `pending` request per invitation at a time (enforced by a partial
+    unique index). v1: approve-in-full or reject only — no partial approval.
+  required:
+    - id
+    - invitation_id
+    - requested_additional_heads
+    - status
+    - requested_at
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb
+    invitation_id:
+      type: string
+      format: uuid
+      example: 66666666-6666-6666-6666-666666666666
+    requested_additional_heads:
+      type: integer
+      minimum: 1
+      description: Number of extra heads requested on top of the current `max_party_size`.
+      example: 2
+    status:
+      $ref: './Enums.yaml#/HirStatus'
+    note:
+      type: ['string', 'null']
+      description: Guest-provided reason or context for the request.
+      example: My two siblings confirmed they can come.
+    requested_at:
+      type: string
+      format: date-time
+      example: '2026-11-01T10:00:00+08:00'
+    reviewed_by:
+      type: ['string', 'null']
+      format: uuid
+      description: FK to `organizer_profiles.id`. Set by the `decideHeadcountRequest` Edge Function.
+      example: null
+    reviewed_at:
+      type: ['string', 'null']
+      format: date-time
+      example: null
+    review_reason:
+      type: ['string', 'null']
+      description: Organizer's note on the approval or rejection decision.
+      example: null
+
+HeadcountIncreaseRequestCreate:
+  type: object
+  description: >
+    Request body for a guest submitting a headcount increase request.
+    The guest's invitation must be `accepted` and at `max_party_size`.
+    The partial unique index blocks a second pending request.
+  required: [invitation_id, requested_additional_heads]
+  properties:
+    invitation_id:
+      type: string
+      format: uuid
+      example: 66666666-6666-6666-6666-666666666666
+    requested_additional_heads:
+      type: integer
+      minimum: 1
+      example: 2
+    note:
+      type: ['string', 'null']
+      example: My two siblings confirmed they can come.
+
+HeadcountDecisionRequest:
+  type: object
+  description: >
+    Request body for the `decideHeadcountRequest` Edge Function.
+    Approve (raises `max_party_size` by `requested_additional_heads`) or reject.
+  required: [decision]
+  properties:
+    decision:
+      type: string
+      enum: [approve, reject]
+      example: approve
+    reason:
+      type: ['string', 'null']
+      description: Organizer's optional note on the decision.
+      example: null

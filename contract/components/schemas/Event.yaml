@@ -1,0 +1,203 @@
+Event:
+  type: object
+  description: >
+    An organizer-owned event. Central entity of EIRMIS; all guest and invitation
+    data hangs off an event.
+  required:
+    - id
+    - organizer_id
+    - title
+    - slug
+    - starts_at
+    - ends_at
+    - event_timezone
+    - capacity
+    - rsvp_deadline
+    - visibility_mode
+    - status
+    - created_at
+    - updated_at
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: 55555555-5555-5555-5555-555555555555
+    organizer_id:
+      type: string
+      format: uuid
+      description: FK to `organizer_profiles.id`.
+      example: 11111111-1111-1111-1111-111111111111
+    title:
+      type: string
+      example: Annual Gala 2026
+    slug:
+      type: string
+      description: >
+        URL-safe identifier used in the public `/register/:slug` open-registration
+        form. Must be globally unique.
+      example: annual-gala-2026
+    description:
+      type: ['string', 'null']
+      example: A celebration of achievements and milestones.
+    cover_image_url:
+      type: ['string', 'null']
+      description: >
+        Optional featured image for event cards and email headers.
+        Separate from `InvitationDesign` creative assets.
+      example: 'https://example.supabase.co/storage/v1/object/public/covers/gala-2026.jpg'
+    starts_at:
+      type: string
+      format: date-time
+      example: '2026-12-15T18:00:00+08:00'
+    ends_at:
+      type: string
+      format: date-time
+      description: Must be after `starts_at`.
+      example: '2026-12-15T22:00:00+08:00'
+    event_timezone:
+      type: string
+      description: IANA timezone string used to localise reminder send times.
+      example: Asia/Manila
+    venue_name:
+      type: ['string', 'null']
+      example: Grand Ballroom
+    address:
+      type: ['string', 'null']
+      example: 123 Rizal Avenue
+    city:
+      type: ['string', 'null']
+      example: Cebu City
+    location_url:
+      type: ['string', 'null']
+      description: Optional map/directions link.
+      example: 'https://maps.google.com/?q=grand+ballroom'
+    capacity:
+      type: integer
+      minimum: 1
+      description: Maximum total approved Attendees across all Invitations.
+      example: 500
+    rsvp_deadline:
+      type: string
+      format: date-time
+      description: Must be on or before `starts_at`.
+      example: '2026-12-01T23:59:59+08:00'
+    visibility_mode:
+      $ref: './Enums.yaml#/EventVisibility'
+    status:
+      $ref: './Enums.yaml#/EventStatus'
+    deleted_at:
+      type: ['string', 'null']
+      format: date-time
+      description: Soft-delete timestamp. `null` = active. Events are never hard-deleted.
+      example: null
+    created_at:
+      type: string
+      format: date-time
+      example: '2026-09-01T08:00:00+08:00'
+    updated_at:
+      type: string
+      format: date-time
+      example: '2026-11-15T10:00:00+08:00'
+
+EventCreate:
+  type: object
+  description: Request body for creating a new event.
+  required:
+    - title
+    - slug
+    - starts_at
+    - ends_at
+    - event_timezone
+    - capacity
+    - rsvp_deadline
+    - visibility_mode
+  properties:
+    title:
+      type: string
+      example: Annual Gala 2026
+    slug:
+      type: string
+      example: annual-gala-2026
+    description:
+      type: ['string', 'null']
+      example: A celebration of achievements and milestones.
+    cover_image_url:
+      type: ['string', 'null']
+      example: null
+    starts_at:
+      type: string
+      format: date-time
+      example: '2026-12-15T18:00:00+08:00'
+    ends_at:
+      type: string
+      format: date-time
+      example: '2026-12-15T22:00:00+08:00'
+    event_timezone:
+      type: string
+      example: Asia/Manila
+    venue_name:
+      type: ['string', 'null']
+      example: Grand Ballroom
+    address:
+      type: ['string', 'null']
+      example: 123 Rizal Avenue
+    city:
+      type: ['string', 'null']
+      example: Cebu City
+    location_url:
+      type: ['string', 'null']
+      example: null
+    capacity:
+      type: integer
+      minimum: 1
+      example: 500
+    rsvp_deadline:
+      type: string
+      format: date-time
+      example: '2026-12-01T23:59:59+08:00'
+    visibility_mode:
+      $ref: './Enums.yaml#/EventVisibility'
+    status:
+      $ref: './Enums.yaml#/EventStatus'
+
+EventUpdate:
+  type: object
+  description: >
+    Fields an organizer may update on their own event via PATCH.
+    At least one property must be present.
+  minProperties: 1
+  properties:
+    title:
+      type: string
+    slug:
+      type: string
+    description:
+      type: ['string', 'null']
+    cover_image_url:
+      type: ['string', 'null']
+    starts_at:
+      type: string
+      format: date-time
+    ends_at:
+      type: string
+      format: date-time
+    event_timezone:
+      type: string
+    venue_name:
+      type: ['string', 'null']
+    address:
+      type: ['string', 'null']
+    city:
+      type: ['string', 'null']
+    location_url:
+      type: ['string', 'null']
+    capacity:
+      type: integer
+      minimum: 1
+    rsvp_deadline:
+      type: string
+      format: date-time
+    visibility_mode:
+      $ref: './Enums.yaml#/EventVisibility'
+    status:
+      $ref: './Enums.yaml#/EventStatus'

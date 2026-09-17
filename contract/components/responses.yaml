@@ -1,0 +1,48 @@
+BadRequest:
+  description: Bad request — invalid query parameters or request body.
+  content:
+    application/json:
+      schema:
+        $ref: './schemas/Error.yaml#/Error'
+
+Unauthorized:
+  description: >
+    Unauthorized — no valid JWT provided, or the JWT is expired.
+    The client should redirect to the appropriate login screen.
+  content:
+    application/json:
+      schema:
+        $ref: './schemas/Error.yaml#/Error'
+
+Forbidden:
+  description: >
+    Forbidden — the caller's JWT is valid but RLS denied the operation.
+    An undocumented 403 here is a contract bug.
+  content:
+    application/json:
+      schema:
+        $ref: './schemas/Error.yaml#/Error'
+
+NotFound:
+  description: Resource not found or not accessible to the caller.
+  content:
+    application/json:
+      schema:
+        $ref: './schemas/Error.yaml#/Error'
+
+Conflict:
+  description: Conflict — a unique constraint was violated.
+  content:
+    application/json:
+      schema:
+        $ref: './schemas/Error.yaml#/Error'
+
+UnprocessableEntity:
+  description: >
+    Unprocessable Entity — the request was syntactically valid but
+    failed a domain-level validation (e.g. HTML structural scan rejected
+    the uploaded file).
+  content:
+    application/json:
+      schema:
+        $ref: './schemas/Error.yaml#/Error'

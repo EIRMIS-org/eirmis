@@ -1,0 +1,67 @@
+InvitationImage:
+  type: object
+  description: >
+    One image per row in a gallery-mode invitation design.
+    `sort_order` controls the gallery display sequence; the organizer can
+    reorder images by updating this column. UNIQUE(event_id, sort_order) is enforced.
+  required: [id, event_id, storage_path, sort_order, created_at]
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: dddddddd-dddd-dddd-dddd-dddddddddddd
+    event_id:
+      type: string
+      format: uuid
+      example: 55555555-5555-5555-5555-555555555555
+    storage_path:
+      type: string
+      description: >
+        Supabase Storage path to the image file. JPG/PNG/WebP, max 5 MB per file.
+      example: designs/55555555-5555-5555-5555-555555555555/gallery/001.jpg
+    sort_order:
+      type: integer
+      minimum: 0
+      description: Ascending display order in the lightbox gallery.
+      example: 1
+    caption:
+      type: ['string', 'null']
+      description: Optional alt text / caption shown in the lightbox.
+      example: Welcome to the Annual Gala
+    created_at:
+      type: string
+      format: date-time
+      example: '2026-11-02T09:00:00+08:00'
+
+InvitationImageCreate:
+  type: object
+  description: Request body for adding an image to an event's gallery.
+  required: [event_id, storage_path, sort_order]
+  properties:
+    event_id:
+      type: string
+      format: uuid
+      example: 55555555-5555-5555-5555-555555555555
+    storage_path:
+      type: string
+      example: designs/55555555-5555-5555-5555-555555555555/gallery/001.jpg
+    sort_order:
+      type: integer
+      minimum: 0
+      example: 1
+    caption:
+      type: ['string', 'null']
+      example: Welcome to the Annual Gala
+
+InvitationImageUpdate:
+  type: object
+  description: Fields an organizer may update on an existing gallery image.
+  minProperties: 1
+  properties:
+    sort_order:
+      type: integer
+      minimum: 0
+      example: 2
+    caption:
+      type: ['string', 'null']
+      example: The venue entrance

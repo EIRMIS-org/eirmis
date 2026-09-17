@@ -1,0 +1,59 @@
+AuditLogEntry:
+  type: object
+  description: >
+    Immutable, append-only log of all audited state-changing actions.
+    Written by Edge Functions under service role. UPDATE and DELETE are
+    denied for all roles at the RLS level — including authenticated clients.
+    Audited actions include: `attendee.approved`, `attendee.rejected`,
+    `attendee.approved_over_capacity`, `headcount_request.approved`,
+    `headcount_request.rejected`, `invitation_design.uploaded`,
+    `invitation_design.validation_failed`, `qr.bulk_sent`,
+    `checkin.attendee_scanned`, `checkin.attendee_rescanned`,
+    `checkin_assignment.granted`, `checkin_assignment.revoked`,
+    `organizer.verified`.
+  required: [id, actor_type, action, entity_type, entity_id, created_at]
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: ffffffff-ffff-ffff-ffff-ffffffffffff
+    actor_type:
+      $ref: './Enums.yaml#/AuditActorType'
+    actor_id:
+      type: ['string', 'null']
+      format: uuid
+      description: >
+        FK semantics: `organizer_profiles.id`, `guests.id`, or
+        `checkin_assignments.id` depending on `actor_type`.
+        `null` when `actor_type = system`.
+      example: 11111111-1111-1111-1111-111111111111
+    action:
+      type: string
+      description: Dot-namespaced action identifier.
+      example: attendee.approved
+    entity_type:
+      type: string
+      description: Name of the primary entity affected.
+      example: attendee
+    entity_id:
+      type: string
+      format: uuid
+      description: ID of the primary entity affected.
+      example: 77777777-7777-7777-7777-777777777777
+    old_value:
+      type: ['object', 'null']
+      description: State of the entity before the action (nullable).
+      example: null
+    new_value:
+      type: ['object', 'null']
+      description: State of the entity after the action (nullable).
+      example: null
+    reason:
+      type: ['string', 'null']
+      description: Organizer's optional override/decision note.
+      example: null
+    created_at:
+      type: string
+      format: date-time
+      description: Append-only — this timestamp never changes after insertion.
+      example: '2026-12-10T08:05:00+08:00'

@@ -1,0 +1,26 @@
+Error:
+  type: object
+  description: >
+    Standard error shape returned by both PostgREST and Edge Functions.
+    Edge Functions must return this exact shape and status codes so the
+    generated client has a single error path regardless of which surface answered.
+  required: [code, message]
+  properties:
+    code:
+      type: string
+      description: >
+        PostgREST/PostgreSQL error code (e.g. `42501` for RLS denied,
+        `P0001` for a domain raise exception) or an Edge Function error identifier.
+      example: PGRST116
+    message:
+      type: string
+      description: Human-readable error message.
+      example: The result contains 0 rows
+    details:
+      type: ['string', 'null']
+      description: Additional structured detail provided by PostgREST or the Edge Function.
+      example: null
+    hint:
+      type: ['string', 'null']
+      description: Actionable hint for the caller.
+      example: null

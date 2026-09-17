@@ -1,0 +1,37 @@
+WaitlistPromoteRequest:
+  type: object
+  description: >
+    Request body for the `promoteWaitlist` Edge Function (service-role only).
+    Promotes the next `waitlisted` invitation(s) for an event in strict FIFO order
+    (keyed by `waitlisted_at`). Promotion unblocks the invitation for RSVP only;
+    any attendees already submitted remain `pending` and still require organizer review.
+    This operation is privileged and runs atomically — it may not be called from the SPA.
+  required: [event_id]
+  properties:
+    event_id:
+      type: string
+      format: uuid
+      description: The event whose waitlist should be promoted.
+      example: 55555555-5555-5555-5555-555555555555
+    max_promotions:
+      type: integer
+      minimum: 1
+      description: Maximum number of invitations to promote in this run. Defaults to 1.
+      example: 1
+
+WaitlistPromoteResponse:
+  type: object
+  description: Response from the `promoteWaitlist` Edge Function.
+  required: [promoted_count]
+  properties:
+    promoted_count:
+      type: integer
+      description: Number of invitations promoted from `waitlisted` to `accepted`.
+      example: 1
+    promoted_invitation_ids:
+      type: array
+      items:
+        type: string
+        format: uuid
+      example:
+        - 66666666-6666-6666-6666-666666666666

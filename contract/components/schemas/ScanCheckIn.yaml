@@ -1,0 +1,39 @@
+ScanCheckInRequest:
+  type: object
+  description: >
+    Request body for the `scanCheckIn` Edge Function.
+    The function verifies the `qr_token` signature, checks that the caller has
+    an `active` `CheckInAssignment` for the token's event, and records the check-in.
+    A client-side check-in write would be forgeable — this must go through the function.
+  required: [qr_token]
+  properties:
+    qr_token:
+      type: string
+      description: The signed QR token scanned from the attendee's QR code.
+      example: eyJhbGciOiJIUzI1NiJ9.attendee-token-payload.signature
+
+ScanCheckInResponse:
+  type: object
+  description: >
+    Response from the `scanCheckIn` Edge Function. Discriminated by `result`:
+    - `accepted`         — first-time successful check-in.
+    - `already_checked_in` — attendee was previously checked in (re-scan/re-entry).
+      The organizer UI should surface this distinctly from an error.
+    - `invalid_token`    — the token is malformed, expired, or not found.
+  required: [result, attendee]
+  properties:
+    result:
+      type: string
+      enum: [accepted, already_checked_in, invalid_token]
+      example: accepted
+    attendee:
+      $ref: './Attendee.yaml#/Attendee'
+    checked_in_at:
+      type: ['string', 'null']
+      format: date-time
+      description: Set when `result = accepted` or `already_checked_in`.
+      example: '2026-12-15T18:07:00+08:00'
+    message:
+      type: ['string', 'null']
+      description: Human-readable context message (e.g. re-entry notice).
+      example: null
