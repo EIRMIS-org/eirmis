@@ -1,0 +1,1000 @@
+# =============================================================================
+# Organizer Portal — PostgREST paths
+#
+# This file defines all paths primarily owned by the Organizer role.
+# Operations on paths shared with other roles (guests, staff) are annotated
+# with their role-specific security requirements and RLS behaviour at the
+# operation level. All operations require bearerAuth (Supabase JWT for an
+# active organizer) unless noted.
+# =============================================================================
+
+/rest/v1/events:
+  get:
+    operationId: listEvents
+    summary: List organizer's events
+    description: >
+      Returns the authenticated organizer's non-deleted events.
+      RLS restricts the result set to `organizer_id = auth.uid()`.
+      Use `?status=eq.published` to filter by status.
+    tags: [Organizer — Events]
+    parameters:
+      - $ref: '../components/parameters.yaml#/SelectParam'
+      - $ref: '../components/parameters.yaml#/LimitParam'
+      - $ref: '../components/parameters.yaml#/OffsetParam'
+      - $ref: '../components/parameters.yaml#/OrderParam'
+      - $ref: '../components/parameters.yaml#/PreferCountParam'
+      - name: status
+        in: query
+        schema:
+          type: string
+          example: eq.published
+        description: Filter by event status using PostgREST operator syntax (e.g. `eq.published`, `in.(draft,published)`).
+      - name: deleted_at
+        in: query
+        schema:
+          type: string
+          example: is.null
+        description: Filter out soft-deleted events. Defaults to `is.null` via RLS.
+    responses:
+      '200':
+        description: List of events belonging to the authenticated organizer.
+        headers:
+          Content-Range:
+            $ref: '../components/headers.yaml#/ContentRange'
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/Event.yaml#/Event'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+  post:
+    operationId: createEvent
+    summary: Create a new event
+    description: >
+      Creates a new event for the authenticated organizer. The organizer must
+      have `status = active`; RLS enforces this via the insert policy.
+      Returns the created event when `Prefer: return=representation` is sent.
+    tags: [Organizer — Events]
+    parameters:
+      - $ref: '../components/parameters.yaml#/PreferReturnParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/Event.yaml#/EventCreate'
+          examples:
+            GalaEvent:
+              summary: Create an invite-only gala event
+              value:
+                title: Annual Gala 2026
+                slug: annual-gala-2026
+                description: A celebration of achievements and milestones.
+                starts_at: '2026-12-15T18:00:00+08:00'
+                ends_at: '2026-12-15T22:00:00+08:00'
+                event_timezone: Asia/Manila
+                venue_name: Grand Ballroom
+                address: 123 Rizal Avenue
+                city: Cebu City
+                capacity: 500
+                rsvp_deadline: '2026-12-01T23:59:59+08:00'
+                visibility_mode: invite_only
+                status: draft
+    responses:
+      '201':
+        description: Event created successfully.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Event.yaml#/Event'
+            examples:
+              CreatedEvent:
+                summary: Created event response
+                value:
+                  id: 55555555-5555-5555-5555-555555555555
+                  organizer_id: 11111111-1111-1111-1111-111111111111
+                  title: Annual Gala 2026
+                  slug: annual-gala-2026
+                  description: A celebration of achievements and milestones.
+                  cover_image_url: null
+                  starts_at: '2026-12-15T18:00:00+08:00'
+                  ends_at: '2026-12-15T22:00:00+08:00'
+                  event_timezone: Asia/Manila
+                  venue_name: Grand Ballroom
+                  address: 123 Rizal Avenue
+                  city: Cebu City
+                  location_url: null
+                  capacity: 500
+                  rsvp_deadline: '2026-12-01T23:59:59+08:00'
+                  visibility_mode: invite_only
+                  status: draft
+                  deleted_at: null
+                  created_at: '2026-09-17T13:00:00+08:00'
+                  updated_at: '2026-09-17T13:00:00+08:00'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '409':
+        description: Conflict — slug already exists.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Error.yaml#/Error'
+
+/rest/v1/events/{id}:
+  patch:
+    operationId: updateEvent
+    summary: Update an event
+    description: >
+      Updates an organizer's own event. Accepts any subset of `EventUpdate` fields.
+      Uses PostgREST row-level filtering via the path `id` parameter.
+    tags: [Organizer — Events]
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: eq.55555555-5555-5555-5555-555555555555
+        description: PostgREST filter — pass the UUID directly; the `eq.` prefix is handled by the generated client.
+      - $ref: '../components/parameters.yaml#/PreferReturnParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/Event.yaml#/EventUpdate'
+    responses:
+      '204':
+        description: "Event updated (no body unless `Prefer: return=representation`)."
+      '200':
+        description: "Updated event (when `Prefer: return=representation`)."
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Event.yaml#/Event'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+
+/rest/v1/reminder_schedules:
+  get:
+    operationId: listReminderSchedules
+    summary: List reminder schedules for an event
+    description: Returns all reminder schedules for the specified event. Filter by `event_id`.
+    tags: [Organizer — Reminders]
+    parameters:
+      - $ref: '../components/parameters.yaml#/SelectParam'
+      - name: event_id
+        in: query
+        required: true
+        schema:
+          type: string
+          example: eq.55555555-5555-5555-5555-555555555555
+    responses:
+      '200':
+        description: List of reminder schedules for the event.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/ReminderSchedule.yaml#/ReminderSchedule'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+  post:
+    operationId: upsertReminderSchedule
+    summary: Create or update a reminder schedule
+    description: >
+      Creates a reminder schedule. Use `Prefer: resolution=merge-duplicates` to
+      upsert — the UNIQUE(event_id, days_before_event) constraint means a
+      duplicate silently updates the existing row.
+    tags: [Organizer — Reminders]
+    parameters:
+      - $ref: '../components/parameters.yaml#/PreferReturnParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/ReminderSchedule.yaml#/ReminderScheduleUpsert'
+    responses:
+      '201':
+        description: Reminder schedule created or updated.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/ReminderSchedule.yaml#/ReminderSchedule'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+/rest/v1/reminder_schedules/{id}:
+  delete:
+    operationId: deleteReminderSchedule
+    summary: Delete a reminder schedule
+    tags: [Organizer — Reminders]
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: eq.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa
+    responses:
+      '204':
+        description: Deleted.
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+/rest/v1/guests:
+  get:
+    operationId: listGuests
+    summary: List guests for an event
+    description: >
+      Returns guests who have an invitation for the specified event.
+      RLS restricts results to guests on the organizer's own events.
+      Filter by joining through invitations: `?select=*,invitations!inner(event_id)&invitations.event_id=eq.{eventId}`.
+    tags: [Organizer — Guests]
+    parameters:
+      - $ref: '../components/parameters.yaml#/SelectParam'
+      - $ref: '../components/parameters.yaml#/LimitParam'
+      - $ref: '../components/parameters.yaml#/OffsetParam'
+      - $ref: '../components/parameters.yaml#/PreferCountParam'
+    responses:
+      '200':
+        description: List of guests.
+        headers:
+          Content-Range:
+            $ref: '../components/headers.yaml#/ContentRange'
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/Guest.yaml#/Guest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+/rest/v1/invitations:
+  get:
+    operationId: listInvitations
+    summary: List invitations for an event
+    description: >
+      For organizers: returns all invitations for the specified event (filter by `event_id`).
+      For guests: returns own invitations across all events (RLS auto-scopes by `auth.uid()`).
+    tags: [Organizer — Invitations]
+    parameters:
+      - $ref: '../components/parameters.yaml#/SelectParam'
+      - $ref: '../components/parameters.yaml#/LimitParam'
+      - $ref: '../components/parameters.yaml#/OffsetParam'
+      - $ref: '../components/parameters.yaml#/OrderParam'
+      - $ref: '../components/parameters.yaml#/PreferCountParam'
+      - name: event_id
+        in: query
+        schema:
+          type: string
+          example: eq.55555555-5555-5555-5555-555555555555
+      - name: status
+        in: query
+        schema:
+          type: string
+          example: eq.pending
+    responses:
+      '200':
+        description: List of invitations.
+        headers:
+          Content-Range:
+            $ref: '../components/headers.yaml#/ContentRange'
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/Invitation.yaml#/Invitation'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+  post:
+    operationId: createInvitation
+    summary: Create an invitation
+    description: >
+      For organizers: creates an invite-only invitation for a guest.
+      For public registration: creates an `accepted` invitation linked to a
+      self-registered guest. Caller should use `Prefer: return=representation`
+      to receive the created row.
+    tags: [Organizer — Invitations]
+    parameters:
+      - $ref: '../components/parameters.yaml#/PreferReturnParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/Invitation.yaml#/InvitationCreate'
+    responses:
+      '201':
+        description: Invitation created.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Invitation.yaml#/Invitation'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '409':
+        description: Conflict — this guest already has an invitation for this event.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Error.yaml#/Error'
+
+/rest/v1/invitations/{id}:
+  patch:
+    operationId: updateInvitation
+    summary: Update an invitation
+    description: >
+      For organizers: update `max_party_size` or `status` on a guest's invitation.
+      For guests: update RSVP `status`, `dietary_preference`, `special_requests`.
+      The DB trigger blocks guest updates after the RSVP deadline.
+    tags: [Organizer — Invitations]
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: eq.66666666-6666-6666-6666-666666666666
+      - $ref: '../components/parameters.yaml#/PreferReturnParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '../components/schemas/Invitation.yaml#/InvitationOrganizerUpdate'
+              - $ref: '../components/schemas/Invitation.yaml#/InvitationRsvpUpdate'
+          examples:
+            RsvpAccept:
+              summary: Guest accepts invitation
+              value:
+                status: accepted
+            AdjustMaxParty:
+              summary: Organizer raises max party size
+              value:
+                max_party_size: 6
+    responses:
+      '204':
+        description: Updated.
+      '200':
+        description: "Updated invitation (when `Prefer: return=representation`)."
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Invitation.yaml#/Invitation'
+            examples:
+              AcceptedInvitation:
+                summary: Accepted RSVP response
+                value:
+                  id: 66666666-6666-6666-6666-666666666666
+                  event_id: 55555555-5555-5555-5555-555555555555
+                  guest_id: 33333333-3333-3333-3333-333333333333
+                  status: accepted
+                  max_party_size: 4
+                  party_size: 1
+                  checked_in_count: 0
+                  dietary_preference: null
+                  special_requests: null
+                  invited_by: 11111111-1111-1111-1111-111111111111
+                  invited_at: '2026-10-01T09:00:00+08:00'
+                  responded_at: '2026-10-05T14:00:00+08:00'
+                  waitlisted_at: null
+                  created_at: '2026-10-01T09:00:00+08:00'
+                  updated_at: '2026-10-05T14:00:00+08:00'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+
+/rest/v1/attendees:
+  get:
+    operationId: listAttendees
+    summary: List attendees
+    description: >
+      For organizers: returns attendees for the specified event (filter by joining invitations).
+      For guests: returns attendees for their own invitation (filter by `invitation_id`).
+      For check-in staff: returns attendees for their single assigned event.
+    tags: [Organizer — Approvals]
+    parameters:
+      - $ref: '../components/parameters.yaml#/SelectParam'
+      - $ref: '../components/parameters.yaml#/LimitParam'
+      - $ref: '../components/parameters.yaml#/OffsetParam'
+      - $ref: '../components/parameters.yaml#/OrderParam'
+      - $ref: '../components/parameters.yaml#/PreferCountParam'
+      - name: invitation_id
+        in: query
+        schema:
+          type: string
+          example: eq.66666666-6666-6666-6666-666666666666
+      - name: status
+        in: query
+        schema:
+          type: string
+          example: eq.pending
+    responses:
+      '200':
+        description: List of attendees.
+        headers:
+          Content-Range:
+            $ref: '../components/headers.yaml#/ContentRange'
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/Attendee.yaml#/Attendee'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+  post:
+    operationId: submitAttendee
+    summary: Submit an additional attendee
+    description: >
+      A guest submits an additional (non-primary) attendee for their accepted invitation.
+      RLS enforces: `is_primary = false`, invitation `status = accepted`, guest identity.
+    tags: [Guest — Attendees]
+    parameters:
+      - $ref: '../components/parameters.yaml#/PreferReturnParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/Attendee.yaml#/AttendeeCreate'
+          examples:
+            SubmitAttendee:
+              summary: Guest submits a party member
+              value:
+                invitation_id: 66666666-6666-6666-6666-666666666666
+                full_name: Jose Santos
+                email: null
+    responses:
+      '201':
+        description: Attendee submitted; status is `pending` awaiting organizer review.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Attendee.yaml#/Attendee'
+            examples:
+              SubmittedAttendee:
+                summary: Pending attendee row
+                value:
+                  id: 77777777-7777-7777-7777-777777777777
+                  invitation_id: 66666666-6666-6666-6666-666666666666
+                  full_name: Jose Santos
+                  email: null
+                  is_primary: false
+                  status: pending
+                  submitted_at: '2026-10-06T10:00:00+08:00'
+                  reviewed_by: null
+                  reviewed_at: null
+                  review_reason: null
+                  qr_token: null
+                  checked_in: false
+                  checked_in_at: null
+                  checked_in_by: null
+                  is_walk_in: false
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+
+/rest/v1/attendees/{id}:
+  patch:
+    operationId: updateAttendee
+    summary: Edit and resubmit a rejected attendee
+    description: >
+      A guest edits a rejected (non-primary) attendee to resubmit it.
+      On update the attendee status returns to `pending`. RLS enforces
+      `status in (pending, rejected)` and guest identity.
+    tags: [Guest — Attendees]
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: eq.77777777-7777-7777-7777-777777777777
+      - $ref: '../components/parameters.yaml#/PreferReturnParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/Attendee.yaml#/AttendeeUpdate'
+    responses:
+      '204':
+        description: Updated.
+      '200':
+        description: "Updated attendee (when `Prefer: return=representation`)."
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Attendee.yaml#/Attendee'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+
+/rest/v1/headcount_increase_requests:
+  get:
+    operationId: listHeadcountRequests
+    summary: List headcount increase requests
+    description: >
+      For organizers: returns all requests for an event (filter by `invitation_id` or join through invitations).
+      For guests: returns own requests (RLS auto-scopes by invitation → guest identity).
+    tags: [Organizer — Approvals]
+    parameters:
+      - $ref: '../components/parameters.yaml#/SelectParam'
+      - $ref: '../components/parameters.yaml#/LimitParam'
+      - $ref: '../components/parameters.yaml#/OffsetParam'
+      - name: invitation_id
+        in: query
+        schema:
+          type: string
+          example: eq.66666666-6666-6666-6666-666666666666
+      - name: status
+        in: query
+        schema:
+          type: string
+          example: eq.pending
+    responses:
+      '200':
+        description: List of headcount increase requests.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/HeadcountIncreaseRequest.yaml#/HeadcountIncreaseRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+  post:
+    operationId: submitHeadcountRequest
+    summary: Submit a headcount increase request
+    description: >
+      A guest submits a request to raise their `max_party_size`. The invitation must
+      be `accepted` and at capacity. The partial unique index blocks a second pending
+      request from the same invitation.
+    tags: [Guest — Headcount]
+    parameters:
+      - $ref: '../components/parameters.yaml#/PreferReturnParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/HeadcountIncreaseRequest.yaml#/HeadcountIncreaseRequestCreate'
+    responses:
+      '201':
+        description: Request submitted; status is `pending`.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/HeadcountIncreaseRequest.yaml#/HeadcountIncreaseRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '409':
+        description: Conflict — a pending request already exists for this invitation.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Error.yaml#/Error'
+
+/rest/v1/invitation_designs:
+  get:
+    operationId: getInvitationDesign
+    summary: Get an event's invitation design
+    description: >
+      For organizers: returns the design record (all validation states).
+      For guests: RLS returns only `design_type = images` designs or `validation_status = passed` HTML designs.
+    tags: [Organizer — Design]
+    parameters:
+      - $ref: '../components/parameters.yaml#/SelectParam'
+      - name: event_id
+        in: query
+        required: true
+        schema:
+          type: string
+          example: eq.55555555-5555-5555-5555-555555555555
+    responses:
+      '200':
+        description: Invitation design record (empty array if no design set).
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/InvitationDesign.yaml#/InvitationDesign'
+              maxItems: 1
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+  post:
+    operationId: createInvitationDesign
+    summary: Create an invitation design record (images mode)
+    description: >
+      Creates the design record for images mode. For HTML mode, use the
+      `uploadInvitationHtml` Edge Function instead.
+    tags: [Organizer — Design]
+    parameters:
+      - $ref: '../components/parameters.yaml#/PreferReturnParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/InvitationDesign.yaml#/InvitationDesignCreate'
+    responses:
+      '201':
+        description: Design record created.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/InvitationDesign.yaml#/InvitationDesign'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '409':
+        description: An invitation design already exists for this event.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Error.yaml#/Error'
+
+/rest/v1/invitation_images:
+  get:
+    operationId: listInvitationImages
+    summary: List gallery images for an event
+    description: >
+      Returns gallery images for the specified event, ordered by `sort_order`.
+      Accessible by organizers (own events), guests (invited events), and
+      unauthenticated users (open-registration published events via `security: []`).
+    tags: [Organizer — Design]
+    parameters:
+      - $ref: '../components/parameters.yaml#/SelectParam'
+      - name: event_id
+        in: query
+        required: true
+        schema:
+          type: string
+          example: eq.55555555-5555-5555-5555-555555555555
+      - name: order
+        in: query
+        schema:
+          type: string
+          example: sort_order.asc
+    responses:
+      '200':
+        description: Gallery images for the event.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/InvitationImage.yaml#/InvitationImage'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+  post:
+    operationId: addInvitationImage
+    summary: Add an image to the gallery
+    tags: [Organizer — Design]
+    parameters:
+      - $ref: '../components/parameters.yaml#/PreferReturnParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/InvitationImage.yaml#/InvitationImageCreate'
+    responses:
+      '201':
+        description: Image added to gallery.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/InvitationImage.yaml#/InvitationImage'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+/rest/v1/invitation_images/{id}:
+  patch:
+    operationId: updateInvitationImage
+    summary: Update a gallery image (reorder or edit caption)
+    tags: [Organizer — Design]
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: eq.dddddddd-dddd-dddd-dddd-dddddddddddd
+      - $ref: '../components/parameters.yaml#/PreferReturnParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/InvitationImage.yaml#/InvitationImageUpdate'
+    responses:
+      '204':
+        description: Updated.
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+  delete:
+    operationId: deleteInvitationImage
+    summary: Remove an image from the gallery
+    tags: [Organizer — Design]
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: eq.dddddddd-dddd-dddd-dddd-dddddddddddd
+    responses:
+      '204':
+        description: Deleted.
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+/rest/v1/checkin_assignments:
+  get:
+    operationId: listCheckInAssignments
+    summary: List check-in staff assignments for an event
+    description: >
+      For organizers: returns all assignments for the specified event.
+      For check-in staff: RLS returns only their own `active` assignment row
+      (no `event_id` filter required — RLS auto-scopes by `auth_user_id`).
+    tags: [Organizer — Check-in Staff]
+    parameters:
+      - $ref: '../components/parameters.yaml#/SelectParam'
+      - name: event_id
+        in: query
+        schema:
+          type: string
+          example: eq.55555555-5555-5555-5555-555555555555
+    responses:
+      '200':
+        description: List of check-in assignments.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/CheckInAssignment.yaml#/CheckInAssignment'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+  post:
+    operationId: createCheckInAssignment
+    summary: Add a check-in staff member to an event
+    description: >
+      Creates a new check-in assignment (`status = invited`). The designated
+      email will receive a magic-link invitation. If the email already has a
+      revoked assignment for this event, delete the old row first.
+    tags: [Organizer — Check-in Staff]
+    parameters:
+      - $ref: '../components/parameters.yaml#/PreferReturnParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/CheckInAssignment.yaml#/CheckInAssignmentCreate'
+    responses:
+      '201':
+        description: Assignment created; magic-link email will be sent by an Edge Function.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/CheckInAssignment.yaml#/CheckInAssignment'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '409':
+        description: This email already has an assignment for this event.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Error.yaml#/Error'
+
+/rest/v1/checkin_assignments/{id}:
+  patch:
+    operationId: updateCheckInAssignment
+    summary: Revoke a check-in assignment
+    description: Sets `status = revoked`, immediately blocking the staff member's access.
+    tags: [Organizer — Check-in Staff]
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: eq.88888888-8888-8888-8888-888888888888
+      - $ref: '../components/parameters.yaml#/PreferReturnParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/CheckInAssignment.yaml#/CheckInAssignmentUpdate'
+    responses:
+      '204':
+        description: Assignment revoked.
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+  delete:
+    operationId: deleteCheckInAssignment
+    summary: Delete a check-in assignment
+    description: Hard-deletes the assignment row. Use `patch` to revoke instead if an audit trail is needed.
+    tags: [Organizer — Check-in Staff]
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: eq.88888888-8888-8888-8888-888888888888
+    responses:
+      '204':
+        description: Deleted.
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+/rest/v1/email_logs:
+  get:
+    operationId: listEmailLogs
+    summary: List email logs
+    description: >
+      For organizers: returns email logs for the specified event (filter by `event_id`).
+      For guests: returns logs for their own invitation (filter by `invitation_id`).
+    tags: [Organizer — Email History]
+    parameters:
+      - $ref: '../components/parameters.yaml#/SelectParam'
+      - $ref: '../components/parameters.yaml#/LimitParam'
+      - $ref: '../components/parameters.yaml#/OffsetParam'
+      - $ref: '../components/parameters.yaml#/OrderParam'
+      - name: event_id
+        in: query
+        schema:
+          type: string
+          example: eq.55555555-5555-5555-5555-555555555555
+      - name: invitation_id
+        in: query
+        schema:
+          type: string
+          example: eq.66666666-6666-6666-6666-666666666666
+    responses:
+      '200':
+        description: List of email log entries.
+        headers:
+          Content-Range:
+            $ref: '../components/headers.yaml#/ContentRange'
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/EmailLog.yaml#/EmailLog'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+/rest/v1/audit_log_entries:
+  get:
+    operationId: listAuditLogEntries
+    summary: List audit log entries for an event
+    description: >
+      Returns audit log entries for entities belonging to the organizer's events.
+      Filter by `entity_type` and `entity_id` for a specific record's history.
+    tags: [Organizer — Audit]
+    parameters:
+      - $ref: '../components/parameters.yaml#/SelectParam'
+      - $ref: '../components/parameters.yaml#/LimitParam'
+      - $ref: '../components/parameters.yaml#/OffsetParam'
+      - $ref: '../components/parameters.yaml#/OrderParam'
+      - name: entity_type
+        in: query
+        schema:
+          type: string
+          example: eq.attendee
+      - name: entity_id
+        in: query
+        schema:
+          type: string
+          example: eq.77777777-7777-7777-7777-777777777777
+    responses:
+      '200':
+        description: List of audit log entries.
+        headers:
+          Content-Range:
+            $ref: '../components/headers.yaml#/ContentRange'
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/AuditLogEntry.yaml#/AuditLogEntry'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+/rest/v1/organizer_profiles:
+  get:
+    operationId: getOrganizerProfile
+    summary: Read own organizer profile
+    description: Returns the authenticated organizer's own profile row.
+    tags: [Organizer — Profile]
+    parameters:
+      - $ref: '../components/parameters.yaml#/SelectParam'
+      - name: id
+        in: query
+        schema:
+          type: string
+          example: eq.11111111-1111-1111-1111-111111111111
+    responses:
+      '200':
+        description: Organizer profile.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/OrganizerProfile.yaml#/OrganizerProfile'
+              maxItems: 1
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+
+/rest/v1/organizer_profiles/{id}:
+  patch:
+    operationId: updateOrganizerProfile
+    summary: Update organizer profile
+    description: >
+      For organizers: update own `full_name`.
+      For admins: update `status` (pending → active verification).
+      RLS restricts each role to what they may change.
+    tags: [Organizer — Profile]
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: eq.11111111-1111-1111-1111-111111111111
+      - $ref: '../components/parameters.yaml#/PreferReturnParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '../components/schemas/OrganizerProfile.yaml#/OrganizerProfileUpdate'
+              - $ref: '../components/schemas/OrganizerProfile.yaml#/OrganizerStatusUpdate'
+    responses:
+      '204':
+        description: Updated.
+      '200':
+        description: "Updated profile (when `Prefer: return=representation`)."
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/OrganizerProfile.yaml#/OrganizerProfile'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'

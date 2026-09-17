@@ -1,0 +1,41 @@
+# =============================================================================
+# Check-in Staff Portal — PostgREST paths
+#
+# Check-in staff access is highly constrained by RLS:
+#   - SELECT on attendees for their single assigned event only
+#   - SELECT on checkin_assignments for their own active row
+#   - SELECT on events for their assigned event
+# All write operations (check-in) go through the scanCheckIn Edge Function.
+# =============================================================================
+
+/rest/v1/events/assigned:
+  get:
+    operationId: getAssignedEvent
+    summary: Get the event assigned to the check-in staff member
+    description: >
+      Returns the single event associated with the authenticated staff member's
+      `active` `CheckInAssignment`. RLS enforces the scope — only the one assigned
+      event is visible. Filter by the event ID obtained from the assignment row.
+      Use `GET /rest/v1/events?id=eq.{eventId}` in practice.
+    tags: [Check-in Staff — Event]
+    parameters:
+      - $ref: '../components/parameters.yaml#/SelectParam'
+      - name: id
+        in: query
+        schema:
+          type: string
+          example: eq.55555555-5555-5555-5555-555555555555
+    responses:
+      '200':
+        description: The assigned event.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/Event.yaml#/Event'
+              maxItems: 1
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
