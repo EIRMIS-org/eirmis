@@ -355,7 +355,7 @@
       content:
         application/json:
           schema:
-            oneOf:
+            anyOf:
               - $ref: '../components/schemas/Invitation.yaml#/InvitationOrganizerUpdate'
               - $ref: '../components/schemas/Invitation.yaml#/InvitationRsvpUpdate'
           examples:
