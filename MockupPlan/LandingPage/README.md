@@ -41,6 +41,7 @@ The `index.html` is a single page with a vanilla-JS view router (show/hide secti
 4. **Guest login view** — email input → "Send magic link" → success state ("Check your inbox").
 5. **Staff login view** — same as guest, but labeled for Check-in Staff.
 6. **Open-registration view** — public form (name, email, party size) that simulates creating an `accepted` invitation.
+7. **Docs view** — a simulated Redoc-style shell for the OpenAPI 3.1 contract. This is a **placeholder**; the live API reference will be served from the production API gateway.
 
 ## 4. Shared runtime integration
 

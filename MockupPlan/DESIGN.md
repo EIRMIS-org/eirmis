@@ -58,7 +58,7 @@ The palette is rooted in a professional **Indigo** primary, symbolizing technolo
 - **Secondary (#008A88 → #0D9488):** Used for accenting specific invitation flows or RSVP status indicators. Hover state is **#0F766E**.
 - **Tertiary/Dark (#0F172A):** Used for high-level navigation backgrounds, dark headers, and the digital-wallet pass to provide contrast. Dark surface is **#1E293B**.
 - **Neutrals:** A scale of cool grays (Slate) is used for borders and text to maintain an airy, modern SaaS feel — background **#F8FAFC**, surface **#FFFFFF**, borders **#E2E8F0**, muted text **#64748B**.
-- **Semantic Colors:** Reserved strictly for feedback — Green for confirmed RSVPs/approved, Amber for pending/tentative, and Red for declined or over-capacity alerts.
+- **Semantic Colors:** Reserved strictly for feedback — Green for confirmed RSVPs/approved, Amber for pending/tentative, and Red for declined or over-capacity alerts. All semantic status colors are **WCAG 2.1 AA-compliant** and match the authoritative tokens in [`eirmis.css`](assets/eirmis.css): success **#15803D**, warning **#B45309**, error **#B91C1C**. Decorative fills on dark surfaces (e.g., toast icons) may use the brighter 500-scale variants (#10B981 / #F59E0B / #EF4444) for visual pop.
 
 ## Typography
 The system uses **Hanken Grotesk** (Landing and Admin portals) and **Plus Jakarta Sans** (Organizer, Guest, and Check-in Staff portals) for headings to provide a sharp, contemporary edge, while **Inter** is utilized for body text and labels to ensure maximum legibility at small sizes.

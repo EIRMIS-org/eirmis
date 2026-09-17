@@ -12,6 +12,10 @@
     rel="stylesheet">
   <link rel="stylesheet" href="../assets/eirmis.css">
   <style>
+    /* Organizer Portal defines its own token set because it uses a custom dual-sidebar
+       chrome and does NOT call EIRMIS.init() (which would inject the global nav bar).
+       Semantic status values are kept aligned with the shared WCAG-AA palette in
+       ../assets/eirmis.css so status colors stay consistent across all portals. */
     :root {
       --primary: #4F46E5;
       --primary-hover: #4338CA;
@@ -28,14 +32,14 @@
       --text-main: #0F172A;
       --text-muted: #64748B;
       --text-subtle: #94A3B8;
-      --success: #10B981;
-      --success-bg: #ECFDF5;
-      --success-border: #A7F3D0;
-      --warning: #F59E0B;
-      --warning-bg: #FFFBEB;
+      --success: #15803D;
+      --success-bg: #DCFCE7;
+      --success-border: #86EFAC;
+      --warning: #B45309;
+      --warning-bg: #FEF3C7;
       --warning-border: #FDE68A;
-      --error: #EF4444;
-      --error-bg: #FEF2F2;
+      --error: #B91C1C;
+      --error-bg: #FEE2E2;
       --error-border: #FECACA;
       --font-display: 'Hanken Grotesk', system-ui, sans-serif;
       --font-body: 'Inter', system-ui, sans-serif;

@@ -52,6 +52,14 @@ The `index.html` uses a **dual sidebar** layout: a primary sidebar for global na
 14. **Email log** — sent-email audit trail.
 15. **Audit log** — audited actions trail (approvals, overrides, staff changes).
 
+### Mockup extensions (beyond README §8 sitemap)
+
+The following three views are **additive mockup extensions** that reflect the README data model but are not yet enumerated in the §8 sitemap. They will be folded into the sitemap in the next spec revision:
+
+- **Waitlist** — strict FIFO promotion queue (aligns with the capacity/waitlist domain rule).
+- **Email log** — transactional `EmailLog` viewer (aligns with the email/audit data model).
+- **Audit log** — append-only immutable `AuditLogEntry` ledger (aligns with the audit data model).
+
 ## 4. Shared runtime integration
 
 This portal loads the shared runtime [`eirmis.js`](../assets/eirmis.js) and design system [`eirmis.css`](../assets/eirmis.css):
