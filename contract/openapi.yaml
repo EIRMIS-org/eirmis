@@ -1,0 +1,466 @@
+openapi: 3.1.0
+
+info:
+  title: EIRMIS API
+  version: 0.1.0
+  license:
+    name: All Rights Reserved
+    url: 'https://github.com/EIRMIS-org/eirmis/blob/main/LICENSE.md'
+  description: |
+
+    **Event Invitation and RSVP Management Information System (EIRMIS)**
+
+    This contract is the single source of truth for every HTTP operation the
+    React SPA may call against the Supabase backend (PostgREST + Edge Functions).
+    It is authored and reviewed like code — a contract change requires approval
+    from both the frontend and backend sides.
+
+    ## Two Backend Surfaces
+
+    1. **PostgREST data endpoints** (`/rest/v1/<table>`) — curated read and
+       simple-write operations the app is entitled to make. Authorization is RLS,
+       not client-side discipline.
+    2. **Edge Function endpoints** (`/functions/v1/<name>`) — anything that needs
+       a secret, a privileged write, or a multi-step transaction.
+
+    ## What is NOT in this contract
+
+    - **Supabase Realtime** — the attendance dashboard WebSocket channel is
+      managed through `supabase-js` directly and documented in the README §9.
+    - **Supabase Storage signed-URL reads** — gallery image and HTML invitation
+      URLs are obtained via `supabase-js` Storage API, not HTTP operations.
+    - **Supabase Auth endpoints** — magic-link, Google OAuth, and session
+      management are handled by `supabase-js` Auth API.
+
+    ## Auth
+
+    All operations require a Supabase JWT (`bearerAuth`) unless explicitly
+    overridden with `security: []`. The two genuinely public operations
+    (open-registration event lookup and guest upsert) are the only ones that
+    may opt out of authentication.
+
+    ## Error Model
+
+    A single `Error` schema — `{ code, message, details, hint }` — matching
+    PostgREST's native error shape. Edge Functions must return this exact shape
+    and the same HTTP status codes so `src/lib/api` has exactly one error path.
+
+    ## PostgREST Query Parameter Conventions
+
+    PostgREST uses a specific query syntax. Key patterns:
+    - **Filtering**: `?col=eq.value`, `?col=in.(a,b)`, `?col=is.null`
+    - **Column selection**: `?select=col1,col2,related_table(col3)`
+    - **Ordering**: `?order=col.asc`, `?order=col.desc`
+    - **Pagination**: `?limit=20&offset=0`
+    - **Row count**: send `Prefer: count=exact` header; result in `Content-Range`
+    - **Return body**: send `Prefer: return=representation` on POST/PATCH
+    - **Upsert**: send `Prefer: resolution=merge-duplicates` on POST with a conflict column
+
+servers:
+  - url: 'https://{project}.supabase.co'
+    description: Supabase hosted project
+    variables:
+      project:
+        description: Your Supabase project reference (e.g. `abcdefghijklmnop`)
+        default: your-project-ref
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: 'Organizer — Events'
+    description: Event creation and management.
+  - name: 'Organizer — Guests'
+    description: Guest list viewing and management.
+  - name: 'Organizer — Invitations'
+    description: Invitation creation and management.
+  - name: 'Organizer — Approvals'
+    description: Attendee and headcount request approval queues.
+  - name: 'Organizer — Design'
+    description: Invitation design upload and gallery management.
+  - name: 'Organizer — Check-in Staff'
+    description: Check-in staff assignment management.
+  - name: 'Organizer — Reminders'
+    description: Scheduled reminder configuration.
+  - name: 'Organizer — QR Codes'
+    description: QR code generation and bulk dispatch.
+  - name: 'Organizer — Waitlist'
+    description: Waitlist promotion controls.
+  - name: 'Organizer — Email History'
+    description: Transactional email log.
+  - name: 'Organizer — Audit'
+    description: Audit log access.
+  - name: 'Organizer — Profile'
+    description: Organizer profile management.
+  - name: 'Admin — Profile'
+    description: Admin profile read.
+  - name: 'Admin — Organizer Verification'
+    description: Organizer verification queue (pending → active).
+  - name: 'Guest — Profile'
+    description: Guest profile read and update.
+  - name: 'Guest — Attendees'
+    description: Attendee roster submission and edit.
+  - name: 'Guest — Headcount'
+    description: Headcount increase request submission.
+  - name: 'Check-in Staff — Event'
+    description: Scoped event read for the assigned event.
+  - name: 'Check-in Staff — Scan'
+    description: QR token scan and check-in recording.
+  - name: 'Public — Registration'
+    description: Unauthenticated open-registration flow (no bearerAuth required).
+  - name: 'Internal — System'
+    description: >
+      Service-role or scheduled-job operations. Not reachable from the SPA.
+      Documented for completeness and CI drift detection.
+
+x-tagGroups:
+  - name: Organizer
+    tags:
+      - 'Organizer — Events'
+      - 'Organizer — Guests'
+      - 'Organizer — Invitations'
+      - 'Organizer — Approvals'
+      - 'Organizer — Design'
+      - 'Organizer — Check-in Staff'
+      - 'Organizer — Reminders'
+      - 'Organizer — QR Codes'
+      - 'Organizer — Waitlist'
+      - 'Organizer — Email History'
+      - 'Organizer — Audit'
+      - 'Organizer — Profile'
+  - name: Admin
+    tags:
+      - 'Admin — Profile'
+      - 'Admin — Organizer Verification'
+  - name: Guest
+    tags:
+      - 'Guest — Profile'
+      - 'Guest — Attendees'
+      - 'Guest — Headcount'
+  - name: Check-in Staff
+    tags:
+      - 'Check-in Staff — Event'
+      - 'Check-in Staff — Scan'
+  - name: Public
+    tags:
+      - 'Public — Registration'
+  - name: Internal
+    tags:
+      - 'Internal — System'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >
+        Supabase JWT issued by Supabase Auth on sign-in (Google OAuth for
+        organizers/admins; passwordless email magic-link for guests and
+        check-in staff). Pass as `Authorization: Bearer <token>`.
+
+  parameters:
+    SelectParam:
+      name: select
+      in: query
+      schema:
+        type: string
+      description: >
+        PostgREST column selection. Comma-separated column names.
+        Use `related_table(col1,col2)` for embedded resource selection.
+      example: id,title,status
+
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+      description: Maximum number of rows to return.
+      example: 20
+
+    OffsetParam:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+      description: Number of rows to skip before returning results.
+      example: 0
+
+    OrderParam:
+      name: order
+      in: query
+      schema:
+        type: string
+      description: >
+        PostgREST ordering. Format: `column.direction[.nullsfirst|nullslast]`.
+        Example: `created_at.desc`.
+      example: created_at.desc
+
+    PreferCountParam:
+      name: Prefer
+      in: header
+      schema:
+        type: string
+        enum:
+          - count=exact
+          - count=planned
+          - count=estimated
+      description: >
+        Request a row count alongside the response.
+        `count=exact` returns the precise count in the `Content-Range` header
+        (requires a sequential scan — use sparingly on large tables).
+      example: count=exact
+
+    PreferReturnParam:
+      name: Prefer
+      in: header
+      schema:
+        type: string
+        enum:
+          - return=representation
+          - return=minimal
+          - return=headers-only
+      description: >
+        Control whether the mutated row(s) are returned in the response body.
+        `return=representation` returns the full row; `return=minimal` (default)
+        returns no body.
+      example: return=representation
+
+  headers:
+    ContentRange:
+      description: >
+        PostgREST pagination header. Format: `{start}-{end}/{total}`.
+        Total is only populated when `Prefer: count=exact` is sent.
+      schema:
+        type: string
+      example: '0-19/143'
+
+  responses:
+    BadRequest:
+      description: Bad request — invalid query parameters or request body.
+      content:
+        application/json:
+          schema:
+            $ref: './components/schemas/Error.yaml#/Error'
+
+    Unauthorized:
+      description: >
+        Unauthorized — no valid JWT provided, or the JWT is expired.
+        The client should redirect to the appropriate login screen.
+      content:
+        application/json:
+          schema:
+            $ref: './components/schemas/Error.yaml#/Error'
+
+    Forbidden:
+      description: >
+        Forbidden — the caller's JWT is valid but RLS denied the operation.
+        An undocumented 403 here is a contract bug.
+      content:
+        application/json:
+          schema:
+            $ref: './components/schemas/Error.yaml#/Error'
+
+    NotFound:
+      description: Resource not found or not accessible to the caller.
+      content:
+        application/json:
+          schema:
+            $ref: './components/schemas/Error.yaml#/Error'
+
+    Conflict:
+      description: Conflict — a unique constraint was violated.
+      content:
+        application/json:
+          schema:
+            $ref: './components/schemas/Error.yaml#/Error'
+
+    UnprocessableEntity:
+      description: >
+        Unprocessable Entity — the request was syntactically valid but
+        failed a domain-level validation (e.g. HTML structural scan rejected
+        the uploaded file).
+      content:
+        application/json:
+          schema:
+            $ref: './components/schemas/Error.yaml#/Error'
+
+  schemas:
+    Error:
+      $ref: './components/schemas/Error.yaml#/Error'
+    OrganizerProfile:
+      $ref: './components/schemas/OrganizerProfile.yaml#/OrganizerProfile'
+    OrganizerProfileUpdate:
+      $ref: './components/schemas/OrganizerProfile.yaml#/OrganizerProfileUpdate'
+    OrganizerStatusUpdate:
+      $ref: './components/schemas/OrganizerProfile.yaml#/OrganizerStatusUpdate'
+    AdminProfile:
+      $ref: './components/schemas/AdminProfile.yaml#/AdminProfile'
+    Event:
+      $ref: './components/schemas/Event.yaml#/Event'
+    EventCreate:
+      $ref: './components/schemas/Event.yaml#/EventCreate'
+    EventUpdate:
+      $ref: './components/schemas/Event.yaml#/EventUpdate'
+    ReminderSchedule:
+      $ref: './components/schemas/ReminderSchedule.yaml#/ReminderSchedule'
+    ReminderScheduleUpsert:
+      $ref: './components/schemas/ReminderSchedule.yaml#/ReminderScheduleUpsert'
+    Guest:
+      $ref: './components/schemas/Guest.yaml#/Guest'
+    GuestCreate:
+      $ref: './components/schemas/Guest.yaml#/GuestCreate'
+    GuestUpdate:
+      $ref: './components/schemas/Guest.yaml#/GuestUpdate'
+    Invitation:
+      $ref: './components/schemas/Invitation.yaml#/Invitation'
+    InvitationCreate:
+      $ref: './components/schemas/Invitation.yaml#/InvitationCreate'
+    InvitationRsvpUpdate:
+      $ref: './components/schemas/Invitation.yaml#/InvitationRsvpUpdate'
+    InvitationOrganizerUpdate:
+      $ref: './components/schemas/Invitation.yaml#/InvitationOrganizerUpdate'
+    Attendee:
+      $ref: './components/schemas/Attendee.yaml#/Attendee'
+    AttendeeCreate:
+      $ref: './components/schemas/Attendee.yaml#/AttendeeCreate'
+    AttendeeUpdate:
+      $ref: './components/schemas/Attendee.yaml#/AttendeeUpdate'
+    AttendeeDecisionRequest:
+      $ref: './components/schemas/Attendee.yaml#/AttendeeDecisionRequest'
+    AttendeeDecisionResponse:
+      $ref: './components/schemas/Attendee.yaml#/AttendeeDecisionResponse'
+    HeadcountIncreaseRequest:
+      $ref: './components/schemas/HeadcountIncreaseRequest.yaml#/HeadcountIncreaseRequest'
+    HeadcountIncreaseRequestCreate:
+      $ref: './components/schemas/HeadcountIncreaseRequest.yaml#/HeadcountIncreaseRequestCreate'
+    HeadcountDecisionRequest:
+      $ref: './components/schemas/HeadcountIncreaseRequest.yaml#/HeadcountDecisionRequest'
+    InvitationDesign:
+      $ref: './components/schemas/InvitationDesign.yaml#/InvitationDesign'
+    InvitationDesignCreate:
+      $ref: './components/schemas/InvitationDesign.yaml#/InvitationDesignCreate'
+    InvitationImage:
+      $ref: './components/schemas/InvitationImage.yaml#/InvitationImage'
+    InvitationImageCreate:
+      $ref: './components/schemas/InvitationImage.yaml#/InvitationImageCreate'
+    InvitationImageUpdate:
+      $ref: './components/schemas/InvitationImage.yaml#/InvitationImageUpdate'
+    CheckInAssignment:
+      $ref: './components/schemas/CheckInAssignment.yaml#/CheckInAssignment'
+    CheckInAssignmentCreate:
+      $ref: './components/schemas/CheckInAssignment.yaml#/CheckInAssignmentCreate'
+    CheckInAssignmentUpdate:
+      $ref: './components/schemas/CheckInAssignment.yaml#/CheckInAssignmentUpdate'
+    EmailLog:
+      $ref: './components/schemas/EmailLog.yaml#/EmailLog'
+    AuditLogEntry:
+      $ref: './components/schemas/AuditLogEntry.yaml#/AuditLogEntry'
+    ScanCheckInRequest:
+      $ref: './components/schemas/ScanCheckIn.yaml#/ScanCheckInRequest'
+    ScanCheckInResponse:
+      $ref: './components/schemas/ScanCheckIn.yaml#/ScanCheckInResponse'
+    QrBundleRequest:
+      $ref: './components/schemas/QrBundle.yaml#/QrBundleRequest'
+    QrBundleResponse:
+      $ref: './components/schemas/QrBundle.yaml#/QrBundleResponse'
+    WaitlistPromoteRequest:
+      $ref: './components/schemas/WaitlistPromote.yaml#/WaitlistPromoteRequest'
+    WaitlistPromoteResponse:
+      $ref: './components/schemas/WaitlistPromote.yaml#/WaitlistPromoteResponse'
+    HtmlUploadResponse:
+      $ref: './components/schemas/HtmlUpload.yaml#/HtmlUploadResponse'
+    ScanCallbackRequest:
+      $ref: './components/schemas/ScanCallback.yaml#/ScanCallbackRequest'
+
+# =============================================================================
+# Paths — aggregated from per-portal path files.
+#
+# Each path appears exactly once. Operations on a path that serve multiple
+# audiences are tagged individually by their actual audience (e.g. the
+# /rest/v1/attendees path has both Organizer and Guest operations).
+# =============================================================================
+
+paths:
+  # ---------- Organizer portal ----------
+  /rest/v1/events:
+    $ref: './paths/organizer.yaml#/~1rest~1v1~1events'
+  /rest/v1/events/{id}:
+    $ref: './paths/organizer.yaml#/~1rest~1v1~1events~1{id}'
+  /rest/v1/reminder_schedules:
+    $ref: './paths/organizer.yaml#/~1rest~1v1~1reminder_schedules'
+  /rest/v1/reminder_schedules/{id}:
+    $ref: './paths/organizer.yaml#/~1rest~1v1~1reminder_schedules~1{id}'
+  /rest/v1/guests:
+    $ref: './paths/organizer.yaml#/~1rest~1v1~1guests'
+  /rest/v1/invitations:
+    $ref: './paths/organizer.yaml#/~1rest~1v1~1invitations'
+  /rest/v1/invitations/{id}:
+    $ref: './paths/organizer.yaml#/~1rest~1v1~1invitations~1{id}'
+  /rest/v1/attendees:
+    $ref: './paths/organizer.yaml#/~1rest~1v1~1attendees'
+  /rest/v1/attendees/{id}:
+    $ref: './paths/organizer.yaml#/~1rest~1v1~1attendees~1{id}'
+  /rest/v1/headcount_increase_requests:
+    $ref: './paths/organizer.yaml#/~1rest~1v1~1headcount_increase_requests'
+  /rest/v1/invitation_designs:
+    $ref: './paths/organizer.yaml#/~1rest~1v1~1invitation_designs'
+  /rest/v1/invitation_images:
+    $ref: './paths/organizer.yaml#/~1rest~1v1~1invitation_images'
+  /rest/v1/invitation_images/{id}:
+    $ref: './paths/organizer.yaml#/~1rest~1v1~1invitation_images~1{id}'
+  /rest/v1/checkin_assignments:
+    $ref: './paths/organizer.yaml#/~1rest~1v1~1checkin_assignments'
+  /rest/v1/checkin_assignments/{id}:
+    $ref: './paths/organizer.yaml#/~1rest~1v1~1checkin_assignments~1{id}'
+  /rest/v1/email_logs:
+    $ref: './paths/organizer.yaml#/~1rest~1v1~1email_logs'
+  /rest/v1/audit_log_entries:
+    $ref: './paths/organizer.yaml#/~1rest~1v1~1audit_log_entries'
+  /rest/v1/organizer_profiles:
+    $ref: './paths/organizer.yaml#/~1rest~1v1~1organizer_profiles'
+  /rest/v1/organizer_profiles/{id}:
+    $ref: './paths/organizer.yaml#/~1rest~1v1~1organizer_profiles~1{id}'
+
+  # ---------- Admin portal ----------
+  /rest/v1/admin_profiles:
+    $ref: './paths/admin.yaml#/~1rest~1v1~1admin_profiles'
+  /rest/v1/organizer_profiles/pending:
+    $ref: './paths/admin.yaml#/~1rest~1v1~1organizer_profiles~1pending'
+
+  # ---------- Guest portal ----------
+  /rest/v1/guests/me:
+    $ref: './paths/guest.yaml#/~1rest~1v1~1guests~1me'
+  /rest/v1/guests/{id}:
+    $ref: './paths/guest.yaml#/~1rest~1v1~1guests~1{id}'
+
+  # ---------- Check-in Staff portal ----------
+  /rest/v1/events/assigned:
+    $ref: './paths/staff.yaml#/~1rest~1v1~1events~1assigned'
+
+  # ---------- Public (no auth) ----------
+  /rest/v1/events/public:
+    $ref: './paths/public.yaml#/~1rest~1v1~1events~1public'
+  /rest/v1/guests/register:
+    $ref: './paths/public.yaml#/~1rest~1v1~1guests~1register'
+
+  # ---------- Edge Functions ----------
+  /functions/v1/invitation-html:
+    $ref: './paths/functions.yaml#/~1functions~1v1~1invitation-html'
+  /functions/v1/html-scan-callback:
+    $ref: './paths/functions.yaml#/~1functions~1v1~1html-scan-callback'
+  /functions/v1/attendees/{id}/decision:
+    $ref: './paths/functions.yaml#/~1functions~1v1~1attendees~1{id}~1decision'
+  /functions/v1/headcount-requests/{id}/decision:
+    $ref: './paths/functions.yaml#/~1functions~1v1~1headcount-requests~1{id}~1decision'
+  /functions/v1/qr-bundle:
+    $ref: './paths/functions.yaml#/~1functions~1v1~1qr-bundle'
+  /functions/v1/checkin/scan:
+    $ref: './paths/functions.yaml#/~1functions~1v1~1checkin~1scan'
+  /functions/v1/reminders/dispatch:
+    $ref: './paths/functions.yaml#/~1functions~1v1~1reminders~1dispatch'
+  /functions/v1/waitlist/promote:
+    $ref: './paths/functions.yaml#/~1functions~1v1~1waitlist~1promote'
