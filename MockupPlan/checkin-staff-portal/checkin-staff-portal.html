@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EIRMIS — Check-in Staff Entrance Scanner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../assets/eirmis.css">
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-hover: #4338CA;
+      --primary-light: #EEF2FF;
+      --primary-glow: rgba(79, 70, 229, 0.15);
+      --secondary: #0D9488;
+      --dark: #0F172A;
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --surface-glass: rgba(255, 255, 255, 0.85);
+      --border: rgba(226, 232, 240, 0.8);
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --success: #10B981;
+      --success-bg: #ECFDF5;
+      --success-border: #A7F3D0;
+      --warning: #F59E0B;
+      --warning-bg: #FFFBEB;
+      --warning-border: #FDE68A;
+      --error: #EF4444;
+      --error-bg: #FEF2F2;
+      --error-border: #FECACA;
+      --font-display: 'Hanken Grotesk', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 26px;
+      --shadow-subtle: 0 1px 3px rgba(15, 23, 42, 0.04);
+      --shadow-card: 0 4px 16px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+      --shadow-float: 0 16px 32px -6px rgba(15, 23, 42, 0.12);
+      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-size: 13.5px;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      background: var(--surface-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 12px 18px;
+    }
+
+    .header-inner {
+      max-width: 500px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .scanner-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .scanner-logo {
+      width: 32px;
+      height: 32px;
+      background: var(--primary);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+    }
+
+    main {
+      flex: 1;
+      max-width: 500px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 16px 16px 64px 16px;
+    }
+
+    .boundary-notice {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-subtle);
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: center;
+      box-shadow: var(--shadow-subtle);
+    }
+
+    .stat-num {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.1;
+      margin-top: 2px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Camera Viewfinder */
+    .viewport-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .camera-frame {
+      background: #020617;
+      border-radius: var(--radius-md);
+      height: 220px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      color: white;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
+    }
+
+    .scan-reticle {
+      width: 140px;
+      height: 140px;
+      border: 2px dashed rgba(56, 189, 248, 0.8);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .scan-reticle::before,
+    .scan-reticle::after {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-color: #38BDF8;
+      border-style: solid;
+    }
+
+    .scan-reticle::before {
+      top: -2px;
+      left: -2px;
+      border-width: 3px 0 0 3px;
+      border-radius: 4px 0 0 0;
+    }
+
+    .scan-reticle::after {
+      bottom: -2px;
+      right: -2px;
+      border-width: 0 3px 3px 0;
+      border-radius: 0 0 4px 0;
+    }
+
+    .scan-laser {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #38BDF8;
+      box-shadow: 0 0 10px #38BDF8, 0 0 20px #38BDF8;
+      animation: scanLaser 2s infinite ease-in-out;
+    }
+
+    @keyframes scanLaser {
+      0% {
+        top: 12%;
+        opacity: 0.2;
+      }
+
+      50% {
+        top: 88%;
+        opacity: 1;
+      }
+
+      100% {
+        top: 12%;
+        opacity: 0.2;
+      }
+    }
+
+    /* Result Panel */
+    .result-panel {
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      background: #FFFFFF;
+      transition: all 0.25s var(--ease-spring);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: var(--shadow-subtle);
+    }
+
+    .result-panel.accepted {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+      color: var(--success);
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.15);
+    }
+
+    .result-panel.duplicate {
+      background: var(--warning-bg);
+      border-color: var(--warning-border);
+      color: var(--warning);
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.15);
+    }
+
+    .result-panel.rejected {
+      background: var(--error-bg);
+      border-color: var(--error-border);
+      color: var(--error);
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.15);
+    }
+
+    .result-icon-box {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #F1F5F9;
+      color: #64748B;
+      flex-shrink: 0;
+    }
+
+    .result-panel.accepted .result-icon-box {
+      background: #DCFCE7;
+      color: #059669;
+    }
+
+    .result-panel.duplicate .result-icon-box {
+      background: #FEF3C7;
+      color: #D97706;
+    }
+
+    .result-panel.rejected .result-icon-box {
+      background: #FEE2E2;
+      color: #DC2626;
+    }
+
+    .result-details {
+      flex: 1;
+    }
+
+    .result-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 15px;
+      color: inherit;
+    }
+
+    .result-sub {
+      font-size: 12.5px;
+      color: inherit;
+      opacity: 0.9;
+      margin-top: 2px;
+    }
+
+    .card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-subtle);
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text-main);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 13.5px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      outline: none;
+      transition: all 0.15s;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s var(--ease-spring);
+      font-family: var(--font-body);
+      user-select: none;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 10px var(--primary-glow);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-teal {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: white;
+      border-color: var(--border);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: #F8FAFC;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .chip-green {
+      background: #DCFCE7;
+      color: #15803D;
+      border: 1px solid #BBF7D0;
+    }
+
+    .chip-amber {
+      background: #FEF3C7;
+      color: #B45309;
+      border: 1px solid #FDE68A;
+    }
+
+    .attendee-list {
+      max-height: 180px;
+      overflow-y: auto;
+      margin-top: 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+
+    .attendee-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .attendee-row:last-child {
+      border-bottom: none;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 16px;
+      right: 16px;
+      max-width: 468px;
+      margin: 0 auto;
+      background: var(--dark);
+      color: #FFFFFF;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-float);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.25s var(--ease-spring);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Desktop enhancement (mobile-first base) */
+    @media (min-width: 768px) {
+      main {
+        max-width: 720px;
+      }
+
+      .stats-row {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="scanner-brand">
+        <div class="scanner-logo">
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5">
+            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+        </div>
+        <div>
+          <div style="font-weight:700; font-size:14px; font-family:var(--font-display); color:var(--text-main);">
+            Entrance Scanner</div>
+          <div style="font-size:11px; color:var(--text-muted);">Staff: Marcus (Station 1)</div>
+        </div>
+      </div>
+      <a href="../landing/landing.html" class="btn btn-secondary btn-sm" style="color:var(--text-muted);"
+        aria-label="Exit to Landing Hub">Exit</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- Scoped Assignment Indicator -->
+    <div class="boundary-notice">
+      <div>
+        <strong style="color:var(--text-main);">Tech Forward Gala 2026</strong><br>
+        <span style="font-size:11px;">Scanner Mode Only • Scoped Assignment</span>
+      </div>
+      <span class="chip chip-green">Active</span>
+    </div>
+
+    <!-- Live Metrics -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Checked-In</div>
+        <div class="stat-num" style="color:var(--secondary);" id="staff-checkedin-num">48</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Expected Total</div>
+        <div class="stat-num">112</div>
+      </div>
+    </div>
+
+    <!-- Camera Viewfinder -->
+    <div class="viewport-card">
+      <div class="camera-frame">
+        <div class="scan-reticle">
+          <div class="scan-laser"></div>
+          <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" style="opacity:0.4;">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+          </svg>
+        </div>
+        <div style="font-size:11px; color:#94A3B8; margin-top:8px;">Camera active • Scanner Station 1</div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; margin-top:12px;">
+        <button class="btn btn-primary btn-sm" onclick="runSimulatedScan('accept')">Valid QR</button>
+        <button class="btn btn-secondary btn-sm" onclick="runSimulatedScan('duplicate')">Duplicate</button>
+        <button class="btn btn-secondary btn-sm" onclick="runSimulatedScan('invalid')">Bad Token</button>
+      </div>
+    </div>
+
+    <!-- Scan Result Panel (ScannerContext state machine) -->
+    <div id="result-panel" class="result-panel idle" aria-live="polite" aria-atomic="true">
+      <div id="result-icon-box" class="result-icon-box">
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 14 14"></polyline>
+        </svg>
+      </div>
+      <div class="result-details">
+        <div id="result-title" class="result-title">Ready to Scan</div>
+        <div id="result-sub" class="result-sub">Point camera at attendee digital or printed QR pass</div>
+      </div>
+    </div>
+
+    <!-- Manual Name Search Fallback -->
+    <div class="card">
+      <div class="card-title">Manual Name Search</div>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">
+        For guests with unreadable passes or dead phone batteries.
+      </p>
+
+      <input type="text" id="manual-search-input" class="form-control" placeholder="Search by attendee name..."
+        oninput="handleManualSearch(this.value)">
+
+      <div class="attendee-list" id="search-attendees-list">
+        <div class="attendee-row" data-name="Elena Rostova">
+          <div>
+            <strong>Elena Rostova</strong>
+            <div style="font-size:11px; color:var(--text-muted);">Primary Guest</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Elena Rostova')">Check
+            In</button>
+        </div>
+        <div class="attendee-row" data-name="Dmitri Rostova">
+          <div>
+            <strong>Dmitri Rostova</strong>
+            <div style="font-size:11px; color:var(--text-muted);">Party: Elena Rostova</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Dmitri Rostova')">Check
+            In</button>
+        </div>
+        <div class="attendee-row" data-name="Dr. Aris Thorne">
+          <div>
+            <strong>Dr. Aris Thorne</strong>
+            <div style="font-size:11px; color:var(--text-muted);">Biotech Innovate</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Dr. Aris Thorne')">Check
+            In</button>
+        </div>
+        <div class="attendee-row" data-name="Sophia Rostova">
+          <div>
+            <strong>Sophia Rostova</strong>
+            <div style="font-size:11px; color:var(--text-muted);">Party: Elena Rostova (Child)</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Sophia Rostova')">Check
+            In</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Walk-in Registration -->
+    <div class="card">
+      <div class="card-title">Quick Walk-In Registration</div>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">
+        Register an unscheduled guest arriving at the door. Sets <code>is_walk_in = true</code>.
+      </p>
+
+      <form onsubmit="handleWalkIn(event)">
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="walkin-name" class="form-control" placeholder="Walk-in Guest Full Name *" required>
+          <button type="submit" class="btn btn-teal" style="white-space:nowrap;">+ Check In</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <div id="toast" class="toast">
+    <span id="toast-msg">Check-in confirmed</span>
+  </div>
+
+  <script>
+    let checkedInCount = 48;
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function runSimulatedScan(state) {
+      const panel = document.getElementById('result-panel');
+      const iconBox = document.getElementById('result-icon-box');
+      const title = document.getElementById('result-title');
+      const sub = document.getElementById('result-sub');
+
+      panel.className = 'result-panel idle';
+      title.innerText = 'Resolving signed token...';
+      sub.innerText = 'Calling POST /functions/v1/checkin/scan';
+      iconBox.innerHTML = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>';
+
+      setTimeout(() => {
+        if (state === 'accept') {
+          panel.className = 'result-panel accepted';
+          iconBox.innerHTML = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+          title.innerText = 'Check-in Verified: Dmitri Rostova';
+          sub.innerText = 'Approved Attendee • Party: Elena Rostova • 6:49 PM';
+          checkedInCount++;
+          document.getElementById('staff-checkedin-num').innerText = checkedInCount;
+          showToast('Dmitri Rostova checked in successfully.');
+        } else if (state === 'duplicate') {
+          panel.className = 'result-panel duplicate';
+          iconBox.innerHTML = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
+          title.innerText = 'Duplicate Scan: Elena Rostova';
+          sub.innerText = 'Already checked in at 6:34 PM by Staff Station 1';
+          showToast('Warning: Attendee already checked in.');
+        } else {
+          panel.className = 'result-panel rejected';
+          iconBox.innerHTML = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+          title.innerText = 'Invalid Token Signature';
+          sub.innerText = 'Token not recognized or event assignment mismatch';
+          showToast('Scan rejected: invalid token.');
+        }
+      }, 350);
+    }
+
+    function handleManualSearch(query) {
+      const q = query.toLowerCase().trim();
+      document.querySelectorAll('.attendee-row').forEach(r => {
+        const name = r.getAttribute('data-name').toLowerCase();
+        r.style.display = name.includes(q) ? 'flex' : 'none';
+      });
+      const list = document.getElementById('search-attendees-list');
+      const anyVisible = Array.from(list.querySelectorAll('.attendee-row')).some(r => r.style.display !== 'none');
+      let empty = list.querySelector('.eirmis-empty');
+      if (!q || anyVisible) {
+        if (empty) empty.remove();
+        return;
+      }
+      if (!empty) {
+        empty = document.createElement('div');
+        empty.className = 'eirmis-empty';
+        empty.innerHTML = '<div class="eirmis-empty-title">No results</div><div style="font-size:12px;">No attendees match your search.</div>';
+        list.appendChild(empty);
+      }
+    }
+
+    function manualCheckInAttendee(btn, name) {
+      btn.disabled = true;
+      btn.className = 'btn btn-sm';
+      btn.style.background = '#DCFCE7';
+      btn.style.color = '#15803D';
+      btn.innerText = 'Checked In';
+
+      checkedInCount++;
+      document.getElementById('staff-checkedin-num').innerText = checkedInCount;
+
+      const panel = document.getElementById('result-panel');
+      panel.className = 'result-panel accepted';
+      document.getElementById('result-icon-box').innerHTML = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      document.getElementById('result-title').innerText = 'Manual Check-in: ' + name;
+      document.getElementById('result-sub').innerText = 'Checked in manually by staff override';
+
+      showToast('Checked in ' + name);
+    }
+
+    function handleWalkIn(e) {
+      e.preventDefault();
+      const name = document.getElementById('walkin-name').value;
+      checkedInCount++;
+      document.getElementById('staff-checkedin-num').innerText = checkedInCount;
+
+      const list = document.getElementById('search-attendees-list');
+      const row = document.createElement('div');
+      row.className = 'attendee-row';
+      row.setAttribute('data-name', name);
+      row.innerHTML = `
+        <div>
+          <strong>${name}</strong> <span class="chip chip-amber" style="font-size:10px;">Walk-in</span>
+          <div style="font-size:11px; color:var(--text-muted);">Door entry</div>
+        </div>
+        <span class="chip chip-green">Checked In</span>
+      `;
+      list.prepend(row);
+
+      const panel = document.getElementById('result-panel');
+      panel.className = 'result-panel accepted';
+      document.getElementById('result-icon-box').innerHTML = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      document.getElementById('result-title').innerText = 'Walk-in Recorded: ' + name;
+      document.getElementById('result-sub').innerText = 'Created ad hoc attendee row (is_walk_in = true)';
+
+      document.getElementById('walkin-name').value = '';
+      showToast('Walk-in guest ' + name + ' checked in.');
+    }
+  </script>
+  <script src="../assets/eirmis.js"></script>
+  <script>
+    EIRMIS.init({ portal: 'staff' });
+    if (!EIRMIS.session()) {
+      EIRMIS.signIn('Check-in Staff', 'Marcus Staff', 'marcus.staff@events.org');
+    }
+  </script>
+</body>
+
+</html>

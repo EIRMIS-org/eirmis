@@ -1,0 +1,560 @@
+/* =============================================================================
+   EIRMIS — Shared Design System & Global Chrome
+   Authoritative Design Tokens & UI Styles matching DESIGN.md & README.md
+   ============================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+
+:root {
+    /* Brand Primary (Indigo) */
+    --primary: #4F46E5;
+    --primary-hover: #4338CA;
+    --primary-subtle: #EEF2FF;
+    --primary-border: #C7D2FE;
+    --primary-glow: rgba(79, 70, 229, 0.18);
+
+    /* Secondary (Teal) */
+    --secondary: #0D9488;
+    --secondary-hover: #0F766E;
+    --secondary-subtle: #F0FDFA;
+    --secondary-border: #99F6E4;
+
+    /* Dark Neutrals */
+    --dark: #0F172A;
+    --dark-surface: #1E293B;
+    --dark-border: #334155;
+
+    /* Cool Neutrals (Slate scale) */
+    --bg: #F8FAFC;
+    --surface: #FFFFFF;
+    --surface-glass: rgba(255, 255, 255, 0.92);
+    --border: #E2E8F0;
+    --border-subtle: #F1F5F9;
+    --border-hover: #CBD5E1;
+    --text-main: #0F172A;
+    --text-muted: #64748B;
+    --text-subtle: #94A3B8;
+
+    /* Semantic Status Feedback (WCAG 2.1 AA Compliant) */
+    --success: #15803D;
+    --success-bg: #DCFCE7;
+    --success-border: #86EFAC;
+
+    --warning: #B45309;
+    --warning-bg: #FEF3C7;
+    --warning-border: #FDE68A;
+
+    --error: #B91C1C;
+    --error-bg: #FEE2E2;
+    --error-border: #FECACA;
+
+    --info: #4F46E5;
+    --info-bg: #EEF2FF;
+    --info-border: #C7D2FE;
+
+    /* Radii */
+    --radius-xs: 4px;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+    --radius-xl: 24px;
+    --radius-pill: 9999px;
+
+    /* Elevations & Shadows */
+    --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+    --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+    --shadow-md: 0 4px 16px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+    --shadow-lg: 0 16px 32px -4px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+    --shadow-float: 0 20px 40px -8px rgba(15, 23, 42, 0.18), 0 6px 14px -2px rgba(15, 23, 42, 0.06);
+
+    /* Animation Timing */
+    --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Typography */
+    --font-heading: 'Hanken Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ---------------------------------------------------------------------------
+   Global Accessibility & Focus States (WCAG 2.4.7)
+   --------------------------------------------------------------------------- */
+:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8;
+}
+
+/* ---------------------------------------------------------------------------
+   Global Top Navigation Bar (Cross-Portal Chrome)
+   --------------------------------------------------------------------------- */
+.eirmis-global-nav {
+    position: sticky;
+    top: 0;
+    z-index: 2000;
+    background: var(--surface-glass);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-body);
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.eirmis-global-nav-inner {
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.eirmis-nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--text-main);
+    flex-shrink: 0;
+}
+
+.eirmis-nav-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, var(--primary) 0%, #312E81 100%);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+    transition: transform 0.2s var(--ease-spring);
+}
+
+.eirmis-nav-brand:hover .eirmis-nav-logo {
+    transform: scale(1.05);
+}
+
+.eirmis-nav-brand-name {
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: -0.02em;
+    font-family: var(--font-heading);
+    color: var(--text-main);
+}
+
+.eirmis-nav-pill-badge {
+    background: var(--primary-subtle);
+    border: 1px solid var(--primary-border);
+    color: var(--primary);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: var(--radius-pill);
+    margin-left: 6px;
+}
+
+.eirmis-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.eirmis-nav-links::-webkit-scrollbar {
+    display: none;
+}
+
+.eirmis-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.15s var(--ease-spring);
+    border: 1px solid transparent;
+}
+
+.eirmis-nav-link:hover {
+    color: var(--text-main);
+    background: var(--border-subtle);
+}
+
+.eirmis-nav-link.active {
+    color: var(--primary);
+    background: var(--primary-subtle);
+    border-color: var(--primary-border);
+}
+
+.eirmis-nav-session {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.eirmis-session-pill {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 4px 12px 4px 5px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-main);
+    box-shadow: var(--shadow-xs);
+}
+
+.eirmis-session-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary) 0%, #312E81 100%);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10.5px;
+    font-weight: 700;
+    box-shadow: 0 1px 3px rgba(79, 70, 229, 0.25);
+}
+
+.eirmis-session-role {
+    font-size: 10.5px;
+    color: var(--primary);
+    font-weight: 700;
+    background: var(--primary-subtle);
+    padding: 2px 7px;
+    border-radius: var(--radius-pill);
+}
+
+.eirmis-nav-signout {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    transition: all 0.15s;
+}
+
+.eirmis-nav-signout:hover {
+    color: var(--error);
+    background: var(--error-bg);
+}
+
+/* ---------------------------------------------------------------------------
+   Production Toast with Progress Bar & Close Action
+   --------------------------------------------------------------------------- */
+.eirmis-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 3000;
+    background: rgba(15, 23, 42, 0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    color: #FFFFFF;
+    padding: 14px 18px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-float);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    max-width: 380px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    transform: translateY(120px) scale(0.96);
+    opacity: 0;
+    transition: all 0.3s var(--ease-spring);
+    pointer-events: auto;
+    overflow: hidden;
+}
+
+.eirmis-toast.show {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+.eirmis-toast-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.eirmis-toast.success .eirmis-toast-icon {
+    background: #10B981;
+}
+.eirmis-toast.warning .eirmis-toast-icon {
+    background: #F59E0B;
+}
+.eirmis-toast.error .eirmis-toast-icon {
+    background: #EF4444;
+}
+.eirmis-toast.info .eirmis-toast-icon {
+    background: #4F46E5;
+}
+
+.eirmis-toast-msg {
+    flex: 1;
+    line-height: 1.4;
+}
+
+.eirmis-toast-close {
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    cursor: pointer;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: color 0.15s;
+}
+.eirmis-toast-close:hover {
+    color: #FFFFFF;
+}
+
+.eirmis-toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: var(--primary);
+    width: 100%;
+    transform-origin: left;
+    animation: eirmisToastProgress 3.2s linear forwards;
+}
+
+.eirmis-toast.success .eirmis-toast-progress { background: #10B981; }
+.eirmis-toast.warning .eirmis-toast-progress { background: #F59E0B; }
+.eirmis-toast.error .eirmis-toast-progress { background: #EF4444; }
+
+@keyframes eirmisToastProgress {
+    from { transform: scaleX(1); }
+    to { transform: scaleX(0); }
+}
+
+/* ---------------------------------------------------------------------------
+   Shared Component Primitives (Buttons, Chips, Cards, Badges)
+   --------------------------------------------------------------------------- */
+.eirmis-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s var(--ease-spring);
+    font-family: var(--font-body);
+    user-select: none;
+}
+
+.eirmis-btn:active {
+    transform: scale(0.98);
+}
+
+.eirmis-btn-primary {
+    background: var(--primary);
+    color: #FFFFFF;
+    box-shadow: 0 1px 2px rgba(79, 70, 229, 0.2);
+}
+.eirmis-btn-primary:hover {
+    background: var(--primary-hover);
+    box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+.eirmis-btn-secondary {
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--text-main);
+    box-shadow: var(--shadow-xs);
+}
+.eirmis-btn-secondary:hover {
+    background: var(--bg);
+    border-color: var(--border-hover);
+}
+
+.eirmis-btn-teal {
+    background: var(--secondary);
+    color: #FFFFFF;
+    box-shadow: 0 1px 2px rgba(13, 148, 136, 0.2);
+}
+.eirmis-btn-teal:hover {
+    background: var(--secondary-hover);
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+}
+
+.eirmis-btn-danger {
+    background: var(--error);
+    color: #FFFFFF;
+}
+.eirmis-btn-danger:hover {
+    background: #991B1B;
+}
+
+.eirmis-btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+}
+.eirmis-btn-ghost:hover {
+    background: var(--border-subtle);
+    color: var(--text-main);
+}
+
+.eirmis-btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+/* Status Chips & Badges */
+.eirmis-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: var(--radius-pill);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: capitalize;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+}
+
+.eirmis-chip-green {
+    background: var(--success-bg);
+    color: var(--success);
+    border: 1px solid var(--success-border);
+}
+
+.eirmis-chip-amber {
+    background: var(--warning-bg);
+    color: var(--warning);
+    border: 1px solid var(--warning-border);
+}
+
+.eirmis-chip-red {
+    background: var(--error-bg);
+    color: var(--error);
+    border: 1px solid var(--error-border);
+}
+
+.eirmis-chip-blue {
+    background: var(--primary-subtle);
+    color: var(--primary);
+    border: 1px solid var(--primary-border);
+}
+
+.eirmis-chip-slate {
+    background: var(--border-subtle);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}
+
+/* Skeleton Loading Shimmer */
+.eirmis-skeleton {
+    position: relative;
+    overflow: hidden;
+    background: #E2E8F0;
+    border-radius: var(--radius-sm);
+}
+
+.eirmis-skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+    animation: eirmisShimmer 1.4s infinite;
+}
+
+@keyframes eirmisShimmer {
+    100% { transform: translateX(100%); }
+}
+
+/* Empty State */
+.eirmis-empty {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+}
+
+.eirmis-empty-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--border-subtle);
+    color: var(--text-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px auto;
+}
+
+.eirmis-empty-title {
+    font-weight: 700;
+    color: var(--text-main);
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.eirmis-empty-desc {
+    font-size: 13px;
+    max-width: 360px;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
+/* Responsive Rules */
+@media (max-width: 768px) {
+    .eirmis-nav-links {
+        display: none;
+    }
+    .eirmis-session-role {
+        display: none;
+    }
+    .eirmis-global-nav-inner {
+        padding: 0 16px;
+    }
+}
