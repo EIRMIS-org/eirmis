@@ -128,6 +128,7 @@ The mockups are the **visual contract**; the production code in `src/` and `supa
 | File | What it documents |
 |---|---|
 | [`README.md`](README.md) | This overview & usage guide |
+| [`diagrams.md`](diagrams.md) | Architecture & structure diagrams (visual overview) |
 | [`design.md`](design.md) | Design tokens & system |
 | [`assets/README.md`](assets/README.md) | Shared runtime & design system implementation |
 | [`landing/landing-README.md`](landing/landing-README.md) | Public hub & auth mockup |
