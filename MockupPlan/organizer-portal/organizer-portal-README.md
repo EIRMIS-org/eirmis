@@ -4,7 +4,7 @@
 
 ## 1. What this mockup covers
 
-A single interactive `index.html` simulating every Organizer route from the main [`README.md`](../../README.md) §8, plus additional operational views (waitlist, email log, audit log).
+A single interactive `organizer-portal.html` simulating every Organizer route from the main [`README.md`](../../README.md) §8, plus additional operational views (waitlist, email log, audit log).
 
 | Route (README §8) | Feature |
 |---|---|
@@ -19,7 +19,7 @@ A single interactive `index.html` simulating every Organizer route from the main
 | `/organizer/events/:id/staff` | Manage Check-in Staff assignments |
 | `/organizer/profile` | Edit own profile |
 
-## 2. Design system applied (from [`DESIGN.md`](../DESIGN.md))
+## 2. Design system applied (from [`design.md`](../design.md))
 
 - **Layout:** desktop-first with responsive fallback; left sidebar nav (Tertiary `#0F172A` background) + content area.
 - **Primary Indigo `#4F46E5`** for main actions; **Secondary Teal `#0D9488`** for RSVP/invitation accents.
@@ -31,7 +31,7 @@ A single interactive `index.html` simulating every Organizer route from the main
 
 ## 3. Screen structure (single-page, dual-sidebar)
 
-The `index.html` uses a **dual sidebar** layout: a primary sidebar for global navigation (Events, Notifications, Profile) and a secondary sub-sidebar for event-scoped views. A vanilla-JS view switcher drives all panes.
+The `organizer-portal.html` uses a **dual sidebar** layout: a primary sidebar for global navigation (Events, Notifications, Profile) and a secondary sub-sidebar for event-scoped views. A vanilla-JS view switcher drives all panes.
 
 **Global views:**
 1. **Events list** — event cards (title, date, status chip, RSVP progress bar) + "Create event" button.
@@ -84,19 +84,19 @@ This portal loads the shared runtime [`eirmis.js`](../assets/eirmis.js) and desi
 
 ## 6. How to run the mockup flow
 
-1. Start from `MockupPlan/LandingPage/index.html`.
-2. Click the **Organizer** role card → simulated Google Sign-In → lands on this portal's `index.html`.
-3. Alternatively open `MockupPlan/Organizer Portal/index.html` directly.
+1. Start from `MockupPlan/landing/landing.html`.
+2. Click the **Organizer** role card → simulated Google Sign-In → lands on this portal's `organizer-portal.html`.
+3. Alternatively open `MockupPlan/organizer-portal/organizer-portal.html` directly.
 
 ## 7. Files in this folder
 
-- `index.html` — the interactive organizer mockup.
-- `README.md` — this documentation.
+- `organizer-portal.html` — the interactive organizer mockup.
+- `organizer-portal-README.md` — this documentation.
 
 ## 8. Acceptance checklist
 
 - [x] All 15 views reachable from the dual sidebar.
-- [x] RSVP status chips + progress bar match `DESIGN.md`.
+- [x] RSVP status chips + progress bar match `design.md`.
 - [x] Approval queue demonstrates soft-check over-capacity warning.
 - [x] Design upload shows `pending/passed/failed` validation states.
 - [x] Waitlist FIFO promotion and audit/email logs present.

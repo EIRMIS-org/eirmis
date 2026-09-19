@@ -4,7 +4,7 @@
 
 ## 1. What this mockup covers
 
-A single interactive `index.html` that simulates the **Public / Auth** surface from the main [`README.md`](../../README.md) §8. All routes are implemented as a lightweight hash/view router with no build step.
+A single interactive `landing.html` that simulates the **Public / Auth** surface from the main [`README.md`](../../README.md) §8. All routes are implemented as a lightweight hash/view router with no build step.
 
 | Route (from README §8) | What the mockup simulates |
 |---|---|
@@ -15,7 +15,7 @@ A single interactive `index.html` that simulates the **Public / Auth** surface f
 | `/staff/login` | Check-in Staff email → "magic link sent" state |
 | `/register/:slug` | Public open-registration form (unauthenticated) |
 
-## 2. Design system applied (from [`DESIGN.md`](../DESIGN.md))
+## 2. Design system applied (from [`design.md`](../design.md))
 
 - **Brand:** Modern SaaS Minimalism — professional, efficient, enterprise-ready.
 - **Primary:** Indigo `#4F46E5` (main CTA, active states, brand).
@@ -29,7 +29,7 @@ A single interactive `index.html` that simulates the **Public / Auth** surface f
 
 ## 3. Screen structure (single-page, view-driven)
 
-The `index.html` is a single page with a vanilla-JS view router (show/hide sections):
+The `landing.html` is a single page with a vanilla-JS view router (show/hide sections):
 
 1. **Hero / landing view** — headline, subhead, and four role entry cards:
    - Organizer → opens the `/login` view
@@ -63,19 +63,19 @@ This portal loads the shared runtime [`eirmis.js`](../assets/eirmis.js) and desi
 
 ## 6. How to run the mockup flow
 
-1. Open `MockupPlan/LandingPage/index.html` in a browser (double-click, or serve statically with `npx serve` / `npm run dev`).
+1. Open `MockupPlan/landing/landing.html` in a browser (double-click, or serve statically with `npx serve` / `npm run dev`).
 2. The landing page is the **entry point** — every other portal is reached from here.
-3. From the landing page, clicking a role card simulates the auth step, then hands off to that portal's own `index.html`.
+3. From the landing page, clicking a role card simulates the auth step, then hands off to that portal's own HTML file.
 
 ## 7. Files in this folder
 
-- `index.html` — the interactive landing/auth mockup.
-- `README.md` — this documentation.
+- `landing.html` — the interactive landing/auth mockup.
+- `landing-README.md` — this documentation.
 
 ## 8. Acceptance checklist
 
 - [x] All six views reachable from the landing page.
-- [x] Design tokens (colors, radii, typography) match `DESIGN.md`.
+- [x] Design tokens (colors, radii, typography) match `design.md`.
 - [x] Responsive: single-column on mobile, 12-column on desktop.
 - [x] No external dependencies; opens directly in a browser.
 - [x] Shared runtime provides global nav, session switching, toasts, and boot overlay.

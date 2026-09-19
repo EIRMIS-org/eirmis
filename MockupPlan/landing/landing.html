@@ -919,7 +919,7 @@
             limits with audit trails, and broadcast reminder emails.
           </p>
           <div class="card-actions">
-            <a href="../Organizer Portal/index.html" class="btn btn-primary">Launch Organizer Portal →</a>
+            <a href="../organizer-portal/organizer-portal.html" class="btn btn-primary">Launch Organizer Portal →</a>
             <button onclick="showView('login')" class="btn btn-ghost btn-sm">Simulate SSO Login</button>
           </div>
         </div>
@@ -951,7 +951,7 @@
             headcount requests, and digital wallet VIP boarding passes.
           </p>
           <div class="card-actions">
-            <a href="../Guest Portal/index.html" class="btn btn-teal">Launch Guest Portal →</a>
+            <a href="../guest-portal/guest-portal.html" class="btn btn-teal">Launch Guest Portal →</a>
             <button onclick="showView('guest-login')" class="btn btn-ghost btn-sm">Simulate Magic Link</button>
           </div>
         </div>
@@ -983,7 +983,8 @@
             door walk-in registrations. No attendee PII access.
           </p>
           <div class="card-actions">
-            <a href="../Check-in Staff Portal/index.html" class="btn btn-secondary">Launch Staff Scanner →</a>
+            <a href="../checkin-staff-portal/checkin-staff-portal.html" class="btn btn-secondary">Launch Staff Scanner
+              →</a>
             <button onclick="showView('staff-login')" class="btn btn-ghost btn-sm">Simulate Staff Auth</button>
           </div>
         </div>
@@ -1014,7 +1015,7 @@
             email domains. Strictly zero-knowledge over event guest lists.
           </p>
           <div class="card-actions">
-            <a href="../Admin Portal/index.html" class="btn btn-dark">Launch Admin Portal →</a>
+            <a href="../admin-portal/admin-portal.html" class="btn btn-dark">Launch Admin Portal →</a>
             <button onclick="showView('pending')" class="btn btn-ghost btn-sm">Simulate Pending Screen</button>
           </div>
         </div>
@@ -1114,7 +1115,7 @@
         </div>
 
         <div style="display:flex; gap:10px; justify-content:center;">
-          <a href="../Admin Portal/index.html" class="btn btn-secondary btn-sm">
+          <a href="../admin-portal/admin-portal.html" class="btn btn-secondary btn-sm">
             <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
@@ -1161,7 +1162,8 @@
           <strong>Magic Link Dispatched:</strong> A secure tokenized sign-in link has been sent to <span
             id="sent-guest-email" style="font-family:monospace; font-weight:700;"></span>.
           <div style="margin-top:14px;">
-            <a href="../Guest Portal/index.html" class="btn btn-teal btn-sm" style="width:100%; text-align:center;">
+            <a href="../guest-portal/guest-portal.html" class="btn btn-teal btn-sm"
+              style="width:100%; text-align:center;">
               Simulate Email Link Click (Launch Guest Portal) →
             </a>
           </div>
@@ -1211,7 +1213,7 @@
           <strong>Staff Access Link Dispatched:</strong> Scoped check-in token generated for <span id="sent-staff-email"
             style="font-family:monospace; font-weight:700;"></span>.
           <div style="margin-top:14px;">
-            <a href="../Check-in Staff Portal/index.html" class="btn btn-primary btn-sm"
+            <a href="../checkin-staff-portal/checkin-staff-portal.html" class="btn btn-primary btn-sm"
               style="width:100%; text-align:center;">
               Simulate Token Entry (Open Staff Scanner) →
             </a>
@@ -1322,11 +1324,15 @@
             Registration Confirmed (Invitation Accepted)
           </h4>
           <p style="margin-bottom:12px; line-height:1.5;">
-            Your RSVP has been auto-recorded with status <strong>accepted</strong> (Attendee #1 primary guest confirmed). A transactional email with your secure passwordless magic link has been sent to <strong id="registered-email"></strong>.
+            Your RSVP has been auto-recorded with status <strong>accepted</strong> (Attendee #1 primary guest
+            confirmed). A transactional email with your secure passwordless magic link has been sent to <strong
+              id="registered-email"></strong>.
           </p>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <a href="../Guest Portal/index.html" class="btn btn-teal btn-sm">Proceed to Guest Portal to Submit Named Party Roster →</a>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="showToast('Resent confirmation email with magic link')">Resend Magic Link</button>
+            <a href="../guest-portal/guest-portal.html" class="btn btn-teal btn-sm">Proceed to Guest Portal to Submit
+              Named Party Roster →</a>
+            <button type="button" class="btn btn-secondary btn-sm"
+              onclick="showToast('Resent confirmation email with magic link')">Resend Magic Link</button>
           </div>
         </div>
 
@@ -1486,7 +1492,7 @@
       if (role === 'active-organizer') {
         EIRMIS.signIn('Organizer', 'Sarah Jenkins', 'sarah.jenkins@example.com');
         EIRMIS.toast('Authenticated as Sarah Jenkins (Active Organizer)');
-        setTimeout(() => window.location.href = '../Organizer Portal/index.html', 800);
+        setTimeout(() => window.location.href = '../organizer-portal/organizer-portal.html', 800);
       } else if (role === 'pending-organizer') {
         EIRMIS.signIn('Organizer (pending)', 'Sarah Jenkins', 'sarah.jenkins@example.com');
         EIRMIS.toast('Organizer account pending admin activation', 'info');
@@ -1494,7 +1500,7 @@
       } else if (role === 'admin') {
         EIRMIS.signIn('Administrator', 'Root Security Officer', 'sysadmin@eirmis.internal');
         EIRMIS.toast('Authenticated as System Administrator');
-        setTimeout(() => window.location.href = '../Admin Portal/index.html', 800);
+        setTimeout(() => window.location.href = '../admin-portal/admin-portal.html', 800);
       }
     }
 

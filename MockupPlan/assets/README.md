@@ -63,7 +63,7 @@ The seed state shape:
 
 ## 5. Design tokens (from [`eirmis.css`](eirmis.css))
 
-The CSS defines the authoritative design tokens as custom properties, matching [`DESIGN.md`](../DESIGN.md):
+The CSS defines the authoritative design tokens as custom properties, matching [`design.md`](../design.md):
 
 | Token group | Examples |
 |---|---|
@@ -107,6 +107,6 @@ To hook a new portal into the shared runtime:
 
 - [x] All portals load the shared runtime and design system.
 - [x] Cross-portal state sync works via the shared `localStorage` store.
-- [x] Design tokens match `DESIGN.md`.
+- [x] Design tokens match `design.md`.
 - [x] Global nav, session switching, toasts, and boot overlay are available to every portal.
 - [x] No external dependencies; opens directly in a browser.

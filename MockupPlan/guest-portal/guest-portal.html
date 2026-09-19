@@ -428,8 +428,15 @@
     }
 
     @keyframes fadeSlideIn {
-      from { opacity: 0; transform: translateY(-6px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* Form Styles */
@@ -592,7 +599,7 @@
       <div class="session-badge">
         <span style="width:7px; height:7px; background:#10B981; border-radius:50%; display:inline-block;"></span>
         <span>elena.rostova@example.com</span>
-        <a href="../LandingPage/index.html" style="color:var(--text-muted); text-decoration:none; margin-left:6px;"
+        <a href="../landing/landing.html" style="color:var(--text-muted); text-decoration:none; margin-left:6px;"
           title="Exit" aria-label="Exit to Landing Hub">Exit</a>
       </div>
     </div>
@@ -796,7 +803,8 @@
 
         <!-- Quota Progress Bar -->
         <div style="margin-bottom:16px;">
-          <div style="display:flex; justify-content:space-between; font-size:11.5px; color:var(--text-muted); font-weight:600;">
+          <div
+            style="display:flex; justify-content:space-between; font-size:11.5px; color:var(--text-muted); font-weight:600;">
             <span>Quota Used</span>
             <span id="quota-label">2 / 3 heads</span>
           </div>
@@ -851,23 +859,35 @@
                 viktor@example.com
               </div>
               <div style="font-size:11.5px; color:var(--error); margin-top:4px; line-height:1.4;">
-                <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle; margin-right:3px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                <strong>Rejection reason:</strong> Attendee name already exists on the roster for another invitation slot. Please verify spelling or use a unique name.
+                <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2.5" style="vertical-align:middle; margin-right:3px;">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <strong>Rejection reason:</strong> Attendee name already exists on the roster for another invitation
+                slot. Please verify spelling or use a unique name.
               </div>
               <!-- Inline Edit & Resubmit Form -->
               <div class="resubmit-form" id="resubmit-form-viktor">
-                <p style="font-size:12px; font-weight:700; margin-bottom:10px; color:var(--text-main);">Edit &amp; Resubmit Attendee</p>
+                <p style="font-size:12px; font-weight:700; margin-bottom:10px; color:var(--text-main);">Edit &amp;
+                  Resubmit Attendee</p>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
-                  <input type="text" id="resubmit-name" class="form-control" value="Viktor Ostrovsky" placeholder="Full Name *">
-                  <input type="email" id="resubmit-email" class="form-control" value="viktor@example.com" placeholder="Email (Optional)">
+                  <input type="text" id="resubmit-name" class="form-control" value="Viktor Ostrovsky"
+                    placeholder="Full Name *">
+                  <input type="email" id="resubmit-email" class="form-control" value="viktor@example.com"
+                    placeholder="Email (Optional)">
                 </div>
                 <div style="display:flex; gap:8px;">
-                  <button class="btn btn-primary btn-sm" onclick="handleResubmit('rejected-row-viktor', 'resubmit-form-viktor')">Resubmit for Review</button>
-                  <button class="btn btn-ghost btn-sm" onclick="document.getElementById('resubmit-form-viktor').classList.remove('open')">Cancel</button>
+                  <button class="btn btn-primary btn-sm"
+                    onclick="handleResubmit('rejected-row-viktor', 'resubmit-form-viktor')">Resubmit for Review</button>
+                  <button class="btn btn-ghost btn-sm"
+                    onclick="document.getElementById('resubmit-form-viktor').classList.remove('open')">Cancel</button>
                 </div>
               </div>
             </div>
-            <button class="btn btn-secondary btn-sm" style="flex-shrink:0; margin-left:12px;" onclick="document.getElementById('resubmit-form-viktor').classList.toggle('open')">
+            <button class="btn btn-secondary btn-sm" style="flex-shrink:0; margin-left:12px;"
+              onclick="document.getElementById('resubmit-form-viktor').classList.toggle('open')">
               Edit &amp; Resubmit
             </button>
           </div>

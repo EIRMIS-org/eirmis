@@ -4,14 +4,14 @@
 
 ## 1. What this mockup covers
 
-A single interactive `index.html` simulating the Admin routes from the main [`README.md`](../../README.md) §8:
+A single interactive `admin-portal.html` simulating the Admin routes from the main [`README.md`](../../README.md) §8:
 
 | Route (README §8) | Feature |
 |---|---|
 | `/admin/organizers` | Organizer verification queue |
 | `/admin/settings` | Org-wide settings |
 
-## 2. Design system applied (from [`DESIGN.md`](../DESIGN.md))
+## 2. Design system applied (from [`design.md`](../design.md))
 
 - **Layout:** desktop-first; top header with brand + user profile badge.
 - **Primary Indigo `#4F46E5`** for the "Activate" action.
@@ -49,19 +49,19 @@ The admin has **no access** to any event's guest list, RSVP content, or attendee
 
 ## 7. How to run the mockup flow
 
-1. Start from `MockupPlan/LandingPage/index.html`.
-2. Click the **Admin** role card → simulated Google Sign-In → lands on this portal's `index.html`.
-3. Alternatively open `MockupPlan/Admin Portal/index.html` directly.
+1. Start from `MockupPlan/landing/landing.html`.
+2. Click the **Admin** role card → simulated Google Sign-In → lands on this portal's `admin-portal.html`.
+3. Alternatively open `MockupPlan/admin-portal/admin-portal.html` directly.
 
 ## 8. Files in this folder
 
-- `index.html` — the interactive admin mockup.
-- `README.md` — this documentation.
+- `admin-portal.html` — the interactive admin mockup.
+- `admin-portal-README.md` — this documentation.
 
 ## 9. Acceptance checklist
 
 - [x] Verification queue with `pending → active` transition.
-- [x] Status chips use semantic colors from `DESIGN.md`.
+- [x] Status chips use semantic colors from `design.md`.
 - [x] No guest-list/RSVP/attendee screens present (respects the access boundary).
 - [x] Desktop-first layout.
 - [x] Shared runtime provides global nav, session switching, toasts, and cross-portal sync.

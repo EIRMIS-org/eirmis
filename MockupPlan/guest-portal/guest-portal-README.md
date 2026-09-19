@@ -4,7 +4,7 @@
 
 ## 1. What this mockup covers
 
-A single interactive `index.html` simulating the Guest routes from the main [`README.md`](../../README.md) §8:
+A single interactive `guest-portal.html` simulating the Guest routes from the main [`README.md`](../../README.md) §8:
 
 | Route (README §8) | Feature |
 |---|---|
@@ -14,7 +14,7 @@ A single interactive `index.html` simulating the Guest routes from the main [`RE
 | `/guest/events/:eventId/request-heads` | Headcount increase request |
 | `/guest/events/:eventId/qr` | Download party QR PDF |
 
-## 2. Design system applied (from [`DESIGN.md`](../DESIGN.md))
+## 2. Design system applied (from [`design.md`](../design.md))
 
 - **Layout:** **mobile-first** (guests RSVP on the go), single-column stacked.
 - **Primary Indigo `#4F46E5`** for RSVP actions; **Secondary Teal `#0D9488`** for invitation/RSVP accents.
@@ -53,19 +53,19 @@ This portal loads the shared runtime [`eirmis.js`](../assets/eirmis.js) and desi
 
 ## 6. How to run the mockup flow
 
-1. Start from `MockupPlan/LandingPage/index.html`.
-2. Click the **Guest** role card → `/guest/login` → "magic link sent" → lands on this portal's `index.html`.
-3. Alternatively open `MockupPlan/Guest Portal/index.html` directly.
+1. Start from `MockupPlan/landing/landing.html`.
+2. Click the **Guest** role card → `/guest/login` → "magic link sent" → lands on this portal's `guest-portal.html`.
+3. Alternatively open `MockupPlan/guest-portal/guest-portal.html` directly.
 
 ## 7. Files in this folder
 
-- `index.html` — the interactive guest mockup.
-- `README.md` — this documentation.
+- `guest-portal.html` — the interactive guest mockup.
+- `guest-portal-README.md` — this documentation.
 
 ## 8. Acceptance checklist
 
 - [x] All five views reachable.
-- [x] RSVP status chips match `DESIGN.md` semantic colors.
+- [x] RSVP status chips match `design.md` semantic colors.
 - [x] Roster enforces `max_party_size` ceiling.
 - [x] Rejected-attendee resubmit flow present.
 - [x] Mobile-first, single-column layout.

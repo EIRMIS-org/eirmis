@@ -4,13 +4,13 @@
 
 ## 1. What this mockup covers
 
-A single interactive `index.html` simulating the Check-in Staff route from the main [`README.md`](../../README.md) §8:
+A single interactive `checkin-staff-portal.html` simulating the Check-in Staff route from the main [`README.md`](../../README.md) §8:
 
 | Route (README §8) | Feature |
 |---|---|
 | `/staff/events/:eventId/checkin` | Scoped scanning screen for the one assigned event |
 
-## 2. Design system applied (from [`DESIGN.md`](../DESIGN.md))
+## 2. Design system applied (from [`design.md`](../design.md))
 
 - **Layout:** **mobile-first** (staff scan at the event entrance on a phone).
 - **Primary Indigo `#4F46E5`** for the scan action; **Secondary Teal `#0D9488`** for success accents.
@@ -51,14 +51,14 @@ Check-in Staff have **scanning/search only** for their single assigned event. Th
 
 ## 7. How to run the mockup flow
 
-1. Start from `MockupPlan/LandingPage/index.html`.
-2. Click the **Check-in Staff** role card → `/staff/login` → "magic link sent" → lands on this portal's `index.html`.
-3. Alternatively open `MockupPlan/Check-in Staff Portal/index.html` directly.
+1. Start from `MockupPlan/landing/landing.html`.
+2. Click the **Check-in Staff** role card → `/staff/login` → "magic link sent" → lands on this portal's `checkin-staff-portal.html`.
+3. Alternatively open `MockupPlan/checkin-staff-portal/checkin-staff-portal.html` directly.
 
 ## 8. Files in this folder
 
-- `index.html` — the interactive check-in staff mockup.
-- `README.md` — this documentation.
+- `checkin-staff-portal.html` — the interactive check-in staff mockup.
+- `checkin-staff-portal-README.md` — this documentation.
 
 ## 9. Acceptance checklist
 
