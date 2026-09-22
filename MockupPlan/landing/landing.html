@@ -937,81 +937,88 @@
 
     <!-- 1. LANDING VIEW -->
     <section id="view-landing" class="view-section active">
-      <div class="hero">
-        <div class="hero-badge">
-          <span class="hero-badge-dot"></span>
-          EIRMIS End-to-End Architecture
-        </div>
-        <h1>
-          Event Invitation & <br>
-          <span class="hero-gradient-text">RSVP Management System</span>
-        </h1>
-        <p>
-          A unified, auditable platform orchestrating the entire lifecycle: invitation delivery, tiered RSVP approvals,
-          passwordless guest rosters, digital wallet VIP passes, and real-time camera entrance scanning.
-        </p>
-        <div class="hero-actions">
-          <button class="btn btn-primary" onclick="showView('login')">
-            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2.5">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-              <polyline points="10 17 15 12 10 7"></polyline>
-              <line x1="15" y1="12" x2="3" y2="12"></line>
-            </svg>
-            Sign In with SSO
-          </button>
-          <button class="btn btn-secondary" onclick="showView('guest-login')">
-            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-              <polyline points="22 6 12 13 2 6"></polyline>
-            </svg>
-            Guest Passwordless RSVP
-          </button>
-          <button class="btn btn-teal" onclick="showView('register')">
-            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
-            Test Open Registration
-          </button>
-        </div>
-      </div>
 
-      <!-- Open Registration Feature Banner -->
-      <div class="public-reg-banner">
-        <div class="public-reg-content">
-          <div class="public-reg-tag">
-            <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2.5">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            Self-Service Public Ingress
+      <!-- HERO -->
+      <div class="lp-hero">
+        <div class="lp-hero-top">
+          <div class="lp-hero-left">
+            <h1>Manage Every<br>Event Invitation<br>&amp; RSVP</h1>
           </div>
-          <h2>Tech Forward Annual Gala 2026</h2>
-          <p>
-            Experience the public attendee self-registration workflow (/register/tech-forward-2026). Anyone can register
-            without pre-existing accounts, generating an accepted invitation and receiving a magic link to manage their
-            party roster.
-          </p>
+          <div class="lp-hero-right">
+            <p>
+              A unified, auditable platform orchestrating the full event lifecycle — invitation delivery,
+              tiered RSVP approvals, passwordless guest rosters, digital VIP passes, and real-time entrance scanning.
+            </p>
+            <div class="lp-hero-actions">
+              <button class="btn btn-primary" onclick="showView('login')">
+                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                  <polyline points="10 17 15 12 10 7"></polyline>
+                  <line x1="15" y1="12" x2="3" y2="12"></line>
+                </svg>
+                Sign In with SSO
+              </button>
+              <button class="btn btn-secondary" onclick="showView('register')">
+                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Open Registration
+              </button>
+            </div>
+          </div>
         </div>
-        <button class="btn"
-          style="background:#FFFFFF; color:var(--dark); font-weight:700; white-space:nowrap; padding:12px 20px;"
-          onclick="showView('register')">
-          Open Registration Form
-          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2.5">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
+
+        <!-- Hero visual strip -->
+        <div class="lp-hero-visual" role="presentation">
+          <div class="hero-orb hero-orb-1"></div>
+          <div class="hero-orb hero-orb-2"></div>
+          <div class="lp-hero-visual-content">
+            <div class="hero-stat-chip">
+              <span class="stat-num">4</span>
+              <span class="stat-label">Role Portals</span>
+            </div>
+            <div class="hero-stat-chip">
+              <span class="stat-num">100%</span>
+              <span class="stat-label">Passwordless</span>
+            </div>
+            <div class="hero-main-badge">
+              <div class="hero-main-badge-icon">
+                <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+              </div>
+              <div class="hero-main-badge-text">
+                <strong>EIRMIS Platform</strong>
+                <span>End-to-end orchestration from invitation to entrance scan</span>
+              </div>
+            </div>
+            <div class="hero-stat-chip">
+              <span class="stat-num">7+</span>
+              <span class="stat-label">Edge Functions</span>
+            </div>
+            <div class="hero-stat-chip">
+              <span class="stat-num">RLS</span>
+              <span class="stat-label">Row-Level Security</span>
+            </div>
+          </div>
+          <!-- Decorative SVG -->
+          <svg style="position:absolute;bottom:0;right:0;opacity:0.07;" width="340" height="180" viewBox="0 0 340 180" fill="none" aria-hidden="true">
+            <circle cx="260" cy="55" r="38" stroke="white" stroke-width="1.5"/>
+            <circle cx="170" cy="120" r="30" stroke="white" stroke-width="1.5"/>
+            <circle cx="300" cy="150" r="22" stroke="white" stroke-width="1.5"/>
+            <line x1="260" y1="55" x2="170" y2="120" stroke="white" stroke-width="1"/>
+            <line x1="260" y1="55" x2="300" y2="150" stroke="white" stroke-width="1"/>
+            <line x1="170" y1="120" x2="300" y2="150" stroke="white" stroke-width="1"/>
+            <circle cx="260" cy="55" r="5" fill="white"/>
+            <circle cx="170" cy="120" r="5" fill="white"/>
+            <circle cx="300" cy="150" r="5" fill="white"/>
           </svg>
-        </button>
+        </div>
       </div>
 
-      <!-- 4 Role Portals Grid -->
-      <h2 class="section-title">System Role Portals</h2>
-      <p class="section-subtitle">Dedicated operational spaces governed by strict boundary permissions:</p>
 
       <div class="portals-grid">
         <!-- 1. Organizer Portal -->
