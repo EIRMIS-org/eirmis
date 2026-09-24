@@ -485,6 +485,41 @@
         grid-template-columns: repeat(4, 1fr);
       }
     }
+
+    /* Mobile fixes: touch targets, scan UI */
+    @media (max-width: 768px) {
+      /* Touch targets */
+      .btn, button, input[type="submit"] {
+        min-height: 44px;
+      }
+
+      /* Scan button larger on mobile for easy tap */
+      .scan-btn {
+        min-height: 56px;
+        font-size: 15px;
+      }
+
+      /* Search input comfortable size */
+      .search-input {
+        min-height: 44px;
+        font-size: 15px;
+      }
+
+      /* Toast full-width */
+      .toast {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        max-width: none;
+      }
+
+      /* Walk-in form: full-width inputs */
+      .walkin-form input,
+      .walkin-form select {
+        width: 100%;
+        min-height: 44px;
+      }
+    }
   </style>
 </head>
 

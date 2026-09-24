@@ -573,6 +573,74 @@
         gap: 16px;
       }
     }
+
+    /* Mobile fixes: touch targets, accessibility */
+    @media (max-width: 768px) {
+      /* Ensure minimum touch targets */
+      .rsvp-option-btn {
+        min-height: 56px;
+      }
+      .btn, button {
+        min-height: 44px;
+      }
+
+      /* Toast full-width */
+      .toast {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        max-width: none;
+      }
+
+      /* Roster table cards on mobile */
+      .table-container {
+        border: none;
+        overflow: visible;
+      }
+      .table-container thead {
+        display: none;
+      }
+      .table-container tbody tr {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 14px 16px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        margin-bottom: 10px;
+        background: #FFFFFF;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+      }
+      .table-container tbody td {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        text-align: right;
+        gap: 4px;
+        padding: 2px 0;
+        border: none;
+      }
+      .table-container tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-muted);
+        flex-shrink: 0;
+        margin-right: auto;
+      }
+      .table-container tbody tr:hover td {
+        background: transparent;
+      }
+
+      /* Lightbox close button larger tap target */
+      .lightbox-close {
+        width: 44px;
+        height: 44px;
+        font-size: 24px;
+      }
+    }
   </style>
 </head>
 
@@ -1236,6 +1304,20 @@
     if (!EIRMIS.session()) {
       EIRMIS.signIn('Guest', 'Elena Rostova', 'elena.rostova@example.com');
     }
+
+    /* Mobile: Auto-label table cells for responsive card layout */
+    document.querySelectorAll('.table-container table').forEach(table => {
+      const headers = [];
+      table.querySelectorAll('thead th').forEach(th => {
+        headers.push(th.textContent.trim());
+      });
+      if (headers.length === 0) return;
+      table.querySelectorAll('tbody tr').forEach(row => {
+        row.querySelectorAll('td').forEach((td, i) => {
+          if (headers[i]) td.setAttribute('data-label', headers[i]);
+        });
+      });
+    });
   </script>
 </body>
 
