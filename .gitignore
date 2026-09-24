@@ -16,6 +16,7 @@ dist-ssr
 # .env.local.example is intentionally tracked (contains no real credentials)
 !.env.local.example
 
+contract/generated/docs
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

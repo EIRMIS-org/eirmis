@@ -16,6 +16,7 @@
     "contract:gen": "openapi-typescript contract/openapi.yaml -o contract/generated/schema.d.ts",
     "contract:check": "node scripts/contract-check.js",
     "contract:docs": "redocly build-docs contract/openapi.yaml --config contract/redocly.yaml -o contract/generated/docs/index.html",
+    "contract:mock": "npx @stoplight/prism-cli mock contract/openapi.yaml",
     "db:types": "supabase gen types typescript --local > src/lib/supabase/database.types.ts",
     "functions:serve": "supabase functions serve"
   },
