@@ -1,4 +1,4 @@
-# Organizer Portal — Mockup
+    # Organizer Portal — Mockup
 
 > **Purpose:** The Event Organizer's workspace — create/manage events, build guest lists, review approvals, configure reminders, upload invitation designs, run check-in, and manage Check-in Staff. This is the deepest and most feature-complete portal in the mockup set.
 
@@ -6,18 +6,18 @@
 
 A single interactive `organizer-portal.html` simulating every Organizer route from the main [`README.md`](../../README.md) §8, plus additional operational views (waitlist, email log, audit log).
 
-| Route (README §8) | Feature |
-|---|---|
-| `/organizer/events` | List + create events |
-| `/organizer/events/:id` | Event overview/edit (capacity, RSVP deadline, visibility mode, status) |
-| `/organizer/events/:id/guests` | Build/import guest list |
-| `/organizer/events/:id/reminders` | Configure scheduled reminders |
-| `/organizer/events/:id/approvals` | Attendee approval queue + headcount-request queue |
-| `/organizer/events/:id/design` | Invitation design upload (gallery / HTML) |
-| `/organizer/events/:id/attendance` | Live attendance-tracking dashboard |
-| `/organizer/events/:id/checkin` | Active scanning screen |
-| `/organizer/events/:id/staff` | Manage Check-in Staff assignments |
-| `/organizer/profile` | Edit own profile |
+| Route (README §8)                  | Feature                                                                |
+| ---------------------------------- | ---------------------------------------------------------------------- |
+| `/organizer/events`                | List + create events                                                   |
+| `/organizer/events/:id`            | Event overview/edit (capacity, RSVP deadline, visibility mode, status) |
+| `/organizer/events/:id/guests`     | Build/import guest list                                                |
+| `/organizer/events/:id/reminders`  | Configure scheduled reminders                                          |
+| `/organizer/events/:id/approvals`  | Attendee approval queue + headcount-request queue                      |
+| `/organizer/events/:id/design`     | Invitation design upload (gallery / HTML)                              |
+| `/organizer/events/:id/attendance` | Live attendance-tracking dashboard                                     |
+| `/organizer/events/:id/checkin`    | Active scanning screen                                                 |
+| `/organizer/events/:id/staff`      | Manage Check-in Staff assignments                                      |
+| `/organizer/profile`               | Edit own profile                                                       |
 
 ## 2. Design system applied (from [`design.md`](../design.md))
 
@@ -34,23 +34,12 @@ A single interactive `organizer-portal.html` simulating every Organizer route fr
 The `organizer-portal.html` uses a **dual sidebar** layout: a primary sidebar for global navigation (Events, Notifications, Profile) and a secondary sub-sidebar for event-scoped views. A vanilla-JS view switcher drives all panes.
 
 **Global views:**
+
 1. **Events list** — event cards (title, date, status chip, RSVP progress bar) + "Create event" button.
 2. **Notifications** — a notification feed with unread/read states.
 3. **Profile** — edit own organizer profile.
 
-**Event-scoped views (sub-sidebar):**
-4. **Event overview** — breadcrumbs, event header, action dropdown (edit/publish/archive), metric cards (RSVP, capacity, checked-in), RSVP breakdown, and a live activity feed.
-5. **Create event wizard** — a 4-step stepper (details → logistics → settings → review) with validation.
-6. **Guests** — guest list table with CSV-import simulation and manual add (modal).
-7. **Approvals** — two queues: pending Attendees (approve/reject per row) and pending Headcount Increase Requests. Approve-over-capacity shows a **soft-check warning** (amber/red) with an audited override modal.
-8. **Reminders** — `ReminderSchedule` rows (T-7, T-1, time-of-day, enabled toggle).
-9. **Design** — gallery manager vs. HTML uploader, with `validation_status` states (`pending` / `passed` / `failed` + `validation_notes`).
-10. **Attendance** — live expected-vs-checked-in counts + searchable attendee feed.
-11. **Staff** — `CheckInAssignment` list (invite by email via modal, revoke).
-12. **Check-in** — active scanning screen (simulated QR scan + manual search) with a link to the Staff Portal.
-13. **Waitlist** — FIFO waitlist with position, auto-promotion simulation, and manual promote.
-14. **Email log** — sent-email audit trail.
-15. **Audit log** — audited actions trail (approvals, overrides, staff changes).
+**Event-scoped views (sub-sidebar):** 4. **Event overview** — breadcrumbs, event header, action dropdown (edit/publish/archive), metric cards (RSVP, capacity, checked-in), RSVP breakdown, and a live activity feed. 5. **Create event wizard** — a 4-step stepper (details → logistics → settings → review) with validation. 6. **Guests** — guest list table with CSV-import simulation and manual add (modal). 7. **Approvals** — two queues: pending Attendees (approve/reject per row) and pending Headcount Increase Requests. Approve-over-capacity shows a **soft-check warning** (amber/red) with an audited override modal. 8. **Reminders** — `ReminderSchedule` rows (T-7, T-1, time-of-day, enabled toggle). 9. **Design** — gallery manager vs. HTML uploader, with `validation_status` states (`pending` / `passed` / `failed` + `validation_notes`). 10. **Attendance** — live expected-vs-checked-in counts + searchable attendee feed. 11. **Staff** — `CheckInAssignment` list (invite by email via modal, revoke). 12. **Check-in** — active scanning screen (simulated QR scan + manual search) with a link to the Staff Portal. 13. **Waitlist** — FIFO waitlist with position, auto-promotion simulation, and manual promote. 14. **Email log** — sent-email audit trail. 15. **Audit log** — audited actions trail (approvals, overrides, staff changes).
 
 ### Mockup extensions (beyond README §8 sitemap)
 
