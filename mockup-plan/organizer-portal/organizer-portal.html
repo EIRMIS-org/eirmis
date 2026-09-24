@@ -3841,6 +3841,29 @@
         toast.style.background = '#0F172A'; 
       }, 3500);
     }
+
+    function filterMockGuests() {
+      const searchQuery = document.getElementById('mock-guest-search').value.toLowerCase();
+      const filterStatus = document.getElementById('mock-guest-filter').value.toLowerCase();
+
+      const rows = document.querySelectorAll('#guest-list-body tr');
+
+      rows.forEach(row => {
+        const cols = row.querySelectorAll('td');
+        if (cols.length >= 3) {
+          const name = cols[0].innerText.toLowerCase();
+          const email = cols[1].innerText.toLowerCase();
+          const status = cols[2].innerText.toLowerCase();
+
+          const matchesSearch = name.includes(searchQuery) || email.includes(searchQuery);
+          const matchesFilter = filterStatus === 'all' || status.includes(filterStatus);
+
+          row.style.display = matchesSearch && matchesFilter ? '' : 'none';
+        }
+      });
+
+      toggleEmptyState('#guest-list-body', searchQuery + filterStatus, 'No guests match your search criteria.');
+    }
   </script>
   <script src="../assets/eirmis.js"></script>
   <script>
