@@ -9,7 +9,7 @@ A standalone `log-in.html` that presents the EIRMIS organization sign-in experie
 - Google SSO as the primary action.
 - Google account-selection modal with a demo account.
 - Use another account flow with email validation.
-- Organizer and Administrator sign-in cards.
+- Organizer and Administrator sign-in cards with role-specific login modals.
 - Guest, Staff, and Event Registration alternatives.
 - Required agreement checkbox that opens one combined Terms and Privacy Policy modal.
 - Responsive 40/60 editorial split layout.
@@ -29,8 +29,8 @@ A standalone `log-in.html` that presents the EIRMIS organization sign-in experie
 |---|---|
 | Continue with Google | Opens the Google account modal and continues to the Organizer Portal. |
 | Use another account | Replaces the demo account with an email field before continuing. |
-| Sign in as Organizer | Opens the Organizer Portal. |
-| Sign in as Administrator | Opens the Admin Portal. |
+| Sign in as Organizer | Opens an Organizer login form, then redirects to the Organizer Portal. |
+| Sign in as Administrator | Opens an Administrator login form, then redirects to the Admin Portal. |
 | Continue as Guest | Opens `../landing/landing.html#guest-login`. |
 | Continue as Staff | Opens `../landing/landing.html#staff-login`. |
 | Register for an Event | Opens `../landing/landing.html#register`. |

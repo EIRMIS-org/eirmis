@@ -97,7 +97,7 @@
     .auth-side-badge,
     .auth-side-panel h1,
     .auth-subtext,
-    .auth-spans,
+    .side-workflow,
     .auth-side-metrics {
       position: relative;
       z-index: 1;
@@ -145,22 +145,63 @@
       line-height: 1.75;
     }
 
-    .auth-spans {
+    .side-workflow {
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+      flex-direction: column;
+      gap: 12px;
     }
 
-    .auth-spans span {
-      padding: 7px 10px;
-      border: 1px solid rgba(148, 163, 184, 0.16);
-      border-radius: 999px;
-      color: #E2E8F0;
-      font-size: 11px;
-      font-weight: 700;
+    .workflow-step {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      align-items: center;
+      gap: 11px;
+    }
+
+    .workflow-step + .workflow-step {
+      position: relative;
+    }
+
+    .workflow-step + .workflow-step::before {
+      content: "";
+      position: absolute;
+      left: 13px;
+      top: -12px;
+      width: 1px;
+      height: 12px;
+      background: rgba(148, 163, 184, 0.3);
+    }
+
+    .workflow-index {
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(45, 212, 191, 0.28);
+      border-radius: 9px;
+      color: #99F6E4;
+      font-size: 10px;
+      font-weight: 800;
       letter-spacing: 0.04em;
-      text-transform: uppercase;
-      background: rgba(255, 255, 255, 0.04);
+      background: rgba(45, 212, 191, 0.1);
+    }
+
+    .workflow-step strong,
+    .workflow-step small {
+      display: block;
+    }
+
+    .workflow-step strong {
+      color: #F8FAFC;
+      font-size: 12px;
+    }
+
+    .workflow-step small {
+      margin-top: 2px;
+      color: rgba(255, 255, 255, 0.58);
+      font-size: 10px;
+      line-height: 1.35;
     }
 
     .auth-side-metrics {
@@ -545,6 +586,27 @@
       line-height: 1.6;
     }
 
+    .role-login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .role-login-form label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--text-main);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .role-login-form .form-control { margin: 0; }
+
+    .role-login-form .btn-primary {
+      width: 100%;
+      margin-top: 4px;
+    }
+
     .legal-confirm {
       display: flex;
       align-items: flex-start;
@@ -599,18 +661,30 @@
 <body>
   <main class="auth-shell">
     <aside class="auth-side-panel">
-      <div class="auth-side-badge">Secure SSO access</div>
-      <h1>Bring every important detail into focus.</h1>
-      <p class="auth-subtext">One secure workspace for planning, invitations, approvals, and the moments that happen at the door.</p>
-      <div class="auth-spans">
-        <span>Planning</span>
-        <span>Invitations</span>
-        <span>Headcount</span>
-        <span>Check-in</span>
+      <div class="auth-side-badge">Built for event operations</div>
+      <h1>From invitation to arrival, stay in control.</h1>
+      <p class="auth-subtext">One calm workspace for the details your team cannot afford to lose between planning and the front door.</p>
+      <div class="side-workflow">
+        <div class="workflow-step">
+          <span class="workflow-index">01</span>
+          <div><strong>Shape the event</strong><small>Build the plan and invitation.</small></div>
+        </div>
+        <div class="workflow-step">
+          <span class="workflow-index">02</span>
+          <div><strong>Confirm the room</strong><small>Track RSVPs and approvals.</small></div>
+        </div>
+        <div class="workflow-step">
+          <span class="workflow-index">03</span>
+          <div><strong>Know the roster</strong><small>Keep every guest detail current.</small></div>
+        </div>
+        <div class="workflow-step">
+          <span class="workflow-index">04</span>
+          <div><strong>Welcome them in</strong><small>Move from invite to check-in.</small></div>
+        </div>
       </div>
       <div class="auth-side-metrics">
-        <div class="mini-stat"><strong>4.2s</strong><span>Avg. login</span></div>
-        <div class="mini-stat"><strong>99.9%</strong><span>Uptime</span></div>
+        <div class="mini-stat"><strong>4</strong><span>Connected roles</span></div>
+        <div class="mini-stat"><strong>1</strong><span>Shared event source</span></div>
       </div>
     </aside>
 
@@ -638,7 +712,7 @@
         </button>
 
         <div class="auth-role-group">
-          <button class="sso-btn" type="button" onclick="if (requireConsent()) openPortal('../organizer-portal/organizer-portal.html')">
+          <button class="sso-btn" type="button" onclick="if (requireConsent()) openRoleModal('organizer')">
             <span class="sso-main">
               <span class="provider-mark" style="background:var(--primary-subtle); color:var(--primary);">
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -651,7 +725,7 @@
               <span class="provider-copy"><span>Sign in as Organizer</span><small>Manage events and invitations.</small></span>
             </span>
           </button>
-          <button class="sso-btn" type="button" onclick="if (requireConsent()) openPortal('../admin-portal/admin-portal.html')">
+          <button class="sso-btn" type="button" onclick="if (requireConsent()) openRoleModal('administrator')">
             <span class="sso-main">
               <span class="provider-mark" style="background:rgba(15,23,42,0.07); color:var(--dark);">
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -768,7 +842,33 @@
     </div>
   </div>
 
+  <div id="role-login-modal" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="role-login-title" onclick="handleRoleModalBackdrop(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-kicker">Role account sign-in</div>
+          <h2 id="role-login-title">Organizer sign in</h2>
+        </div>
+        <button class="modal-close" type="button" aria-label="Close role sign-in" onclick="closeRoleModal()">&times;</button>
+      </div>
+      <p id="role-login-copy" class="modal-copy">Use your organization account to access event planning and invitation tools.</p>
+      <form class="role-login-form" onsubmit="submitRoleLogin(event)">
+        <div>
+          <label for="role-login-email">Work email</label>
+          <input id="role-login-email" class="form-control" type="email" required>
+        </div>
+        <div>
+          <label for="role-login-password">Password</label>
+          <input id="role-login-password" class="form-control" type="password" required placeholder="Enter your password">
+        </div>
+        <button class="btn btn-primary" type="submit">Continue to workspace</button>
+      </form>
+    </div>
+  </div>
+
   <script>
+    let selectedRole = 'organizer';
+
     function openGoogleModal() {
       document.getElementById('account-card').hidden = false;
       document.getElementById('alternate-account-btn').hidden = false;
@@ -815,6 +915,36 @@
 
     function handleFeedbackModalBackdrop(event) {
       if (event.target.id === 'feedback-modal') closeFeedbackModal();
+    }
+
+    function openRoleModal(role) {
+      selectedRole = role;
+      const isAdministrator = role === 'administrator';
+      document.getElementById('role-login-title').textContent = isAdministrator ? 'Administrator sign in' : 'Organizer sign in';
+      document.getElementById('role-login-copy').textContent = isAdministrator
+        ? 'Use your administrator account to manage platform trust, access, and organization settings.'
+        : 'Use your organization account to access event planning and invitation tools.';
+      document.getElementById('role-login-email').value = isAdministrator ? 'sysadmin@eirmis.internal' : 'sarah.jenkins@example.com';
+      document.getElementById('role-login-password').value = '';
+      document.getElementById('role-login-modal').hidden = false;
+      document.getElementById('role-login-password').focus();
+    }
+
+    function closeRoleModal() {
+      document.getElementById('role-login-modal').hidden = true;
+    }
+
+    function handleRoleModalBackdrop(event) {
+      if (event.target.id === 'role-login-modal') closeRoleModal();
+    }
+
+    function submitRoleLogin(event) {
+      event.preventDefault();
+      if (!requireConsent()) return;
+      closeRoleModal();
+      openPortal(selectedRole === 'administrator'
+        ? '../admin-portal/admin-portal.html'
+        : '../organizer-portal/organizer-portal.html');
     }
 
     function useAnotherAccount() {
