@@ -2153,6 +2153,23 @@
             </div>
           </div>
 
+          <div style="display:flex; gap:12px; margin-bottom: 16px;">
+            <div class="input-with-icon" style="flex: 1; max-width: 320px;">
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="mock-guest-search" class="form-control" placeholder="Search guests by name or email..." oninput="filterMockGuests()">
+            </div>
+            <select id="mock-guest-filter" class="form-control" style="width: 160px;" onchange="filterMockGuests()">
+              <option value="all">All Statuses</option>
+              <option value="accepted">Accepted</option>
+              <option value="pending">Pending</option>
+              <option value="tentative">Tentative</option>
+              <option value="declined">Declined</option>
+            </select>
+          </div>
+
           <div class="table-container">
             <table>
               <thead>
