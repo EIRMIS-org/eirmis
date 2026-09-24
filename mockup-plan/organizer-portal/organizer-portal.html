@@ -2126,7 +2126,7 @@
                 approved attendees, and trigger bulk QR delivery.</p>
             </div>
             <div style="display:flex; gap:10px;">
-              <button class="btn btn-secondary btn-sm" onclick="showToast('CSV imported: 25 invitations added')">
+              <label class="btn btn-secondary btn-sm" style="cursor:pointer; margin: 0;">
                 <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -2134,7 +2134,9 @@
                   <line x1="12" y1="15" x2="12" y2="3"></line>
                 </svg>
                 Import CSV
-              </button>
+                <input type="file" id="csv-upload-input" accept=".csv" style="display:none;" onchange="handleMockCsvUpload(event)">
+              </label>
+
               <button class="btn btn-primary btn-sm" onclick="addManualGuestPrompt()">
                 <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2">
@@ -3790,6 +3792,32 @@
         row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
       });
       toggleEmptyState('#emaillog-tbody', query, 'No email log entries match your search.');
+    }
+
+    function handleMockCsvUpload(event) {
+      const fileInput = event.target;
+      const file = fileInput.files[0];
+      
+      if (!file) return;
+
+      const toast = document.getElementById('toast');
+
+      // Simulate validation by checking the file name
+      if (file.name.toLowerCase().includes('invalid')) {
+        showToast('Import Failed: Invalid CSV format. Row 4 contains a malformed email address.');
+        toast.style.background = 'var(--error)';
+      } else {
+        showToast(`Success: Guest records from ${file.name} imported successfully.`);
+        toast.style.background = 'var(--success)'; 
+      }
+
+      // Reset the input so the same file can be uploaded again
+      fileInput.value = '';
+      
+      // Reset toast color back to default after 3500ms
+      setTimeout(() => {
+        toast.style.background = '#0F172A'; 
+      }, 3500);
     }
   </script>
   <script src="../assets/eirmis.js"></script>
