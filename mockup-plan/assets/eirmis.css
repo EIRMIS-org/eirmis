@@ -546,8 +546,193 @@
     line-height: 1.5;
 }
 
-/* Responsive Rules */
+/* =============================================================================
+   Responsive Rules & Mobile Utilities (≤768px breakpoint)
+   ============================================================================= */
+
+/* ---------------------------------------------------------------------------
+   Mobile Drawer Pattern
+   A slide-in drawer overlay used by desktop-first portals (Organizer, Admin)
+   to replace sidebars on mobile. Includes a semi-transparent backdrop.
+   --------------------------------------------------------------------------- */
+.eirmis-drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    z-index: 900;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s var(--ease-in-out), visibility 0.3s;
+}
+.eirmis-drawer-backdrop.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.eirmis-mobile-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    max-width: 85vw;
+    background: var(--surface);
+    z-index: 950;
+    transform: translateX(-100%);
+    transition: transform 0.3s var(--ease-spring);
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+}
+.eirmis-mobile-drawer.open {
+    transform: translateX(0);
+}
+
+.eirmis-hamburger {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #0F172A !important;
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    border-radius: var(--radius-sm);
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+.eirmis-hamburger svg {
+    stroke: #0F172A !important;
+}
+.eirmis-hamburger:hover {
+    background: var(--border-subtle);
+}
+
+/* ---------------------------------------------------------------------------
+   Horizontal Scrollable Tab Bar
+   Used for event-scoped sub-navigation on mobile (replaces the sub-sidebar).
+   --------------------------------------------------------------------------- */
+.eirmis-scroll-tabs {
+    display: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    white-space: nowrap;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 12px;
+    gap: 2px;
+    position: sticky;
+    z-index: 15;
+}
+.eirmis-scroll-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.eirmis-scroll-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s var(--ease-spring);
+    font-family: var(--font-body);
+    min-height: 44px;
+}
+.eirmis-scroll-tab:hover {
+    color: var(--text-main);
+    background: var(--border-subtle);
+}
+.eirmis-scroll-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+    font-weight: 700;
+}
+
+.eirmis-scroll-tab .tab-badge {
+    background: var(--warning-bg);
+    color: var(--warning);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: var(--radius-pill);
+    line-height: 1.4;
+}
+
+/* ---------------------------------------------------------------------------
+   Collapsible Details / Summary Sections
+   Native <details>/<summary> styled to match the design system. Used on
+   mobile for event detail sections to reduce vertical scroll.
+   --------------------------------------------------------------------------- */
+.eirmis-collapsible {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    overflow: hidden;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-xs);
+}
+
+.eirmis-collapsible summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    color: var(--text-main);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    transition: background 0.15s;
+}
+.eirmis-collapsible summary::-webkit-details-marker {
+    display: none;
+}
+.eirmis-collapsible summary::before {
+    content: "";
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='9 18 15 12 9 6'%3E%3C/polyline%3E%3C/svg%3E") center/contain no-repeat;
+    transition: transform 0.2s var(--ease-spring);
+}
+.eirmis-collapsible[open] summary::before {
+    transform: rotate(90deg);
+}
+.eirmis-collapsible summary:hover {
+    background: var(--border-subtle);
+}
+
+.eirmis-collapsible-body {
+    padding: 0 16px 16px 16px;
+}
+
+/* ---------------------------------------------------------------------------
+   Responsive Card-Table Pattern
+   Converts table rows into stacked cards on mobile. Apply the class
+   `.eirmis-responsive-table` to a <div> wrapping a <table>.
+   --------------------------------------------------------------------------- */
+/* (Responsive table rules are inside the @media block below) */
+
+/* ---------------------------------------------------------------------------
+   Main Mobile Breakpoint
+   --------------------------------------------------------------------------- */
 @media (max-width: 768px) {
+    /* Global Nav */
     .eirmis-nav-links {
         display: none;
     }
@@ -556,5 +741,80 @@
     }
     .eirmis-global-nav-inner {
         padding: 0 16px;
+    }
+
+    /* Hamburger visible on mobile */
+    .eirmis-hamburger {
+        display: flex;
+    }
+
+    /* Scroll tabs visible on mobile */
+    .eirmis-scroll-tabs {
+        display: flex;
+    }
+
+    /* Typography scale-down for mobile */
+    h1, .eirmis-h1 { font-size: 22px !important; }
+    h2, .eirmis-h2 { font-size: 18px !important; }
+
+    /* Touch target minimum — buttons, links, interactive elements */
+    .eirmis-btn,
+    button,
+    [role="button"],
+    input[type="submit"] {
+        min-height: 44px;
+    }
+
+    /* Toast repositioning for mobile — full-width at bottom */
+    .eirmis-toast {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        max-width: none;
+    }
+
+    /* Responsive Card-Table: convert rows to stacked cards */
+    .eirmis-responsive-table table {
+        border: none;
+    }
+    .eirmis-responsive-table thead {
+        display: none;
+    }
+    .eirmis-responsive-table tbody tr {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 14px 16px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        margin-bottom: 10px;
+        background: var(--surface);
+        box-shadow: var(--shadow-xs);
+    }
+    .eirmis-responsive-table tbody td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0;
+        border: none;
+        font-size: 13px;
+    }
+    .eirmis-responsive-table tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-muted);
+        flex-shrink: 0;
+        margin-right: 12px;
+    }
+    .eirmis-responsive-table tbody tr:hover td {
+        background: transparent;
+    }
+
+    /* Skeleton placeholder sizing */
+    .eirmis-skeleton {
+        min-height: 40px;
     }
 }
