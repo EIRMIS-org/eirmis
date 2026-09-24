@@ -5,7 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EIRMIS — Event Invitation &amp; RSVP Management System</title>
-  <meta name="description" content="EIRMIS is a unified, auditable platform for end-to-end event invitation delivery, tiered RSVP approvals, passwordless guest rosters, and real-time entrance scanning.">
+  <meta name="description"
+    content="EIRMIS is a unified, auditable platform for end-to-end event invitation delivery, tiered RSVP approvals, passwordless guest rosters, and real-time entrance scanning.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -50,7 +51,11 @@
       --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       font-family: var(--font-body);
@@ -74,6 +79,7 @@
       top: 0;
       z-index: 50;
     }
+
     .nav-container {
       max-width: 1240px;
       margin: 0 auto;
@@ -82,6 +88,7 @@
       justify-content: space-between;
       align-items: center;
     }
+
     .brand {
       display: flex;
       align-items: center;
@@ -89,6 +96,7 @@
       text-decoration: none;
       color: var(--text-main);
     }
+
     .brand-logo {
       width: 36px;
       height: 36px;
@@ -100,6 +108,7 @@
       color: #FFFFFF;
       box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
     }
+
     .brand-text {
       font-family: var(--font-heading);
       font-size: 19px;
@@ -107,6 +116,7 @@
       letter-spacing: -0.02em;
       color: var(--text-main);
     }
+
     .brand-badge {
       background: var(--primary-subtle);
       border: 1px solid var(--primary-border);
@@ -117,7 +127,13 @@
       color: var(--primary);
       letter-spacing: 0.04em;
     }
-    .nav-links { display: flex; align-items: center; gap: 8px; }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .nav-btn {
       padding: 8px 14px;
       border-radius: var(--radius-sm);
@@ -134,13 +150,21 @@
       color: var(--text-muted);
       font-family: var(--font-body);
     }
-    .nav-btn:hover { color: var(--text-main); background: #F1F5F9; }
+
+    .nav-btn:hover {
+      color: var(--text-main);
+      background: #F1F5F9;
+    }
+
     .nav-btn.primary {
       background: var(--primary);
       color: #FFFFFF;
       box-shadow: 0 1px 2px rgba(79, 70, 229, 0.2);
     }
-    .nav-btn.primary:hover { background: var(--primary-hover); }
+
+    .nav-btn.primary:hover {
+      background: var(--primary-hover);
+    }
 
     /* Container */
     .container {
@@ -149,6 +173,35 @@
       padding: 24px;
       flex: 1;
       width: 100%;
+    }
+
+    @media (max-width: 320px) {
+      .nav-container {
+        padding: 12px 16px;
+      }
+
+      .brand-logo {
+        width: 32px;
+        height: 32px;
+      }
+
+      .brand-text {
+        font-size: 16px;
+      }
+
+      .brand-badge {
+        padding: 2px 6px;
+        font-size: 9px;
+      }
+
+      .nav-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+
+      .container {
+        padding: 16px;
+      }
     }
 
     /* Route Switcher */
@@ -164,6 +217,7 @@
       box-shadow: var(--shadow-sm);
       overflow-x: auto;
     }
+
     .route-switcher-label {
       font-size: 11px;
       font-weight: 700;
@@ -176,6 +230,7 @@
       align-items: center;
       gap: 5px;
     }
+
     .route-pill {
       padding: 6px 12px;
       font-size: 12px;
@@ -189,6 +244,7 @@
       transition: all 0.18s var(--ease-spring);
       font-family: var(--font-body);
     }
+
     .route-pill.active,
     .route-pill:hover {
       background: var(--primary);
@@ -202,10 +258,21 @@
       display: none;
       animation: sectionFade 0.25s var(--ease-spring) forwards;
     }
-    .view-section.active { display: block; }
+
+    .view-section.active {
+      display: block;
+    }
+
     @keyframes sectionFade {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* ================================================================ LANDING */
@@ -219,6 +286,7 @@
       margin-bottom: 24px;
       box-shadow: var(--shadow-sm);
     }
+
     .lp-hero-top {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -226,9 +294,15 @@
       padding: 44px 52px 8px 52px;
       align-items: start;
     }
+
     @media (max-width: 768px) {
-      .lp-hero-top { grid-template-columns: 1fr; padding: 28px 24px 8px 24px; gap: 18px; }
+      .lp-hero-top {
+        grid-template-columns: 1fr;
+        padding: 28px 24px 8px 24px;
+        gap: 18px;
+      }
     }
+
     .lp-hero-eyebrow {
       font-size: 11px;
       font-weight: 700;
@@ -237,6 +311,7 @@
       color: var(--primary);
       margin-bottom: 10px;
     }
+
     .lp-hero-left h1 {
       font-family: var(--font-heading);
       font-size: clamp(30px, 3.8vw, 48px);
@@ -245,6 +320,7 @@
       letter-spacing: -0.035em;
       color: var(--text-main);
     }
+
     .lp-hero-right {
       display: flex;
       flex-direction: column;
@@ -252,14 +328,27 @@
       gap: 20px;
       padding-top: 24px;
     }
-    @media (max-width: 768px) { .lp-hero-right { padding-top: 0; } }
+
+    @media (max-width: 768px) {
+      .lp-hero-right {
+        padding-top: 0;
+      }
+    }
+
     .lp-hero-right p {
       font-size: 14px;
       color: var(--text-muted);
       line-height: 1.65;
       max-width: 440px;
     }
-    .lp-hero-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+    .lp-hero-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
     .lp-hero-image-wrap {
       width: 100%;
       background: #FFFFFF;
@@ -270,12 +359,14 @@
       display: block;
       position: relative;
     }
+
     .lp-hero-carousel {
       position: relative;
       aspect-ratio: 1152 / 442;
       overflow: hidden;
       background: var(--dark);
     }
+
     .lp-hero-slide {
       position: absolute;
       inset: 0;
@@ -287,10 +378,12 @@
       transition: opacity 0.45s ease, transform 6s var(--ease-spring);
       transform: scale(1.03);
     }
+
     .lp-hero-slide.active {
       opacity: 1;
       transform: scale(1);
     }
+
     .lp-hero-carousel::after {
       content: '';
       position: absolute;
@@ -298,6 +391,7 @@
       background: linear-gradient(to top, rgba(15, 23, 42, 0.34), transparent 40%);
       pointer-events: none;
     }
+
     .lp-hero-control {
       position: absolute;
       z-index: 2;
@@ -314,14 +408,22 @@
       transform: translateY(-50%);
       transition: background 0.18s ease, border-color 0.18s ease;
     }
+
     .lp-hero-control:hover,
     .lp-hero-control:focus-visible {
       background: var(--primary);
       border-color: var(--primary);
       outline: none;
     }
-    .lp-hero-control.prev { left: 18px; }
-    .lp-hero-control.next { right: 18px; }
+
+    .lp-hero-control.prev {
+      left: 18px;
+    }
+
+    .lp-hero-control.next {
+      right: 18px;
+    }
+
     .lp-hero-dots {
       position: absolute;
       z-index: 2;
@@ -331,6 +433,7 @@
       gap: 7px;
       transform: translateX(-50%);
     }
+
     .lp-hero-dot {
       width: 8px;
       height: 8px;
@@ -341,6 +444,7 @@
       cursor: pointer;
       transition: transform 0.18s ease, background 0.18s ease;
     }
+
     .lp-hero-dot.active,
     .lp-hero-dot:hover,
     .lp-hero-dot:focus-visible {
@@ -348,12 +452,86 @@
       transform: scale(1.3);
       outline: none;
     }
+
     @media (max-width: 520px) {
-      .lp-hero-control { width: 32px; height: 32px; }
-      .lp-hero-control.prev { left: 12px; }
-      .lp-hero-control.next { right: 12px; }
-      .lp-hero-dots { bottom: 12px; }
+      .lp-hero-control {
+        width: 32px;
+        height: 32px;
+      }
+
+      .lp-hero-control.prev {
+        left: 12px;
+      }
+
+      .lp-hero-control.next {
+        right: 12px;
+      }
+
+      .lp-hero-dots {
+        bottom: 12px;
+      }
     }
+
+    @media (max-width: 320px) {
+      .lp-hero {
+        padding: 24px 16px 32px;
+      }
+
+      .lp-hero-top {
+        gap: 24px;
+      }
+
+      .lp-hero-eyebrow {
+        font-size: 10px;
+      }
+
+      .lp-hero-left h1 {
+        font-size: 28px;
+        line-height: 1.2;
+      }
+
+      .lp-hero-right p {
+        font-size: 13px;
+      }
+
+      .lp-hero-actions {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .lp-hero-actions .btn {
+        width: 100%;
+        padding: 12px 16px;
+      }
+
+      .lp-hero-carousel {
+        height: 200px;
+      }
+
+      .lp-hero-control {
+        width: 28px;
+        height: 28px;
+      }
+
+      .lp-hero-control.prev {
+        left: 8px;
+      }
+
+      .lp-hero-control.next {
+        right: 8px;
+      }
+
+      .lp-hero-dots {
+        bottom: 8px;
+        gap: 6px;
+      }
+
+      .lp-hero-dot {
+        width: 6px;
+        height: 6px;
+      }
+    }
+
     .lp-hero-image {
       width: 100%;
       height: auto;
@@ -366,7 +544,10 @@
     }
 
     /* --- Capabilities Section --- */
-    .lp-section { margin-bottom: 20px; }
+    .lp-section {
+      margin-bottom: 20px;
+    }
+
     .lp-section-header {
       display: flex;
       justify-content: space-between;
@@ -374,6 +555,7 @@
       margin-bottom: 16px;
       gap: 16px;
     }
+
     .lp-section-eyebrow {
       font-size: 11px;
       font-weight: 700;
@@ -382,6 +564,7 @@
       color: var(--primary);
       margin-bottom: 6px;
     }
+
     .lp-section-title {
       font-family: var(--font-heading);
       font-size: clamp(20px, 3vw, 28px);
@@ -390,11 +573,33 @@
       color: var(--text-main);
       line-height: 1.15;
     }
+
     .lp-section-desc {
       font-size: 13.5px;
       color: var(--text-muted);
       line-height: 1.6;
       max-width: 360px;
+    }
+
+    @media (max-width: 320px) {
+      .lp-section-header {
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .lp-section-eyebrow {
+        font-size: 10px;
+      }
+
+      .lp-section-title {
+        font-size: 22px;
+      }
+
+      .lp-section-desc {
+        font-size: 12.5px;
+        max-width: none;
+      }
     }
 
     /* Solutions bento grid */
@@ -404,22 +609,85 @@
       grid-template-rows: 210px 180px;
       gap: 12px;
     }
+
     .sol-card {
       border-radius: var(--radius-lg);
       overflow: hidden;
       position: relative;
       transition: transform 0.22s var(--ease-spring), box-shadow 0.22s var(--ease-spring);
     }
-    .sol-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-    .sol-card:nth-child(1) { grid-column: 1 / 7; grid-row: 1; }
-    .sol-card:nth-child(2) { grid-column: 7 / 13; grid-row: 1; }
-    .sol-card:nth-child(3) { grid-column: 1 / 5; grid-row: 2; }
-    .sol-card:nth-child(4) { grid-column: 5 / 9; grid-row: 2; }
-    .sol-card:nth-child(5) { grid-column: 9 / 13; grid-row: 2; }
-    @media (max-width: 900px) {
-      .solutions-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
-      .sol-card:nth-child(n) { grid-column: auto; grid-row: auto; min-height: 180px; }
+
+    .sol-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
     }
+
+    .sol-card:nth-child(1) {
+      grid-column: 1 / 7;
+      grid-row: 1;
+    }
+
+    .sol-card:nth-child(2) {
+      grid-column: 7 / 13;
+      grid-row: 1;
+    }
+
+    .sol-card:nth-child(3) {
+      grid-column: 1 / 5;
+      grid-row: 2;
+    }
+
+    .sol-card:nth-child(4) {
+      grid-column: 5 / 9;
+      grid-row: 2;
+    }
+
+    .sol-card:nth-child(5) {
+      grid-column: 9 / 13;
+      grid-row: 2;
+    }
+
+    @media (max-width: 900px) {
+      .solutions-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto;
+      }
+
+      .sol-card:nth-child(n) {
+        grid-column: auto;
+        grid-row: auto;
+        min-height: 180px;
+      }
+    }
+
+    @media (max-width: 320px) {
+      .solutions-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .sol-card:nth-child(n) {
+        min-height: 160px;
+      }
+
+      .sol-card-content {
+        padding: 16px;
+      }
+
+      .sol-card-tag {
+        font-size: 10px;
+        padding: 3px 8px;
+      }
+
+      .sol-card-title {
+        font-size: 16px;
+      }
+
+      .sol-card-desc {
+        font-size: 12px;
+      }
+    }
+
     .sol-card-bg {
       position: absolute;
       inset: 0;
@@ -429,10 +697,23 @@
       object-position: center;
       transition: transform 0.5s var(--ease-spring);
     }
-    .sol-card:hover .sol-card-bg { transform: scale(1.05); }
-    .sol-card:nth-child(1) .sol-card-bg { object-position: top center; }
-    .sol-card:nth-child(3) .sol-card-bg { object-position: center 30%; }
-    .sol-card:nth-child(5) .sol-card-bg { object-position: center 25%; }
+
+    .sol-card:hover .sol-card-bg {
+      transform: scale(1.05);
+    }
+
+    .sol-card:nth-child(1) .sol-card-bg {
+      object-position: top center;
+    }
+
+    .sol-card:nth-child(3) .sol-card-bg {
+      object-position: center 30%;
+    }
+
+    .sol-card:nth-child(5) .sol-card-bg {
+      object-position: center 25%;
+    }
+
     .sol-card-overlay {
       position: absolute;
       inset: 0;
@@ -440,6 +721,7 @@
       z-index: 1;
       pointer-events: none;
     }
+
     .sol-card-content {
       position: relative;
       z-index: 2;
@@ -450,6 +732,7 @@
       justify-content: flex-end;
       pointer-events: none;
     }
+
     .sol-card-content h3 {
       font-family: var(--font-heading);
       font-size: 15.5px;
@@ -459,6 +742,7 @@
       margin-bottom: 5px;
       text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
     }
+
     .sol-card-content p {
       font-size: 12px;
       color: rgba(255, 255, 255, 0.88);
@@ -470,7 +754,7 @@
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
     }
 
-    /* --- Portals Section --- */
+    /* --- Role Portals Menu Bar --- */
     .lp-portals-section {
       background: #FFFFFF;
       border: 1px solid var(--border);
@@ -480,94 +764,298 @@
       box-shadow: var(--shadow-sm);
       overflow: hidden;
     }
-    @media (max-width: 768px) { .lp-portals-section { padding: 32px 24px; } }
-    .lp-portals-layout {
-      display: grid;
-      grid-template-columns: 280px 1fr;
-      gap: 48px;
-      align-items: start;
+
+    @media (max-width: 768px) {
+      .lp-portals-section {
+        padding: 32px 24px;
+      }
     }
-    @media (max-width: 900px) { .lp-portals-layout { grid-template-columns: 1fr; gap: 28px; } }
-    .portals-carousel-header {
+
+    @media (max-width: 320px) {
+      .lp-portals-section {
+        padding: 24px 16px;
+      }
+    }
+
+    /* Menu Bar - Horizontal layout */
+    .portal-menu-bar {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
     }
-    .carousel-nav { display: flex; gap: 6px; }
-    .carousel-nav-btn {
-      width: 32px;
-      height: 32px;
-      border: 1px solid var(--border);
+
+    .portal-menu-bar::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .portal-menu-bar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .portal-menu-bar::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    @media (max-width: 900px) {
+      .portal-menu-bar {
+        gap: 6px;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .portal-menu-bar {
+        gap: 4px;
+      }
+    }
+
+    .portal-menu-trigger {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
       background: #FFFFFF;
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      color: var(--text-muted);
-    }
-    .carousel-nav-btn:hover { background: var(--primary); border-color: var(--primary); color: #FFFFFF; }
-    .portals-strip {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
-    @media (max-width: 900px) { .portals-strip { grid-template-columns: repeat(2, 1fr); } }
-    .portal-card-v2 {
-      border: 1px solid var(--border);
+      border: 1px solid transparent;
       border-radius: var(--radius-md);
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      background: #FAFAFA;
+      cursor: pointer;
+      text-align: left;
+      font-family: var(--font-body);
       transition: all 0.2s var(--ease-spring);
-      position: relative;
+      white-space: nowrap;
+      min-width: 180px;
+      max-width: 220px;
     }
-    .portal-card-v2:hover {
-      border-color: #CBD5E1;
+
+    .portal-menu-trigger:hover {
+      border-color: var(--border);
+      box-shadow: var(--shadow-sm);
+      background: #FAFAFA;
+    }
+
+    .portal-menu-trigger:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: -2px;
+      border-radius: var(--radius-md);
+      border-color: var(--primary);
+    }
+
+    .portal-menu-trigger[aria-selected="true"] {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px var(--primary), var(--shadow-md);
       background: #FFFFFF;
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
     }
-    .portal-card-v2.active-portal {
-      background: var(--dark);
-      border-color: var(--dark);
+
+    .portal-menu-trigger[aria-selected="true"] .portal-menu-icon {
+      background: var(--primary);
+      color: #FFFFFF;
     }
-    .portal-card-v2.active-portal .portal-v2-title { color: #FFFFFF; }
-    .portal-card-v2.active-portal .portal-v2-desc { color: rgba(255,255,255,0.5); }
-    .portal-card-v2.active-portal .portal-v2-badge {
-      background: rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.65);
-      border-color: rgba(255,255,255,0.1);
+
+    .portal-menu-trigger[aria-selected="true"] .portal-menu-title {
+      color: var(--primary);
     }
-    .portal-v2-icon {
-      width: 40px;
-      height: 40px;
+
+    .portal-menu-icon {
+      width: 36px;
+      height: 36px;
       border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s var(--ease-spring);
     }
-    .portal-v2-icon.organizer { background: #EEF2FF; color: var(--primary); }
-    .portal-v2-icon.guest { background: #F0FDFA; color: var(--secondary); }
-    .portal-v2-icon.staff { background: #FEF3C7; color: var(--warning); }
-    .portal-v2-icon.admin { background: #F1F5F9; color: var(--dark); }
-    .portal-card-v2.active-portal .portal-v2-icon {
-      background: rgba(255,255,255,0.12);
-      color: #FFFFFF;
+
+    .portal-menu-icon.organizer {
+      background: #EEF2FF;
+      color: var(--primary);
     }
-    .portal-v2-title {
+
+    .portal-menu-icon.guest {
+      background: #F0FDFA;
+      color: var(--secondary);
+    }
+
+    .portal-menu-icon.staff {
+      background: #FEF3C7;
+      color: var(--warning);
+    }
+
+    .portal-menu-icon.admin {
+      background: #F1F5F9;
+      color: var(--dark);
+    }
+
+    .portal-menu-info {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .portal-menu-title {
       font-family: var(--font-heading);
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 800;
       color: var(--text-main);
       letter-spacing: -0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .portal-v2-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; flex: 1; }
-    .portal-v2-badge {
+
+    .portal-menu-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Right panel - dynamic content */
+    .portal-detail-panel {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      min-height: 480px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 120px;
+    }
+
+    @media (max-width: 900px) {
+      .portal-detail-panel {
+        position: static;
+        min-height: auto;
+        padding: 24px;
+      }
+    }
+
+    @media (max-width: 320px) {
+      .portal-detail-panel {
+        padding: 20px 16px;
+      }
+    }
+
+    .portal-detail-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      flex: 1;
+      color: var(--text-muted);
+      padding: 40px 20px;
+    }
+
+    .portal-placeholder-visual {
+      width: 80px;
+      height: 80px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--primary-subtle) 0%, var(--secondary-subtle) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      color: var(--primary);
+    }
+
+    .portal-placeholder-visual svg {
+      width: 40px;
+      height: 40px;
+    }
+
+    .portal-detail-placeholder h3 {
+      font-family: var(--font-heading);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    .portal-detail-placeholder p {
+      font-size: 13.5px;
+      line-height: 1.6;
+      max-width: 280px;
+      color: var(--text-muted);
+    }
+
+    .portal-detail-content {
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+      flex: 1;
+    }
+
+    .portal-detail-content.active {
+      display: flex;
+    }
+
+    .portal-detail-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .portal-detail-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .portal-detail-icon.organizer {
+      background: #EEF2FF;
+      color: var(--primary);
+    }
+
+    .portal-detail-icon.guest {
+      background: #F0FDFA;
+      color: var(--secondary);
+    }
+
+    .portal-detail-icon.staff {
+      background: #FEF3C7;
+      color: var(--warning);
+    }
+
+    .portal-detail-icon.admin {
+      background: #F1F5F9;
+      color: var(--dark);
+    }
+
+    .portal-detail-info h3 {
+      font-family: var(--font-heading);
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .portal-detail-info p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .portal-detail-badge {
       display: inline-flex;
       align-items: center;
       gap: 4px;
@@ -579,8 +1067,383 @@
       background: #F8FAFC;
       color: var(--text-muted);
       width: fit-content;
+      margin-top: 8px;
     }
-    .portal-v2-action { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+
+    /* Portal Preview Frames */
+    .portal-detail-preview {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .portal-preview-frame {
+      flex: 1;
+      background: #FAFAFA;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 280px;
+      max-height: 320px;
+      cursor: zoom-in;
+      transition: box-shadow 0.2s var(--ease-spring);
+    }
+
+    .portal-preview-frame:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .portal-preview-content {
+      flex: 1;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow: hidden;
+    }
+
+    .portal-preview-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: var(--radius-md);
+      transition: transform 0.2s var(--ease-spring);
+    }
+
+    .portal-preview-frame:hover .portal-preview-image {
+      transform: scale(1.01);
+    }
+
+    /* Guest Preview - Landing style */
+    .portal-preview-frame.guest .portal-preview-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 24px 16px;
+      gap: 12px;
+    }
+
+    .portal-preview-hero-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--secondary-subtle) 0%, var(--primary-subtle) 100%);
+    }
+
+    .portal-preview-hero-text {
+      height: 16px;
+      width: 60%;
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    .portal-preview-hero-btn {
+      height: 36px;
+      width: 120px;
+      border-radius: 8px;
+      background: var(--secondary);
+    }
+
+    .portal-preview-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    @media (max-width: 600px) {
+      .portal-preview-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 320px) {
+      .lp-portals-section {
+        padding: 24px 16px;
+      }
+
+      .lp-portals-accordion {
+        gap: 16px;
+      }
+
+      .portals-selector-list {
+        padding: 6px;
+        gap: 4px;
+      }
+
+      .portal-selector-item {
+        padding: 12px 12px;
+        gap: 10px;
+      }
+
+      .portal-selector-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+      }
+
+      .portal-selector-title {
+        font-size: 13px;
+      }
+
+      .portal-selector-subtitle {
+        font-size: 10.5px;
+      }
+
+      .portal-detail-panel {
+        padding: 20px 16px;
+      }
+
+      .portal-detail-header {
+        gap: 12px;
+        padding-bottom: 16px;
+      }
+
+      .portal-detail-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+      }
+
+      .portal-detail-info h3 {
+        font-size: 18px;
+      }
+
+      .portal-detail-info p {
+        font-size: 13px;
+      }
+
+      .portal-preview-frame {
+        min-height: 240px;
+        max-height: 280px;
+      }
+
+      .portal-preview-content {
+        padding: 12px;
+        gap: 10px;
+      }
+
+      .portal-preview-image {
+        border-radius: var(--radius-sm);
+      }
+
+      .portal-detail-cta {
+        gap: 8px;
+      }
+
+      .portal-detail-cta .btn {
+        padding: 10px 14px;
+        font-size: 12.5px;
+      }
+    }
+
+    /* Staff Preview - Scanner style */
+    .portal-preview-frame.staff .portal-preview-content {
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Admin Preview - Dashboard style */
+    .portal-preview-frame.admin .portal-preview-content {
+      align-items: center;
+      justify-content: center;
+    }
+
+    .portal-detail-cta {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      margin-top: auto;
+    }
+
+    .portal-detail-cta .btn {
+      width: 100%;
+      text-align: center;
+    }
+
+    /* Lightbox Modal for Image Enlargement */
+    .portal-lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 24px;
+      animation: lightbox-fade-in 0.2s var(--ease-spring);
+    }
+
+    .portal-lightbox.active {
+      display: flex;
+    }
+
+    @keyframes lightbox-fade-in {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .portal-lightbox-content {
+      position: relative;
+      max-width: 95vw;
+      max-height: 90vh;
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+      overflow: hidden;
+      animation: lightbox-scale-in 0.25s var(--ease-spring);
+    }
+
+    @keyframes lightbox-scale-in {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .portal-lightbox-image {
+      display: block;
+      max-width: 95vw;
+      max-height: 85vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .portal-lightbox-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.8);
+      color: #FFFFFF;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s var(--ease-spring);
+      z-index: 10;
+    }
+
+    .portal-lightbox-close:hover {
+      background: rgba(15, 23, 42, 1);
+      transform: scale(1.05);
+    }
+
+    .portal-lightbox-close:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    .portal-lightbox-close svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 2.5;
+    }
+
+    .portal-lightbox-caption {
+      padding: 16px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      text-align: center;
+      background: #FFFFFF;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 480px) {
+      .portal-lightbox {
+        padding: 12px;
+      }
+
+      .portal-lightbox-close {
+        width: 36px;
+        height: 36px;
+        top: 8px;
+        right: 8px;
+      }
+
+      .portal-lightbox-caption {
+        padding: 12px 16px;
+        font-size: 13px;
+      }
+    }
+
+    /* Button states for WCAG compliance */
+    .btn:disabled,
+    .btn[aria-disabled="true"] {
+      opacity: 0.45;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .btn.loading {
+      position: relative;
+      color: transparent !important;
+    }
+
+    .btn.loading::after {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Empty/Error states */
+    .portal-detail-content.empty .portal-detail-preview,
+    .portal-detail-content.error .portal-detail-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .portal-detail-content.empty .portal-detail-preview::before,
+    .portal-detail-content.error .portal-detail-preview::before {
+      content: "";
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--border);
+      margin-bottom: 16px;
+    }
+
+    .portal-detail-content.error .portal-detail-preview::before {
+      background: var(--error-bg);
+      color: var(--error);
+    }
 
     /* --- Technology Section --- */
     .lp-tech-section {
@@ -592,14 +1455,27 @@
       box-shadow: var(--shadow-sm);
       overflow: hidden;
     }
-    @media (max-width: 768px) { .lp-tech-section { padding: 32px 24px; } }
+
+    @media (max-width: 768px) {
+      .lp-tech-section {
+        padding: 32px 24px;
+      }
+    }
+
     .lp-tech-layout {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 52px;
       align-items: start;
     }
-    @media (max-width: 900px) { .lp-tech-layout { grid-template-columns: 1fr; gap: 32px; } }
+
+    @media (max-width: 900px) {
+      .lp-tech-layout {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+    }
+
     .tech-visual {
       background: #0F172A;
       border-radius: var(--radius-lg);
@@ -609,6 +1485,7 @@
       display: flex;
       align-items: flex-end;
     }
+
     .tech-visual-bg {
       position: absolute;
       inset: 0;
@@ -618,21 +1495,28 @@
       object-position: center 30%;
       transition: transform 0.6s var(--ease-spring);
     }
+
     .tech-visual:hover .tech-visual-bg {
       transform: scale(1.03);
     }
+
     .tech-visual-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(
-        to top,
-        rgba(15, 23, 42, 0.94) 0%,
-        rgba(15, 23, 42, 0.45) 50%,
-        rgba(15, 23, 42, 0.15) 100%
-      );
+      background: linear-gradient(to top,
+          rgba(15, 23, 42, 0.94) 0%,
+          rgba(15, 23, 42, 0.45) 50%,
+          rgba(15, 23, 42, 0.15) 100%);
       z-index: 1;
     }
-    .tech-visual-content { position: relative; z-index: 2; padding: 28px; width: 100%; }
+
+    .tech-visual-content {
+      position: relative;
+      z-index: 2;
+      padding: 28px;
+      width: 100%;
+    }
+
     .tech-visual-label {
       font-size: 10px;
       font-weight: 700;
@@ -641,6 +1525,7 @@
       color: #818CF8;
       margin-bottom: 8px;
     }
+
     .tech-visual-title {
       font-family: var(--font-heading);
       font-size: 22px;
@@ -650,13 +1535,68 @@
       line-height: 1.2;
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     }
+
     .tech-features-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 24px 40px;
     }
-    @media (max-width: 480px) { .tech-features-grid { grid-template-columns: 1fr; } }
-    .tech-feature { display: flex; flex-direction: column; gap: 8px; }
+
+    @media (max-width: 480px) {
+      .tech-features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 320px) {
+      .lp-tech-section {
+        padding: 24px 16px;
+      }
+
+      .lp-tech-layout {
+        gap: 24px;
+      }
+
+      .tech-visual {
+        height: 280px;
+      }
+
+      .tech-visual-content {
+        padding: 20px;
+      }
+
+      .tech-visual-title {
+        font-size: 18px;
+      }
+
+      .tech-features-grid {
+        gap: 16px 24px;
+      }
+
+      .tech-feature-title {
+        font-size: 14px;
+      }
+
+      .tech-feature-desc {
+        font-size: 12px;
+      }
+
+      .tech-feature-link {
+        font-size: 12px;
+      }
+
+      .tech-feature-link-arrow {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .tech-feature {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
     .tech-feature-title {
       font-family: var(--font-heading);
       font-size: 15px;
@@ -664,7 +1604,13 @@
       color: var(--text-main);
       letter-spacing: -0.01em;
     }
-    .tech-feature-desc { font-size: 12.5px; color: var(--text-muted); line-height: 1.55; }
+
+    .tech-feature-desc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
     .tech-feature-link {
       display: inline-flex;
       align-items: center;
@@ -681,7 +1627,11 @@
       transition: gap 0.15s ease;
       width: fit-content;
     }
-    .tech-feature-link:hover { gap: 10px; }
+
+    .tech-feature-link:hover {
+      gap: 10px;
+    }
+
     .tech-feature-link-arrow {
       width: 24px;
       height: 24px;
@@ -693,13 +1643,22 @@
       transition: all 0.15s ease;
       flex-shrink: 0;
     }
+
     .tech-feature-link:hover .tech-feature-link-arrow {
       background: var(--primary);
       border-color: var(--primary);
       color: #FFFFFF;
     }
-    .tech-right-header { margin-bottom: 28px; }
-    .tech-feature-divider { grid-column: 1 / -1; height: 1px; background: var(--border); }
+
+    .tech-right-header {
+      margin-bottom: 28px;
+    }
+
+    .tech-feature-divider {
+      grid-column: 1 / -1;
+      height: 1px;
+      background: var(--border);
+    }
 
     /* Buttons */
     .btn {
@@ -717,18 +1676,68 @@
       transition: all 0.18s var(--ease-spring);
       font-family: var(--font-body);
     }
-    .btn:active { transform: scale(0.98); }
-    .btn-primary { background: var(--primary); color: #FFFFFF; box-shadow: 0 1px 2px rgba(79,70,229,0.2); }
-    .btn-primary:hover { background: var(--primary-hover); box-shadow: 0 4px 12px rgba(79,70,229,0.25); }
-    .btn-secondary { background: #FFFFFF; border-color: var(--border); color: var(--text-main); }
-    .btn-secondary:hover { background: #F8FAFC; border-color: #CBD5E1; }
-    .btn-teal { background: var(--secondary); color: #FFFFFF; box-shadow: 0 1px 2px rgba(13,148,136,0.2); }
-    .btn-teal:hover { background: var(--secondary-hover); box-shadow: 0 4px 12px rgba(13,148,136,0.25); }
-    .btn-dark { background: var(--dark); color: #FFFFFF; }
-    .btn-dark:hover { background: #1E293B; }
-    .btn-ghost { background: transparent; color: var(--text-muted); }
-    .btn-ghost:hover { background: #F1F5F9; color: var(--text-main); }
-    .btn-sm { padding: 7px 12px; font-size: 12px; border-radius: 6px; }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      box-shadow: 0 1px 2px rgba(79, 70, 229, 0.2);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    }
+
+    .btn-secondary {
+      background: #FFFFFF;
+      border-color: var(--border);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: #F8FAFC;
+      border-color: #CBD5E1;
+    }
+
+    .btn-teal {
+      background: var(--secondary);
+      color: #FFFFFF;
+      box-shadow: 0 1px 2px rgba(13, 148, 136, 0.2);
+    }
+
+    .btn-teal:hover {
+      background: var(--secondary-hover);
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+    }
+
+    .btn-dark {
+      background: var(--dark);
+      color: #FFFFFF;
+    }
+
+    .btn-dark:hover {
+      background: #1E293B;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    .btn-ghost:hover {
+      background: #F1F5F9;
+      color: var(--text-main);
+    }
+
+    .btn-sm {
+      padding: 7px 12px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
 
     /* Disabled / unavailable */
     .btn[aria-disabled="true"],
@@ -739,14 +1748,17 @@
     }
 
     /* Tooltip for unavailable actions */
-    [data-tip] { position: relative; }
+    [data-tip] {
+      position: relative;
+    }
+
     [data-tip]::after {
       content: attr(data-tip);
       position: absolute;
       bottom: calc(100% + 8px);
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(15,23,42,0.95);
+      background: rgba(15, 23, 42, 0.95);
       color: #FFFFFF;
       font-size: 11.5px;
       font-weight: 600;
@@ -758,6 +1770,7 @@
       transition: opacity 0.15s ease;
       z-index: 100;
     }
+
     [data-tip]::before {
       content: '';
       position: absolute;
@@ -765,14 +1778,17 @@
       left: 50%;
       transform: translateX(-50%);
       border: 5px solid transparent;
-      border-top-color: rgba(15,23,42,0.95);
+      border-top-color: rgba(15, 23, 42, 0.95);
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.15s ease;
       z-index: 100;
     }
+
     [data-tip]:hover::after,
-    [data-tip]:hover::before { opacity: 1; }
+    [data-tip]:hover::before {
+      opacity: 1;
+    }
 
     /* Auth cards */
     .auth-card {
@@ -784,7 +1800,12 @@
       padding: 32px;
       box-shadow: var(--shadow-md);
     }
-    .auth-header { text-align: center; margin-bottom: 24px; }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
     .auth-avatar-wrap {
       width: 52px;
       height: 52px;
@@ -794,6 +1815,7 @@
       justify-content: center;
       margin: 0 auto 14px auto;
     }
+
     .auth-header h2 {
       font-family: var(--font-heading);
       font-size: 22px;
@@ -802,7 +1824,13 @@
       letter-spacing: -0.01em;
       margin-bottom: 6px;
     }
-    .auth-header p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+    .auth-header p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
     .sso-btn {
       width: 100%;
       background: #FFFFFF;
@@ -820,10 +1848,29 @@
       font-size: 13.5px;
       font-family: var(--font-body);
     }
-    .sso-btn:hover { background: #F8FAFC; border-color: #CBD5E1; box-shadow: var(--shadow-sm); }
-    .sso-btn:active { transform: scale(0.99); }
-    .form-group { margin-bottom: 16px; }
-    .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 6px; }
+
+    .sso-btn:hover {
+      background: #F8FAFC;
+      border-color: #CBD5E1;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .sso-btn:active {
+      transform: scale(0.99);
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
     .form-control {
       width: 100%;
       padding: 10px 12px;
@@ -836,21 +1883,66 @@
       outline: none;
       transition: all 0.15s;
     }
-    .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.12); }
-    .notice-box { border-radius: var(--radius-sm); padding: 14px 16px; font-size: 12.5px; line-height: 1.55; margin-top: 18px; }
-    .notice-box.neutral { background: #F8FAFC; border: 1px solid var(--border); color: var(--text-muted); }
-    .notice-box.warning { background: var(--warning-bg); border: 1px solid var(--warning-border); color: var(--warning); }
-    .notice-box.success { background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success); }
-    .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--radius-pill); font-size: 11.5px; font-weight: 700; }
-    .status-badge.pending { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
-    .status-badge.active { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+    }
+
+    .notice-box {
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      font-size: 12.5px;
+      line-height: 1.55;
+      margin-top: 18px;
+    }
+
+    .notice-box.neutral {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .notice-box.warning {
+      background: var(--warning-bg);
+      border: 1px solid var(--warning-border);
+      color: var(--warning);
+    }
+
+    .notice-box.success {
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      color: var(--success);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+
+    .status-badge.pending {
+      background: var(--warning-bg);
+      color: var(--warning);
+      border: 1px solid var(--warning-border);
+    }
+
+    .status-badge.active {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid var(--success-border);
+    }
 
     /* Toast */
     .toast {
       position: fixed;
       bottom: 24px;
       right: 24px;
-      background: rgba(15,23,42,0.95);
+      background: rgba(15, 23, 42, 0.95);
       backdrop-filter: blur(12px);
       color: #FFFFFF;
       padding: 12px 20px;
@@ -865,9 +1957,22 @@
       transition: all 0.3s var(--ease-spring);
       max-width: 360px;
     }
-    .toast.show { transform: translateY(0); opacity: 1; }
-    .toast-icon { color: #34D399; display: flex; align-items: center; flex-shrink: 0; }
-    .toast-icon.warn { color: #FBBF24; }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast-icon {
+      color: #34D399;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .toast-icon.warn {
+      color: #FBBF24;
+    }
 
     footer {
       background: #FFFFFF;
@@ -877,6 +1982,13 @@
       font-size: 12.5px;
       color: var(--text-muted);
       margin-top: auto;
+    }
+
+    @media (max-width: 320px) {
+      footer {
+        padding: 16px;
+        font-size: 11.5px;
+      }
     }
   </style>
 </head>
@@ -908,7 +2020,8 @@
         <button onclick="showView('guest-login')" class="nav-btn">Guest Access</button>
         <button onclick="showView('staff-login')" class="nav-btn">Staff Scanner</button>
         <button onclick="showView('register')" class="nav-btn primary">
-          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
           Public RSVP Form
@@ -922,7 +2035,8 @@
     <!-- Route Simulator Segmented Pill Bar -->
     <div class="route-switcher-bar" role="navigation" aria-label="Route simulator">
       <div class="route-switcher-label">
-        <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.2">
           <circle cx="12" cy="12" r="10"></circle>
           <polyline points="12 6 12 12 16 14"></polyline>
         </svg>
@@ -954,7 +2068,8 @@
             </p>
             <div class="lp-hero-actions">
               <button class="btn btn-primary" onclick="showView('login')">
-                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2.5">
                   <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
                   <polyline points="10 17 15 12 10 7"></polyline>
                   <line x1="15" y1="12" x2="3" y2="12"></line>
@@ -962,7 +2077,8 @@
                 Sign In with SSO
               </button>
               <button class="btn btn-secondary" onclick="showView('register')">
-                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2">
                   <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
                 Open Registration
@@ -973,24 +2089,41 @@
 
         <!-- Hero image below text fitting container edges -->
         <div class="lp-hero-image-wrap">
-          <div class="lp-hero-carousel" id="hero-carousel" role="region" aria-roledescription="carousel" aria-label="Event moments" tabindex="0">
-            <img class="lp-hero-slide active" src="../assets/hero-carousel-1.jpg" alt="Couple celebrating together at an event" loading="eager" data-slide="0">
-            <img class="lp-hero-slide" src="../assets/hero-carousel-2.jpg" alt="Elegant event table prepared for guests" loading="lazy" data-slide="1">
-            <img class="lp-hero-slide" src="../assets/hero-carousel-3.jpg" alt="Guests raising glasses at a celebration" loading="lazy" data-slide="2">
-            <img class="lp-hero-slide" src="../assets/hero-carousel-4.jpg" alt="Guests gathering at a busy event" loading="lazy" data-slide="3">
-            <img class="lp-hero-slide" src="../assets/hero-carousel-5.jpg" alt="Guests toasting together outdoors" loading="lazy" data-slide="4">
+          <div class="lp-hero-carousel" id="hero-carousel" role="region" aria-roledescription="carousel"
+            aria-label="Event moments" tabindex="0">
+            <img class="lp-hero-slide active" src="../assets/hero-carousel-1.jpg"
+              alt="Couple celebrating together at an event" loading="eager" data-slide="0">
+            <img class="lp-hero-slide" src="../assets/hero-carousel-2.jpg" alt="Elegant event table prepared for guests"
+              loading="lazy" data-slide="1">
+            <img class="lp-hero-slide" src="../assets/hero-carousel-3.jpg" alt="Guests raising glasses at a celebration"
+              loading="lazy" data-slide="2">
+            <img class="lp-hero-slide" src="../assets/hero-carousel-4.jpg" alt="Guests gathering at a busy event"
+              loading="lazy" data-slide="3">
+            <img class="lp-hero-slide" src="../assets/hero-carousel-5.jpg" alt="Guests toasting together outdoors"
+              loading="lazy" data-slide="4">
             <button class="lp-hero-control prev" type="button" aria-label="Previous event image">
-              <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
             </button>
             <button class="lp-hero-control next" type="button" aria-label="Next event image">
-              <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
             </button>
             <div class="lp-hero-dots" role="tablist" aria-label="Choose event image">
-              <button class="lp-hero-dot active" type="button" role="tab" aria-label="Show event image 1" aria-selected="true" data-slide="0"></button>
-              <button class="lp-hero-dot" type="button" role="tab" aria-label="Show event image 2" aria-selected="false" data-slide="1"></button>
-              <button class="lp-hero-dot" type="button" role="tab" aria-label="Show event image 3" aria-selected="false" data-slide="2"></button>
-              <button class="lp-hero-dot" type="button" role="tab" aria-label="Show event image 4" aria-selected="false" data-slide="3"></button>
-              <button class="lp-hero-dot" type="button" role="tab" aria-label="Show event image 5" aria-selected="false" data-slide="4"></button>
+              <button class="lp-hero-dot active" type="button" role="tab" aria-label="Show event image 1"
+                aria-selected="true" data-slide="0"></button>
+              <button class="lp-hero-dot" type="button" role="tab" aria-label="Show event image 2" aria-selected="false"
+                data-slide="1"></button>
+              <button class="lp-hero-dot" type="button" role="tab" aria-label="Show event image 3" aria-selected="false"
+                data-slide="2"></button>
+              <button class="lp-hero-dot" type="button" role="tab" aria-label="Show event image 4" aria-selected="false"
+                data-slide="3"></button>
+              <button class="lp-hero-dot" type="button" role="tab" aria-label="Show event image 5" aria-selected="false"
+                data-slide="4"></button>
             </div>
           </div>
         </div>
@@ -1013,17 +2146,20 @@
 
           <!-- Card 1: Invitation Dispatch -->
           <div class="sol-card" role="listitem">
-            <img class="sol-card-bg" src="../assets/sol-invitation.jpg" alt="Invitation Dispatch &amp; Delivery" loading="lazy">
+            <img class="sol-card-bg" src="../assets/sol-invitation.jpg" alt="Invitation Dispatch &amp; Delivery"
+              loading="lazy">
             <div class="sol-card-overlay"></div>
             <div class="sol-card-content">
               <h3>Invitation Dispatch</h3>
-              <p>HTML invitation upload with malware scanning, batch email dispatch, and open-tracking per recipient.</p>
+              <p>HTML invitation upload with malware scanning, batch email dispatch, and open-tracking per recipient.
+              </p>
             </div>
           </div>
 
           <!-- Card 2: RSVP Workflow -->
           <div class="sol-card" role="listitem">
-            <img class="sol-card-bg" src="../assets/sol-rsvp.jpg" alt="Tiered RSVP Approvals &amp; Seating" loading="lazy">
+            <img class="sol-card-bg" src="../assets/sol-rsvp.jpg" alt="Tiered RSVP Approvals &amp; Seating"
+              loading="lazy">
             <div class="sol-card-overlay"></div>
             <div class="sol-card-content">
               <h3>Tiered RSVP Approvals</h3>
@@ -1066,140 +2202,252 @@
 
       <!-- ROLE PORTALS -->
       <div class="lp-portals-section">
-        <div class="lp-portals-layout">
-          <!-- Left text -->
+        <div class="lp-section-header">
           <div>
             <div class="lp-section-eyebrow">/ ROLE PORTALS</div>
-            <h2 class="lp-section-title" style="margin-bottom:12px;">Tailored Workspaces<br>for Every Role</h2>
-            <p style="font-size:13.5px; color:var(--text-muted); line-height:1.65; margin-bottom:20px;">
-              At EIRMIS, we understand that every role has unique operational needs. That's why we enforce
-              strict boundary permissions — each portal is scoped to its role with no cross-portal data leakage.
-            </p>
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-              <button class="btn btn-primary btn-sm" onclick="showView('login')">
-                Sign In with SSO
-                <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                  <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
-              </button>
-              <button class="btn btn-secondary btn-sm" onclick="showView('guest-login')">Guest Access</button>
+            <h2 class="lp-section-title">Four Portals, One Platform</h2>
+          </div>
+          <p class="lp-section-desc">Each role gets a purpose-built interface with scoped permissions and tailored
+            workflows.</p>
+        </div>
+
+        <!-- Top: Portal Menu Bar (Tab-style) -->
+        <div class="portal-menu-bar" role="tablist" aria-label="Role portals">
+          <!-- Organizer Portal -->
+          <button class="portal-menu-trigger" role="tab" aria-selected="true" aria-controls="detail-organizer"
+            id="tab-organizer" data-portal="organizer" type="button">
+            <div class="portal-menu-icon organizer" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
             </div>
+            <div class="portal-menu-info">
+              <div class="portal-menu-title">Event Organizer</div>
+              <div class="portal-menu-subtitle">Full event lifecycle management</div>
+            </div>
+          </button>
+
+          <!-- Guest Portal -->
+          <button class="portal-menu-trigger" role="tab" aria-selected="false" aria-controls="detail-guest"
+            id="tab-guest" data-portal="guest" type="button">
+            <div class="portal-menu-icon guest" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22 6 12 13 2 6"></polyline>
+              </svg>
+            </div>
+            <div class="portal-menu-info">
+              <div class="portal-menu-title">Guest Portal</div>
+              <div class="portal-menu-subtitle">Passwordless RSVP & boarding passes</div>
+            </div>
+          </button>
+
+          <!-- Staff Portal -->
+          <button class="portal-menu-trigger" role="tab" aria-selected="false" aria-controls="detail-staff"
+            id="tab-staff" data-portal="staff" type="button">
+            <div class="portal-menu-icon staff" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+              </svg>
+            </div>
+            <div class="portal-menu-info">
+              <div class="portal-menu-title">Check-in Staff</div>
+              <div class="portal-menu-subtitle">Mobile QR scanner, zero PII</div>
+            </div>
+          </button>
+
+          <!-- Admin Portal -->
+          <button class="portal-menu-trigger" role="tab" aria-selected="false" aria-controls="detail-admin"
+            id="tab-admin" data-portal="admin" type="button">
+            <div class="portal-menu-icon admin" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+            </div>
+            <div class="portal-menu-info">
+              <div class="portal-menu-title">System Administrator</div>
+              <div class="portal-menu-subtitle">Trust gate & platform governance</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Bottom: Dynamic Detail Panel -->
+        <div class="portal-detail-panel" role="region" aria-label="Portal details">
+          <!-- Placeholder state -->
+          <div class="portal-detail-placeholder" id="portal-placeholder">
+            <div class="portal-placeholder-visual" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <h3>Select a Role Portal</h3>
+            <p>Choose a portal from the menu bar above to preview its interface, features, and access method.</p>
           </div>
 
-          <!-- Right: portal cards -->
-          <div>
-            <div class="portals-carousel-header">
-              <span style="font-size:11.5px; font-weight:600; color:var(--text-muted);">4 Role Portals</span>
-              <div class="carousel-nav" aria-label="Portal navigation">
-                <button class="carousel-nav-btn" aria-label="Previous portals" onclick="showToast('Use the portal cards below to navigate', 'info')">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-                    <polyline points="15 18 9 12 15 6"></polyline>
-                  </svg>
-                </button>
-                <button class="carousel-nav-btn" aria-label="Next portals" onclick="showToast('Use the portal cards below to navigate', 'info')">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                  </svg>
-                </button>
+          <!-- Organizer Detail -->
+          <div class="portal-detail-content" id="detail-organizer" data-portal="organizer" role="tabpanel"
+            aria-labelledby="tab-organizer">
+            <div class="portal-detail-header">
+              <div class="portal-detail-icon organizer" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
               </div>
-            </div>
-
-            <div class="portals-strip" id="portals-strip" role="list">
-
-              <!-- Organizer Portal -->
-              <div class="portal-card-v2" role="listitem">
-                <div class="portal-v2-icon organizer" aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                  </svg>
-                </div>
-                <div class="portal-v2-title">Event Organizer</div>
-                <p class="portal-v2-desc">Create events, upload invitations, manage rosters, override capacity, and broadcast reminders.</p>
-                <div class="portal-v2-badge">
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <div class="portal-detail-info">
+                <h3>Event Organizer Portal</h3>
+                <p>Full event lifecycle management — from invitation design to post-event analytics.</p>
+                <div class="portal-detail-badge">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    aria-hidden="true">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                   </svg>
                   OAuth + Admin Gate
                 </div>
-                <div class="portal-v2-action">
-                  <a href="../organizer-portal/organizer-portal.html" class="btn btn-primary btn-sm" id="link-organizer">Launch Organizer Portal →</a>
-                  <button class="btn btn-ghost btn-sm" onclick="showView('login')">Simulate SSO Login</button>
+              </div>
+            </div>
+            <div class="portal-detail-preview">
+              <div class="portal-preview-frame organizer">
+                <div class="portal-preview-content">
+                  <img src="../assets/organizer-portal.png" alt="Organizer Portal Dashboard Preview"
+                    class="portal-preview-image" loading="lazy">
                 </div>
               </div>
+            </div>
+            <div class="portal-detail-cta">
+              <a href="../organizer-portal/organizer-portal.html" class="btn btn-primary"
+                id="link-organizer-detail">Launch Organizer Portal →</a>
+              <button class="btn btn-secondary" onclick="showView('login')">Simulate SSO Login</button>
+            </div>
+          </div>
 
-              <!-- Guest Portal -->
-              <div class="portal-card-v2 active-portal" role="listitem">
-                <div class="portal-v2-icon guest" aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                    <polyline points="22 6 12 13 2 6"></polyline>
-                  </svg>
-                </div>
-                <div class="portal-v2-title">Guest Portal</div>
-                <p class="portal-v2-desc">Self-service RSVP, party roster management, and digital VIP boarding pass access.</p>
-                <div class="portal-v2-badge">
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <!-- Guest Detail -->
+          <div class="portal-detail-content" id="detail-guest" data-portal="guest" role="tabpanel"
+            aria-labelledby="tab-guest">
+            <div class="portal-detail-header">
+              <div class="portal-detail-icon guest" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22 6 12 13 2 6"></polyline>
+                </svg>
+              </div>
+              <div class="portal-detail-info">
+                <h3>Guest Portal</h3>
+                <p>Passwordless self-service for RSVPs, party rosters, and digital boarding passes.</p>
+                <div class="portal-detail-badge">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    aria-hidden="true">
                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                   </svg>
                   Passwordless Magic Link
                 </div>
-                <div class="portal-v2-action">
-                  <a href="../guest-portal/guest-portal.html" class="btn btn-sm" id="link-guest"
-                    style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);color:#fff;">Launch Guest Portal →</a>
-                  <button class="btn btn-ghost btn-sm" onclick="showView('guest-login')" style="color:rgba(255,255,255,0.5);">Simulate Magic Link</button>
+              </div>
+            </div>
+            <div class="portal-detail-preview">
+              <div class="portal-preview-frame guest">
+                <div class="portal-preview-content">
+                  <img src="../assets/guest-portal.png" alt="Guest Portal Landing Preview" class="portal-preview-image"
+                    loading="lazy">
                 </div>
               </div>
+            </div>
+            <div class="portal-detail-cta">
+              <a href="../guest-portal/guest-portal.html" class="btn btn-teal" id="link-guest-detail">Launch Guest
+                Portal →</a>
+              <button class="btn btn-secondary" onclick="showView('guest-login')">Simulate Magic Link</button>
+            </div>
+          </div>
 
-              <!-- Staff Portal -->
-              <div class="portal-card-v2" role="listitem">
-                <div class="portal-v2-icon staff" aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
-                    <line x1="12" y1="18" x2="12.01" y2="18"></line>
-                  </svg>
-                </div>
-                <div class="portal-v2-title">Check-in Staff</div>
-                <p class="portal-v2-desc">Mobile QR scanner with haptic feedback, duplicate alerts, and walk-in registration. No PII access.</p>
-                <div class="portal-v2-badge">
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <!-- Staff Detail -->
+          <div class="portal-detail-content" id="detail-staff" data-portal="staff" role="tabpanel"
+            aria-labelledby="tab-staff">
+            <div class="portal-detail-header">
+              <div class="portal-detail-icon staff" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                  <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                </svg>
+              </div>
+              <div class="portal-detail-info">
+                <h3>Check-in Staff Portal</h3>
+                <p>Mobile-first QR scanner for event-day entrance management with zero PII access.</p>
+                <div class="portal-detail-badge">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    aria-hidden="true">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
                   Event-Day Scoped Token
                 </div>
-                <div class="portal-v2-action">
-                  <a href="../checkin-staff-portal/checkin-staff-portal.html" class="btn btn-secondary btn-sm" id="link-staff">Launch Staff Scanner →</a>
-                  <button class="btn btn-ghost btn-sm" onclick="showView('staff-login')">Simulate Staff Auth</button>
+              </div>
+            </div>
+            <div class="portal-detail-preview">
+              <div class="portal-preview-frame staff">
+                <div class="portal-preview-content">
+                  <img src="../assets/scanner-portal.png" alt="Check-in Staff Portal Scanner Preview"
+                    class="portal-preview-image" loading="lazy">
                 </div>
               </div>
+            </div>
+            <div class="portal-detail-cta">
+              <a href="../checkin-staff-portal/checkin-staff-portal.html" class="btn btn-secondary"
+                id="link-staff-detail">Launch Staff Scanner →</a>
+              <button class="btn btn-ghost" onclick="showView('staff-login')">Simulate Staff Auth</button>
+            </div>
+          </div>
 
-              <!-- Admin Portal -->
-              <div class="portal-card-v2" role="listitem">
-                <div class="portal-v2-icon admin" aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                  </svg>
-                </div>
-                <div class="portal-v2-title">System Administrator</div>
-                <p class="portal-v2-desc">Trust gate for account activation, org settings, and email domain governance. Zero guest-list access.</p>
-                <div class="portal-v2-badge">
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <!-- Admin Detail -->
+          <div class="portal-detail-content" id="detail-admin" data-portal="admin" role="tabpanel"
+            aria-labelledby="tab-admin">
+            <div class="portal-detail-header">
+              <div class="portal-detail-icon admin" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+              </div>
+              <div class="portal-detail-info">
+                <h3>System Administrator Portal</h3>
+                <p>Root trust gate for account activation, organization governance, and platform security.</p>
+                <div class="portal-detail-badge">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    aria-hidden="true">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                     <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                   </svg>
                   Root Trust Gate
                 </div>
-                <div class="portal-v2-action">
-                  <a href="../admin-portal/admin-portal.html" class="btn btn-dark btn-sm" id="link-admin">Launch Admin Portal →</a>
-                  <button class="btn btn-ghost btn-sm" onclick="showView('pending')">Simulate Pending Screen</button>
+              </div>
+            </div>
+            <div class="portal-detail-preview">
+              <div class="portal-preview-frame admin">
+                <div class="portal-preview-content">
+                  <img src="../assets/admin-portal.png" alt="Admin Portal Dashboard Preview"
+                    class="portal-preview-image" loading="lazy">
                 </div>
               </div>
-
+            </div>
+            <div class="portal-detail-cta">
+              <a href="../admin-portal/admin-portal.html" class="btn btn-dark" id="link-admin-detail">Launch Admin
+                Portal →</a>
+              <button class="btn btn-ghost" onclick="showView('pending')">Simulate Pending Screen</button>
             </div>
           </div>
         </div>
@@ -1207,12 +2455,15 @@
 
       <!-- TECHNOLOGY SECTION -->
       <div class="lp-tech-section">
-        <div style="margin-bottom:6px;"><div class="lp-section-eyebrow">/ TECHNOLOGY</div></div>
+        <div style="margin-bottom:6px;">
+          <div class="lp-section-eyebrow">/ TECHNOLOGY</div>
+        </div>
         <div class="lp-tech-layout">
 
           <!-- Left: visual panel -->
           <div class="tech-visual">
-            <img class="tech-visual-bg" src="../assets/architecture-event.jpg" alt="EIRMIS Volunteer Operations &amp; Production Architecture" loading="lazy">
+            <img class="tech-visual-bg" src="../assets/architecture-event.jpg"
+              alt="EIRMIS Volunteer Operations &amp; Production Architecture" loading="lazy">
             <div class="tech-visual-overlay"></div>
             <div class="tech-visual-content">
               <div class="tech-visual-label">ARCHITECTURE</div>
@@ -1234,11 +2485,13 @@
 
               <div class="tech-feature">
                 <div class="tech-feature-title">Real-Time Tracking</div>
-                <p class="tech-feature-desc">Stay up-to-date with your RSVP data from pick-up to entrance scan delivery.</p>
+                <p class="tech-feature-desc">Stay up-to-date with your RSVP data from pick-up to entrance scan delivery.
+                </p>
                 <button class="tech-feature-link" onclick="showView('login')">
                   Learn More
                   <span class="tech-feature-link-arrow">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                      aria-hidden="true">
                       <line x1="5" y1="12" x2="19" y2="12"></line>
                       <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
@@ -1248,11 +2501,13 @@
 
               <div class="tech-feature">
                 <div class="tech-feature-title">Audit Analytics</div>
-                <p class="tech-feature-desc">Gain insights into your supply chain, identify bottlenecks, and make data-driven decisions.</p>
+                <p class="tech-feature-desc">Gain insights into your supply chain, identify bottlenecks, and make
+                  data-driven decisions.</p>
                 <button class="tech-feature-link" onclick="showView('docs')">
                   Learn More
                   <span class="tech-feature-link-arrow">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                      aria-hidden="true">
                       <line x1="5" y1="12" x2="19" y2="12"></line>
                       <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
@@ -1264,11 +2519,13 @@
 
               <div class="tech-feature">
                 <div class="tech-feature-title">Automated Notifications</div>
-                <p class="tech-feature-desc">Receive timely transactional emails for magic links, RSVP confirmations, and event-day reminders.</p>
+                <p class="tech-feature-desc">Receive timely transactional emails for magic links, RSVP confirmations,
+                  and event-day reminders.</p>
                 <button class="tech-feature-link" onclick="showView('register')">
                   Learn More
                   <span class="tech-feature-link-arrow">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                      aria-hidden="true">
                       <line x1="5" y1="12" x2="19" y2="12"></line>
                       <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
@@ -1278,11 +2535,13 @@
 
               <div class="tech-feature">
                 <div class="tech-feature-title">Secure Role Portals</div>
-                <p class="tech-feature-desc">Access your account anytime with our secure, RLS-enforced portals for managing and tracking events.</p>
+                <p class="tech-feature-desc">Access your account anytime with our secure, RLS-enforced portals for
+                  managing and tracking events.</p>
                 <button class="tech-feature-link" onclick="showView('docs')">
                   Learn More
                   <span class="tech-feature-link-arrow">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                      aria-hidden="true">
                       <line x1="5" y1="12" x2="19" y2="12"></line>
                       <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
@@ -1302,7 +2561,8 @@
       <div class="auth-card">
         <div class="auth-header">
           <div class="auth-avatar-wrap" style="background:var(--primary-subtle); color:var(--primary);">
-            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
               <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
               <polyline points="10 17 15 12 10 7"></polyline>
               <line x1="15" y1="12" x2="3" y2="12"></line>
@@ -1314,21 +2574,24 @@
 
         <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px;">
           <button class="sso-btn" onclick="simulateSsoLogin('active-organizer')">
-            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)"
+              stroke-width="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
             Continue as Active Organizer
           </button>
           <button class="sso-btn" onclick="simulateSsoLogin('pending-organizer')">
-            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warning)"
+              stroke-width="2">
               <circle cx="12" cy="12" r="10"></circle>
               <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
             Sign In as Pending Organizer
           </button>
           <button class="sso-btn" onclick="simulateSsoLogin('admin')">
-            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--dark)" stroke-width="2">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--dark)"
+              stroke-width="2">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
             </svg>
             Sign In as System Administrator
@@ -1337,10 +2600,13 @@
 
         <div class="notice-box neutral">
           <strong>Open OAuth:</strong> EIRMIS permits sign in from any valid SSO account without restrictive domain
-          whitelisting. First-time sign-ins enter an audited <code>pending</code> queue awaiting administrator activation.
+          whitelisting. First-time sign-ins enter an audited <code>pending</code> queue awaiting administrator
+          activation.
         </div>
         <div style="margin-top:24px; text-align:center;">
-          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">← Return to Landing Hub</a>
+          <a href="#landing" onclick="showView('landing')"
+            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">← Return to Landing
+            Hub</a>
         </div>
       </div>
     </section>
@@ -1349,23 +2615,28 @@
     <section id="view-pending" class="view-section">
       <div class="auth-card" style="text-align:center;">
         <div class="auth-avatar-wrap" style="background:var(--warning-bg); color:var(--warning);">
-          <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.2">
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12 6 12 12 14 14"></polyline>
           </svg>
         </div>
         <div class="status-badge pending" style="margin-bottom:14px;">Account Status: Pending Review</div>
-        <h2 style="font-family:var(--font-heading); font-size:22px; font-weight:800; color:var(--text-main); margin-bottom:8px;">Verification in Progress</h2>
+        <h2
+          style="font-family:var(--font-heading); font-size:22px; font-weight:800; color:var(--text-main); margin-bottom:8px;">
+          Verification in Progress</h2>
         <p style="color:var(--text-muted); font-size:13.5px; margin-bottom:20px; line-height:1.6;">
           Signed in as <strong>sarah.jenkins@example.com</strong>. Because any SSO account can register, an
           Administrator must verify your profile before you can publish events or dispatch invitations.
         </p>
         <div class="notice-box warning" style="text-align:left; margin-bottom:24px;">
-          <strong>Security Gate:</strong> The manual verification gate ensures trust and platform accountability. You will receive an automated confirmation email once activated.
+          <strong>Security Gate:</strong> The manual verification gate ensures trust and platform accountability. You
+          will receive an automated confirmation email once activated.
         </div>
         <div style="display:flex; gap:10px; justify-content:center;">
           <a href="../admin-portal/admin-portal.html" class="btn btn-secondary btn-sm">
-            <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
             </svg>
             Switch to Admin Portal
@@ -1380,7 +2651,8 @@
       <div class="auth-card">
         <div class="auth-header">
           <div class="auth-avatar-wrap" style="background:var(--secondary-subtle); color:var(--secondary);">
-            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
               <polyline points="22 6 12 13 2 6"></polyline>
             </svg>
@@ -1391,26 +2663,32 @@
         <form onsubmit="handleGuestLogin(event)">
           <div class="form-group">
             <label class="form-label" for="guest-email">Your Email Address</label>
-            <input type="email" id="guest-email" class="form-control" placeholder="guest@example.com" required value="elena.rostova@example.com">
+            <input type="email" id="guest-email" class="form-control" placeholder="guest@example.com" required
+              value="elena.rostova@example.com">
           </div>
           <button type="submit" class="btn btn-teal" style="width:100%; padding:11px;">
             Send Magic Link
-            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
             </svg>
           </button>
         </form>
         <div id="guest-magic-sent" style="display:none; margin-top:20px;" class="notice-box success">
-          <strong>Magic Link Dispatched:</strong> A secure tokenized sign-in link has been sent to <span id="sent-guest-email" style="font-family:monospace; font-weight:700;"></span>.
+          <strong>Magic Link Dispatched:</strong> A secure tokenized sign-in link has been sent to <span
+            id="sent-guest-email" style="font-family:monospace; font-weight:700;"></span>.
           <div style="margin-top:14px;">
-            <a href="../guest-portal/guest-portal.html" class="btn btn-teal btn-sm" style="width:100%; text-align:center;">
+            <a href="../guest-portal/guest-portal.html" class="btn btn-teal btn-sm"
+              style="width:100%; text-align:center;">
               Simulate Email Link Click (Launch Guest Portal) →
             </a>
           </div>
         </div>
         <div style="margin-top:24px; text-align:center;">
-          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">← Return to Landing Hub</a>
+          <a href="#landing" onclick="showView('landing')"
+            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">← Return to Landing
+            Hub</a>
         </div>
       </div>
     </section>
@@ -1420,7 +2698,8 @@
       <div class="auth-card">
         <div class="auth-header">
           <div class="auth-avatar-wrap" style="background:#FEF3C7; color:var(--warning);">
-            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
               <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
               <line x1="12" y1="18" x2="12.01" y2="18"></line>
             </svg>
@@ -1431,51 +2710,63 @@
         <form onsubmit="handleStaffLogin(event)">
           <div class="form-group">
             <label class="form-label" for="staff-email">Staff Member Email</label>
-            <input type="email" id="staff-email" class="form-control" placeholder="staff@example.com" required value="marcus.staff@events.org">
+            <input type="email" id="staff-email" class="form-control" placeholder="staff@example.com" required
+              value="marcus.staff@events.org">
           </div>
           <button type="submit" class="btn btn-primary" style="width:100%; padding:11px;">
             Send Staff Scanner Token
-            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
             </svg>
           </button>
         </form>
         <div id="staff-magic-sent" style="display:none; margin-top:20px;" class="notice-box success">
-          <strong>Staff Access Link Dispatched:</strong> Scoped check-in token generated for <span id="sent-staff-email" style="font-family:monospace; font-weight:700;"></span>.
+          <strong>Staff Access Link Dispatched:</strong> Scoped check-in token generated for <span id="sent-staff-email"
+            style="font-family:monospace; font-weight:700;"></span>.
           <div style="margin-top:14px;">
-            <a href="../checkin-staff-portal/checkin-staff-portal.html" class="btn btn-primary btn-sm" style="width:100%; text-align:center;">
+            <a href="../checkin-staff-portal/checkin-staff-portal.html" class="btn btn-primary btn-sm"
+              style="width:100%; text-align:center;">
               Simulate Token Entry (Open Staff Scanner) →
             </a>
           </div>
         </div>
         <div class="notice-box neutral" style="margin-top:20px;">
-          <strong>Day-of Security Scope:</strong> Check-in staff access is strictly restricted to their assigned event and active only on event day. Staff have no access to full guest lists or contact data.
+          <strong>Day-of Security Scope:</strong> Check-in staff access is strictly restricted to their assigned event
+          and active only on event day. Staff have no access to full guest lists or contact data.
         </div>
         <div style="margin-top:24px; text-align:center;">
-          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">← Return to Landing Hub</a>
+          <a href="#landing" onclick="showView('landing')"
+            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">← Return to Landing
+            Hub</a>
         </div>
       </div>
     </section>
 
     <!-- ======================================= 6. PUBLIC OPEN-REGISTRATION VIEW (/register/:slug) -->
     <section id="view-register" class="view-section">
-      <div style="max-width:680px; margin:0 auto; background:#FFFFFF; border:1px solid var(--border); border-radius:var(--radius-lg); padding:32px; box-shadow:var(--shadow-md);">
+      <div
+        style="max-width:680px; margin:0 auto; background:#FFFFFF; border:1px solid var(--border); border-radius:var(--radius-lg); padding:32px; box-shadow:var(--shadow-md);">
         <div style="border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:24px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <span class="status-badge active">
-              <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="3">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
               Public Open Registration
             </span>
-            <span style="font-size:11px; color:var(--text-muted); font-family:monospace;">/register/tech-forward-2026</span>
+            <span
+              style="font-size:11px; color:var(--text-muted); font-family:monospace;">/register/tech-forward-2026</span>
           </div>
-          <h1 style="font-family:var(--font-heading); font-size:26px; font-weight:800; color:var(--text-main); margin-bottom:6px; letter-spacing:-0.02em;">
+          <h1
+            style="font-family:var(--font-heading); font-size:26px; font-weight:800; color:var(--text-main); margin-bottom:6px; letter-spacing:-0.02em;">
             Tech Forward Annual Gala 2026
           </h1>
           <p style="color:var(--text-muted); font-size:13.5px; display:flex; align-items:center; gap:6px;">
-            <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
               <circle cx="12" cy="10" r="3"></circle>
             </svg>
@@ -1486,11 +2777,13 @@
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
             <div class="form-group" style="margin-bottom:0;">
               <label class="form-label" for="reg-name">Full Name *</label>
-              <input type="text" id="reg-name" class="form-control" required placeholder="Full Name" value="Dr. Aris Thorne">
+              <input type="text" id="reg-name" class="form-control" required placeholder="Full Name"
+                value="Dr. Aris Thorne">
             </div>
             <div class="form-group" style="margin-bottom:0;">
               <label class="form-label" for="reg-email">Email Address *</label>
-              <input type="email" id="reg-email" class="form-control" required placeholder="email@company.com" value="aris.thorne@biotech-innovate.org">
+              <input type="email" id="reg-email" class="form-control" required placeholder="email@company.com"
+                value="aris.thorne@biotech-innovate.org">
             </div>
           </div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
@@ -1513,11 +2806,14 @@
           </div>
           <div class="form-group">
             <label class="form-label" for="reg-notes">Special Requests / Affiliation</label>
-            <textarea id="reg-notes" class="form-control" rows="2">Keynote speaker guest, requires wheelchair accessible seating.</textarea>
+            <textarea id="reg-notes" class="form-control"
+              rows="2">Keynote speaker guest, requires wheelchair accessible seating.</textarea>
           </div>
-          <button type="submit" class="btn btn-primary" style="width:100%; padding:12px; font-size:14px; margin-top:8px;">
+          <button type="submit" class="btn btn-primary"
+            style="width:100%; padding:12px; font-size:14px; margin-top:8px;">
             Submit RSVP &amp; Register
-            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
             </svg>
@@ -1525,48 +2821,65 @@
         </form>
         <div id="reg-success-box" style="display:none; margin-top:20px;" class="notice-box success">
           <h4 style="font-size:14px; margin-bottom:4px; font-weight:800; display:flex; align-items:center; gap:6px;">
-            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5">
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
             Registration Confirmed (Invitation Accepted)
           </h4>
           <p style="margin-bottom:12px; line-height:1.5;">
-            Your RSVP has been auto-recorded with status <strong>accepted</strong> (Attendee #1 primary guest confirmed). A transactional email with your secure passwordless magic link has been sent to <strong id="registered-email"></strong>.
+            Your RSVP has been auto-recorded with status <strong>accepted</strong> (Attendee #1 primary guest
+            confirmed). A transactional email with your secure passwordless magic link has been sent to <strong
+              id="registered-email"></strong>.
           </p>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <a href="../guest-portal/guest-portal.html" class="btn btn-teal btn-sm">Proceed to Guest Portal to Submit Named Party Roster →</a>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="showToast('Resent confirmation email with magic link')">Resend Magic Link</button>
+            <a href="../guest-portal/guest-portal.html" class="btn btn-teal btn-sm">Proceed to Guest Portal to Submit
+              Named Party Roster →</a>
+            <button type="button" class="btn btn-secondary btn-sm"
+              onclick="showToast('Resent confirmation email with magic link')">Resend Magic Link</button>
           </div>
         </div>
         <div style="margin-top:24px; text-align:center;">
-          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">← Return to Overview</a>
+          <a href="#landing" onclick="showView('landing')"
+            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">← Return to
+            Overview</a>
         </div>
       </div>
     </section>
 
     <!-- ======================================= 7. API DOCS VIEW (/docs) -->
     <section id="view-docs" class="view-section">
-      <div style="max-width:900px; margin:0 auto; background:#FFFFFF; border:1px solid var(--border); border-radius:var(--radius-lg); padding:32px; box-shadow:var(--shadow-md);">
+      <div
+        style="max-width:900px; margin:0 auto; background:#FFFFFF; border:1px solid var(--border); border-radius:var(--radius-lg); padding:32px; box-shadow:var(--shadow-md);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
           <div>
-            <h1 style="font-family:var(--font-heading); font-size:24px; font-weight:800; color:var(--text-main); letter-spacing:-0.02em;">API Reference</h1>
+            <h1
+              style="font-family:var(--font-heading); font-size:24px; font-weight:800; color:var(--text-main); letter-spacing:-0.02em;">
+              API Reference</h1>
             <p style="color:var(--text-muted); font-size:13px; margin-top:4px;">
-              Redoc view of <code style="background:#F1F5F9; padding:2px 6px; border-radius:4px;">contract/openapi.yaml</code> — the single source of truth for every callable endpoint.
+              Redoc view of <code
+                style="background:#F1F5F9; padding:2px 6px; border-radius:4px;">contract/openapi.yaml</code> — the
+              single source of truth for every callable endpoint.
             </p>
           </div>
           <span class="status-badge active">
-            <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="3">
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
             OpenAPI 3.1
           </span>
         </div>
         <div class="notice-box neutral" style="margin-bottom:20px;">
-          <strong>Auth-gated outside development:</strong> this route is open in development and requires an authenticated session in deployed environments. Operations are grouped by portal (Organizer / Admin / Guest / Check-in Staff / Public).
+          <strong>Auth-gated outside development:</strong> this route is open in development and requires an
+          authenticated session in deployed environments. Operations are grouped by portal (Organizer / Admin / Guest /
+          Check-in Staff / Public).
         </div>
         <div style="display:grid; grid-template-columns: 240px 1fr; gap:24px;">
           <div style="border-right:1px solid var(--border); padding-right:16px;">
-            <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:12px;">Tag Groups</div>
+            <div
+              style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:12px;">
+              Tag Groups</div>
             <div style="display:flex; flex-direction:column; gap:6px; font-size:13px;">
               <span style="color:var(--primary); font-weight:600;">Organizer</span>
               <span style="color:var(--text-muted);">Admin</span>
@@ -1576,40 +2889,49 @@
             </div>
           </div>
           <div>
-            <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:12px;">Edge Function Operations</div>
+            <div
+              style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:12px;">
+              Edge Function Operations</div>
             <div style="display:flex; flex-direction:column; gap:8px;">
               <div style="display:flex; align-items:center; gap:8px; font-size:13px;">
-                <span style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
+                <span
+                  style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
                 <code style="font-family:monospace;">/functions/v1/invitation-html</code>
                 <span style="color:var(--text-muted); margin-left:auto;">uploadInvitationHtml</span>
               </div>
               <div style="display:flex; align-items:center; gap:8px; font-size:13px;">
-                <span style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
+                <span
+                  style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
                 <code style="font-family:monospace;">/functions/v1/attendees/{id}/decision</code>
                 <span style="color:var(--text-muted); margin-left:auto;">decideAttendee</span>
               </div>
               <div style="display:flex; align-items:center; gap:8px; font-size:13px;">
-                <span style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
+                <span
+                  style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
                 <code style="font-family:monospace;">/functions/v1/headcount-requests/{id}/decision</code>
                 <span style="color:var(--text-muted); margin-left:auto;">decideHeadcountRequest</span>
               </div>
               <div style="display:flex; align-items:center; gap:8px; font-size:13px;">
-                <span style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
+                <span
+                  style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
                 <code style="font-family:monospace;">/functions/v1/qr-bundle</code>
                 <span style="color:var(--text-muted); margin-left:auto;">dispatchQrBundle</span>
               </div>
               <div style="display:flex; align-items:center; gap:8px; font-size:13px;">
-                <span style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
+                <span
+                  style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
                 <code style="font-family:monospace;">/functions/v1/checkin/scan</code>
                 <span style="color:var(--text-muted); margin-left:auto;">scanCheckIn</span>
               </div>
               <div style="display:flex; align-items:center; gap:8px; font-size:13px;">
-                <span style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
+                <span
+                  style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
                 <code style="font-family:monospace;">/functions/v1/reminders/dispatch</code>
                 <span style="color:var(--text-muted); margin-left:auto;">sendReminders</span>
               </div>
               <div style="display:flex; align-items:center; gap:8px; font-size:13px;">
-                <span style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
+                <span
+                  style="background:#EEF2FF; color:var(--primary); font-weight:700; padding:2px 8px; border-radius:4px; font-size:11px;">POST</span>
                 <code style="font-family:monospace;">/functions/v1/waitlist/promote</code>
                 <span style="color:var(--text-muted); margin-left:auto;">promoteWaitlist</span>
               </div>
@@ -1617,7 +2939,9 @@
           </div>
         </div>
         <div style="margin-top:24px; text-align:center;">
-          <a href="#landing" onclick="showView('landing')" style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">← Return to Landing Hub</a>
+          <a href="#landing" onclick="showView('landing')"
+            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">← Return to Landing
+            Hub</a>
         </div>
       </div>
     </section>
@@ -1627,7 +2951,8 @@
   <!-- Toast -->
   <div id="toast" class="toast" role="status" aria-live="polite">
     <span class="toast-icon" id="toast-icon">
-      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.5">
         <polyline points="20 6 9 17 4 12"></polyline>
       </svg>
     </span>
@@ -1637,6 +2962,22 @@
   <footer>
     <div>EIRMIS — Event Invitation and RSVP Management Information System • Copyright © 2026</div>
   </footer>
+
+  <!-- Lightbox Modal for Portal Image Enlargement -->
+  <div class="portal-lightbox" id="portal-lightbox" role="dialog" aria-modal="true"
+    aria-label="Portal preview enlarged">
+    <div class="portal-lightbox-content">
+      <button class="portal-lightbox-close" aria-label="Close enlarged preview" type="button">
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <img class="portal-lightbox-image" id="portal-lightbox-image" src="" alt="">
+      <div class="portal-lightbox-caption" id="portal-lightbox-caption"></div>
+    </div>
+  </div>
 
   <script>
     /* View routing */
@@ -1782,10 +3123,10 @@
     /* Portal link health check — marks unavailable portals with tooltip feedback */
     function checkPortalLinks() {
       const links = [
-        { id: 'link-organizer', path: '../organizer-portal/organizer-portal.html', label: 'Organizer Portal' },
-        { id: 'link-guest',     path: '../guest-portal/guest-portal.html',          label: 'Guest Portal' },
-        { id: 'link-staff',     path: '../checkin-staff-portal/checkin-staff-portal.html', label: 'Staff Scanner' },
-        { id: 'link-admin',     path: '../admin-portal/admin-portal.html',           label: 'Admin Portal' },
+        { id: 'link-organizer-detail', path: '../organizer-portal/organizer-portal.html', label: 'Organizer Portal' },
+        { id: 'link-guest-detail', path: '../guest-portal/guest-portal.html', label: 'Guest Portal' },
+        { id: 'link-staff-detail', path: '../checkin-staff-portal/checkin-staff-portal.html', label: 'Staff Scanner' },
+        { id: 'link-admin-detail', path: '../admin-portal/admin-portal.html', label: 'Admin Portal' },
       ];
       links.forEach(({ id, path, label }) => {
         const el = document.getElementById(id);
@@ -1805,6 +3146,139 @@
       el.removeAttribute('href');
     }
 
+    /* Portal Tabs Interaction + Lightbox */
+    function initPortalTabs() {
+      const menuTriggers = document.querySelectorAll('.portal-menu-trigger');
+      const detailContents = document.querySelectorAll('.portal-detail-content');
+      const placeholder = document.getElementById('portal-placeholder');
+      const lightbox = document.getElementById('portal-lightbox');
+      const lightboxImage = document.getElementById('portal-lightbox-image');
+      const lightboxCaption = document.getElementById('portal-lightbox-caption');
+      const lightboxClose = document.querySelector('.portal-lightbox-close');
+      let activeIndex = 0;
+
+      // Update active selection (menu bar + detail panel)
+      function setActive(index) {
+        // Update menu bar triggers
+        menuTriggers.forEach((trigger, i) => {
+          trigger.setAttribute('aria-selected', i === index ? 'true' : 'false');
+        });
+
+        // Update detail panel
+        detailContents.forEach(dc => dc.classList.remove('active'));
+        const detailPanel = detailContents[index];
+        if (detailPanel) {
+          detailPanel.classList.add('active');
+          placeholder.style.display = 'none';
+        }
+        activeIndex = index;
+      }
+
+      // Handle trigger click
+      menuTriggers.forEach((trigger, index) => {
+        trigger.addEventListener('click', () => {
+          setActive(index);
+        });
+
+        // Keyboard support for menu triggers
+        trigger.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setActive(index);
+          }
+          // Arrow key navigation between menu items
+          if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            const nextIndex = (index + 1) % menuTriggers.length;
+            menuTriggers[nextIndex].focus();
+            setActive(nextIndex);
+          }
+          if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            const prevIndex = (index - 1 + menuTriggers.length) % menuTriggers.length;
+            menuTriggers[prevIndex].focus();
+            setActive(prevIndex);
+          }
+          // Home/End keys
+          if (e.key === 'Home') {
+            e.preventDefault();
+            menuTriggers[0].focus();
+            setActive(0);
+          }
+          if (e.key === 'End') {
+            e.preventDefault();
+            const lastIndex = menuTriggers.length - 1;
+            menuTriggers[lastIndex].focus();
+            setActive(lastIndex);
+          }
+        });
+      });
+
+      // Lightbox functionality
+      function openLightbox(imageSrc, captionText) {
+        lightboxImage.src = imageSrc;
+        lightboxImage.alt = captionText;
+        lightboxCaption.textContent = captionText;
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        // Focus close button for accessibility
+        lightboxClose.focus();
+      }
+
+      function closeLightbox() {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+        lightboxImage.src = '';
+        lightboxCaption.textContent = '';
+        // Return focus to active trigger
+        if (menuTriggers[activeIndex]) {
+          menuTriggers[activeIndex].focus();
+        }
+      }
+
+      // Click on preview images to open lightbox
+      const previewImages = document.querySelectorAll('.portal-preview-image');
+      previewImages.forEach(img => {
+        img.style.cursor = 'zoom-in';
+        img.addEventListener('click', () => {
+          openLightbox(img.src, img.alt || 'Portal preview');
+        });
+        // Keyboard support for images
+        img.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openLightbox(img.src, img.alt || 'Portal preview');
+          }
+        });
+        // Make images focusable for keyboard access
+        img.setAttribute('tabindex', '0');
+        img.setAttribute('role', 'button');
+        img.setAttribute('aria-label', `Enlarge ${img.alt || 'portal preview'}`);
+      });
+
+      // Close lightbox on close button click
+      lightboxClose.addEventListener('click', closeLightbox);
+
+      // Close lightbox on backdrop click
+      lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) {
+          closeLightbox();
+        }
+      });
+
+      // Close lightbox on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+          closeLightbox();
+        }
+      });
+
+      // Initialize with first item (Organizer) active
+      if (menuTriggers.length > 0) {
+        setActive(0);
+      }
+    }
+
     /* Hash-based routing on load */
     window.addEventListener('DOMContentLoaded', () => {
       const hash = window.location.hash.replace('#', '');
@@ -1812,6 +3286,7 @@
         showView(hash);
       }
       initHeroCarousel();
+      initPortalTabs();
       setTimeout(checkPortalLinks, 600);
     });
   </script>
@@ -1819,4 +3294,5 @@
   <script>if (typeof EIRMIS !== 'undefined') EIRMIS.init({ portal: 'landing' });</script>
 
 </body>
+
 </html>
