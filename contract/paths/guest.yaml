@@ -6,34 +6,6 @@
 # with operations tagged by their actual audience.
 # =============================================================================
 
-/rest/v1/guests/me:
-  get:
-    operationId: getGuestProfile
-    summary: Read own guest profile
-    description: >
-      Returns the authenticated guest's own row from the `guests` table.
-      Filter by `auth_user_id=eq.{uid}` — RLS auto-scopes by `auth.uid()`.
-    tags: [Guest — Profile]
-    parameters:
-      - $ref: '../components/parameters.yaml#/SelectParam'
-      - name: auth_user_id
-        in: query
-        schema:
-          type: string
-          example: eq.33333333-3333-3333-3333-333333333333
-    responses:
-      '200':
-        description: Guest profile.
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '../components/schemas/Guest.yaml#/Guest'
-              maxItems: 1
-      '401':
-        $ref: '../components/responses.yaml#/Unauthorized'
-
 /rest/v1/guests/{id}:
   patch:
     operationId: updateGuestProfile
