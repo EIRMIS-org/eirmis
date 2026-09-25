@@ -68,3 +68,6 @@ Check-in Staff have **scanning/search only** for their single assigned event. Th
 - [x] No guest-list/RSVP/design screens present (respects the access boundary).
 - [x] Mobile-first layout.
 - [x] Shared runtime provides global nav, session switching, toasts, and cross-portal sync.
+- [x] Live Entrance Audit Log records action source, actor, method, and outcome.
+- [x] Failed scans display clear errors and log without creating false attendance records.
+- [x] Audit logs are read-only and immutable.
