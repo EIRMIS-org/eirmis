@@ -24,7 +24,11 @@ VALUES ('22222222-2222-2222-2222-222222222222', 'admin@example.com', 'Synthetic 
 INSERT INTO public.guests (id, email, full_name, auth_user_id)
 VALUES 
   ('33333333-3333-3333-3333-333333333333', 'guest@example.com', 'Synthetic Guest', '33333333-3333-3333-3333-333333333333'),
-  ('44444444-4444-4444-4444-444444444444', 'staff@example.com', 'Synthetic Staff', '44444444-4444-4444-4444-444444444444');
+  ('44444444-4444-4444-4444-444444444444', 'staff@example.com', 'Synthetic Staff', '44444444-4444-4444-4444-444444444444')
+ON CONFLICT (email) DO UPDATE SET
+  id = EXCLUDED.id,
+  full_name = EXCLUDED.full_name,
+  auth_user_id = EXCLUDED.auth_user_id;
 
 -- Insert Event
 INSERT INTO public.events (id, organizer_id, title, slug, description, starts_at, ends_at, capacity, rsvp_deadline, visibility_mode, status)

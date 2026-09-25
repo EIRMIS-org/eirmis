@@ -428,24 +428,14 @@ paths:
   # ---------- Admin portal ----------
   /rest/v1/admin_profiles:
     $ref: './paths/admin.yaml#/~1rest~1v1~1admin_profiles'
-  /rest/v1/organizer_profiles/pending:
-    $ref: './paths/admin.yaml#/~1rest~1v1~1organizer_profiles~1pending'
 
   # ---------- Guest portal ----------
-  /rest/v1/guests/me:
-    $ref: './paths/guest.yaml#/~1rest~1v1~1guests~1me'
   /rest/v1/guests/{id}:
     $ref: './paths/guest.yaml#/~1rest~1v1~1guests~1{id}'
 
   # ---------- Check-in Staff portal ----------
-  /rest/v1/events/assigned:
-    $ref: './paths/staff.yaml#/~1rest~1v1~1events~1assigned'
 
   # ---------- Public (no auth) ----------
-  /rest/v1/events/public:
-    $ref: './paths/public.yaml#/~1rest~1v1~1events~1public'
-  /rest/v1/guests/register:
-    $ref: './paths/public.yaml#/~1rest~1v1~1guests~1register'
 
   # ---------- Edge Functions ----------
   /functions/v1/invitation-html:
@@ -464,3 +454,5 @@ paths:
     $ref: './paths/functions.yaml#/~1functions~1v1~1reminders~1dispatch'
   /functions/v1/waitlist/promote:
     $ref: './paths/functions.yaml#/~1functions~1v1~1waitlist~1promote'
+  /functions/v1/register:
+    $ref: './paths/functions.yaml#/~1functions~1v1~1register'

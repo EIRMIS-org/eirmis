@@ -1,0 +1,17 @@
+type: object
+required: [event_id, email, full_name]
+properties:
+  event_id:
+    type: string
+    format: uuid
+    description: The ID of the open-registration event to register for.
+    example: 55555555-5555-5555-5555-555555555555
+  email:
+    type: string
+    format: email
+    description: Guest's email address.
+    example: newguest@example.com
+  full_name:
+    type: string
+    description: Guest's full name.
+    example: Juan dela Cruz

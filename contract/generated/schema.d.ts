@@ -432,46 +432,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/rest/v1/organizer_profiles/pending": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List pending organizer accounts (admin verification queue)
-         * @description Returns organizer profiles with `status = pending`. Used by the admin to populate the verification queue. RLS restricts this to admin identities only. Use `/rest/v1/organizer_profiles?status=eq.pending` with the `admin_profiles` existence check enforced by RLS — this documented path uses the standard PostgREST filter syntax.
-         */
-        get: operations["listPendingOrganizers"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/rest/v1/guests/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read own guest profile
-         * @description Returns the authenticated guest's own row from the `guests` table. Filter by `auth_user_id=eq.{uid}` — RLS auto-scopes by `auth.uid()`.
-         */
-        get: operations["getGuestProfile"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/rest/v1/guests/{id}": {
         parameters: {
             query?: never;
@@ -490,66 +450,6 @@ export interface paths {
          * @description A guest may update their own `full_name`. RLS restricts the update to `auth_user_id = auth.uid()`.
          */
         patch: operations["updateGuestProfile"];
-        trace?: never;
-    };
-    "/rest/v1/events/assigned": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the event assigned to the check-in staff member
-         * @description Returns the single event associated with the authenticated staff member's `active` `CheckInAssignment`. RLS enforces the scope — only the one assigned event is visible. Filter by the event ID obtained from the assignment row. Use `GET /rest/v1/events?id=eq.{eventId}` in practice.
-         */
-        get: operations["getAssignedEvent"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/rest/v1/events/public": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Look up an open-registration event by slug
-         * @description Returns a published, non-deleted `open_registration` event matching the given slug. Used to populate the public `/register/:slug` page before any authentication. RLS permits `anon` reads for matching events.
-         */
-        get: operations["getPublicEvent"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/rest/v1/guests/register": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Create or match a guest for open-registration
-         * @description Creates a new guest record, or matches an existing one by email, as part of the public `/register/:slug` submission flow. Use `Prefer: resolution=merge-duplicates` to upsert on email conflict. Returns the created or matched guest row with `Prefer: return=representation`. The caller then uses the returned `id` to create the invitation.
-         */
-        post: operations["registerGuest"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
         trace?: never;
     };
     "/functions/v1/invitation-html": {
@@ -713,6 +613,26 @@ export interface paths {
          * @description Promotes waitlisted invitations for an event in strict FIFO order (keyed by `waitlisted_at`). Promotion changes the invitation `status` from `waitlisted` to `accepted` and sends a `waitlist_promoted` email. Any previously-submitted attendees remain `pending`; promotion only unblocks the invitation, it does not auto-approve anyone. Runs privileged and atomically. **Service-role only in automated runs; the organizer may also trigger it manually from the attendance screen.**
          */
         post: operations["promoteWaitlist"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/functions/v1/register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Register for an open-registration event
+         * @description Atomically creates/matches a guest row, creates an `accepted` invitation for the specified open-registration event, and dispatches the confirmation email with a magic-link.
+         */
+        post: operations["registerPublicGuest"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1813,6 +1733,25 @@ export interface components {
          * @enum {string}
          */
         OrganizerStatus: "pending" | "active";
+        RegisterPublicRequest: {
+            /**
+             * Format: uuid
+             * @description The ID of the open-registration event to register for.
+             * @example 55555555-5555-5555-5555-555555555555
+             */
+            event_id: string;
+            /**
+             * Format: email
+             * @description Guest's email address.
+             * @example newguest@example.com
+             */
+            email: string;
+            /**
+             * @description Guest's full name.
+             * @example Juan dela Cruz
+             */
+            full_name: string;
+        };
     };
     responses: {
         /** @description Bad request — invalid query parameters or request body. */
@@ -1979,6 +1918,12 @@ export interface operations {
                  * @example created_at.desc
                  */
                 order?: components["parameters"]["parameters_OrderParam"];
+                /** @description Filter by event ID (used by Check-in Staff). */
+                id?: string;
+                /** @description Filter by event slug (used by Public Registration). */
+                slug?: string;
+                /** @description Filter by visibility mode. */
+                visibility_mode?: string;
                 /** @description Filter by event status using PostgREST operator syntax (e.g. `eq.published`, `in.(draft,published)`). */
                 status?: string;
                 /** @description Filter out soft-deleted events. Defaults to `is.null` via RLS. */
@@ -2180,6 +2125,8 @@ export interface operations {
                  * @example id,title,status
                  */
                 select?: components["parameters"]["SelectParam"];
+                /** @description Filter by auth user ID (used by Guest). */
+                auth_user_id?: string;
                 /**
                  * @description Maximum number of rows to return.
                  * @example 20
@@ -2949,6 +2896,8 @@ export interface operations {
                  * @example id,title,status
                  */
                 select?: components["parameters"]["SelectParam"];
+                /** @description Filter by status (used by Admin). */
+                status?: string;
                 id?: string;
             };
             header?: never;
@@ -3038,86 +2987,6 @@ export interface operations {
             401: components["responses"]["responses_Unauthorized"];
         };
     };
-    listPendingOrganizers: {
-        parameters: {
-            query?: {
-                /**
-                 * @description PostgREST column selection. Comma-separated column names. Use `related_table(col1,col2)` for embedded resource selection.
-                 * @example id,title,status
-                 */
-                select?: components["parameters"]["SelectParam"];
-                /**
-                 * @description Maximum number of rows to return.
-                 * @example 20
-                 */
-                limit?: components["parameters"]["LimitParam"];
-                /**
-                 * @description Number of rows to skip before returning results.
-                 * @example 0
-                 */
-                offset?: components["parameters"]["OffsetParam"];
-                /**
-                 * @description PostgREST ordering. Format: `column.direction[.nullsfirst|nullslast]`.
-                 * @example created_at.desc
-                 */
-                order?: components["parameters"]["parameters_OrderParam"];
-                /** @description Filter by status. Default for the verification queue is `eq.pending`. */
-                status?: string;
-            };
-            header?: {
-                /**
-                 * @description Request a row count. `count=exact` returns the precise count in the `Content-Range` response header.
-                 * @example count=exact
-                 */
-                Prefer?: components["parameters"]["parameters_PreferCountParam"];
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of organizer profiles matching the status filter. */
-            200: {
-                headers: {
-                    "Content-Range": components["headers"]["ContentRange"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OrganizerProfile"][];
-                };
-            };
-            401: components["responses"]["responses_Unauthorized"];
-            403: components["responses"]["responses_Forbidden"];
-        };
-    };
-    getGuestProfile: {
-        parameters: {
-            query?: {
-                /**
-                 * @description PostgREST column selection. Comma-separated column names. Use `related_table(col1,col2)` for embedded resource selection.
-                 * @example id,title,status
-                 */
-                select?: components["parameters"]["SelectParam"];
-                auth_user_id?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Guest profile. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Guest"][];
-                };
-            };
-            401: components["responses"]["responses_Unauthorized"];
-        };
-    };
     updateGuestProfile: {
         parameters: {
             query?: never;
@@ -3157,96 +3026,6 @@ export interface operations {
             };
             401: components["responses"]["responses_Unauthorized"];
             403: components["responses"]["responses_Forbidden"];
-        };
-    };
-    getAssignedEvent: {
-        parameters: {
-            query?: {
-                /**
-                 * @description PostgREST column selection. Comma-separated column names. Use `related_table(col1,col2)` for embedded resource selection.
-                 * @example id,title,status
-                 */
-                select?: components["parameters"]["SelectParam"];
-                id?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The assigned event. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Event"][];
-                };
-            };
-            401: components["responses"]["responses_Unauthorized"];
-            403: components["responses"]["responses_Forbidden"];
-        };
-    };
-    getPublicEvent: {
-        parameters: {
-            query: {
-                /**
-                 * @description PostgREST column selection. Comma-separated column names. Use `related_table(col1,col2)` for embedded resource selection.
-                 * @example id,title,status
-                 */
-                select?: components["parameters"]["SelectParam"];
-                slug: string;
-                visibility_mode?: string;
-                status?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The matching event (empty array if not found or not accessible). */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Event"][];
-                };
-            };
-            400: components["responses"]["responses_BadRequest"];
-        };
-    };
-    registerGuest: {
-        parameters: {
-            query?: never;
-            header?: {
-                /**
-                 * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
-                 * @example return=representation
-                 */
-                Prefer?: components["parameters"]["parameters_PreferReturnParam"];
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["GuestCreate"];
-            };
-        };
-        responses: {
-            /** @description Guest created or matched. */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Guest"];
-                };
-            };
-            400: components["responses"]["responses_BadRequest"];
         };
     };
     uploadInvitationHtml: {
@@ -3514,6 +3293,40 @@ export interface operations {
             };
             401: components["responses"]["responses_Unauthorized"];
             403: components["responses"]["responses_Forbidden"];
+        };
+    };
+    registerPublicGuest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisterPublicRequest"];
+            };
+        };
+        responses: {
+            /** @description Guest registered and invitation created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Invitation"];
+                };
+            };
+            400: components["responses"]["responses_BadRequest"];
+            /** @description Conflict — guest already registered for this event. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
         };
     };
 }

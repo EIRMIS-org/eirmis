@@ -413,3 +413,35 @@
         $ref: '../components/responses.yaml#/Unauthorized'
       '403':
         $ref: '../components/responses.yaml#/Forbidden'
+
+/functions/v1/register:
+  post:
+    operationId: registerPublicGuest
+    summary: Register for an open-registration event
+    description: >
+      Atomically creates/matches a guest row, creates an `accepted` invitation
+      for the specified open-registration event, and dispatches the confirmation
+      email with a magic-link.
+    tags: [Public — Registration]
+    security: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/RegisterPublicRequest.yaml'
+    responses:
+      '201':
+        description: Guest registered and invitation created.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Invitation.yaml#/Invitation'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '409':
+        description: Conflict — guest already registered for this event.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Error.yaml#/Error'

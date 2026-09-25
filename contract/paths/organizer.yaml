@@ -16,13 +16,34 @@
       Returns the authenticated organizer's non-deleted events.
       RLS restricts the result set to `organizer_id = auth.uid()`.
       Use `?status=eq.published` to filter by status.
-    tags: [Organizer — Events]
+    tags: [Organizer — Events, Check-in Staff — Event, Public — Registration]
+    security:
+      - bearerAuth: []
+      - {}
     parameters:
       - $ref: '../components/parameters.yaml#/SelectParam'
       - $ref: '../components/parameters.yaml#/LimitParam'
       - $ref: '../components/parameters.yaml#/OffsetParam'
       - $ref: '../components/parameters.yaml#/OrderParam'
       - $ref: '../components/parameters.yaml#/PreferCountParam'
+      - name: id
+        in: query
+        schema:
+          type: string
+          example: eq.55555555-5555-5555-5555-555555555555
+        description: Filter by event ID (used by Check-in Staff).
+      - name: slug
+        in: query
+        schema:
+          type: string
+          example: eq.annual-gala-2026
+        description: Filter by event slug (used by Public Registration).
+      - name: visibility_mode
+        in: query
+        schema:
+          type: string
+          example: eq.open_registration
+        description: Filter by visibility mode.
       - name: status
         in: query
         schema:
@@ -240,9 +261,15 @@
       Returns guests who have an invitation for the specified event.
       RLS restricts results to guests on the organizer's own events.
       Filter by joining through invitations: `?select=*,invitations!inner(event_id)&invitations.event_id=eq.{eventId}`.
-    tags: [Organizer — Guests]
+    tags: [Organizer — Guests, Guest — Profile]
     parameters:
       - $ref: '../components/parameters.yaml#/SelectParam'
+      - name: auth_user_id
+        in: query
+        schema:
+          type: string
+          example: eq.11111111-1111-1111-1111-111111111111
+        description: Filter by auth user ID (used by Guest).
       - $ref: '../components/parameters.yaml#/LimitParam'
       - $ref: '../components/parameters.yaml#/OffsetParam'
       - $ref: '../components/parameters.yaml#/PreferCountParam'
@@ -664,7 +691,8 @@
       Returns gallery images for the specified event, ordered by `sort_order`.
       Accessible by organizers (own events), guests (invited events), and
       unauthenticated users (open-registration published events via `security: []`).
-    tags: [Organizer — Design]
+    tags: [Organizer — Design, Public — Registration]
+    security: []
     parameters:
       - $ref: '../components/parameters.yaml#/SelectParam'
       - name: event_id
@@ -939,9 +967,15 @@
     operationId: getOrganizerProfile
     summary: Read own organizer profile
     description: Returns the authenticated organizer's own profile row.
-    tags: [Organizer — Profile]
+    tags: [Organizer — Profile, Admin — Organizer Verification]
     parameters:
       - $ref: '../components/parameters.yaml#/SelectParam'
+      - name: status
+        in: query
+        schema:
+          type: string
+          example: eq.pending
+        description: Filter by status (used by Admin).
       - name: id
         in: query
         schema:
