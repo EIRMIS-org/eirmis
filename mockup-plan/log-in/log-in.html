@@ -607,6 +607,79 @@
       margin-top: 4px;
     }
 
+    .role-demo-hint {
+      margin: -4px 0 2px;
+      color: var(--text-muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .role-demo-hint code {
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-weight: 700;
+    }
+
+    .role-login-error {
+      margin: -2px 0 0;
+      padding: 10px 12px;
+      border: 1px solid #FECACA;
+      border-radius: 9px;
+      color: #991B1B;
+      background: #FEF2F2;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .role-login-error[hidden] { display: none; }
+
+    .pending-modal-status {
+      width: fit-content;
+      margin-bottom: 14px;
+      padding: 5px 10px;
+      border: 1px solid #FDE68A;
+      border-radius: 999px;
+      color: var(--warning);
+      background: #FEF3C7;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .pending-modal-copy {
+      margin: 0 0 18px;
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .pending-modal-notice {
+      margin-bottom: 20px;
+      padding: 12px;
+      border: 1px solid #FDE68A;
+      border-radius: 12px;
+      color: #92400E;
+      background: #FFFBEB;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .role-application-link {
+      display: block;
+      width: 100%;
+      margin-top: 18px;
+      padding: 14px 0 0;
+      border: 0;
+      border-top: 1px solid var(--border);
+      color: var(--primary);
+      background: transparent;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .role-application-link:hover { color: var(--primary-hover); text-decoration: underline; }
+    .role-application-link[hidden] { display: none; }
+
     .legal-confirm {
       display: flex;
       align-items: flex-start;
@@ -861,13 +934,77 @@
           <label for="role-login-password">Password</label>
           <input id="role-login-password" class="form-control" type="password" required placeholder="Enter your password">
         </div>
+        <p id="role-login-error" class="role-login-error" hidden></p>
+        <p id="role-demo-hint" class="role-demo-hint"></p>
         <button class="btn btn-primary" type="submit">Continue to workspace</button>
       </form>
+      <button id="organizer-application-link" class="role-application-link" type="button" onclick="openOrganizerApplicationModal()" hidden>
+        Want to become an Organizer?
+      </button>
+    </div>
+  </div>
+
+  <div id="organizer-application-modal" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="organizer-application-title" onclick="handleOrganizerApplicationBackdrop(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-kicker">Organizer access</div>
+          <h2 id="organizer-application-title">Become an Organizer</h2>
+        </div>
+        <button class="modal-close" type="button" aria-label="Close Organizer application" onclick="closeOrganizerApplicationModal()">&times;</button>
+      </div>
+      <p class="modal-copy">Tell us about your event so an administrator can review your Organizer access request.</p>
+      <form class="role-login-form" onsubmit="submitOrganizerApplication(event)">
+        <div>
+          <label for="organizer-name">Full name</label>
+          <input id="organizer-name" class="form-control" type="text" required placeholder="Your full name">
+        </div>
+        <div>
+          <label for="organizer-email">Work email</label>
+          <input id="organizer-email" class="form-control" type="email" required placeholder="you@organization.com">
+        </div>
+        <div>
+          <label for="organizer-event">Event or organization</label>
+          <input id="organizer-event" class="form-control" type="text" required placeholder="Event or organization name">
+        </div>
+        <button class="btn btn-primary" type="submit">Submit application</button>
+        <button class="btn btn-ghost" type="button" onclick="backToOrganizerSignIn()">Back to Organizer Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="pending-modal" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pending-modal-title" onclick="handlePendingModalBackdrop(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-kicker">Account status</div>
+          <h2 id="pending-modal-title">Verification in Progress</h2>
+        </div>
+        <button class="modal-close" type="button" aria-label="Close verification status" onclick="closePendingModal()">&times;</button>
+      </div>
+      <div class="pending-modal-status">Account Status: Pending Review</div>
+      <p class="pending-modal-copy">Signed in as <strong id="pending-applicant-email"></strong>. Because any SSO account can register, an Administrator must verify your profile before you can publish events or dispatch invitations.</p>
+      <div class="pending-modal-notice"><strong>Security Gate:</strong> The manual verification gate protects platform trust and accountability. You will receive an automated confirmation email once activated.</div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" type="button" onclick="openRoute('../landing/landing.html')">Back to Home</button>
+        <button class="btn btn-primary" type="button" onclick="openPortal('../admin-portal/admin-portal.html')">Switch to Admin Portal</button>
+      </div>
     </div>
   </div>
 
   <script>
     let selectedRole = 'organizer';
+
+    const roleAccounts = {
+      organizer: {
+        email: 'sarah.jenkins@example.com',
+        password: 'Organizer@2026'
+      },
+      administrator: {
+        email: 'sysadmin@eirmis.internal',
+        password: 'Admin@2026'
+      }
+    };
 
     function openGoogleModal() {
       document.getElementById('account-card').hidden = false;
@@ -924,8 +1061,13 @@
       document.getElementById('role-login-copy').textContent = isAdministrator
         ? 'Use your administrator account to manage platform trust, access, and organization settings.'
         : 'Use your organization account to access event planning and invitation tools.';
-      document.getElementById('role-login-email').value = isAdministrator ? 'sysadmin@eirmis.internal' : 'sarah.jenkins@example.com';
+      const account = roleAccounts[role];
+      document.getElementById('role-login-email').value = account.email;
       document.getElementById('role-login-password').value = '';
+      document.getElementById('role-login-error').hidden = true;
+      document.getElementById('role-login-error').textContent = '';
+      document.getElementById('role-demo-hint').innerHTML = `Demo: <code>${account.email}</code> / <code>${account.password}</code>`;
+      document.getElementById('organizer-application-link').hidden = isAdministrator;
       document.getElementById('role-login-modal').hidden = false;
       document.getElementById('role-login-password').focus();
     }
@@ -938,9 +1080,59 @@
       if (event.target.id === 'role-login-modal') closeRoleModal();
     }
 
+    function openOrganizerApplicationModal() {
+      closeRoleModal();
+      document.getElementById('organizer-application-modal').hidden = false;
+      document.getElementById('organizer-name').focus();
+    }
+
+    function closeOrganizerApplicationModal() {
+      document.getElementById('organizer-application-modal').hidden = true;
+    }
+
+    function handleOrganizerApplicationBackdrop(event) {
+      if (event.target.id === 'organizer-application-modal') closeOrganizerApplicationModal();
+    }
+
+    function openPendingModal(email) {
+      document.getElementById('pending-applicant-email').textContent = email;
+      document.getElementById('pending-modal').hidden = false;
+    }
+
+    function closePendingModal() {
+      document.getElementById('pending-modal').hidden = true;
+    }
+
+    function handlePendingModalBackdrop(event) {
+      if (event.target.id === 'pending-modal') closePendingModal();
+    }
+
+    function backToOrganizerSignIn() {
+      closeOrganizerApplicationModal();
+      openRoleModal('organizer');
+    }
+
+    function submitOrganizerApplication(event) {
+      event.preventDefault();
+      if (!requireConsent()) return;
+      const applicantEmail = document.getElementById('organizer-email').value;
+      closeOrganizerApplicationModal();
+      openPendingModal(applicantEmail);
+    }
+
     function submitRoleLogin(event) {
       event.preventDefault();
       if (!requireConsent()) return;
+      const account = roleAccounts[selectedRole];
+      const email = document.getElementById('role-login-email').value.trim().toLowerCase();
+      const password = document.getElementById('role-login-password').value;
+      if (!account || email !== account.email || password !== account.password) {
+        const error = document.getElementById('role-login-error');
+        error.textContent = 'The email or password does not match this demo account.';
+        error.hidden = false;
+        document.getElementById('role-login-password').focus();
+        return;
+      }
       closeRoleModal();
       openPortal(selectedRole === 'administrator'
         ? '../admin-portal/admin-portal.html'

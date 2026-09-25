@@ -10,6 +10,8 @@ A standalone `log-in.html` that presents the EIRMIS organization sign-in experie
 - Google account-selection modal with a demo account.
 - Use another account flow with email validation.
 - Organizer and Administrator sign-in cards with role-specific login modals.
+- Working demo credentials for Organizer and Administrator verification.
+- Organizer application prompt and application form for users without an Organizer account.
 - Guest, Staff, and Event Registration alternatives.
 - Required agreement checkbox that opens one combined Terms and Privacy Policy modal.
 - Responsive 40/60 editorial split layout.
@@ -31,22 +33,32 @@ A standalone `log-in.html` that presents the EIRMIS organization sign-in experie
 | Use another account | Replaces the demo account with an email field before continuing. |
 | Sign in as Organizer | Opens an Organizer login form, then redirects to the Organizer Portal. |
 | Sign in as Administrator | Opens an Administrator login form, then redirects to the Admin Portal. |
+| Want to become an Organizer? | Opens an Organizer application form for administrator review. |
+| Organizer application submit | Opens an in-page pending-verification modal showing the applicant email after consent and validation. |
+| Back to Organizer Sign In | Returns from the application form to the Organizer login modal. |
 | Continue as Guest | Opens `../landing/landing.html#guest-login`. |
 | Continue as Staff | Opens `../landing/landing.html#staff-login`. |
 | Register for an Event | Opens `../landing/landing.html#register`. |
 | Terms and Privacy checkbox | Opens the combined policy modal; consent is recorded after selecting "I Agree". |
 | Back to home | Returns to `../landing/landing.html`. |
 
-## 4. How to run
+## 4. Demo credentials
+
+| Role | Email | Password |
+|---|---|---|
+| Organizer | `sarah.jenkins@example.com` | `Organizer@2026` |
+| Administrator | `sysadmin@eirmis.internal` | `Admin@2026` |
+
+## 5. How to run
 
 1. Open `log-in.html` directly in a browser, or serve the `mockup-plan` folder statically.
 2. Test the Google modal, alternate-account state, and role cards from the first screen.
 
-## 5. Files in this folder
+## 6. Files in this folder
 
 - `log-in.html` - The isolated SSO login mockup.
 - `log-in-README.md` - Documentation for this page.
 
-## 6. Scope
+## 7. Scope
 
 This isolated page is intentionally self-contained. It does not modify the shared runtime or other portal folders.
