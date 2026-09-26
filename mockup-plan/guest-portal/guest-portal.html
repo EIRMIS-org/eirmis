@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EIRMIS — Guest Self-Service Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../assets/eirmis.css">
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-hover: #4338CA;
+      --primary-light: #EEF2FF;
+      --primary-glow: rgba(79, 70, 229, 0.15);
+      --secondary: #0D9488;
+      --dark: #0F172A;
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --surface-glass: rgba(255, 255, 255, 0.85);
+      --border: rgba(226, 232, 240, 0.8);
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --success: #10B981;
+      --success-bg: #ECFDF5;
+      --success-border: #A7F3D0;
+      --warning: #F59E0B;
+      --warning-bg: #FFFBEB;
+      --warning-border: #FDE68A;
+      --error: #EF4444;
+      --error-bg: #FEF2F2;
+      --error-border: #FECACA;
+      --font-display: 'Hanken Grotesk', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 26px;
+      --shadow-subtle: 0 1px 3px rgba(15, 23, 42, 0.04);
+      --shadow-card: 0 4px 16px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+      --shadow-float: 0 16px 32px -6px rgba(15, 23, 42, 0.12);
+      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-size: 13.5px;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Glassmorphic Top Nav */
+    header {
+      background: var(--surface-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .header-content {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 8px rgba(79, 70, 229, 0.25);
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 17px;
+      letter-spacing: -0.02em;
+    }
+
+    .session-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: #F1F5F9;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    /* Main Content Container (Mobile-first PWA width) */
+    main {
+      flex: 1;
+      max-width: 680px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px 16px 64px 16px;
+    }
+
+    /* Inset Segmented Tabs Bar */
+    .segmented-tabs {
+      display: flex;
+      background: #E2E8F0;
+      padding: 3px;
+      border-radius: 12px;
+      margin-bottom: 22px;
+      overflow-x: auto;
+      gap: 2px;
+    }
+
+    .seg-tab-btn {
+      flex: 1;
+      padding: 8px 10px;
+      font-size: 12.5px;
+      font-weight: 600;
+      font-family: var(--font-display);
+      border-radius: 9px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.18s var(--ease-spring);
+      text-align: center;
+      user-select: none;
+    }
+
+    .seg-tab-btn.active {
+      background: #FFFFFF;
+      color: var(--text-main);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+    }
+
+    .view-pane {
+      display: none;
+      animation: viewSlide 0.25s var(--ease-spring) forwards;
+    }
+
+    .view-pane.active {
+      display: block;
+    }
+
+    @keyframes viewSlide {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    .card-sub {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s var(--ease-spring);
+      font-family: var(--font-body);
+      user-select: none;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-teal {
+      background-color: var(--secondary);
+      color: #FFFFFF;
+    }
+
+    .btn-secondary {
+      background: #FFFFFF;
+      border-color: var(--border);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: #F8FAFC;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    .btn-ghost:hover {
+      background: #F1F5F9;
+      color: var(--text-main);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    /* Chips */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .chip-green {
+      background: #DCFCE7;
+      color: #15803D;
+      border: 1px solid #BBF7D0;
+    }
+
+    .chip-amber {
+      background: #FEF3C7;
+      color: #B45309;
+      border: 1px solid #FDE68A;
+    }
+
+    .chip-red {
+      background: #FEE2E2;
+      color: #BA1A1A;
+      border: 1px solid #FECACA;
+    }
+
+    .chip-blue {
+      background: #EEF2FF;
+      color: #4F46E5;
+      border: 1px solid #C7D2FE;
+    }
+
+    /* RSVP Selector Buttons with Tactile Spring States */
+    .rsvp-selector-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .rsvp-option-btn {
+      padding: 16px 12px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      background: #FFFFFF;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-spring);
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .rsvp-option-btn:hover {
+      border-color: #CBD5E1;
+    }
+
+    .rsvp-option-btn:active {
+      transform: scale(0.96);
+    }
+
+    .rsvp-option-btn.selected-accept {
+      border-color: var(--success);
+      background: #ECFDF5;
+      color: var(--success);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+    }
+
+    .rsvp-option-btn.selected-tentative {
+      border-color: var(--warning);
+      background: #FFFBEB;
+      color: var(--warning);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+    }
+
+    .rsvp-option-btn.selected-decline {
+      border-color: var(--error);
+      background: #FEF2F2;
+      color: var(--error);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+    }
+
+    /* Inset Grouped Attendees List */
+    .inset-grouped-list {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .attendee-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    .attendee-item:last-child {
+      border-bottom: none;
+    }
+
+    .attendee-item.primary {
+      border-left: 4px solid var(--primary);
+    }
+
+    .attendee-item.rejected {
+      border-left: 4px solid var(--error);
+      background: #FEF7F7;
+    }
+
+    /* Quota Progress Bar */
+    .quota-bar-track {
+      height: 6px;
+      background: #E2E8F0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0 4px;
+    }
+
+    .quota-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #4F46E5, #0D9488);
+      transition: width 0.5s var(--ease-spring);
+    }
+
+    /* Inline Edit & Resubmit Form */
+    .resubmit-form {
+      display: none;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-top: 10px;
+    }
+
+    .resubmit-form.open {
+      display: block;
+      animation: fadeSlideIn 0.2s var(--ease-spring) forwards;
+    }
+
+    @keyframes fadeSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 13.5px;
+      font-family: var(--font-body);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: #FFFFFF;
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.15s;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    /* Digital Wallet Style Ticket Pass */
+    .wallet-pass {
+      background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%);
+      color: #FFFFFF;
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-float);
+      margin-bottom: 24px;
+    }
+
+    .wallet-pass::after {
+      content: "";
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 140px;
+      height: 140px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .wallet-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .wallet-event-name {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .wallet-venue {
+      font-size: 12px;
+      color: #94A3B8;
+      margin-top: 2px;
+    }
+
+    .wallet-qr-section {
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #0F172A;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    }
+
+    .wallet-qr-box {
+      width: 160px;
+      height: 160px;
+      background: #0F172A;
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 12px 0;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 20px;
+      right: 20px;
+      max-width: 440px;
+      margin: 0 auto;
+      background: #0F172A;
+      color: #FFFFFF;
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-float);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.25s var(--ease-spring);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Desktop enhancement (mobile-first base) */
+    @media (min-width: 768px) {
+      main {
+        max-width: 720px;
+      }
+
+      .rsvp-selector-group {
+        gap: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Glassmorphic Header -->
+  <header>
+    <div class="header-content">
+      <a href="#dashboard" onclick="switchView('dashboard')" class="brand-link">
+        <div class="brand-icon">
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5">
+            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+        </div>
+        <div>
+          <span class="brand-title">EIRMIS</span>
+          <span style="font-size:11px; color:var(--primary); font-weight:700; display:block;">GUEST PORTAL</span>
+        </div>
+      </a>
+      <div class="session-badge">
+        <span style="width:7px; height:7px; background:#10B981; border-radius:50%; display:inline-block;"></span>
+        <span>elena.rostova@example.com</span>
+        <a href="../landing/landing.html" style="color:var(--text-muted); text-decoration:none; margin-left:6px;"
+          title="Exit" aria-label="Exit to Landing Hub">Exit</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- Inset Segmented Tabs Bar -->
+    <div class="segmented-tabs">
+      <button class="seg-tab-btn active" id="tab-dashboard" onclick="switchView('dashboard')">Dashboard</button>
+      <button class="seg-tab-btn" id="tab-event" onclick="switchView('event')">RSVP</button>
+      <button class="seg-tab-btn" id="tab-attendees" onclick="switchView('attendees')">Roster</button>
+      <button class="seg-tab-btn" id="tab-headcount" onclick="switchView('headcount')">Heads</button>
+      <button class="seg-tab-btn" id="tab-qr" onclick="switchView('qr')">Passes</button>
+    </div>
+
+    <!-- 1. GUEST DASHBOARD -->
+    <section id="view-dashboard" class="view-pane active">
+      <div class="card" style="background: linear-gradient(135deg, #4F46E5 0%, #312E81 100%); color:white;">
+        <span
+          style="font-size:12px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:#A5B4FC;">Guest
+          Self-Service</span>
+        <h2 style="font-family:var(--font-display); font-size:22px; font-weight:800; margin:4px 0 6px 0;">Welcome, Elena
+          Rostova</h2>
+        <p style="font-size:13.5px; opacity:0.9; line-height:1.5;">
+          Authenticated via secure magic link. You have 1 confirmed invitation for event day access.
+        </p>
+      </div>
+
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div
+          style="height:110px; background:linear-gradient(135deg,#4F46E5 0%,#312E81 60%,#0D9488 100%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:16px;">
+          Tech Forward Annual Gala 2026
+        </div>
+        <div style="padding:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+            <span class="chip chip-green" id="dash-status-chip">accepted</span>
+            <span style="font-weight:700; color:var(--primary); font-size:12.5px;">Party: 2/3 Confirmed</span>
+          </div>
+
+          <h3
+            style="font-family:var(--font-display); font-size:18px; font-weight:800; color:var(--text-main); margin-bottom:4px;">
+            Tech Forward Annual Gala 2026
+          </h3>
+          <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px;">
+            Marina Bay Sands Grand Ballroom, Singapore • Nov 18, 2026 at 6:30 PM SGT
+          </p>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="switchView('event')">Manage RSVP →</button>
+            <button class="btn btn-secondary" onclick="switchView('attendees')">Party Roster (2 of 3)</button>
+            <button class="btn btn-teal" onclick="switchView('qr')">View Entry Pass</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div
+          style="height:110px; background:linear-gradient(135deg,#0D9488 0%,#0F766E 60%,#134E4A 100%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:16px;">
+          Southeast Asia Founders Summit 2026
+        </div>
+        <div style="padding:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+            <span class="chip chip-amber" id="dash-status-chip-2">tentative</span>
+            <span style="font-weight:700; color:var(--text-muted); font-size:12.5px;">Party: 1/2 Confirmed</span>
+          </div>
+
+          <h3
+            style="font-family:var(--font-display); font-size:18px; font-weight:800; color:var(--text-main); margin-bottom:4px;">
+            Southeast Asia Founders Summit 2026
+          </h3>
+          <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px;">
+            The Fullerton Hotel, Singapore • Dec 4, 2026 at 9:00 AM SGT
+          </p>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="switchView('event')">Manage RSVP →</button>
+            <button class="btn btn-secondary" onclick="switchView('attendees')">Party Roster (1 of 2)</button>
+            <button class="btn btn-teal" onclick="switchView('qr')">View Entry Pass</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. INVITATION DETAILS & RSVP -->
+    <section id="view-event" class="view-pane">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <h2 class="card-title">Invitation Response</h2>
+          <span class="chip chip-green" id="rsvp-display-chip">accepted</span>
+        </div>
+
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">
+          Confirm your attendance for <strong>Tech Forward Annual Gala 2026</strong>. Accepting reserves capacity and
+          unlocks your party roster.
+        </p>
+
+        <div class="rsvp-selector-group">
+          <div class="rsvp-option-btn selected-accept" id="opt-accept" onclick="setRsvp('accepted')">
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <strong>Accept</strong>
+            <span style="font-size:11px; opacity:0.8;">Attending</span>
+          </div>
+          <div class="rsvp-option-btn" id="opt-tentative" onclick="setRsvp('tentative')">
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 14 14"></polyline>
+            </svg>
+            <strong>Tentative</strong>
+            <span style="font-size:11px; opacity:0.8;">Uncertain</span>
+          </div>
+          <div class="rsvp-option-btn" id="opt-decline" onclick="setRsvp('declined')">
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            <strong>Decline</strong>
+            <span style="font-size:11px; opacity:0.8;">Can't Attend</span>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top:20px;">
+          <label class="form-label" for="dietary-input">Dietary Preferences (Covers entire party)</label>
+          <input type="text" id="dietary-input" class="form-control" value="1 Vegetarian, 1 Pescatarian">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="special-reqs">Special Requests or Accessibility Needs</label>
+          <textarea id="special-reqs" class="form-control"
+            rows="2">Please seat near front stage for presentations.</textarea>
+        </div>
+
+        <button class="btn btn-primary" style="width:100%;" onclick="saveRsvpPreferences()">
+          Save RSVP & Continue to Roster →
+        </button>
+      </div>
+
+      <!-- Map Component Card -->
+      <div class="card" id="guest-map-card">
+        <h3 class="card-title" style="font-size:15px; margin-bottom: 12px;">Event Location</h3>
+        
+        <!-- Simulation Controls -->
+        <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm" onclick="simulateMap('guest-map-container', 'loading')">Simulate Loading</button>
+          <button class="btn btn-secondary btn-sm" onclick="simulateMap('guest-map-container', 'success')">Map Success</button>
+          <button class="btn btn-secondary btn-sm" onclick="simulateMap('guest-map-container', 'error')">Map API Error</button>
+        </div>
+
+        <!-- Map Container -->
+        <div id="guest-map-container" style="border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; position:relative; width:100%; height:200px; background:#E2E8F0; display:flex; align-items:center; justify-content:center;">
+          <!-- Default State (Success) -->
+          <img src="https://placehold.co/600x400/4F46E5/FFFFFF?text=Map+API+Placeholder" alt="Map Location" style="width:100%; height:100%; object-fit:cover; filter:grayscale(0.2);">
+        </div>
+      </div>
+
+      <!-- Sandboxed Frame Card -->
+      <div class="card">
+        <h3 class="card-title" style="font-size:15px;">Official Event Invitation Card</h3>
+        <p class="card-sub">Sandboxed client render (sandbox="allow-scripts", strict CSP)</p>
+
+        <div
+          style="border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; background:linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%); color:white; padding:26px; text-align:center;">
+          <div
+            style="font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:#818CF8; margin-bottom:6px;">
+            You Are Cordially Invited</div>
+          <h2
+            style="font-family:var(--font-display); font-size:24px; font-weight:800; margin-bottom:8px; color:#F8FAFC;">
+            Tech Forward Gala 2026
+          </h2>
+          <p style="font-size:13px; color:#CBD5E1; max-width:440px; margin:0 auto 14px auto;">
+            Honoring innovation and distinguished contributions to digital infrastructure.
+          </p>
+          <div
+            style="display:inline-block; background:rgba(255,255,255,0.1); padding:6px 14px; border-radius:999px; font-size:11.5px; color:#E2E8F0;">
+            November 18, 2026 • Marina Bay Sands Grand Ballroom
+          </div>
+        </div>
+      </div>
+
+      <!-- Gallery (images-mode) Invitation Card -->
+      <div class="card">
+        <h3 class="card-title" style="font-size:15px;">Invitation Gallery</h3>
+        <p class="card-sub">Images-mode invitation design — tap a thumbnail to open the lightbox.</p>
+
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">
+          <div onclick="openLightbox(0)"
+            style="height:90px; border-radius:var(--radius-md); background:linear-gradient(135deg,#4F46E5,#312E81); display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; font-size:11px; font-weight:700;">
+            Cover
+          </div>
+          <div onclick="openLightbox(1)"
+            style="height:90px; border-radius:var(--radius-md); background:linear-gradient(135deg,#0D9488,#064E3B); display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; font-size:11px; font-weight:700;">
+            Venue
+          </div>
+          <div onclick="openLightbox(2)"
+            style="height:90px; border-radius:var(--radius-md); background:linear-gradient(135deg,#0F172A,#1E293B); display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; font-size:11px; font-weight:700;">
+            Program
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. ATTENDEES ROSTER -->
+    <section id="view-attendees" class="view-pane">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+          <div>
+            <h2 class="card-title">Party Roster Submission</h2>
+            <p class="card-sub" style="margin-bottom:0;">
+              Your invitation ceiling is <strong id="roster-max-heads">3</strong> heads.
+            </p>
+          </div>
+          <span class="chip chip-blue" id="roster-count-chip">2 of 3 Heads Submitted</span>
+        </div>
+
+        <!-- Quota Progress Bar -->
+        <div style="margin-bottom:16px;">
+          <div
+            style="display:flex; justify-content:space-between; font-size:11.5px; color:var(--text-muted); font-weight:600;">
+            <span>Quota Used</span>
+            <span id="quota-label">2 / 3 heads</span>
+          </div>
+          <div class="quota-bar-track">
+            <div class="quota-bar-fill" id="quota-bar" style="width:66.6%;"></div>
+          </div>
+        </div>
+
+        <div
+          style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 14px; font-size:12px; color:var(--text-muted); margin-bottom:18px;">
+          Primary guest is auto-approved. Additional party members are reviewed by the organizer. Emails are optional
+          and non-unique.
+        </div>
+
+        <!-- Inset Grouped List -->
+        <div class="inset-grouped-list" id="attendees-list">
+          <div class="attendee-item primary">
+            <div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <strong>Elena Rostova</strong>
+                <span class="chip chip-blue" style="font-size:10px;">Primary Guest</span>
+                <span class="chip chip-green">approved</span>
+              </div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
+                elena.rostova@example.com • Auto-confirmed
+              </div>
+            </div>
+            <span style="font-size:12px; color:var(--success); font-weight:600;">Pass Issued</span>
+          </div>
+
+          <div class="attendee-item">
+            <div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <strong>Dmitri Rostova</strong>
+                <span class="chip chip-green">approved</span>
+              </div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
+                dmitri.r@example.com
+              </div>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="removeAttendee(this, 'Dmitri Rostova')">Remove</button>
+          </div>
+
+          <!-- REJECTED ATTENDEE — Edit & Resubmit Workflow -->
+          <div class="attendee-item rejected" id="rejected-row-viktor">
+            <div style="flex:1;">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
+                <strong>Viktor Ostrovsky</strong>
+                <span class="chip chip-red">rejected</span>
+              </div>
+              <div style="font-size:12px; color:var(--text-muted);">
+                viktor@example.com
+              </div>
+              <div style="font-size:11.5px; color:var(--error); margin-top:4px; line-height:1.4;">
+                <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2.5" style="vertical-align:middle; margin-right:3px;">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <strong>Rejection reason:</strong> Attendee name already exists on the roster for another invitation
+                slot. Please verify spelling or use a unique name.
+              </div>
+              <!-- Inline Edit & Resubmit Form -->
+              <div class="resubmit-form" id="resubmit-form-viktor">
+                <p style="font-size:12px; font-weight:700; margin-bottom:10px; color:var(--text-main);">Edit &amp;
+                  Resubmit Attendee</p>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                  <input type="text" id="resubmit-name" class="form-control" value="Viktor Ostrovsky"
+                    placeholder="Full Name *">
+                  <input type="email" id="resubmit-email" class="form-control" value="viktor@example.com"
+                    placeholder="Email (Optional)">
+                </div>
+                <div style="display:flex; gap:8px;">
+                  <button class="btn btn-primary btn-sm"
+                    onclick="handleResubmit('rejected-row-viktor', 'resubmit-form-viktor')">Resubmit for Review</button>
+                  <button class="btn btn-ghost btn-sm"
+                    onclick="document.getElementById('resubmit-form-viktor').classList.remove('open')">Cancel</button>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" style="flex-shrink:0; margin-left:12px;"
+              onclick="document.getElementById('resubmit-form-viktor').classList.toggle('open')">
+              Edit &amp; Resubmit
+            </button>
+          </div>
+        </div>
+
+        <!-- Add Form -->
+        <div id="add-attendee-container" style="border-top:1px solid var(--border); padding-top:18px; margin-top:16px;">
+          <h4 style="font-size:13.5px; font-weight:700; margin-bottom:10px;">Add Person to Party (1 Slot Remaining)</h4>
+          <form onsubmit="handleAddAttendee(event)">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
+              <input type="text" id="att-name-input" class="form-control" placeholder="Full Name (Required) *" required>
+              <input type="email" id="att-email-input" class="form-control"
+                placeholder="Email (Optional, e.g. for child)">
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">
+              + Submit Attendee for Review
+            </button>
+          </form>
+        </div>
+
+        <!-- Ceiling Limit Notice -->
+        <div id="ceiling-reached-box"
+          style="display:none; background:#FFFBEB; border:1px solid #FDE68A; padding:14px; border-radius:var(--radius-md); font-size:13px; color:#92400E; margin-top:16px; line-height:1.5;">
+          <strong>Maximum Party Size Reached (3 Heads):</strong> You have utilized your allocated quota. Need additional
+          tickets for colleagues or family? Submit a <strong>Headcount Increase Request</strong>.
+          <div style="margin-top:10px;">
+            <button class="btn btn-teal btn-sm" onclick="switchView('headcount')">Request Additional Heads →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. HEADCOUNT REQUEST -->
+    <section id="view-headcount" class="view-pane">
+      <div class="card">
+        <h2 class="card-title">Request Additional Heads</h2>
+        <p class="card-sub">
+          Ask the organizer to raise your invitation's maximum party ceiling.
+        </p>
+
+        <form onsubmit="handleHeadcountRequest(event)">
+          <div class="form-group">
+            <label class="form-label" for="req-heads-num">Additional Heads Requested *</label>
+            <select id="req-heads-num" class="form-control">
+              <option value="1">+1 Person</option>
+              <option value="2" selected>+2 Persons</option>
+              <option value="3">+3 Persons</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="req-heads-note">Reason for Organizer Review</label>
+            <textarea id="req-heads-note" class="form-control"
+              rows="3">Would like to bring our lead research associate to present findings during the evening poster session.</textarea>
+          </div>
+
+          <button type="submit" class="btn btn-teal" style="width:100%;" id="btn-submit-headcount">
+            Submit Headcount Request →
+          </button>
+        </form>
+
+        <div id="headcount-success-notice"
+          style="display:none; margin-top:16px; background:#ECFDF5; border:1px solid #A7F3D0; padding:14px; border-radius:var(--radius-md); color:#065F46;">
+          <strong>Request Recorded:</strong> Your request for +2 heads has status <strong>pending</strong>.
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. QR CODES & PASSES -->
+    <section id="view-qr" class="view-pane">
+
+      <!-- Digital Wallet Style Pass Card -->
+      <div class="wallet-pass">
+        <div class="wallet-top">
+          <div>
+            <span
+              style="font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#818CF8;">Official
+              Event Pass</span>
+            <div class="wallet-event-name">Tech Forward Annual Gala</div>
+            <div class="wallet-venue">Marina Bay Sands Grand Ballroom • Nov 18, 2026</div>
+          </div>
+          <span class="chip chip-green" style="background:#10B981; color:#FFFFFF; border:none;">CONFIRMED</span>
+        </div>
+
+        <div class="wallet-qr-section">
+          <strong style="font-size:16px; color:var(--text-main);">Elena Rostova</strong>
+          <span style="font-size:12px; color:var(--text-muted); margin-top:2px;">Primary Guest</span>
+
+          <div class="wallet-qr-box">
+            <svg role="img" aria-label="QR code for event check-in" width="130" height="130" viewBox="0 0 100 100">
+              <rect width="100" height="100" fill="#0F172A" />
+              <rect x="10" y="10" width="30" height="30" fill="#FFFFFF" />
+              <rect x="15" y="15" width="20" height="20" fill="#0F172A" />
+              <rect x="20" y="20" width="10" height="10" fill="#FFFFFF" />
+              <rect x="60" y="10" width="30" height="30" fill="#FFFFFF" />
+              <rect x="65" y="15" width="20" height="20" fill="#0F172A" />
+              <rect x="70" y="20" width="10" height="10" fill="#FFFFFF" />
+              <rect x="10" y="60" width="30" height="30" fill="#FFFFFF" />
+              <rect x="15" y="65" width="20" height="20" fill="#0F172A" />
+              <rect x="20" y="70" width="10" height="10" fill="#FFFFFF" />
+              <rect x="50" y="50" width="10" height="10" fill="#4F46E5" />
+              <rect x="60" y="60" width="10" height="10" fill="#FFFFFF" />
+              <rect x="75" y="75" width="15" height="15" fill="#FFFFFF" />
+            </svg>
+          </div>
+          <span style="font-size:11px; font-family:monospace; color:var(--text-muted);">TOKEN: eir_90f23a1</span>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <button class="btn btn-primary" style="flex:1;" onclick="simulatePdfDownload()">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Download PDF Bundle
+        </button>
+        <button class="btn btn-secondary" style="flex:1;" onclick="showToast('QR bundle copied to clipboard')">
+          Copy QR Bundle
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Gallery Lightbox -->
+  <div id="lightbox" role="dialog" aria-modal="true" aria-label="Invitation gallery"
+    style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.9); z-index:2000; align-items:center; justify-content:center; flex-direction:column; gap:16px; padding:24px;">
+    <div id="lightbox-image"
+      style="width:100%; max-width:480px; height:320px; border-radius:var(--radius-lg); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-size:20px; font-weight:800;">
+    </div>
+    <div style="display:flex; gap:12px; align-items:center;">
+      <button class="btn btn-secondary" onclick="lightboxNav(-1)">← Prev</button>
+      <span id="lightbox-counter" style="color:#fff; font-size:13px;">1 / 3</span>
+      <button class="btn btn-secondary" onclick="lightboxNav(1)">Next →</button>
+    </div>
+    <button class="btn btn-ghost" style="color:#fff;" onclick="closeLightbox()">Close (Esc)</button>
+  </div>
+
+  <div id="toast" class="toast">
+    <span id="toast-msg">Updated</span>
+  </div>
+
+  <script>
+    let currentPartyCount = 2;
+    let maxPartySize = 3;
+    let currentRsvp = 'accepted';
+    let lightboxIndex = 0;
+    const gallerySlides = [
+      { label: 'Cover', bg: 'linear-gradient(135deg,#4F46E5,#312E81)' },
+      { label: 'Venue', bg: 'linear-gradient(135deg,#0D9488,#064E3B)' },
+      { label: 'Program', bg: 'linear-gradient(135deg,#0F172A,#1E293B)' }
+    ];
+
+    function switchView(viewName) {
+      // Enforce the tentative/declined lock: roster & headcount require an accepted RSVP.
+      if ((viewName === 'attendees' || viewName === 'headcount') && currentRsvp !== 'accepted') {
+        showToast('Accept the invitation to unlock your party roster.');
+        return;
+      }
+
+      document.querySelectorAll('.view-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.seg-tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      const target = document.getElementById('view-' + viewName);
+      if (target) target.classList.add('active');
+
+      const tab = document.getElementById('tab-' + viewName);
+      if (tab) tab.classList.add('active');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function setRsvp(choice) {
+      document.querySelectorAll('.rsvp-option-btn').forEach(b => b.className = 'rsvp-option-btn');
+      if (choice === 'accepted') {
+        document.getElementById('opt-accept').className = 'rsvp-option-btn selected-accept';
+        document.getElementById('rsvp-display-chip').className = 'chip chip-green';
+        document.getElementById('rsvp-display-chip').innerText = 'accepted';
+      } else if (choice === 'tentative') {
+        document.getElementById('opt-tentative').className = 'rsvp-option-btn selected-tentative';
+        document.getElementById('rsvp-display-chip').className = 'chip chip-amber';
+        document.getElementById('rsvp-display-chip').innerText = 'tentative';
+      } else {
+        document.getElementById('opt-decline').className = 'rsvp-option-btn selected-decline';
+        document.getElementById('rsvp-display-chip').className = 'chip chip-red';
+        document.getElementById('rsvp-display-chip').innerText = 'declined';
+      }
+      currentRsvp = choice;
+      updateRsvpLock();
+      showToast('RSVP preference updated: ' + choice);
+    }
+
+    function updateRsvpLock() {
+      const locked = currentRsvp !== 'accepted';
+      const rosterTab = document.getElementById('tab-attendees');
+      const headcountTab = document.getElementById('tab-headcount');
+      if (rosterTab) rosterTab.style.opacity = locked ? '0.4' : '1';
+      if (headcountTab) headcountTab.style.opacity = locked ? '0.4' : '1';
+      if (locked) {
+        showToast('Roster & headcount locked until RSVP is accepted.');
+      }
+    }
+
+    function saveRsvpPreferences() {
+      if (currentRsvp !== 'accepted') {
+        showToast('Accept the invitation to unlock your party roster.');
+        return;
+      }
+      showToast('RSVP preferences saved.');
+      setTimeout(() => switchView('attendees'), 400);
+    }
+
+    function handleAddAttendee(e) {
+      e.preventDefault();
+      if (currentPartyCount >= maxPartySize) {
+        showToast('Maximum party size reached (' + maxPartySize + ')');
+        return;
+      }
+      const name = document.getElementById('att-name-input').value;
+      const email = document.getElementById('att-email-input').value || 'No email provided';
+
+      const item = document.createElement('div');
+      item.className = 'attendee-item';
+      item.innerHTML = `
+        <div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <strong>${name}</strong>
+            <span class="chip chip-amber">pending</span>
+          </div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">${email}</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="removeAttendee(this, '${name}')">Remove</button>
+      `;
+      document.getElementById('attendees-list').appendChild(item);
+      currentPartyCount++;
+      updateRosterState();
+      document.getElementById('att-name-input').value = '';
+      document.getElementById('att-email-input').value = '';
+      showToast('Attendee ' + name + ' submitted for review.');
+    }
+
+    function removeAttendee(btn, name) {
+      btn.closest('.attendee-item').remove();
+      currentPartyCount--;
+      updateRosterState();
+      showToast('Removed ' + name);
+    }
+
+    function handleResubmit(rowId, formId) {
+      const newName = document.getElementById('resubmit-name').value.trim();
+      const newEmail = document.getElementById('resubmit-email').value.trim();
+      const row = document.getElementById(rowId);
+      if (!newName) { showToast('Name is required'); return; }
+      // Update the row to show pending state
+      row.classList.remove('rejected');
+      row.querySelector('strong').innerText = newName;
+      row.querySelector('.chip.chip-red').className = 'chip chip-amber';
+      row.querySelector('.chip.chip-amber').innerText = 'pending review';
+      // Remove rejection reason & edit form
+      const rejectionNote = row.querySelector('[style*="color:var(--error)"]');
+      if (rejectionNote) rejectionNote.remove();
+      const form = document.getElementById(formId);
+      if (form) form.remove();
+      const editBtn = row.querySelector('button');
+      if (editBtn) editBtn.remove();
+      showToast('Resubmitted ' + newName + ' for organizer review.');
+    }
+
+    function updateRosterState() {
+      document.getElementById('roster-count-chip').innerText = `${currentPartyCount} of ${maxPartySize} Heads Submitted`;
+      // Update quota bar
+      const pct = Math.min(100, (currentPartyCount / maxPartySize) * 100);
+      const bar = document.getElementById('quota-bar');
+      const label = document.getElementById('quota-label');
+      if (bar) bar.style.width = pct + '%';
+      if (label) label.innerText = `${currentPartyCount} / ${maxPartySize} heads`;
+      // Update bar color near capacity
+      if (bar) bar.style.background = pct >= 100 ? '#EF4444' : pct >= 75 ? '#F59E0B' : 'linear-gradient(90deg, #4F46E5, #0D9488)';
+      if (currentPartyCount >= maxPartySize) {
+        document.getElementById('add-attendee-container').style.display = 'none';
+        document.getElementById('ceiling-reached-box').style.display = 'block';
+      } else {
+        document.getElementById('add-attendee-container').style.display = 'block';
+        document.getElementById('ceiling-reached-box').style.display = 'none';
+      }
+    }
+
+    function handleHeadcountRequest(e) {
+      e.preventDefault();
+      if (currentPartyCount < maxPartySize) {
+        showToast('You are below your party ceiling (' + maxPartySize + '). Add attendees first.');
+        return;
+      }
+      document.getElementById('headcount-success-notice').style.display = 'block';
+      document.getElementById('btn-submit-headcount').disabled = true;
+      document.getElementById('btn-submit-headcount').innerText = 'Request Pending Review';
+      showToast('Headcount request submitted to organizer.');
+    }
+
+    function simulatePdfDownload() {
+      showToast('Generating party QR PDF bundle via Edge Function...');
+      setTimeout(() => showToast('Downloaded TechForward_Gala_QRCodes.pdf'), 1000);
+    }
+
+    /* Gallery Lightbox */
+    function openLightbox(index) {
+      lightboxIndex = index;
+      renderLightbox();
+      const lb = document.getElementById('lightbox');
+      lb.style.display = 'flex';
+    }
+
+    function renderLightbox() {
+      const slide = gallerySlides[lightboxIndex];
+      document.getElementById('lightbox-image').style.background = slide.bg;
+      document.getElementById('lightbox-image').innerText = slide.label;
+      document.getElementById('lightbox-counter').innerText = (lightboxIndex + 1) + ' / ' + gallerySlides.length;
+    }
+
+    function lightboxNav(dir) {
+      lightboxIndex = (lightboxIndex + dir + gallerySlides.length) % gallerySlides.length;
+      renderLightbox();
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').style.display = 'none';
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    function simulateMap(containerId, state) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      
+      if (state === 'loading') {
+        container.innerHTML = `<div style="width:100%; height:100%; background:linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:13px;">Loading Map...</div>`;
+      } else if (state === 'error') {
+        container.innerHTML = `<div style="padding:20px; text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; background:#F8FAFC;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--warning); margin-bottom:8px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <span style="font-weight:600; color:var(--text-main); font-size:14px;">Map Data Unavailable</span>
+          <span style="font-size:12.5px; color:var(--text-muted); margin-top:4px;">Marina Bay Sands Grand Ballroom, Singapore</span>
+        </div>`;
+      } else if (state === 'success') {
+        container.innerHTML = `<img src="https://placehold.co/600x400/4F46E5/FFFFFF?text=Map+API+Placeholder" alt="Map Location" style="width:100%; height:100%; object-fit:cover; filter:grayscale(0.2);">`;
+      }
+    }
+    
+    if (!document.getElementById('map-style')) {
+      const style = document.createElement('style');
+      style.id = 'map-style';
+      style.innerHTML = `@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`;
+      document.head.appendChild(style);
+    }
+  </script>
+  <script src="../assets/eirmis.js"></script>
+  <script>
+    EIRMIS.init({ portal: 'guest' });
+    if (!EIRMIS.session()) {
+      EIRMIS.signIn('Guest', 'Elena Rostova', 'elena.rostova@example.com');
+    }
+  </script>
+</body>
+
+</html>
