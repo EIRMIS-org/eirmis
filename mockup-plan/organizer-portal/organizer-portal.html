@@ -3017,7 +3017,9 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
                 </p>
               </div>
               <div style="display: flex; gap: 10px">
-                <button class="btn btn-primary" onclick="openImportModal()">Import CSV</button>
+                <button class="btn btn-primary" onclick="openImportModal()">
+                  Import CSV
+                </button>
 
                 <button
                   class="btn btn-primary btn-sm"
@@ -6222,5 +6224,121 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
         );
       }
     </script>
+
+    <!-- IMPORT CSV MODAL -->
+    <div
+      id="import-csv-modal"
+      class="modal-overlay"
+      style="display: none"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="import-csv-modal-title"
+    >
+      <div class="modal-box">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+          "
+        >
+          <h3
+            id="import-csv-modal-title"
+            style="
+              font-family: var(--font-display);
+              font-size: 18px;
+              font-weight: 700;
+              margin: 0;
+            "
+          >
+            Import Guest List
+          </h3>
+          <button
+            onclick="closeImportModal()"
+            style="
+              background: transparent;
+              border: none;
+              cursor: pointer;
+              color: var(--text-muted);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 4px;
+            "
+            aria-label="Close"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <p
+          style="
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 24px;
+          "
+        >
+          Download the template to ensure your data is formatted correctly, then
+          upload your completed CSV.
+        </p>
+        <div style="display: flex; justify-content: flex-end; gap: 10px">
+          <a
+            href="template.csv"
+            download
+            style="
+              background: var(--primary-light);
+              color: var(--primary);
+              text-decoration: none;
+              border-radius: var(--radius-md);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 8px 16px;
+              font-size: 13px;
+              font-weight: 600;
+            "
+          >
+            Download Template
+          </a>
+          <label class="btn btn-primary" style="cursor: pointer; margin: 0">
+            <svg
+              aria-hidden="true"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              style="margin-right: 6px"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Upload CSV
+            <input
+              type="file"
+              id="csv-upload-input"
+              accept=".csv"
+              style="display: none"
+              onchange="handleMockCsvUpload(event)"
+            />
+          </label>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
