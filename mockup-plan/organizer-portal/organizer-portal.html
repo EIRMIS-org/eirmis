@@ -2820,6 +2820,10 @@
               <div style="font-weight:600; font-size:13.5px;">3 headcount requests awaiting approval</div>
               <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Tech Forward Annual Gala 2026 • 2
                 hours ago</div>
+              <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn btn-primary btn-sm" onclick="switchView('approvals')">Review approvals</button>
+                <button class="btn btn-secondary btn-sm" onclick="switchView('event-overview')">Open event</button>
+              </div>
             </div>
             <span class="chip chip-amber">New</span>
           </div>
@@ -2837,6 +2841,10 @@
               <div style="font-weight:600; font-size:13.5px;">RSVP capacity reached 80%</div>
               <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Tech Forward Annual Gala 2026 • 1
                 day ago</div>
+              <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn btn-primary btn-sm" onclick="switchView('event-overview')">View event</button>
+                <button class="btn btn-secondary btn-sm" onclick="switchView('attendance')">Check live attendance</button>
+              </div>
             </div>
           </div>
 
@@ -2853,6 +2861,10 @@
             <div style="flex:1;">
               <div style="font-weight:600; font-size:13.5px;">Reminder email scheduled for tomorrow</div>
               <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Apex Healthcare Summit • 1 day ago
+              </div>
+              <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn btn-primary btn-sm" onclick="switchView('reminders')">Manage reminders</button>
+                <button class="btn btn-secondary btn-sm" onclick="switchView('event-overview')">Open event</button>
               </div>
             </div>
           </div>
@@ -2873,6 +2885,10 @@
               <div style="font-weight:600; font-size:13.5px;">Check-in staff member activated</div>
               <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Marcus Staff
                 (marcus.staff@events.org) logged into Station Scanner • 3 hours ago</div>
+              <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn btn-primary btn-sm" onclick="switchView('staff')">Open staff roster</button>
+                <button class="btn btn-secondary btn-sm" onclick="switchView('checkin')">Check-in setup</button>
+              </div>
             </div>
           </div>
 
@@ -2889,6 +2905,10 @@
               <div style="font-weight:600; font-size:13.5px;">FIFO Waitlist promotion completed</div>
               <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Dmitri Rostova promoted from
                 waitlist queue to RSVP pending review • Yesterday</div>
+              <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn btn-primary btn-sm" onclick="switchView('waitlist')">Review waitlist</button>
+                <button class="btn btn-secondary btn-sm" onclick="switchView('approvals')">Open approvals</button>
+              </div>
             </div>
           </div>
         </div>
