@@ -6148,6 +6148,14 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
         );
       }
 
+      function openImportModal() {
+        document.getElementById("import-csv-modal").style.display = "flex";
+      }
+
+      function closeImportModal() {
+        document.getElementById("import-csv-modal").style.display = "none";
+      }
+
       function handleMockCsvUpload(event) {
         const fileInput = event.target;
         const file = fileInput.files[0];
@@ -6171,6 +6179,9 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
 
         // Reset the input so the same file can be uploaded again
         fileInput.value = "";
+
+        // Close the modal
+        closeImportModal();
 
         // Reset toast color back to default after 3500ms
         setTimeout(() => {
