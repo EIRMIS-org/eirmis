@@ -744,6 +744,63 @@
       min-width: 0;
     }
 
+    .event-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .event-toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .event-filter {
+      min-width: 150px;
+      max-width: 200px;
+      height: 38px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #FFFFFF;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .event-search {
+      min-width: 220px;
+      max-width: 280px;
+      flex: 1;
+    }
+
+    .event-empty-state {
+      grid-column: 1 / -1;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 32px 20px;
+      border: 1px dashed #CBD5E1;
+      border-radius: var(--radius-lg);
+      background: #F8FAFC;
+      color: var(--text-muted);
+      min-height: 180px;
+    }
+
+    .event-empty-state strong {
+      display: block;
+      font-size: 18px;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
     #view-events {
       min-width: 0;
     }
@@ -2849,10 +2906,42 @@
           <button class="btn btn-primary" onclick="switchView('create-wizard')">+ Create Event</button>
         </div>
 
-        <div class="event-grid">
+        <div class="event-toolbar">
+          <div class="event-toolbar-group">
+            <input id="event-search" class="form-control event-search" type="text" placeholder="Search events..." oninput="filterEventCards()">
+            <select id="event-status-filter" class="event-filter" onchange="filterEventCards()">
+              <option value="all">All statuses</option>
+              <option value="published">Published</option>
+              <option value="draft">Draft</option>
+            </select>
+            <select id="event-category-filter" class="event-filter" onchange="filterEventCards()">
+              <option value="all">All categories</option>
+              <option value="Technology">Technology</option>
+              <option value="Healthcare">Healthcare</option>
+              <option value="Leadership">Leadership</option>
+              <option value="Community">Community</option>
+              <option value="Startup">Startup</option>
+              <option value="Operations">Operations</option>
+              <option value="Finance">Finance</option>
+              <option value="Sustainability">Sustainability</option>
+              <option value="Volunteer">Volunteer</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="event-grid" id="managed-event-grid">
+          <div id="event-empty-state" class="event-empty-state">
+            <div style="font-size:24px; margin-bottom:8px;">🔎</div>
+            <strong>No events match your filters</strong>
+            <span>Try another keyword or reset the status/category filters.</span>
+            <button class="btn btn-secondary btn-sm" style="margin-top:16px;" onclick="resetEventFilters()">Clear filters</button>
+          </div>
 
           <!-- Event 1: Tech Forward Annual Gala -->
           <div class="card"
+            data-status="published"
+            data-category="Technology"
+            data-name="Tech Forward Annual Gala 2026"
             style="border-top:4px solid var(--primary); cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
             onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
             onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
@@ -2896,6 +2985,9 @@
 
           <!-- Event 2: Apex Healthcare Summit -->
           <div class="card"
+            data-status="published"
+            data-category="Healthcare"
+            data-name="Apex Healthcare Summit"
             style="border-top:4px solid var(--secondary); cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
             onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
             onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
@@ -2937,6 +3029,9 @@
 
           <!-- Event 3: Global Leadership Forum (Draft) -->
           <div class="card"
+            data-status="draft"
+            data-category="Leadership"
+            data-name="Global Leadership Forum"
             style="border-top:4px solid #94A3B8; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card); opacity:0.85;"
             onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)';this.style.opacity='1'"
             onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)';this.style.opacity='0.85'"
@@ -2977,6 +3072,9 @@
 
           <!-- Event 4: Community Hack Night -->
           <div class="card"
+            data-status="published"
+            data-category="Community"
+            data-name="Community Hack Night"
             style="border-top:4px solid #06B6D4; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
             onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
             onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
@@ -3019,6 +3117,9 @@
 
           <!-- Event 5: AI & Security Forum -->
           <div class="card"
+            data-status="published"
+            data-category="Technology"
+            data-name="AI & Security Forum"
             style="border-top:4px solid #8B5CF6; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
             onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
             onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
@@ -3060,6 +3161,9 @@
 
           <!-- Event 6: Startup Founders Mixer -->
           <div class="card"
+            data-status="published"
+            data-category="Startup"
+            data-name="Startup Founders Mixer"
             style="border-top:4px solid #F59E0B; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
             onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
             onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
@@ -3101,6 +3205,9 @@
 
           <!-- Event 7: Community Volunteer Day -->
           <div class="card"
+            data-status="published"
+            data-category="Volunteer"
+            data-name="Community Volunteer Day"
             style="border-top:4px solid #10B981; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
             onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
             onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
@@ -3142,6 +3249,9 @@
 
           <!-- Event 8: Investor Breakfast Briefing -->
           <div class="card"
+            data-status="published"
+            data-category="Finance"
+            data-name="Investor Breakfast Briefing"
             style="border-top:4px solid #F43F5E; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
             onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
             onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
@@ -3183,6 +3293,9 @@
 
           <!-- Event 9: Regional Ops Roundtable -->
           <div class="card"
+            data-status="draft"
+            data-category="Operations"
+            data-name="Regional Ops Roundtable"
             style="border-top:4px solid #64748B; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card); opacity:0.9;"
             onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)';this.style.opacity='1'"
             onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)';this.style.opacity='0.9'"
@@ -3221,6 +3334,9 @@
 
           <!-- Event 10: Women in STEM Summit -->
           <div class="card"
+            data-status="published"
+            data-category="Technology"
+            data-name="Women in STEM Summit"
             style="border-top:4px solid #EC4899; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
             onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
             onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
@@ -3262,6 +3378,9 @@
 
           <!-- Event 11: Green City Expo -->
           <div class="card"
+            data-status="published"
+            data-category="Sustainability"
+            data-name="Green City Expo"
             style="border-top:4px solid #22C55E; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
             onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
             onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
@@ -3303,6 +3422,9 @@
 
           <!-- Event 12: Fintech Leadership Forum -->
           <div class="card"
+            data-status="draft"
+            data-category="Finance"
+            data-name="Fintech Leadership Forum"
             style="border-top:4px solid #0EA5E9; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card); opacity:0.92;"
             onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)';this.style.opacity='1'"
             onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)';this.style.opacity='0.92'"
@@ -4206,6 +4328,48 @@
         row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
       });
       toggleEmptyState('#emaillog-tbody', query, 'No email log entries match your search.');
+    }
+
+    function filterEventCards() {
+      const searchInput = document.getElementById('event-search');
+      const statusFilter = document.getElementById('event-status-filter');
+      const categoryFilter = document.getElementById('event-category-filter');
+      const emptyState = document.getElementById('event-empty-state');
+      const cards = document.querySelectorAll('#managed-event-grid .card');
+
+      const query = (searchInput ? searchInput.value.trim().toLowerCase() : '');
+      const status = statusFilter ? statusFilter.value : 'all';
+      const category = categoryFilter ? categoryFilter.value : 'all';
+
+      let visibleCount = 0;
+
+      cards.forEach(card => {
+        const name = (card.dataset.name || '').toLowerCase();
+        const cardStatus = (card.dataset.status || '').toLowerCase();
+        const cardCategory = (card.dataset.category || '');
+        const matchesQuery = !query || name.includes(query) || card.innerText.toLowerCase().includes(query);
+        const matchesStatus = status === 'all' || cardStatus === status;
+        const matchesCategory = category === 'all' || cardCategory === category;
+        const isVisible = matchesQuery && matchesStatus && matchesCategory;
+
+        card.style.display = isVisible ? '' : 'none';
+        if (isVisible) visibleCount++;
+      });
+
+      if (emptyState) {
+        emptyState.style.display = visibleCount === 0 ? 'flex' : 'none';
+      }
+    }
+
+    function resetEventFilters() {
+      const searchInput = document.getElementById('event-search');
+      const statusFilter = document.getElementById('event-status-filter');
+      const categoryFilter = document.getElementById('event-category-filter');
+
+      if (searchInput) searchInput.value = '';
+      if (statusFilter) statusFilter.value = 'all';
+      if (categoryFilter) categoryFilter.value = 'all';
+      filterEventCards();
     }
   </script>
   <script src="../assets/eirmis.js"></script>
