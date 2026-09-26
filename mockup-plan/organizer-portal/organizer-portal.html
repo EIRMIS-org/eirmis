@@ -254,6 +254,7 @@
       transition: all 0.15s var(--ease-spring);
       width: 100%;
       user-select: none;
+      position: relative;
     }
 
     .sub-nav-btn:hover {
@@ -262,9 +263,21 @@
     }
 
     .sub-nav-btn.active {
-      background: var(--primary-light);
+      background: transparent;
       color: var(--primary);
       font-weight: 600;
+    }
+
+    .sub-nav-btn.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 18px;
+      background: var(--primary);
+      border-radius: 0 4px 4px 0;
     }
 
     .sub-nav-btn.active svg {
@@ -516,6 +529,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      flex-wrap: wrap;
     }
 
     /* Buttons */
@@ -1277,6 +1291,124 @@
       border-top: 1px solid var(--border);
       margin: 6px 0;
     }
+
+    /* Smart Sidebar Collapse */
+    aside.sidebar-collapsed {
+      width: 72px;
+    }
+
+    aside.sidebar-collapsed .brand-meta {
+      display: none;
+    }
+
+    aside.sidebar-collapsed .sidebar-header {
+      justify-content: center;
+      padding: 22px 0 18px 0;
+    }
+
+    aside.sidebar-collapsed .nav-btn {
+      justify-content: center;
+      font-size: 0;
+      gap: 0;
+    }
+
+    aside.sidebar-collapsed .nav-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      padding: 0;
+      border-radius: 50%;
+      text-indent: -9999px;
+      background: #f59e0b;
+      margin-left: 0;
+    }
+
+    aside.sidebar-collapsed .nav-btn {
+      position: relative;
+    }
+    
+    aside.sidebar-collapsed .sidebar-footer {
+      display: none;
+    }
+
+    /* Mobile Enhancements */
+    @media (max-width: 768px) {
+      aside:not(.sub-sidebar) {
+        display: none !important;
+      }
+      .sub-sidebar {
+        width: 100% !important;
+        height: auto;
+        flex-direction: row;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        overflow: hidden;
+        position: sticky;
+        top: 61px;
+        z-index: 15;
+      }
+      .sub-sidebar-header {
+        display: none;
+      }
+      .sub-nav-list {
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 8px 12px;
+        white-space: nowrap;
+        gap: 8px;
+        -webkit-overflow-scrolling: touch;
+      }
+      .sub-nav-list::-webkit-scrollbar {
+        display: none;
+      }
+      .sub-nav-btn {
+        flex-shrink: 0;
+        white-space: nowrap;
+        width: auto;
+        border-radius: 0;
+        padding: 10px 14px;
+        background: transparent;
+        color: #475569;
+        border: none;
+        border-bottom: 2px solid transparent;
+      }
+      .sub-nav-btn.active {
+        background: transparent;
+        color: var(--primary);
+        border-bottom: 2px solid var(--primary);
+      }
+      .sub-nav-btn.active::before {
+        display: none;
+      }
+      .sub-nav-btn.active svg {
+        stroke: var(--primary);
+      }
+      .topbar {
+        padding: 10px 14px;
+        gap: 8px;
+      }
+      .search-box {
+        width: auto;
+        flex: 1;
+        padding: 8px 12px;
+      }
+      .kbd-hint {
+        display: none;
+      }
+      .user-pill span {
+        display: none;
+      }
+      .user-pill {
+        padding: 4px;
+        border: none;
+        background: transparent;
+      }
+      .topbar-right {
+        gap: 4px;
+      }
+    }
   </style>
 </head>
 
@@ -1333,7 +1465,7 @@
     </nav>
 
     <!-- Pinned Organizer Profile Footer to remove negative space -->
-    <div style="
+    <div class="sidebar-footer" style="
           margin-top: auto;
           padding: 16px;
           border-top: 1px solid var(--border);
@@ -1556,6 +1688,9 @@
   <main>
     <!-- Topbar -->
     <div class="topbar">
+      <button class="eirmis-hamburger" onclick="EIRMIS.openDrawer()" style="margin-right: 16px;">
+        <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
       <div class="search-box">
         <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1729,10 +1864,11 @@
         </div>
 
         <!-- Location & Map Verification -->
-        <div class="card" style="margin-top: 20px;">
-          <h3 class="card-h3" style="margin-bottom: 12px;">Location & Map Verification</h3>
-          <p style="font-size:12.5px; color:var(--text-muted); margin-bottom:12px;">Ensure your entered location
-            displays correctly to guests. Test fallback behaviors below.</p>
+        <details open class="eirmis-collapse" style="margin-top: 20px;">
+          <summary class="eirmis-collapse-header">Location & Map Verification</summary>
+          <div class="eirmis-collapse-content">
+            <p style="font-size:12.5px; color:var(--text-muted); margin-bottom:12px;">Ensure your entered location
+              displays correctly to guests. Test fallback behaviors below.</p>
 
           <!-- Simulation Controls -->
           <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
@@ -1792,7 +1928,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </details>
 
         <!-- 4 Metrics Cards -->
         <div class="metric-grid">
@@ -2391,7 +2527,7 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
             </select>
           </div>
 
-          <div class="table-container">
+          <div class="eirmis-table table-container">
             <table>
               <thead>
                 <tr>
@@ -2502,7 +2638,7 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
             <span class="chip chip-amber" id="queue-count-chip">Queue: 3 Pending</span>
           </div>
 
-          <div class="table-container">
+          <div class="eirmis-table table-container">
             <table>
               <thead>
                 <tr>
@@ -2612,7 +2748,7 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
             <span class="chip chip-blue">1 Request</span>
           </div>
 
-          <div class="table-container">
+          <div class="eirmis-table table-container">
             <table>
               <thead>
                 <tr>
@@ -2672,7 +2808,7 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
             </button>
           </div>
 
-          <div class="table-container">
+          <div class="eirmis-table table-container">
             <table>
               <thead>
                 <tr>
@@ -2913,7 +3049,7 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
               oninput="filterAttendance(this.value)" />
           </div>
 
-          <div class="table-container">
+          <div class="eirmis-table table-container">
             <table>
               <thead>
                 <tr>
@@ -2987,7 +3123,7 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
             </button>
           </div>
 
-          <div class="table-container">
+          <div class="eirmis-table table-container">
             <table>
               <thead>
                 <tr>
@@ -4002,7 +4138,7 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
             <span class="chip chip-amber" id="waitlist-count-chip">3 Waitlisted</span>
           </div>
 
-          <div class="table-container">
+          <div class="eirmis-table table-container">
             <table>
               <thead>
                 <tr>
@@ -4084,7 +4220,7 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
               oninput="filterEmailLog(this.value)" />
           </div>
 
-          <div class="table-container">
+          <div class="eirmis-table table-container">
             <table>
               <thead>
                 <tr>
@@ -4161,7 +4297,7 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
             <span class="chip chip-green">Immutable Ledger</span>
           </div>
 
-          <div class="table-container">
+          <div class="eirmis-table table-container">
             <table>
               <thead>
                 <tr>
@@ -4424,10 +4560,7 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
         .querySelectorAll(".view-pane")
         .forEach((el) => el.classList.remove("active"));
       document
-        .querySelectorAll(".nav-btn")
-        .forEach((btn) => btn.classList.remove("active"));
-      document
-        .querySelectorAll(".sub-nav-btn")
+        .querySelectorAll(".nav-btn, .sub-nav-btn")
         .forEach((btn) => btn.classList.remove("active"));
 
       const targetView = document.getElementById("view-" + viewName);
@@ -4437,17 +4570,18 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
       const subSidebar = document.getElementById("sub-sidebar");
 
       if (isEventScoped) {
-        // Show the event sub-sidebar and highlight the matching sub-nav item
         if (subSidebar) subSidebar.style.display = "flex";
+        document.querySelector('aside:not(.sub-sidebar)').classList.add('sidebar-collapsed');
+
         const subBtnId = "sub-nav-" + viewName;
-        const subBtn = document.getElementById(subBtnId);
-        if (subBtn) subBtn.classList.add("active");
-        // Keep the global "Events" item highlighted as the active section
-        const eventsBtn = document.getElementById("btn-nav-events");
-        if (eventsBtn) eventsBtn.classList.add("active");
+        document.querySelectorAll('#' + subBtnId + ', [data-ref="' + subBtnId + '"]').forEach(btn => btn.classList.add('active'));
+        
+        const eventsBtn = "btn-nav-events";
+        document.querySelectorAll('#' + eventsBtn + ', [data-ref="' + eventsBtn + '"]').forEach(btn => btn.classList.add('active'));
       } else {
-        // Global view: hide the sub-sidebar
         if (subSidebar) subSidebar.style.display = "none";
+        document.querySelector('aside:not(.sub-sidebar)').classList.remove('sidebar-collapsed');
+
         const navBtnMap = {
           events: "btn-nav-events",
           notifications: "btn-nav-notifications",
@@ -4456,8 +4590,7 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
         };
         const btnId = navBtnMap[viewName];
         if (btnId) {
-          const btn = document.getElementById(btnId);
-          if (btn) btn.classList.add("active");
+          document.querySelectorAll('#' + btnId + ', [data-ref="' + btnId + '"]').forEach(btn => btn.classList.add('active'));
         }
       }
 
@@ -5008,6 +5141,46 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
       style.innerHTML = `@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`;
       document.head.appendChild(style);
     }
+
+    // Drawer setup for Organizer Portal
+    document.addEventListener('DOMContentLoaded', function() {
+       let navHtml = document.querySelector('.nav-list').innerHTML.replace(/id="/g, 'data-ref="');
+       let drawerHtml = '<div style="display:flex;flex-direction:column;gap:4px;"><div style="font-family:var(--font-heading);font-weight:700;margin-bottom:8px;padding:0 12px;color:var(--text-muted);font-size:11px;text-transform:uppercase;letter-spacing:0.05em;">Main Menu</div>' + navHtml + '</div>';
+       
+       EIRMIS.initMobileNav(drawerHtml);
+       
+       setTimeout(() => {
+         const content = document.getElementById('eirmis-drawer-content');
+         if(content) {
+           content.addEventListener('click', function(e) {
+              if (e.target.closest('button.nav-btn')) {
+                 EIRMIS.closeDrawer();
+              }
+           });
+         }
+       }, 500);
+       
+       // Handle sub-sidebar mobile position
+       function handleMobileLayout() {
+         const sub = document.getElementById('sub-sidebar');
+         const main = document.querySelector('main');
+         if (window.innerWidth <= 768) {
+           if (sub && sub.parentNode !== main) {
+             // Insert right after topbar (topbar is the first child)
+             const topbar = main.querySelector('.topbar');
+             if (topbar && topbar.nextSibling) {
+               main.insertBefore(sub, topbar.nextSibling);
+             }
+           }
+         } else {
+           if (sub && sub.parentNode === main) {
+             document.body.insertBefore(sub, main);
+           }
+         }
+       }
+       window.addEventListener('resize', handleMobileLayout);
+       handleMobileLayout();
+    });
   </script>
   <script src="../assets/eirmis.js"></script>
   <script>
