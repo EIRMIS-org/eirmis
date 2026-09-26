@@ -735,6 +735,58 @@
       margin-bottom: 16px;
     }
 
+    .event-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    #view-events {
+      min-width: 0;
+    }
+
+    #view-events .card {
+      margin-bottom: 0;
+      height: 100%;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      align-self: stretch;
+    }
+
+    #view-events .card > div:nth-child(2) {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    #view-events .card > div:nth-child(2) > div:nth-last-child(2) {
+      margin-top: auto;
+    }
+
+    @media (max-width: 1200px) {
+      .event-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 900px) {
+      .event-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .event-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .card-h3 {
       font-family: var(--font-display);
       font-size: 16px;
@@ -2797,7 +2849,7 @@
           <button class="btn btn-primary" onclick="switchView('create-wizard')">+ Create Event</button>
         </div>
 
-        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:20px;">
+        <div class="event-grid">
 
           <!-- Event 1: Tech Forward Annual Gala -->
           <div class="card"
