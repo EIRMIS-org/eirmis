@@ -777,7 +777,7 @@
 
       <nav class="nav-links">
         <button onclick="showView('landing')" class="nav-btn">Home</button>
-        <button onclick="showView('login')" class="nav-btn">SSO Auth</button>
+        <button onclick="openSsoLogin()" class="nav-btn">SSO Auth</button>
         <button onclick="showView('guest-login')" class="nav-btn">Guest Access</button>
         <button onclick="showView('staff-login')" class="nav-btn">Staff Scanner</button>
         <button onclick="showView('register')" class="nav-btn primary">
@@ -804,7 +804,7 @@
         Simulate Route:
       </div>
       <button class="route-pill active" id="btn-view-landing" onclick="showView('landing')">/ (Landing Hub)</button>
-      <button class="route-pill" id="btn-view-login" onclick="showView('login')">/login (SSO Auth)</button>
+      <button class="route-pill" id="btn-view-login" onclick="openSsoLogin()">/login (SSO Auth)</button>
       <button class="route-pill" id="btn-view-pending" onclick="showView('pending')">/pending-verification</button>
       <button class="route-pill" id="btn-view-guest-login" onclick="showView('guest-login')">/guest/login</button>
       <button class="route-pill" id="btn-view-staff-login" onclick="showView('staff-login')">/staff/login</button>
@@ -828,7 +828,7 @@
           passwordless guest rosters, digital wallet VIP passes, and real-time camera entrance scanning.
         </p>
         <div class="hero-actions">
-          <button class="btn btn-primary" onclick="showView('login')">
+          <button class="btn btn-primary" onclick="openSsoLogin()">
             <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2.5">
               <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
@@ -920,7 +920,7 @@
           </p>
           <div class="card-actions">
             <a href="../organizer-portal/organizer-portal.html" class="btn btn-primary">Launch Organizer Portal →</a>
-            <button onclick="showView('login')" class="btn btn-ghost btn-sm">Simulate SSO Login</button>
+            <button onclick="openSsoLogin()" class="btn btn-ghost btn-sm">Simulate SSO Login</button>
           </div>
         </div>
 
@@ -1468,6 +1468,10 @@
   </footer>
 
   <script>
+    function openSsoLogin() {
+      window.location.href = '../log-in/log-in.html';
+    }
+
     function showView(viewId) {
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
       const target = document.getElementById('view-' + viewId);
