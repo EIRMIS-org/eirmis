@@ -4,7 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EIRMIS — Event Invitation & RSVP Management System</title>
+  <title>EIRMIS — Event Invitation &amp; RSVP Management System</title>
+  <meta name="description"
+    content="EIRMIS is a unified, auditable platform for end-to-end event invitation delivery, tiered RSVP approvals, passwordless guest rosters, and real-time entrance scanning.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -29,7 +31,6 @@
       --text-main: #0F172A;
       --text-muted: #64748B;
       --text-subtle: #94A3B8;
-
       --success: #15803D;
       --success-bg: #DCFCE7;
       --success-border: #86EFAC;
@@ -38,19 +39,15 @@
       --warning-border: #FDE68A;
       --error: #B91C1C;
       --error-bg: #FEE2E2;
-
       --font-heading: 'Hanken Grotesk', system-ui, sans-serif;
       --font-body: 'Inter', system-ui, sans-serif;
-
       --radius-sm: 8px;
       --radius-md: 14px;
       --radius-lg: 22px;
       --radius-pill: 9999px;
-
       --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.04);
       --shadow-md: 0 6px 20px -3px rgba(15, 23, 42, 0.07), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
       --shadow-lg: 0 20px 40px -6px rgba(15, 23, 42, 0.1), 0 6px 12px -3px rgba(15, 23, 42, 0.04);
-
       --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -72,7 +69,7 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Top Glassmorphic Navigation */
+    /* Nav */
     header {
       background: var(--surface);
       backdrop-filter: blur(20px) saturate(180%);
@@ -169,7 +166,7 @@
       background: var(--primary-hover);
     }
 
-    /* Main Container */
+    /* Container */
     .container {
       max-width: 1240px;
       margin: 0 auto;
@@ -178,7 +175,36 @@
       width: 100%;
     }
 
-    /* Route Switcher Segmented Strip */
+    @media (max-width: 320px) {
+      .nav-container {
+        padding: 12px 16px;
+      }
+
+      .brand-logo {
+        width: 32px;
+        height: 32px;
+      }
+
+      .brand-text {
+        font-size: 16px;
+      }
+
+      .brand-badge {
+        padding: 2px 6px;
+        font-size: 9px;
+      }
+
+      .nav-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+
+      .container {
+        padding: 16px;
+      }
+    }
+
+    /* Route Switcher */
     .route-switcher-bar {
       background: #FFFFFF;
       border: 1px solid var(--border);
@@ -227,7 +253,7 @@
       box-shadow: 0 2px 6px rgba(79, 70, 229, 0.2);
     }
 
-    /* View Section Transitions */
+    /* View transitions */
     .view-section {
       display: none;
       animation: sectionFade 0.25s var(--ease-spring) forwards;
@@ -249,240 +275,1389 @@
       }
     }
 
-    /* Hero Section */
-    .hero {
-      text-align: center;
-      max-width: 860px;
-      margin: 24px auto 48px auto;
-    }
+    /* ================================================================ LANDING */
 
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--primary-subtle);
-      color: var(--primary);
-      padding: 6px 14px;
-      border-radius: var(--radius-pill);
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      margin-bottom: 20px;
-      border: 1px solid var(--primary-border);
-    }
-
-    .hero-badge-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--primary);
-    }
-
-    .hero h1 {
-      font-family: var(--font-heading);
-      font-size: 42px;
-      line-height: 1.15;
-      font-weight: 800;
-      color: var(--text-main);
-      letter-spacing: -0.03em;
-      margin-bottom: 16px;
-    }
-
-    .hero-gradient-text {
-      background: linear-gradient(135deg, var(--primary) 0%, #0D9488 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .hero p {
-      font-size: 16px;
-      color: var(--text-muted);
-      line-height: 1.6;
-      max-width: 740px;
-      margin: 0 auto 32px auto;
-    }
-
-    .hero-actions {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    /* Feature Banner: Open Registration */
-    .public-reg-banner {
-      background: linear-gradient(135deg, #1E1B4B 0%, #0F172A 60%, #064E3B 100%);
-      border-radius: var(--radius-lg);
-      color: #FFFFFF;
-      padding: 32px 36px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 24px;
-      margin-bottom: 48px;
-      box-shadow: var(--shadow-md);
-      position: relative;
-      overflow: hidden;
-    }
-
-    @media (min-width: 840px) {
-      .public-reg-banner {
-        flex-direction: row;
-        align-items: center;
-      }
-    }
-
-    .public-reg-banner::after {
-      content: "";
-      position: absolute;
-      top: -50%;
-      right: -20%;
-      width: 400px;
-      height: 400px;
-      background: radial-gradient(circle, rgba(13, 148, 136, 0.25) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .public-reg-content h2 {
-      font-family: var(--font-heading);
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-      margin-bottom: 8px;
-    }
-
-    .public-reg-content p {
-      font-size: 14px;
-      color: #CBD5E1;
-      max-width: 640px;
-      line-height: 1.6;
-    }
-
-    .public-reg-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 4px 12px;
-      border-radius: var(--radius-pill);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      margin-bottom: 12px;
-      color: #6EE7B7;
-    }
-
-    /* 4 Role Portal Entry Cards Grid */
-    .section-title {
-      font-family: var(--font-heading);
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-      color: var(--text-main);
-      margin-bottom: 4px;
-    }
-
-    .section-subtitle {
-      font-size: 13.5px;
-      color: var(--text-muted);
-      margin-bottom: 24px;
-    }
-
-    .portals-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-      gap: 20px;
-      margin-bottom: 48px;
-    }
-
-    .portal-card {
+    /* --- Hero (Minimalist) --- */
+    .lp-hero {
       background: #FFFFFF;
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
-      padding: 24px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lp-hero-top {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      padding: 44px 52px 8px 52px;
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .lp-hero-top {
+        grid-template-columns: 1fr;
+        padding: 28px 24px 8px 24px;
+        gap: 18px;
+      }
+    }
+
+    .lp-hero-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .lp-hero-left h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(30px, 3.8vw, 48px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.035em;
+      color: var(--text-main);
+    }
+
+    .lp-hero-right {
       display: flex;
       flex-direction: column;
-      box-shadow: var(--shadow-sm);
-      transition: all 0.22s var(--ease-spring);
+      justify-content: center;
+      gap: 20px;
+      padding-top: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .lp-hero-right {
+        padding-top: 0;
+      }
+    }
+
+    .lp-hero-right p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.65;
+      max-width: 440px;
+    }
+
+    .lp-hero-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .lp-hero-image-wrap {
+      width: 100%;
+      background: #FFFFFF;
+      overflow: hidden;
+      line-height: 0;
+      margin: 0;
+      padding: 0;
+      display: block;
       position: relative;
     }
 
-    .portal-card:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-md);
-      border-color: #CBD5E1;
+    .lp-hero-carousel {
+      position: relative;
+      aspect-ratio: 1152 / 442;
+      overflow: hidden;
+      background: var(--dark);
     }
 
-    .portal-card-header {
+    .lp-hero-slide {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      opacity: 0;
+      transition: opacity 0.45s ease, transform 6s var(--ease-spring);
+      transform: scale(1.03);
+    }
+
+    .lp-hero-slide.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .lp-hero-carousel::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(15, 23, 42, 0.34), transparent 40%);
+      pointer-events: none;
+    }
+
+    .lp-hero-control {
+      position: absolute;
+      z-index: 2;
+      top: 50%;
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.52);
+      color: #FFFFFF;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transform: translateY(-50%);
+      transition: background 0.18s ease, border-color 0.18s ease;
+    }
+
+    .lp-hero-control:hover,
+    .lp-hero-control:focus-visible {
+      background: var(--primary);
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    .lp-hero-control.prev {
+      left: 18px;
+    }
+
+    .lp-hero-control.next {
+      right: 18px;
+    }
+
+    .lp-hero-dots {
+      position: absolute;
+      z-index: 2;
+      bottom: 18px;
+      left: 50%;
+      display: flex;
+      gap: 7px;
+      transform: translateX(-50%);
+    }
+
+    .lp-hero-dot {
+      width: 8px;
+      height: 8px;
+      padding: 0;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      background: transparent;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+
+    .lp-hero-dot.active,
+    .lp-hero-dot:hover,
+    .lp-hero-dot:focus-visible {
+      background: #FFFFFF;
+      transform: scale(1.3);
+      outline: none;
+    }
+
+    @media (max-width: 520px) {
+      .lp-hero-control {
+        width: 32px;
+        height: 32px;
+      }
+
+      .lp-hero-control.prev {
+        left: 12px;
+      }
+
+      .lp-hero-control.next {
+        right: 12px;
+      }
+
+      .lp-hero-dots {
+        bottom: 12px;
+      }
+    }
+
+    @media (max-width: 320px) {
+      .lp-hero {
+        padding: 24px 16px 32px;
+      }
+
+      .lp-hero-top {
+        gap: 24px;
+      }
+
+      .lp-hero-eyebrow {
+        font-size: 10px;
+      }
+
+      .lp-hero-left h1 {
+        font-size: 28px;
+        line-height: 1.2;
+      }
+
+      .lp-hero-right p {
+        font-size: 13px;
+      }
+
+      .lp-hero-actions {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .lp-hero-actions .btn {
+        width: 100%;
+        padding: 12px 16px;
+      }
+
+      .lp-hero-carousel {
+        height: 200px;
+      }
+
+      .lp-hero-control {
+        width: 28px;
+        height: 28px;
+      }
+
+      .lp-hero-control.prev {
+        left: 8px;
+      }
+
+      .lp-hero-control.next {
+        right: 8px;
+      }
+
+      .lp-hero-dots {
+        bottom: 8px;
+        gap: 6px;
+      }
+
+      .lp-hero-dot {
+        width: 6px;
+        height: 6px;
+      }
+    }
+
+    .lp-hero-image {
+      width: 100%;
+      height: auto;
+      display: block;
+      margin: 0;
+      padding: 0;
+      object-fit: cover;
+      object-position: bottom center;
+      transition: transform 0.6s var(--ease-spring);
+    }
+
+    /* --- Capabilities Section --- */
+    .lp-section {
+      margin-bottom: 20px;
+    }
+
+    .lp-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+      gap: 16px;
+    }
+
+    .lp-section-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    .lp-section-title {
+      font-family: var(--font-heading);
+      font-size: clamp(20px, 3vw, 28px);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--text-main);
+      line-height: 1.15;
+    }
+
+    .lp-section-desc {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 360px;
+    }
+
+    @media (max-width: 320px) {
+      .lp-section-header {
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .lp-section-eyebrow {
+        font-size: 10px;
+      }
+
+      .lp-section-title {
+        font-size: 22px;
+      }
+
+      .lp-section-desc {
+        font-size: 12.5px;
+        max-width: none;
+      }
+    }
+
+    /* Solutions bento grid */
+    .solutions-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: 210px 180px;
+      gap: 12px;
+    }
+
+    .sol-card {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.22s var(--ease-spring), box-shadow 0.22s var(--ease-spring);
+    }
+
+    .sol-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .sol-card:nth-child(1) {
+      grid-column: 1 / 7;
+      grid-row: 1;
+    }
+
+    .sol-card:nth-child(2) {
+      grid-column: 7 / 13;
+      grid-row: 1;
+    }
+
+    .sol-card:nth-child(3) {
+      grid-column: 1 / 5;
+      grid-row: 2;
+    }
+
+    .sol-card:nth-child(4) {
+      grid-column: 5 / 9;
+      grid-row: 2;
+    }
+
+    .sol-card:nth-child(5) {
+      grid-column: 9 / 13;
+      grid-row: 2;
+    }
+
+    @media (max-width: 900px) {
+      .solutions-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto;
+      }
+
+      .sol-card:nth-child(n) {
+        grid-column: auto;
+        grid-row: auto;
+        min-height: 180px;
+      }
+    }
+
+    @media (max-width: 320px) {
+      .solutions-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .sol-card:nth-child(n) {
+        min-height: 160px;
+      }
+
+      .sol-card-content {
+        padding: 16px;
+      }
+
+      .sol-card-tag {
+        font-size: 10px;
+        padding: 3px 8px;
+      }
+
+      .sol-card-title {
+        font-size: 16px;
+      }
+
+      .sol-card-desc {
+        font-size: 12px;
+      }
+    }
+
+    .sol-card-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      transition: transform 0.5s var(--ease-spring);
+    }
+
+    .sol-card:hover .sol-card-bg {
+      transform: scale(1.05);
+    }
+
+    .sol-card:nth-child(1) .sol-card-bg {
+      object-position: top center;
+    }
+
+    .sol-card:nth-child(3) .sol-card-bg {
+      object-position: center 30%;
+    }
+
+    .sol-card:nth-child(5) .sol-card-bg {
+      object-position: center 25%;
+    }
+
+    .sol-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(15, 23, 42, 0.94) 0%, rgba(15, 23, 42, 0.45) 50%, rgba(15, 23, 42, 0.10) 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .sol-card-content {
+      position: relative;
+      z-index: 2;
+      padding: 20px 22px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      pointer-events: none;
+    }
+
+    .sol-card-content h3 {
+      font-family: var(--font-heading);
+      font-size: 15.5px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.015em;
+      margin-bottom: 5px;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+    }
+
+    .sol-card-content p {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.88);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+    }
+
+    /* --- Role Portals Menu Bar --- */
+    .lp-portals-section {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 44px 52px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    @media (max-width: 768px) {
+      .lp-portals-section {
+        padding: 32px 24px;
+      }
+    }
+
+    @media (max-width: 320px) {
+      .lp-portals-section {
+        padding: 24px 16px;
+      }
+    }
+
+    /* Menu Bar - Horizontal layout */
+    .portal-menu-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .portal-menu-bar::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .portal-menu-bar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .portal-menu-bar::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    @media (max-width: 900px) {
+      .portal-menu-bar {
+        gap: 6px;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .portal-menu-bar {
+        gap: 4px;
+      }
+    }
+
+    .portal-menu-trigger {
       display: flex;
       align-items: center;
-      gap: 14px;
-      margin-bottom: 16px;
+      gap: 10px;
+      padding: 12px 16px;
+      background: #FFFFFF;
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      text-align: left;
+      font-family: var(--font-body);
+      transition: all 0.2s var(--ease-spring);
+      white-space: nowrap;
+      min-width: 180px;
+      max-width: 220px;
     }
 
-    .portal-icon-box {
-      width: 44px;
-      height: 44px;
+    .portal-menu-trigger:hover {
+      border-color: var(--border);
+      box-shadow: var(--shadow-sm);
+      background: #FAFAFA;
+    }
+
+    .portal-menu-trigger:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: -2px;
       border-radius: var(--radius-md);
+      border-color: var(--primary);
+    }
+
+    .portal-menu-trigger[aria-selected="true"] {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px var(--primary), var(--shadow-md);
+      background: #FFFFFF;
+    }
+
+    .portal-menu-trigger[aria-selected="true"] .portal-menu-icon {
+      background: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .portal-menu-trigger[aria-selected="true"] .portal-menu-title {
+      color: var(--primary);
+    }
+
+    .portal-menu-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s var(--ease-spring);
+    }
+
+    .portal-menu-icon.organizer {
+      background: #EEF2FF;
+      color: var(--primary);
+    }
+
+    .portal-menu-icon.guest {
+      background: #F0FDFA;
+      color: var(--secondary);
+    }
+
+    .portal-menu-icon.staff {
+      background: #FEF3C7;
+      color: var(--warning);
+    }
+
+    .portal-menu-icon.admin {
+      background: #F1F5F9;
+      color: var(--dark);
+    }
+
+    .portal-menu-info {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .portal-menu-title {
+      font-family: var(--font-heading);
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .portal-menu-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Right panel - dynamic content */
+    .portal-detail-panel {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      min-height: 480px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 120px;
+    }
+
+    @media (max-width: 900px) {
+      .portal-detail-panel {
+        position: static;
+        min-height: auto;
+        padding: 24px;
+      }
+    }
+
+    @media (max-width: 320px) {
+      .portal-detail-panel {
+        padding: 20px 16px;
+      }
+    }
+
+    .portal-detail-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      flex: 1;
+      color: var(--text-muted);
+      padding: 40px 20px;
+    }
+
+    .portal-placeholder-visual {
+      width: 80px;
+      height: 80px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--primary-subtle) 0%, var(--secondary-subtle) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      color: var(--primary);
+    }
+
+    .portal-placeholder-visual svg {
+      width: 40px;
+      height: 40px;
+    }
+
+    .portal-detail-placeholder h3 {
+      font-family: var(--font-heading);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    .portal-detail-placeholder p {
+      font-size: 13.5px;
+      line-height: 1.6;
+      max-width: 280px;
+      color: var(--text-muted);
+    }
+
+    .portal-detail-content {
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+      flex: 1;
+    }
+
+    .portal-detail-content.active {
+      display: flex;
+    }
+
+    .portal-detail-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .portal-detail-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
     }
 
-    .portal-icon-box.organizer {
+    .portal-detail-icon.organizer {
       background: #EEF2FF;
       color: var(--primary);
     }
 
-    .portal-icon-box.guest {
+    .portal-detail-icon.guest {
       background: #F0FDFA;
       color: var(--secondary);
     }
 
-    .portal-icon-box.staff {
+    .portal-detail-icon.staff {
       background: #FEF3C7;
       color: var(--warning);
     }
 
-    .portal-icon-box.admin {
+    .portal-detail-icon.admin {
       background: #F1F5F9;
       color: var(--dark);
     }
 
-    .portal-card h3 {
+    .portal-detail-info h3 {
       font-family: var(--font-heading);
-      font-size: 17px;
+      font-size: 22px;
       font-weight: 800;
       color: var(--text-main);
-      letter-spacing: -0.01em;
-      margin-bottom: 2px;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
     }
 
-    .portal-auth-badge {
-      font-size: 11.5px;
+    .portal-detail-info p {
+      font-size: 14px;
       color: var(--text-muted);
-      font-weight: 600;
-      display: flex;
+      line-height: 1.6;
+    }
+
+    .portal-detail-badge {
+      display: inline-flex;
       align-items: center;
       gap: 4px;
-    }
-
-    .portal-card p {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border);
+      background: #F8FAFC;
       color: var(--text-muted);
-      font-size: 13px;
-      line-height: 1.55;
-      margin-bottom: 20px;
-      flex: 1;
+      width: fit-content;
+      margin-top: 8px;
     }
 
-    .card-actions {
+    /* Portal Preview Frames */
+    .portal-detail-preview {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .portal-preview-frame {
+      flex: 1;
+      background: #FAFAFA;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 280px;
+      max-height: 320px;
+      cursor: zoom-in;
+      transition: box-shadow 0.2s var(--ease-spring);
+    }
+
+    .portal-preview-frame:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .portal-preview-content {
+      flex: 1;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow: hidden;
+    }
+
+    .portal-preview-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: var(--radius-md);
+      transition: transform 0.2s var(--ease-spring);
+    }
+
+    .portal-preview-frame:hover .portal-preview-image {
+      transform: scale(1.01);
+    }
+
+    /* Guest Preview - Landing style */
+    .portal-preview-frame.guest .portal-preview-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 24px 16px;
+      gap: 12px;
+    }
+
+    .portal-preview-hero-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--secondary-subtle) 0%, var(--primary-subtle) 100%);
+    }
+
+    .portal-preview-hero-text {
+      height: 16px;
+      width: 60%;
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    .portal-preview-hero-btn {
+      height: 36px;
+      width: 120px;
+      border-radius: 8px;
+      background: var(--secondary);
+    }
+
+    .portal-preview-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    @media (max-width: 600px) {
+      .portal-preview-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 320px) {
+      .lp-portals-section {
+        padding: 24px 16px;
+      }
+
+      .lp-portals-accordion {
+        gap: 16px;
+      }
+
+      .portals-selector-list {
+        padding: 6px;
+        gap: 4px;
+      }
+
+      .portal-selector-item {
+        padding: 12px 12px;
+        gap: 10px;
+      }
+
+      .portal-selector-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+      }
+
+      .portal-selector-title {
+        font-size: 13px;
+      }
+
+      .portal-selector-subtitle {
+        font-size: 10.5px;
+      }
+
+      .portal-detail-panel {
+        padding: 20px 16px;
+      }
+
+      .portal-detail-header {
+        gap: 12px;
+        padding-bottom: 16px;
+      }
+
+      .portal-detail-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+      }
+
+      .portal-detail-info h3 {
+        font-size: 18px;
+      }
+
+      .portal-detail-info p {
+        font-size: 13px;
+      }
+
+      .portal-preview-frame {
+        min-height: 240px;
+        max-height: 280px;
+      }
+
+      .portal-preview-content {
+        padding: 12px;
+        gap: 10px;
+      }
+
+      .portal-preview-image {
+        border-radius: var(--radius-sm);
+      }
+
+      .portal-detail-cta {
+        gap: 8px;
+      }
+
+      .portal-detail-cta .btn {
+        padding: 10px 14px;
+        font-size: 12.5px;
+      }
+    }
+
+    /* Staff Preview - Scanner style */
+    .portal-preview-frame.staff .portal-preview-content {
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Admin Preview - Dashboard style */
+    .portal-preview-frame.admin .portal-preview-content {
+      align-items: center;
+      justify-content: center;
+    }
+
+    .portal-detail-cta {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      margin-top: auto;
+    }
+
+    .portal-detail-cta .btn {
+      width: 100%;
+      text-align: center;
+    }
+
+    /* Lightbox Modal for Image Enlargement */
+    .portal-lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 24px;
+      animation: lightbox-fade-in 0.2s var(--ease-spring);
+    }
+
+    .portal-lightbox.active {
+      display: flex;
+    }
+
+    @keyframes lightbox-fade-in {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .portal-lightbox-content {
+      position: relative;
+      max-width: 95vw;
+      max-height: 90vh;
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+      overflow: hidden;
+      animation: lightbox-scale-in 0.25s var(--ease-spring);
+    }
+
+    @keyframes lightbox-scale-in {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .portal-lightbox-image {
+      display: block;
+      max-width: 95vw;
+      max-height: 85vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .portal-lightbox-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.8);
+      color: #FFFFFF;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s var(--ease-spring);
+      z-index: 10;
+    }
+
+    .portal-lightbox-close:hover {
+      background: rgba(15, 23, 42, 1);
+      transform: scale(1.05);
+    }
+
+    .portal-lightbox-close:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    .portal-lightbox-close svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 2.5;
+    }
+
+    .portal-lightbox-caption {
+      padding: 16px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      text-align: center;
+      background: #FFFFFF;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 480px) {
+      .portal-lightbox {
+        padding: 12px;
+      }
+
+      .portal-lightbox-close {
+        width: 36px;
+        height: 36px;
+        top: 8px;
+        right: 8px;
+      }
+
+      .portal-lightbox-caption {
+        padding: 12px 16px;
+        font-size: 13px;
+      }
+    }
+
+    /* Button states for WCAG compliance */
+    .btn:disabled,
+    .btn[aria-disabled="true"] {
+      opacity: 0.45;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .btn.loading {
+      position: relative;
+      color: transparent !important;
+    }
+
+    .btn.loading::after {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Empty/Error states */
+    .portal-detail-content.empty .portal-detail-preview,
+    .portal-detail-content.error .portal-detail-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .portal-detail-content.empty .portal-detail-preview::before,
+    .portal-detail-content.error .portal-detail-preview::before {
+      content: "";
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--border);
+      margin-bottom: 16px;
+    }
+
+    .portal-detail-content.error .portal-detail-preview::before {
+      background: var(--error-bg);
+      color: var(--error);
+    }
+
+    /* --- Technology Section --- */
+    .lp-tech-section {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 44px 52px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    @media (max-width: 768px) {
+      .lp-tech-section {
+        padding: 32px 24px;
+      }
+    }
+
+    .lp-tech-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 52px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .lp-tech-layout {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+    }
+
+    .tech-visual {
+      background: #0F172A;
+      border-radius: var(--radius-lg);
+      height: 380px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .tech-visual-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+      transition: transform 0.6s var(--ease-spring);
+    }
+
+    .tech-visual:hover .tech-visual-bg {
+      transform: scale(1.03);
+    }
+
+    .tech-visual-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top,
+          rgba(15, 23, 42, 0.94) 0%,
+          rgba(15, 23, 42, 0.45) 50%,
+          rgba(15, 23, 42, 0.15) 100%);
+      z-index: 1;
+    }
+
+    .tech-visual-content {
+      position: relative;
+      z-index: 2;
+      padding: 28px;
+      width: 100%;
+    }
+
+    .tech-visual-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #818CF8;
+      margin-bottom: 8px;
+    }
+
+    .tech-visual-title {
+      font-family: var(--font-heading);
+      font-size: 22px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .tech-features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px 40px;
+    }
+
+    @media (max-width: 480px) {
+      .tech-features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 320px) {
+      .lp-tech-section {
+        padding: 24px 16px;
+      }
+
+      .lp-tech-layout {
+        gap: 24px;
+      }
+
+      .tech-visual {
+        height: 280px;
+      }
+
+      .tech-visual-content {
+        padding: 20px;
+      }
+
+      .tech-visual-title {
+        font-size: 18px;
+      }
+
+      .tech-features-grid {
+        gap: 16px 24px;
+      }
+
+      .tech-feature-title {
+        font-size: 14px;
+      }
+
+      .tech-feature-desc {
+        font-size: 12px;
+      }
+
+      .tech-feature-link {
+        font-size: 12px;
+      }
+
+      .tech-feature-link-arrow {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .tech-feature {
       display: flex;
       flex-direction: column;
       gap: 8px;
+    }
+
+    .tech-feature-title {
+      font-family: var(--font-heading);
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+
+    .tech-feature-desc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .tech-feature-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      text-decoration: none;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: var(--font-body);
+      transition: gap 0.15s ease;
+      width: fit-content;
+    }
+
+    .tech-feature-link:hover {
+      gap: 10px;
+    }
+
+    .tech-feature-link-arrow {
+      width: 24px;
+      height: 24px;
+      border: 1.5px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .tech-feature-link:hover .tech-feature-link-arrow {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .tech-right-header {
+      margin-bottom: 28px;
+    }
+
+    .tech-feature-divider {
+      grid-column: 1 / -1;
+      height: 1px;
+      background: var(--border);
     }
 
     /* Buttons */
@@ -564,7 +1739,58 @@
       border-radius: 6px;
     }
 
-    /* Auth Wrapper Card */
+    /* Disabled / unavailable */
+    .btn[aria-disabled="true"],
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* Tooltip for unavailable actions */
+    [data-tip] {
+      position: relative;
+    }
+
+    [data-tip]::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.95);
+      color: #FFFFFF;
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+      z-index: 100;
+    }
+
+    [data-tip]::before {
+      content: '';
+      position: absolute;
+      bottom: calc(100% + 2px);
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: rgba(15, 23, 42, 0.95);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+      z-index: 100;
+    }
+
+    [data-tip]:hover::after,
+    [data-tip]:hover::before {
+      opacity: 1;
+    }
+
+    /* Auth cards */
     .auth-card {
       max-width: 480px;
       margin: 36px auto;
@@ -711,7 +1937,7 @@
       border: 1px solid var(--success-border);
     }
 
-    /* Toast Notification */
+    /* Toast */
     .toast {
       position: fixed;
       bottom: 24px;
@@ -729,6 +1955,7 @@
       transform: translateY(100px);
       opacity: 0;
       transition: all 0.3s var(--ease-spring);
+      max-width: 360px;
     }
 
     .toast.show {
@@ -740,6 +1967,11 @@
       color: #34D399;
       display: flex;
       align-items: center;
+      flex-shrink: 0;
+    }
+
+    .toast-icon.warn {
+      color: #FBBF24;
     }
 
     footer {
@@ -750,6 +1982,13 @@
       font-size: 12.5px;
       color: var(--text-muted);
       margin-top: auto;
+    }
+
+    @media (max-width: 320px) {
+      footer {
+        padding: 16px;
+        font-size: 11.5px;
+      }
     }
   </style>
 </head>
@@ -775,7 +2014,7 @@
         </div>
       </a>
 
-      <nav class="nav-links">
+      <nav class="nav-links" aria-label="Primary navigation">
         <button onclick="showView('landing')" class="nav-btn">Home</button>
         <button onclick="showView('login')" class="nav-btn">SSO Auth</button>
         <button onclick="showView('guest-login')" class="nav-btn">Guest Access</button>
@@ -794,7 +2033,7 @@
   <div class="container">
 
     <!-- Route Simulator Segmented Pill Bar -->
-    <div class="route-switcher-bar">
+    <div class="route-switcher-bar" role="navigation" aria-label="Route simulator">
       <div class="route-switcher-label">
         <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           stroke-width="2.2">
@@ -812,217 +2051,512 @@
       <button class="route-pill" id="btn-view-docs" onclick="showView('docs')">/docs (API)</button>
     </div>
 
-    <!-- 1. LANDING VIEW -->
-    <section id="view-landing" class="view-section active">
-      <div class="hero">
-        <div class="hero-badge">
-          <span class="hero-badge-dot"></span>
-          EIRMIS End-to-End Architecture
+    <!-- ======================================= 1. LANDING VIEW -->
+    <section id="view-landing" class="view-section active" aria-label="Landing hub">
+
+      <!-- HERO -->
+      <div class="lp-hero">
+        <div class="lp-hero-top">
+          <div class="lp-hero-left">
+            <div class="lp-hero-eyebrow">/ AUDITABLE EVENT ORCHESTRATION</div>
+            <h1>Manage Every<br>Event Invitation<br>&amp; RSVP</h1>
+          </div>
+          <div class="lp-hero-right">
+            <p>
+              A unified, auditable platform orchestrating the full event lifecycle — invitation delivery,
+              tiered RSVP approvals, passwordless guest rosters, digital VIP passes, and real-time entrance scanning.
+            </p>
+            <div class="lp-hero-actions">
+              <button class="btn btn-primary" onclick="showView('login')">
+                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2.5">
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                  <polyline points="10 17 15 12 10 7"></polyline>
+                  <line x1="15" y1="12" x2="3" y2="12"></line>
+                </svg>
+                Sign In with SSO
+              </button>
+              <button class="btn btn-secondary" onclick="showView('register')">
+                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Open Registration
+              </button>
+            </div>
+          </div>
         </div>
-        <h1>
-          Event Invitation & <br>
-          <span class="hero-gradient-text">RSVP Management System</span>
-        </h1>
-        <p>
-          A unified, auditable platform orchestrating the entire lifecycle: invitation delivery, tiered RSVP approvals,
-          passwordless guest rosters, digital wallet VIP passes, and real-time camera entrance scanning.
-        </p>
-        <div class="hero-actions">
-          <button class="btn btn-primary" onclick="showView('login')">
-            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2.5">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-              <polyline points="10 17 15 12 10 7"></polyline>
-              <line x1="15" y1="12" x2="3" y2="12"></line>
-            </svg>
-            Sign In with SSO
-          </button>
-          <button class="btn btn-secondary" onclick="showView('guest-login')">
-            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-              <polyline points="22 6 12 13 2 6"></polyline>
-            </svg>
-            Guest Passwordless RSVP
-          </button>
-          <button class="btn btn-teal" onclick="showView('register')">
-            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
-            Test Open Registration
-          </button>
+
+        <!-- Hero image below text fitting container edges -->
+        <div class="lp-hero-image-wrap">
+          <div class="lp-hero-carousel" id="hero-carousel" role="region" aria-roledescription="carousel"
+            aria-label="Event moments" tabindex="0">
+            <img class="lp-hero-slide active" src="../assets/hero-carousel-1.jpg"
+              alt="Couple celebrating together at an event" loading="eager" data-slide="0">
+            <img class="lp-hero-slide" src="../assets/hero-carousel-2.jpg" alt="Elegant event table prepared for guests"
+              loading="lazy" data-slide="1">
+            <img class="lp-hero-slide" src="../assets/hero-carousel-3.jpg" alt="Guests raising glasses at a celebration"
+              loading="lazy" data-slide="2">
+            <img class="lp-hero-slide" src="../assets/hero-carousel-4.jpg" alt="Guests gathering at a busy event"
+              loading="lazy" data-slide="3">
+            <img class="lp-hero-slide" src="../assets/hero-carousel-5.jpg" alt="Guests toasting together outdoors"
+              loading="lazy" data-slide="4">
+            <button class="lp-hero-control prev" type="button" aria-label="Previous event image">
+              <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+            <button class="lp-hero-control next" type="button" aria-label="Next event image">
+              <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+            <div class="lp-hero-dots" role="tablist" aria-label="Choose event image">
+              <button class="lp-hero-dot active" type="button" role="tab" aria-label="Show event image 1"
+                aria-selected="true" data-slide="0"></button>
+              <button class="lp-hero-dot" type="button" role="tab" aria-label="Show event image 2" aria-selected="false"
+                data-slide="1"></button>
+              <button class="lp-hero-dot" type="button" role="tab" aria-label="Show event image 3" aria-selected="false"
+                data-slide="2"></button>
+              <button class="lp-hero-dot" type="button" role="tab" aria-label="Show event image 4" aria-selected="false"
+                data-slide="3"></button>
+              <button class="lp-hero-dot" type="button" role="tab" aria-label="Show event image 5" aria-selected="false"
+                data-slide="4"></button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Open Registration Feature Banner -->
-      <div class="public-reg-banner">
-        <div class="public-reg-content">
-          <div class="public-reg-tag">
-            <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2.5">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            Self-Service Public Ingress
+      <!-- CAPABILITIES / SOLUTIONS -->
+      <div class="lp-section">
+        <div class="lp-section-header">
+          <div>
+            <div class="lp-section-eyebrow">/ PLATFORM CAPABILITIES</div>
+            <h2 class="lp-section-title">End-to-End<br>Event Solutions</h2>
           </div>
-          <h2>Tech Forward Annual Gala 2026</h2>
-          <p>
-            Experience the public attendee self-registration workflow (/register/tech-forward-2026). Anyone can register
-            without pre-existing accounts, generating an accepted invitation and receiving a magic link to manage their
-            party roster.
+          <p class="lp-section-desc">
+            From invitation design to entrance scan, EIRMIS handles the complete lifecycle with
+            role-based access and a full audit trail for every action.
           </p>
         </div>
-        <button class="btn"
-          style="background:#FFFFFF; color:var(--dark); font-weight:700; white-space:nowrap; padding:12px 20px;"
-          onclick="showView('register')">
-          Open Registration Form
-          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2.5">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
-          </svg>
-        </button>
+
+        <div class="solutions-grid" role="list">
+
+          <!-- Card 1: Invitation Dispatch -->
+          <div class="sol-card" role="listitem">
+            <img class="sol-card-bg" src="../assets/sol-invitation.jpg" alt="Invitation Dispatch &amp; Delivery"
+              loading="lazy">
+            <div class="sol-card-overlay"></div>
+            <div class="sol-card-content">
+              <h3>Invitation Dispatch</h3>
+              <p>HTML invitation upload with malware scanning, batch email dispatch, and open-tracking per recipient.
+              </p>
+            </div>
+          </div>
+
+          <!-- Card 2: RSVP Workflow -->
+          <div class="sol-card" role="listitem">
+            <img class="sol-card-bg" src="../assets/sol-rsvp.jpg" alt="Tiered RSVP Approvals &amp; Seating"
+              loading="lazy">
+            <div class="sol-card-overlay"></div>
+            <div class="sol-card-content">
+              <h3>Tiered RSVP Approvals</h3>
+              <p>Accept, tentative, or decline with organizer approval workflows and headcount override requests.</p>
+            </div>
+          </div>
+
+          <!-- Card 3: Guest Roster -->
+          <div class="sol-card" role="listitem">
+            <img class="sol-card-bg" src="../assets/sol-roster.jpg" alt="Party Roster Management" loading="lazy">
+            <div class="sol-card-overlay"></div>
+            <div class="sol-card-content">
+              <h3>Party Roster Management</h3>
+              <p>Multi-head guest rosters, headcount requests, and named party submissions via magic link.</p>
+            </div>
+          </div>
+
+          <!-- Card 4: Entrance Scanning -->
+          <div class="sol-card" role="listitem">
+            <img class="sol-card-bg" src="../assets/sol-scanning.jpg" alt="Real-Time Entrance Scan" loading="lazy">
+            <div class="sol-card-overlay"></div>
+            <div class="sol-card-content">
+              <h3>Real-Time Entrance Scan</h3>
+              <p>Mobile-first QR scanner with haptic feedback, duplicate detection, and walk-in registration.</p>
+            </div>
+          </div>
+
+          <!-- Card 5: Digital Wallet -->
+          <div class="sol-card" role="listitem">
+            <img class="sol-card-bg" src="../assets/sol-wallet.jpg" alt="Stage &amp; VIP Access" loading="lazy">
+            <div class="sol-card-overlay"></div>
+            <div class="sol-card-content">
+              <h3>Digital Wallet VIP Passes</h3>
+              <p>Apple Wallet &amp; Google Pay boarding pass generation with secure QR tokens.</p>
+            </div>
+          </div>
+
+        </div>
       </div>
 
-      <!-- 4 Role Portals Grid -->
-      <h2 class="section-title">System Role Portals</h2>
-      <p class="section-subtitle">Dedicated operational spaces governed by strict boundary permissions:</p>
+      <!-- ROLE PORTALS -->
+      <div class="lp-portals-section">
+        <div class="lp-section-header">
+          <div>
+            <div class="lp-section-eyebrow">/ ROLE PORTALS</div>
+            <h2 class="lp-section-title">Four Portals, One Platform</h2>
+          </div>
+          <p class="lp-section-desc">Each role gets a purpose-built interface with scoped permissions and tailored
+            workflows.</p>
+        </div>
 
-      <div class="portals-grid">
-        <!-- 1. Organizer Portal -->
-        <div class="portal-card">
-          <div class="portal-card-header">
-            <div class="portal-icon-box organizer">
-              <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Top: Portal Menu Bar (Tab-style) -->
+        <div class="portal-menu-bar" role="tablist" aria-label="Role portals">
+          <!-- Organizer Portal -->
+          <button class="portal-menu-trigger" role="tab" aria-selected="true" aria-controls="detail-organizer"
+            id="tab-organizer" data-portal="organizer" type="button">
+            <div class="portal-menu-icon organizer" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                 <line x1="16" y1="2" x2="16" y2="6"></line>
                 <line x1="8" y1="2" x2="8" y2="6"></line>
                 <line x1="3" y1="10" x2="21" y2="10"></line>
               </svg>
             </div>
-            <div>
-              <h3>Event Organizer</h3>
-              <span class="portal-auth-badge">
-                <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2.5">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                </svg>
-                OAuth + Admin Gate
-              </span>
+            <div class="portal-menu-info">
+              <div class="portal-menu-title">Event Organizer</div>
+              <div class="portal-menu-subtitle">Full event lifecycle management</div>
             </div>
-          </div>
-          <p>
-            Create events, upload HTML invitation assets with malware scanning, review party rosters, override capacity
-            limits with audit trails, and broadcast reminder emails.
-          </p>
-          <div class="card-actions">
-            <a href="../organizer-portal/organizer-portal.html" class="btn btn-primary">Launch Organizer Portal →</a>
-            <button onclick="showView('login')" class="btn btn-ghost btn-sm">Simulate SSO Login</button>
-          </div>
-        </div>
+          </button>
 
-        <!-- 2. Guest Portal -->
-        <div class="portal-card">
-          <div class="portal-card-header">
-            <div class="portal-icon-box guest">
-              <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Guest Portal -->
+          <button class="portal-menu-trigger" role="tab" aria-selected="false" aria-controls="detail-guest"
+            id="tab-guest" data-portal="guest" type="button">
+            <div class="portal-menu-icon guest" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                 <polyline points="22 6 12 13 2 6"></polyline>
               </svg>
             </div>
-            <div>
-              <h3>Guest Portal</h3>
-              <span class="portal-auth-badge">
-                <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2.5">
-                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                </svg>
-                Passwordless Magic Link
-              </span>
+            <div class="portal-menu-info">
+              <div class="portal-menu-title">Guest Portal</div>
+              <div class="portal-menu-subtitle">Passwordless RSVP & boarding passes</div>
             </div>
-          </div>
-          <p>
-            Self-service RSVP response (Accept, Tentative, Decline), multi-head party roster management, additional
-            headcount requests, and digital wallet VIP boarding passes.
-          </p>
-          <div class="card-actions">
-            <a href="../guest-portal/guest-portal.html" class="btn btn-teal">Launch Guest Portal →</a>
-            <button onclick="showView('guest-login')" class="btn btn-ghost btn-sm">Simulate Magic Link</button>
-          </div>
-        </div>
+          </button>
 
-        <!-- 3. Check-in Staff Portal -->
-        <div class="portal-card">
-          <div class="portal-card-header">
-            <div class="portal-icon-box staff">
-              <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Staff Portal -->
+          <button class="portal-menu-trigger" role="tab" aria-selected="false" aria-controls="detail-staff"
+            id="tab-staff" data-portal="staff" type="button">
+            <div class="portal-menu-icon staff" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
                 <line x1="12" y1="18" x2="12.01" y2="18"></line>
               </svg>
             </div>
-            <div>
-              <h3>Check-in Staff</h3>
-              <span class="portal-auth-badge">
-                <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2.5">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-                Event-Day Scoped Token
-              </span>
+            <div class="portal-menu-info">
+              <div class="portal-menu-title">Check-in Staff</div>
+              <div class="portal-menu-subtitle">Mobile QR scanner, zero PII</div>
             </div>
-          </div>
-          <p>
-            Mobile-first entrance viewfinder with simulated camera laser, haptic vibrations, duplicate token alerts, and
-            door walk-in registrations. No attendee PII access.
-          </p>
-          <div class="card-actions">
-            <a href="../checkin-staff-portal/checkin-staff-portal.html" class="btn btn-secondary">Launch Staff Scanner
-              →</a>
-            <button onclick="showView('staff-login')" class="btn btn-ghost btn-sm">Simulate Staff Auth</button>
-          </div>
-        </div>
+          </button>
 
-        <!-- 4. System Admin Portal -->
-        <div class="portal-card">
-          <div class="portal-card-header">
-            <div class="portal-icon-box admin">
-              <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Admin Portal -->
+          <button class="portal-menu-trigger" role="tab" aria-selected="false" aria-controls="detail-admin"
+            id="tab-admin" data-portal="admin" type="button">
+            <div class="portal-menu-icon admin" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
               </svg>
             </div>
-            <div>
-              <h3>System Administrator</h3>
-              <span class="portal-auth-badge">
-                <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2.5">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            <div class="portal-menu-info">
+              <div class="portal-menu-title">System Administrator</div>
+              <div class="portal-menu-subtitle">Trust gate & platform governance</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Bottom: Dynamic Detail Panel -->
+        <div class="portal-detail-panel" role="region" aria-label="Portal details">
+          <!-- Placeholder state -->
+          <div class="portal-detail-placeholder" id="portal-placeholder">
+            <div class="portal-placeholder-visual" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <h3>Select a Role Portal</h3>
+            <p>Choose a portal from the menu bar above to preview its interface, features, and access method.</p>
+          </div>
+
+          <!-- Organizer Detail -->
+          <div class="portal-detail-content" id="detail-organizer" data-portal="organizer" role="tabpanel"
+            aria-labelledby="tab-organizer">
+            <div class="portal-detail-header">
+              <div class="portal-detail-icon organizer" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
-                Root Trust Gate
-              </span>
+              </div>
+              <div class="portal-detail-info">
+                <h3>Event Organizer Portal</h3>
+                <p>Full event lifecycle management — from invitation design to post-event analytics.</p>
+                <div class="portal-detail-badge">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    aria-hidden="true">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  </svg>
+                  OAuth + Admin Gate
+                </div>
+              </div>
+            </div>
+            <div class="portal-detail-preview">
+              <div class="portal-preview-frame organizer">
+                <div class="portal-preview-content">
+                  <img src="../assets/organizer-portal.png" alt="Organizer Portal Dashboard Preview"
+                    class="portal-preview-image" loading="lazy">
+                </div>
+              </div>
+            </div>
+            <div class="portal-detail-cta">
+              <a href="../organizer-portal/organizer-portal.html" class="btn btn-primary"
+                id="link-organizer-detail">Launch Organizer Portal →</a>
+              <button class="btn btn-secondary" onclick="showView('login')">Simulate SSO Login</button>
             </div>
           </div>
-          <p>
-            The sole trust gate authorizing newly registered SSO accounts to create events. Governs org settings and
-            email domains. Strictly zero-knowledge over event guest lists.
-          </p>
-          <div class="card-actions">
-            <a href="../admin-portal/admin-portal.html" class="btn btn-dark">Launch Admin Portal →</a>
-            <button onclick="showView('pending')" class="btn btn-ghost btn-sm">Simulate Pending Screen</button>
+
+          <!-- Guest Detail -->
+          <div class="portal-detail-content" id="detail-guest" data-portal="guest" role="tabpanel"
+            aria-labelledby="tab-guest">
+            <div class="portal-detail-header">
+              <div class="portal-detail-icon guest" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22 6 12 13 2 6"></polyline>
+                </svg>
+              </div>
+              <div class="portal-detail-info">
+                <h3>Guest Portal</h3>
+                <p>Passwordless self-service for RSVPs, party rosters, and digital boarding passes.</p>
+                <div class="portal-detail-badge">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    aria-hidden="true">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                  </svg>
+                  Passwordless Magic Link
+                </div>
+              </div>
+            </div>
+            <div class="portal-detail-preview">
+              <div class="portal-preview-frame guest">
+                <div class="portal-preview-content">
+                  <img src="../assets/guest-portal.png" alt="Guest Portal Landing Preview" class="portal-preview-image"
+                    loading="lazy">
+                </div>
+              </div>
+            </div>
+            <div class="portal-detail-cta">
+              <a href="../guest-portal/guest-portal.html" class="btn btn-teal" id="link-guest-detail">Launch Guest
+                Portal →</a>
+              <button class="btn btn-secondary" onclick="showView('guest-login')">Simulate Magic Link</button>
+            </div>
+          </div>
+
+          <!-- Staff Detail -->
+          <div class="portal-detail-content" id="detail-staff" data-portal="staff" role="tabpanel"
+            aria-labelledby="tab-staff">
+            <div class="portal-detail-header">
+              <div class="portal-detail-icon staff" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                  <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                </svg>
+              </div>
+              <div class="portal-detail-info">
+                <h3>Check-in Staff Portal</h3>
+                <p>Mobile-first QR scanner for event-day entrance management with zero PII access.</p>
+                <div class="portal-detail-badge">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  Event-Day Scoped Token
+                </div>
+              </div>
+            </div>
+            <div class="portal-detail-preview">
+              <div class="portal-preview-frame staff">
+                <div class="portal-preview-content">
+                  <img src="../assets/scanner-portal.png" alt="Check-in Staff Portal Scanner Preview"
+                    class="portal-preview-image" loading="lazy">
+                </div>
+              </div>
+            </div>
+            <div class="portal-detail-cta">
+              <a href="../checkin-staff-portal/checkin-staff-portal.html" class="btn btn-secondary"
+                id="link-staff-detail">Launch Staff Scanner →</a>
+              <button class="btn btn-ghost" onclick="showView('staff-login')">Simulate Staff Auth</button>
+            </div>
+          </div>
+
+          <!-- Admin Detail -->
+          <div class="portal-detail-content" id="detail-admin" data-portal="admin" role="tabpanel"
+            aria-labelledby="tab-admin">
+            <div class="portal-detail-header">
+              <div class="portal-detail-icon admin" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+              </div>
+              <div class="portal-detail-info">
+                <h3>System Administrator Portal</h3>
+                <p>Root trust gate for account activation, organization governance, and platform security.</p>
+                <div class="portal-detail-badge">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    aria-hidden="true">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                  Root Trust Gate
+                </div>
+              </div>
+            </div>
+            <div class="portal-detail-preview">
+              <div class="portal-preview-frame admin">
+                <div class="portal-preview-content">
+                  <img src="../assets/admin-portal.png" alt="Admin Portal Dashboard Preview"
+                    class="portal-preview-image" loading="lazy">
+                </div>
+              </div>
+            </div>
+            <div class="portal-detail-cta">
+              <a href="../admin-portal/admin-portal.html" class="btn btn-dark" id="link-admin-detail">Launch Admin
+                Portal →</a>
+              <button class="btn btn-ghost" onclick="showView('pending')">Simulate Pending Screen</button>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- TECHNOLOGY SECTION -->
+      <div class="lp-tech-section">
+        <div style="margin-bottom:6px;">
+          <div class="lp-section-eyebrow">/ TECHNOLOGY</div>
+        </div>
+        <div class="lp-tech-layout">
+
+          <!-- Left: visual panel -->
+          <div class="tech-visual">
+            <img class="tech-visual-bg" src="../assets/architecture-event.jpg"
+              alt="EIRMIS Volunteer Operations &amp; Production Architecture" loading="lazy">
+            <div class="tech-visual-overlay"></div>
+            <div class="tech-visual-content">
+              <div class="tech-visual-label">ARCHITECTURE</div>
+              <div class="tech-visual-title">Innovation that<br>Powers Your Events</div>
+            </div>
+          </div>
+
+          <!-- Right: 2x2 features -->
+          <div>
+            <div class="tech-right-header">
+              <h2 class="lp-section-title" style="margin-bottom:10px;">Platform Technology</h2>
+              <p class="lp-section-desc">
+                We leverage the latest serverless and edge-computing technology to improve the way
+                events are managed, attended, and audited.
+              </p>
+            </div>
+
+            <div class="tech-features-grid">
+
+              <div class="tech-feature">
+                <div class="tech-feature-title">Real-Time Tracking</div>
+                <p class="tech-feature-desc">Stay up-to-date with your RSVP data from pick-up to entrance scan delivery.
+                </p>
+                <button class="tech-feature-link" onclick="showView('login')">
+                  Learn More
+                  <span class="tech-feature-link-arrow">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                      aria-hidden="true">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </div>
+
+              <div class="tech-feature">
+                <div class="tech-feature-title">Audit Analytics</div>
+                <p class="tech-feature-desc">Gain insights into your supply chain, identify bottlenecks, and make
+                  data-driven decisions.</p>
+                <button class="tech-feature-link" onclick="showView('docs')">
+                  Learn More
+                  <span class="tech-feature-link-arrow">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                      aria-hidden="true">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </div>
+
+              <div class="tech-feature-divider"></div>
+
+              <div class="tech-feature">
+                <div class="tech-feature-title">Automated Notifications</div>
+                <p class="tech-feature-desc">Receive timely transactional emails for magic links, RSVP confirmations,
+                  and event-day reminders.</p>
+                <button class="tech-feature-link" onclick="showView('register')">
+                  Learn More
+                  <span class="tech-feature-link-arrow">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                      aria-hidden="true">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </div>
+
+              <div class="tech-feature">
+                <div class="tech-feature-title">Secure Role Portals</div>
+                <p class="tech-feature-desc">Access your account anytime with our secure, RLS-enforced portals for
+                  managing and tracking events.</p>
+                <button class="tech-feature-link" onclick="showView('docs')">
+                  Learn More
+                  <span class="tech-feature-link-arrow">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                      aria-hidden="true">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
     </section>
 
-    <!-- 2. LOGIN VIEW (SSO AUTH) -->
+    <!-- ======================================= 2. LOGIN VIEW (SSO AUTH) -->
     <section id="view-login" class="view-section">
       <div class="auth-card">
         <div class="auth-header">
@@ -1034,12 +2568,11 @@
               <line x1="15" y1="12" x2="3" y2="12"></line>
             </svg>
           </div>
-          <h2>Organizer & Admin Sign In</h2>
+          <h2>Organizer &amp; Admin Sign In</h2>
           <p>Sign in using your SSO account to access authorized event operations</p>
         </div>
 
         <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px;">
-          <!-- Active Organizer -->
           <button class="sso-btn" onclick="simulateSsoLogin('active-organizer')">
             <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)"
               stroke-width="2">
@@ -1048,8 +2581,6 @@
             </svg>
             Continue as Active Organizer
           </button>
-
-          <!-- Pending Organizer -->
           <button class="sso-btn" onclick="simulateSsoLogin('pending-organizer')">
             <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warning)"
               stroke-width="2">
@@ -1058,8 +2589,6 @@
             </svg>
             Sign In as Pending Organizer
           </button>
-
-          <!-- Admin -->
           <button class="sso-btn" onclick="simulateSsoLogin('admin')">
             <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--dark)"
               stroke-width="2">
@@ -1074,17 +2603,15 @@
           whitelisting. First-time sign-ins enter an audited <code>pending</code> queue awaiting administrator
           activation.
         </div>
-
         <div style="margin-top:24px; text-align:center;">
           <a href="#landing" onclick="showView('landing')"
-            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">
-            ← Return to Landing Hub
-          </a>
+            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">← Return to Landing
+            Hub</a>
         </div>
       </div>
     </section>
 
-    <!-- 3. PENDING VERIFICATION VIEW -->
+    <!-- ======================================= 3. PENDING VERIFICATION VIEW -->
     <section id="view-pending" class="view-section">
       <div class="auth-card" style="text-align:center;">
         <div class="auth-avatar-wrap" style="background:var(--warning-bg); color:var(--warning);">
@@ -1094,26 +2621,18 @@
             <polyline points="12 6 12 12 14 14"></polyline>
           </svg>
         </div>
-
-        <div class="status-badge pending" style="margin-bottom:14px;">
-          Account Status: Pending Review
-        </div>
-
+        <div class="status-badge pending" style="margin-bottom:14px;">Account Status: Pending Review</div>
         <h2
           style="font-family:var(--font-heading); font-size:22px; font-weight:800; color:var(--text-main); margin-bottom:8px;">
-          Verification in Progress
-        </h2>
-
+          Verification in Progress</h2>
         <p style="color:var(--text-muted); font-size:13.5px; margin-bottom:20px; line-height:1.6;">
           Signed in as <strong>sarah.jenkins@example.com</strong>. Because any SSO account can register, an
           Administrator must verify your profile before you can publish events or dispatch invitations.
         </p>
-
         <div class="notice-box warning" style="text-align:left; margin-bottom:24px;">
           <strong>Security Gate:</strong> The manual verification gate ensures trust and platform accountability. You
           will receive an automated confirmation email once activated.
         </div>
-
         <div style="display:flex; gap:10px; justify-content:center;">
           <a href="../admin-portal/admin-portal.html" class="btn btn-secondary btn-sm">
             <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -1127,7 +2646,7 @@
       </div>
     </section>
 
-    <!-- 4. GUEST LOGIN VIEW (MAGIC LINK) -->
+    <!-- ======================================= 4. GUEST LOGIN VIEW (MAGIC LINK) -->
     <section id="view-guest-login" class="view-section">
       <div class="auth-card">
         <div class="auth-header">
@@ -1141,7 +2660,6 @@
           <h2>Guest Passwordless Access</h2>
           <p>No password needed. Enter your email to receive a secure, one-click magic link.</p>
         </div>
-
         <form onsubmit="handleGuestLogin(event)">
           <div class="form-group">
             <label class="form-label" for="guest-email">Your Email Address</label>
@@ -1157,7 +2675,6 @@
             </svg>
           </button>
         </form>
-
         <div id="guest-magic-sent" style="display:none; margin-top:20px;" class="notice-box success">
           <strong>Magic Link Dispatched:</strong> A secure tokenized sign-in link has been sent to <span
             id="sent-guest-email" style="font-family:monospace; font-weight:700;"></span>.
@@ -1168,17 +2685,15 @@
             </a>
           </div>
         </div>
-
         <div style="margin-top:24px; text-align:center;">
           <a href="#landing" onclick="showView('landing')"
-            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">
-            ← Return to Landing Hub
-          </a>
+            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">← Return to Landing
+            Hub</a>
         </div>
       </div>
     </section>
 
-    <!-- 5. STAFF LOGIN VIEW -->
+    <!-- ======================================= 5. STAFF LOGIN VIEW -->
     <section id="view-staff-login" class="view-section">
       <div class="auth-card">
         <div class="auth-header">
@@ -1192,7 +2707,6 @@
           <h2>Check-in Staff Sign In</h2>
           <p>Enter the email address where your check-in delegation invite was received</p>
         </div>
-
         <form onsubmit="handleStaffLogin(event)">
           <div class="form-group">
             <label class="form-label" for="staff-email">Staff Member Email</label>
@@ -1208,7 +2722,6 @@
             </svg>
           </button>
         </form>
-
         <div id="staff-magic-sent" style="display:none; margin-top:20px;" class="notice-box success">
           <strong>Staff Access Link Dispatched:</strong> Scoped check-in token generated for <span id="sent-staff-email"
             style="font-family:monospace; font-weight:700;"></span>.
@@ -1219,26 +2732,22 @@
             </a>
           </div>
         </div>
-
         <div class="notice-box neutral" style="margin-top:20px;">
           <strong>Day-of Security Scope:</strong> Check-in staff access is strictly restricted to their assigned event
           and active only on event day. Staff have no access to full guest lists or contact data.
         </div>
-
         <div style="margin-top:24px; text-align:center;">
           <a href="#landing" onclick="showView('landing')"
-            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">
-            ← Return to Landing Hub
-          </a>
+            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">← Return to Landing
+            Hub</a>
         </div>
       </div>
     </section>
 
-    <!-- 6. PUBLIC OPEN-REGISTRATION VIEW (/register/:slug) -->
+    <!-- ======================================= 6. PUBLIC OPEN-REGISTRATION VIEW (/register/:slug) -->
     <section id="view-register" class="view-section">
       <div
         style="max-width:680px; margin:0 auto; background:#FFFFFF; border:1px solid var(--border); border-radius:var(--radius-lg); padding:32px; box-shadow:var(--shadow-md);">
-
         <div style="border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:24px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <span class="status-badge active">
@@ -1264,7 +2773,6 @@
             Marina Bay Sands Grand Ballroom, Singapore • November 18, 2026 at 6:30 PM SGT
           </p>
         </div>
-
         <form onsubmit="handlePublicReg(event)">
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
             <div class="form-group" style="margin-bottom:0;">
@@ -1278,7 +2786,6 @@
                 value="aris.thorne@biotech-innovate.org">
             </div>
           </div>
-
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
             <div class="form-group" style="margin-bottom:0;">
               <label class="form-label" for="reg-headcount">Party Size Ceiling (max_party_size)</label>
@@ -1297,16 +2804,14 @@
               <input type="text" id="reg-diet" class="form-control" placeholder="e.g. Pescatarian" value="Pescatarian">
             </div>
           </div>
-
           <div class="form-group">
             <label class="form-label" for="reg-notes">Special Requests / Affiliation</label>
             <textarea id="reg-notes" class="form-control"
               rows="2">Keynote speaker guest, requires wheelchair accessible seating.</textarea>
           </div>
-
           <button type="submit" class="btn btn-primary"
             style="width:100%; padding:12px; font-size:14px; margin-top:8px;">
-            Submit RSVP & Register
+            Submit RSVP &amp; Register
             <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2.5">
               <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -1314,7 +2819,6 @@
             </svg>
           </button>
         </form>
-
         <div id="reg-success-box" style="display:none; margin-top:20px;" class="notice-box success">
           <h4 style="font-size:14px; margin-bottom:4px; font-weight:800; display:flex; align-items:center; gap:6px;">
             <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -1335,17 +2839,15 @@
               onclick="showToast('Resent confirmation email with magic link')">Resend Magic Link</button>
           </div>
         </div>
-
         <div style="margin-top:24px; text-align:center;">
           <a href="#landing" onclick="showView('landing')"
-            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">
-            ← Return to Overview
-          </a>
+            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">← Return to
+            Overview</a>
         </div>
       </div>
     </section>
 
-    <!-- 7. API DOCS VIEW (/docs — Redoc) -->
+    <!-- ======================================= 7. API DOCS VIEW (/docs) -->
     <section id="view-docs" class="view-section">
       <div
         style="max-width:900px; margin:0 auto; background:#FFFFFF; border:1px solid var(--border); border-radius:var(--radius-lg); padding:32px; box-shadow:var(--shadow-md);">
@@ -1356,8 +2858,8 @@
               API Reference</h1>
             <p style="color:var(--text-muted); font-size:13px; margin-top:4px;">
               Redoc view of <code
-                style="background:#F1F5F9; padding:2px 6px; border-radius:4px;">contract/openapi.yaml</code>
-              — the single source of truth for every callable endpoint.
+                style="background:#F1F5F9; padding:2px 6px; border-radius:4px;">contract/openapi.yaml</code> — the
+              single source of truth for every callable endpoint.
             </p>
           </div>
           <span class="status-badge active">
@@ -1368,14 +2870,11 @@
             OpenAPI 3.1
           </span>
         </div>
-
         <div class="notice-box neutral" style="margin-bottom:20px;">
           <strong>Auth-gated outside development:</strong> this route is open in development and requires an
           authenticated session in deployed environments. Operations are grouped by portal (Organizer / Admin / Guest /
           Check-in Staff / Public).
         </div>
-
-        <!-- Simulated Redoc sidebar + operation list -->
         <div style="display:grid; grid-template-columns: 240px 1fr; gap:24px;">
           <div style="border-right:1px solid var(--border); padding-right:16px;">
             <div
@@ -1389,7 +2888,6 @@
               <span style="color:var(--text-muted);">Public</span>
             </div>
           </div>
-
           <div>
             <div
               style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:12px;">
@@ -1440,12 +2938,10 @@
             </div>
           </div>
         </div>
-
         <div style="margin-top:24px; text-align:center;">
           <a href="#landing" onclick="showView('landing')"
-            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">
-            ← Return to Landing Hub
-          </a>
+            style="color:var(--text-muted); font-size:13px; text-decoration:none; font-weight:600;">← Return to Landing
+            Hub</a>
         </div>
       </div>
     </section>
@@ -1453,8 +2949,8 @@
   </div>
 
   <!-- Toast -->
-  <div id="toast" class="toast">
-    <span class="toast-icon">
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <span class="toast-icon" id="toast-icon">
       <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
         stroke-width="2.5">
         <polyline points="20 6 9 17 4 12"></polyline>
@@ -1467,7 +2963,24 @@
     <div>EIRMIS — Event Invitation and RSVP Management Information System • Copyright © 2026</div>
   </footer>
 
+  <!-- Lightbox Modal for Portal Image Enlargement -->
+  <div class="portal-lightbox" id="portal-lightbox" role="dialog" aria-modal="true"
+    aria-label="Portal preview enlarged">
+    <div class="portal-lightbox-content">
+      <button class="portal-lightbox-close" aria-label="Close enlarged preview" type="button">
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <img class="portal-lightbox-image" id="portal-lightbox-image" src="" alt="">
+      <div class="portal-lightbox-caption" id="portal-lightbox-caption"></div>
+    </div>
+  </div>
+
   <script>
+    /* View routing */
     function showView(viewId) {
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
       const target = document.getElementById('view-' + viewId);
@@ -1475,35 +2988,45 @@
         target.classList.add('active');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-
       document.querySelectorAll('.route-pill').forEach(btn => btn.classList.remove('active'));
       const activePill = document.getElementById('btn-view-' + viewId);
       if (activePill) activePill.classList.add('active');
     }
 
-    function showToast(msg) {
+    /* Toast */
+    function showToast(msg, type) {
       const toast = document.getElementById('toast');
+      const icon = document.getElementById('toast-icon');
       document.getElementById('toast-message').innerText = msg;
+      if (type === 'warn') {
+        icon.className = 'toast-icon warn';
+        icon.innerHTML = `<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+      } else {
+        icon.className = 'toast-icon';
+        icon.innerHTML = `<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+      }
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
+    /* SSO login simulation */
     function simulateSsoLogin(role) {
       if (role === 'active-organizer') {
-        EIRMIS.signIn('Organizer', 'Sarah Jenkins', 'sarah.jenkins@example.com');
-        EIRMIS.toast('Authenticated as Sarah Jenkins (Active Organizer)');
-        setTimeout(() => window.location.href = '../organizer-portal/organizer-portal.html', 800);
+        if (typeof EIRMIS !== 'undefined') EIRMIS.signIn('Organizer', 'Sarah Jenkins', 'sarah.jenkins@example.com');
+        showToast('Authenticated as Active Organizer — redirecting…');
+        setTimeout(() => { window.location.href = '../organizer-portal/organizer-portal.html'; }, 800);
       } else if (role === 'pending-organizer') {
-        EIRMIS.signIn('Organizer (pending)', 'Sarah Jenkins', 'sarah.jenkins@example.com');
-        EIRMIS.toast('Organizer account pending admin activation', 'info');
+        if (typeof EIRMIS !== 'undefined') EIRMIS.signIn('Organizer (pending)', 'Sarah Jenkins', 'sarah.jenkins@example.com');
+        showToast('Account pending — awaiting admin activation');
         setTimeout(() => showView('pending'), 500);
       } else if (role === 'admin') {
-        EIRMIS.signIn('Administrator', 'Root Security Officer', 'sysadmin@eirmis.internal');
-        EIRMIS.toast('Authenticated as System Administrator');
-        setTimeout(() => window.location.href = '../admin-portal/admin-portal.html', 800);
+        if (typeof EIRMIS !== 'undefined') EIRMIS.signIn('Administrator', 'Root Security Officer', 'sysadmin@eirmis.internal');
+        showToast('Authenticated as System Administrator — redirecting…');
+        setTimeout(() => { window.location.href = '../admin-portal/admin-portal.html'; }, 800);
       }
     }
 
+    /* Guest login */
     function handleGuestLogin(e) {
       e.preventDefault();
       const email = document.getElementById('guest-email').value;
@@ -1512,6 +3035,7 @@
       showToast('Magic link dispatched to ' + email);
     }
 
+    /* Staff login */
     function handleStaffLogin(e) {
       e.preventDefault();
       const email = document.getElementById('staff-email').value;
@@ -1520,6 +3044,7 @@
       showToast('Check-in link dispatched to ' + email);
     }
 
+    /* Public registration */
     function handlePublicReg(e) {
       e.preventDefault();
       const email = document.getElementById('reg-email').value;
@@ -1528,15 +3053,246 @@
       showToast('Registration accepted! Invitation created.');
     }
 
+    /* Hero carousel */
+    function initHeroCarousel() {
+      const carousel = document.getElementById('hero-carousel');
+      if (!carousel) return;
+
+      const slides = Array.from(carousel.querySelectorAll('.lp-hero-slide'));
+      const dots = Array.from(carousel.querySelectorAll('.lp-hero-dot'));
+      let currentSlide = 0;
+      let autoplayTimer;
+
+      function showHeroSlide(nextSlide) {
+        currentSlide = (nextSlide + slides.length) % slides.length;
+        slides.forEach((slide, index) => {
+          const isActive = index === currentSlide;
+          slide.classList.toggle('active', isActive);
+          slide.setAttribute('aria-hidden', String(!isActive));
+        });
+        dots.forEach((dot, index) => {
+          const isActive = index === currentSlide;
+          dot.classList.toggle('active', isActive);
+          dot.setAttribute('aria-selected', String(isActive));
+        });
+      }
+
+      function stopAutoplay() {
+        window.clearInterval(autoplayTimer);
+      }
+
+      function startAutoplay() {
+        stopAutoplay();
+        autoplayTimer = window.setInterval(() => showHeroSlide(currentSlide + 1), 5000);
+      }
+
+      carousel.querySelector('.lp-hero-control.prev').addEventListener('click', () => {
+        showHeroSlide(currentSlide - 1);
+        startAutoplay();
+      });
+      carousel.querySelector('.lp-hero-control.next').addEventListener('click', () => {
+        showHeroSlide(currentSlide + 1);
+        startAutoplay();
+      });
+      dots.forEach((dot, index) => dot.addEventListener('click', () => {
+        showHeroSlide(index);
+        startAutoplay();
+      }));
+      carousel.addEventListener('mouseenter', stopAutoplay);
+      carousel.addEventListener('mouseleave', startAutoplay);
+      carousel.addEventListener('focusin', stopAutoplay);
+      carousel.addEventListener('focusout', (event) => {
+        if (!carousel.contains(event.relatedTarget)) startAutoplay();
+      });
+      carousel.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowLeft') {
+          event.preventDefault();
+          showHeroSlide(currentSlide - 1);
+          startAutoplay();
+        } else if (event.key === 'ArrowRight') {
+          event.preventDefault();
+          showHeroSlide(currentSlide + 1);
+          startAutoplay();
+        }
+      });
+
+      showHeroSlide(0);
+      startAutoplay();
+    }
+
+    /* Portal link health check — marks unavailable portals with tooltip feedback */
+    function checkPortalLinks() {
+      const links = [
+        { id: 'link-organizer-detail', path: '../organizer-portal/organizer-portal.html', label: 'Organizer Portal' },
+        { id: 'link-guest-detail', path: '../guest-portal/guest-portal.html', label: 'Guest Portal' },
+        { id: 'link-staff-detail', path: '../checkin-staff-portal/checkin-staff-portal.html', label: 'Staff Scanner' },
+        { id: 'link-admin-detail', path: '../admin-portal/admin-portal.html', label: 'Admin Portal' },
+      ];
+      links.forEach(({ id, path, label }) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        fetch(path, { method: 'HEAD' })
+          .then(res => { if (!res.ok) markUnavailable(el, label); })
+          .catch(() => markUnavailable(el, label));
+      });
+    }
+
+    function markUnavailable(el, label) {
+      el.setAttribute('aria-disabled', 'true');
+      el.setAttribute('data-tip', label + ' not yet available');
+      el.style.opacity = '0.45';
+      el.style.pointerEvents = 'none';
+      el.style.cursor = 'not-allowed';
+      el.removeAttribute('href');
+    }
+
+    /* Portal Tabs Interaction + Lightbox */
+    function initPortalTabs() {
+      const menuTriggers = document.querySelectorAll('.portal-menu-trigger');
+      const detailContents = document.querySelectorAll('.portal-detail-content');
+      const placeholder = document.getElementById('portal-placeholder');
+      const lightbox = document.getElementById('portal-lightbox');
+      const lightboxImage = document.getElementById('portal-lightbox-image');
+      const lightboxCaption = document.getElementById('portal-lightbox-caption');
+      const lightboxClose = document.querySelector('.portal-lightbox-close');
+      let activeIndex = 0;
+
+      // Update active selection (menu bar + detail panel)
+      function setActive(index) {
+        // Update menu bar triggers
+        menuTriggers.forEach((trigger, i) => {
+          trigger.setAttribute('aria-selected', i === index ? 'true' : 'false');
+        });
+
+        // Update detail panel
+        detailContents.forEach(dc => dc.classList.remove('active'));
+        const detailPanel = detailContents[index];
+        if (detailPanel) {
+          detailPanel.classList.add('active');
+          placeholder.style.display = 'none';
+        }
+        activeIndex = index;
+      }
+
+      // Handle trigger click
+      menuTriggers.forEach((trigger, index) => {
+        trigger.addEventListener('click', () => {
+          setActive(index);
+        });
+
+        // Keyboard support for menu triggers
+        trigger.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setActive(index);
+          }
+          // Arrow key navigation between menu items
+          if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            const nextIndex = (index + 1) % menuTriggers.length;
+            menuTriggers[nextIndex].focus();
+            setActive(nextIndex);
+          }
+          if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            const prevIndex = (index - 1 + menuTriggers.length) % menuTriggers.length;
+            menuTriggers[prevIndex].focus();
+            setActive(prevIndex);
+          }
+          // Home/End keys
+          if (e.key === 'Home') {
+            e.preventDefault();
+            menuTriggers[0].focus();
+            setActive(0);
+          }
+          if (e.key === 'End') {
+            e.preventDefault();
+            const lastIndex = menuTriggers.length - 1;
+            menuTriggers[lastIndex].focus();
+            setActive(lastIndex);
+          }
+        });
+      });
+
+      // Lightbox functionality
+      function openLightbox(imageSrc, captionText) {
+        lightboxImage.src = imageSrc;
+        lightboxImage.alt = captionText;
+        lightboxCaption.textContent = captionText;
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        // Focus close button for accessibility
+        lightboxClose.focus();
+      }
+
+      function closeLightbox() {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+        lightboxImage.src = '';
+        lightboxCaption.textContent = '';
+        // Return focus to active trigger
+        if (menuTriggers[activeIndex]) {
+          menuTriggers[activeIndex].focus();
+        }
+      }
+
+      // Click on preview images to open lightbox
+      const previewImages = document.querySelectorAll('.portal-preview-image');
+      previewImages.forEach(img => {
+        img.style.cursor = 'zoom-in';
+        img.addEventListener('click', () => {
+          openLightbox(img.src, img.alt || 'Portal preview');
+        });
+        // Keyboard support for images
+        img.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openLightbox(img.src, img.alt || 'Portal preview');
+          }
+        });
+        // Make images focusable for keyboard access
+        img.setAttribute('tabindex', '0');
+        img.setAttribute('role', 'button');
+        img.setAttribute('aria-label', `Enlarge ${img.alt || 'portal preview'}`);
+      });
+
+      // Close lightbox on close button click
+      lightboxClose.addEventListener('click', closeLightbox);
+
+      // Close lightbox on backdrop click
+      lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) {
+          closeLightbox();
+        }
+      });
+
+      // Close lightbox on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+          closeLightbox();
+        }
+      });
+
+      // Initialize with first item (Organizer) active
+      if (menuTriggers.length > 0) {
+        setActive(0);
+      }
+    }
+
+    /* Hash-based routing on load */
     window.addEventListener('DOMContentLoaded', () => {
       const hash = window.location.hash.replace('#', '');
       if (['landing', 'login', 'pending', 'guest-login', 'staff-login', 'register', 'docs'].includes(hash)) {
         showView(hash);
       }
+      initHeroCarousel();
+      initPortalTabs();
+      setTimeout(checkPortalLinks, 600);
     });
   </script>
   <script src="../assets/eirmis.js"></script>
-  <script>EIRMIS.init({ portal: 'landing' });</script>
+  <script>if (typeof EIRMIS !== 'undefined') EIRMIS.init({ portal: 'landing' });</script>
+
 </body>
 
 </html>
