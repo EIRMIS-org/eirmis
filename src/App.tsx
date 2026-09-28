@@ -1,10 +1,14 @@
 import { useState } from 'react'
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import { ProtectedRoute } from './components/ProtectedRoute'
+import AdminDashboard from './pages/admin/Dashboard'
+import Unauthorized from './pages/Unauthorized'
 import heroImg from './assets/hero.png'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import './App.css'
 
-function App() {
+function Home() {
   const [count, setCount] = useState(0)
 
   return (
@@ -28,6 +32,14 @@ function App() {
         >
           Count is {count}
         </button>
+        <div style={{ marginTop: '20px' }}>
+          <Link 
+            to="/admin" 
+            className="px-4 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            Go to Admin Portal
+          </Link>
+        </div>
       </section>
 
       <div className="ticks"></div>
@@ -116,6 +128,22 @@ function App() {
       <div className="ticks"></div>
       <section id="spacer"></section>
     </>
+  )
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
+        
+        {/* Admin Routes */}
+        <Route element={<ProtectedRoute requireAdmin={true} />}>
+          <Route path="/admin" element={<AdminDashboard />} />
+        </Route>
+      </Routes>
+    </Router>
   )
 }
 
