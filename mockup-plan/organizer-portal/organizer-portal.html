@@ -1231,6 +1231,136 @@
     }
 
     /* Chips */
+    /* ── Icon-only action buttons (Approval queue) ── */
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s var(--ease-spring);
+      background: transparent;
+      position: relative;
+    }
+
+    .action-btn:active {
+      transform: scale(0.93);
+    }
+
+    .action-btn-approve {
+      color: var(--success);
+      border-color: var(--success-border);
+      background: var(--success-bg);
+    }
+
+    .action-btn-approve:hover {
+      background: #bbf7d0;
+      border-color: #4ade80;
+      box-shadow: 0 2px 8px rgba(21, 128, 61, 0.18);
+    }
+
+    .action-btn-reject {
+      color: var(--error);
+      border-color: var(--error-border);
+      background: var(--error-bg);
+    }
+
+    .action-btn-reject:hover {
+      background: #fecaca;
+      border-color: #f87171;
+      box-shadow: 0 2px 8px rgba(185, 28, 28, 0.18);
+    }
+
+    .action-btn-simulate-error {
+      color: var(--text-muted);
+      border-color: var(--border);
+      background: #f8fafc;
+    }
+
+    .action-btn-simulate-error:hover {
+      background: #eef2ff;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Tooltip on icon buttons */
+    .action-btn[title] {
+      position: relative;
+    }
+
+    .action-btn-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Restricted (read-only) row */
+    .row-restricted {
+      background: #f8fafc !important;
+      opacity: 0.82;
+    }
+
+    .row-restricted td {
+      color: var(--text-muted) !important;
+    }
+
+    .restricted-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-subtle);
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: default;
+      white-space: nowrap;
+    }
+
+    /* Validation error message */
+    .field-error {
+      color: var(--error);
+      font-size: 11.5px;
+      font-weight: 600;
+      margin-top: 5px;
+      display: none;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .field-error.visible {
+      display: flex;
+    }
+
+    .form-control-error {
+      border-color: var(--error) !important;
+      box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.10) !important;
+    }
+
+    /* Error toast variant */
+    .toast.toast-error {
+      background: #7f1d1d;
+    }
+
+    /* Inline error badge on a row */
+    .row-error-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--error);
+      background: var(--error-bg);
+      border: 1px solid var(--error-border);
+      border-radius: 6px;
+      padding: 3px 8px;
+    }
+
     .chip {
       display: inline-flex;
       align-items: center;
@@ -2731,17 +2861,14 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
       <!-- VIEW 4: APPROVALS QUEUE (With Soft-check Over-Capacity Modal) -->
       <!-- ============================================== -->
       <section id="view-approvals" class="view-pane">
-        <div class="card">
+
+        <!-- ── Attendee Approval Queue ── -->
+        <div class="card" style="margin-bottom: 20px;">
           <div class="card-header-flex">
             <div>
               <h2 class="card-h3">Pending Attendee Approvals</h2>
-              <p style="
-                    font-size: 12.5px;
-                    color: var(--text-muted);
-                    margin-top: 2px;
-                  ">
-                Review attendee additions one by one. Approvals generate
-                signed QR tokens and verify capacity limits.
+              <p style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">
+                Review attendee additions one at a time. Approvals issue signed QR tokens and verify capacity limits.
               </p>
             </div>
             <span class="chip chip-amber" id="queue-count-chip">Queue: 3 Pending</span>
@@ -2756,102 +2883,190 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
                   <th>Email (Optional)</th>
                   <th>Submitted At</th>
                   <th>Status</th>
-                  <th>Actions</th>
+                  <th style="text-align:right;">Actions</th>
                 </tr>
               </thead>
               <tbody id="approvals-roster-body">
+
+                <!-- Row 1: Normal pending attendee -->
                 <tr id="att-row-1">
-                  <td>Elena Rostova (accepted)</td>
+                  <td>Elena Rostova <span style="color:var(--text-muted); font-size:11.5px;">(accepted)</span></td>
                   <td><strong>Dmitri Rostova</strong></td>
                   <td>dmitri.r@example.com</td>
                   <td>Today, 10:14 AM</td>
                   <td><span class="chip chip-amber">pending</span></td>
-                  <td>
-                    <button class="btn btn-primary btn-sm" onclick="
-                          decideAttendee(
-                            'att-row-1',
-                            'Dmitri Rostova',
-                            'approve',
-                          )
-                        ">
-                      Approve
-                    </button>
-                    <button class="btn btn-danger btn-sm" onclick="
-                          decideAttendee(
-                            'att-row-1',
-                            'Dmitri Rostova',
-                            'reject',
-                          )
-                        ">
-                      Reject
-                    </button>
+                  <td style="text-align:right;">
+                    <div class="action-btn-group">
+                      <button class="action-btn action-btn-approve"
+                        title="Approve attendee"
+                        onclick="promptApproveAttendee('att-row-1', 'Dmitri Rostova', 'Elena Rostova')">
+                        <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </button>
+                      <button class="action-btn action-btn-reject"
+                        title="Reject attendee"
+                        onclick="promptRejectAttendee('att-row-1', 'Dmitri Rostova')">
+                        <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </button>
+                      <button class="action-btn action-btn-simulate-error"
+                        title="Simulate action error"
+                        onclick="simulateApprovalError('att-row-1', 'Dmitri Rostova')">
+                        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <line x1="12" y1="8" x2="12" y2="12"></line>
+                          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                      </button>
+                    </div>
                   </td>
                 </tr>
+
+                <!-- Row 2: Over-capacity soft-check row -->
                 <tr id="att-row-2">
-                  <td>Elena Rostova (accepted)</td>
+                  <td>Elena Rostova <span style="color:var(--text-muted); font-size:11.5px;">(accepted)</span></td>
                   <td>
                     <strong>Sophia Rostova</strong>
-                    <small style="color: var(--text-muted)">(Child)</small>
+                    <small style="color:var(--text-muted)">(Child)</small>
                   </td>
-                  <td><em>None provided</em></td>
+                  <td><em style="color:var(--text-subtle);">None provided</em></td>
                   <td>Today, 10:15 AM</td>
                   <td><span class="chip chip-amber">pending</span></td>
-                  <td>
-                    <button class="btn btn-primary btn-sm" onclick="
-                          triggerCapacityWarning('att-row-2', 'Sophia Rostova')
-                        ">
-                      Approve (Test Capacity)
-                    </button>
-                    <button class="btn btn-danger btn-sm" onclick="
-                          decideAttendee(
-                            'att-row-2',
-                            'Sophia Rostova',
-                            'reject',
-                          )
-                        ">
-                      Reject
-                    </button>
+                  <td style="text-align:right;">
+                    <div class="action-btn-group">
+                      <!-- Approve triggers capacity-warning modal for this row -->
+                      <button class="action-btn action-btn-approve"
+                        title="Approve attendee (Test Capacity)"
+                        onclick="triggerCapacityWarning('att-row-2', 'Sophia Rostova')">
+                        <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </button>
+                      <button class="action-btn action-btn-reject"
+                        title="Reject attendee"
+                        onclick="promptRejectAttendee('att-row-2', 'Sophia Rostova')">
+                        <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </button>
+                      <button class="action-btn action-btn-simulate-error"
+                        title="Simulate action error"
+                        onclick="simulateApprovalError('att-row-2', 'Sophia Rostova')">
+                        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <line x1="12" y1="8" x2="12" y2="12"></line>
+                          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                      </button>
+                    </div>
+                    <!-- Capacity hint label under the buttons -->
+                    <div style="margin-top:5px; text-align:right;">
+                      <span style="font-size:10.5px; color:var(--warning); font-weight:600;">
+                        ⚠ Test Capacity
+                      </span>
+                    </div>
                   </td>
                 </tr>
+
+                <!-- Row 3: Normal pending attendee -->
                 <tr id="att-row-3">
-                  <td>Dr. Aris Thorne (accepted)</td>
+                  <td>Dr. Aris Thorne <span style="color:var(--text-muted); font-size:11.5px;">(accepted)</span></td>
                   <td><strong>Kallie Thorne</strong></td>
                   <td>kallie@biotech-innovate.org</td>
                   <td>Today, 11:30 AM</td>
                   <td><span class="chip chip-amber">pending</span></td>
-                  <td>
-                    <button class="btn btn-primary btn-sm" onclick="
-                          decideAttendee(
-                            'att-row-3',
-                            'Kallie Thorne',
-                            'approve',
-                          )
-                        ">
-                      Approve
-                    </button>
-                    <button class="btn btn-danger btn-sm" onclick="
-                          decideAttendee('att-row-3', 'Kallie Thorne', 'reject')
-                        ">
-                      Reject
-                    </button>
+                  <td style="text-align:right;">
+                    <div class="action-btn-group">
+                      <button class="action-btn action-btn-approve"
+                        title="Approve attendee"
+                        onclick="promptApproveAttendee('att-row-3', 'Kallie Thorne', 'Dr. Aris Thorne')">
+                        <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </button>
+                      <button class="action-btn action-btn-reject"
+                        title="Reject attendee"
+                        onclick="promptRejectAttendee('att-row-3', 'Kallie Thorne')">
+                        <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </button>
+                      <button class="action-btn action-btn-simulate-error"
+                        title="Simulate action error"
+                        onclick="simulateApprovalError('att-row-3', 'Kallie Thorne')">
+                        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <line x1="12" y1="8" x2="12" y2="12"></line>
+                          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                      </button>
+                    </div>
                   </td>
                 </tr>
+
+                <!-- Row 4: Restricted — Guest view (read-only, no action) -->
+                <tr id="att-row-restricted" class="row-restricted">
+                  <td>Marcus Webb <span style="color:var(--text-subtle); font-size:11.5px;">(accepted)</span></td>
+                  <td>
+                    <strong style="color:var(--text-muted);">Jamie Webb</strong>
+                  </td>
+                  <td style="color:var(--text-subtle);">jamie@example.com</td>
+                  <td style="color:var(--text-subtle);">Today, 12:00 PM</td>
+                  <td><span class="chip chip-amber">pending</span></td>
+                  <td style="text-align:right;">
+                    <span class="restricted-label" title="Only Organizers can approve or reject attendees">
+                      <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                      No access — Guest view
+                    </span>
+                  </td>
+                </tr>
+
               </tbody>
             </table>
           </div>
+
+          <!-- Legend -->
+          <div style="display:flex; gap:20px; padding:12px 4px 0; font-size:11.5px; color:var(--text-muted);">
+            <span style="display:inline-flex; align-items:center; gap:5px;">
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--success);display:inline-block;"></span>
+              Approve — issues QR token
+            </span>
+            <span style="display:inline-flex; align-items:center; gap:5px;">
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--error);display:inline-block;"></span>
+              Reject — requires remarks
+            </span>
+            <span style="display:inline-flex; align-items:center; gap:5px;">
+              <svg aria-hidden="true" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              Simulate error (mockup only)
+            </span>
+          </div>
         </div>
 
+        <!-- ── Headcount Increase Requests ── -->
         <div class="card">
           <div class="card-header-flex">
             <div>
               <h2 class="card-h3">Headcount Increase Requests</h2>
-              <p style="
-                    font-size: 12.5px;
-                    color: var(--text-muted);
-                    margin-top: 2px;
-                  ">
-                Raised capacity requests submitted by primary guests at their
-                current party limit.
+              <p style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">
+                Raised capacity requests submitted by primary guests at their current party limit.
               </p>
             </div>
             <span class="chip chip-blue">1 Request</span>
@@ -2865,34 +3080,83 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
                   <th>Current Cap</th>
                   <th>Requested Increase</th>
                   <th>Guest Reason / Note</th>
-                  <th>Actions</th>
+                  <th style="text-align:right;">Actions</th>
                 </tr>
               </thead>
               <tbody>
+
+                <!-- Row 1: Pending headcount request -->
                 <tr id="hc-row-1">
                   <td><strong>Dr. Aris Thorne</strong></td>
                   <td>2 heads</td>
                   <td>
-                    <strong style="color: var(--primary)">+2 heads</strong>
-                    (New ceiling: 4)
+                    <strong style="color:var(--primary);">+2 heads</strong>
+                    <span style="color:var(--text-muted);">(New ceiling: 4)</span>
                   </td>
-                  <td>
-                    "Bringing our research foundation directors who were just
-                    confirmed to fly in."
+                  <td style="max-width:220px; color:var(--text-muted); font-style:italic; font-size:12.5px;">
+                    "Bringing our research foundation directors who were just confirmed to fly in."
                   </td>
-                  <td>
-                    <button class="btn btn-teal btn-sm" onclick="decideHeadcount('hc-row-1', 'approve')">
-                      Approve (+2)
-                    </button>
-                    <button class="btn btn-danger btn-sm" onclick="decideHeadcount('hc-row-1', 'reject')">
-                      Reject
-                    </button>
+                  <td style="text-align:right;">
+                    <div class="action-btn-group">
+                      <button class="action-btn action-btn-approve"
+                        title="Approve headcount request"
+                        onclick="promptApproveHeadcount('hc-row-1', 'Dr. Aris Thorne', '+2 heads')">
+                        <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </button>
+                      <button class="action-btn action-btn-reject"
+                        title="Reject headcount request"
+                        onclick="promptRejectHeadcount('hc-row-1', 'Dr. Aris Thorne')">
+                        <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </button>
+                      <button class="action-btn action-btn-simulate-error"
+                        title="Simulate action error"
+                        onclick="simulateApprovalError('hc-row-1', 'Dr. Aris Thorne — headcount request')">
+                        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <line x1="12" y1="8" x2="12" y2="12"></line>
+                          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                      </button>
+                    </div>
                   </td>
                 </tr>
+
+                <!-- Row 2: Restricted — Guest view (read-only) -->
+                <tr class="row-restricted">
+                  <td><strong style="color:var(--text-muted);">Lena Park</strong></td>
+                  <td style="color:var(--text-subtle);">3 heads</td>
+                  <td>
+                    <strong style="color:var(--text-subtle);">+1 head</strong>
+                    <span style="color:var(--text-subtle);">(New ceiling: 4)</span>
+                  </td>
+                  <td style="max-width:220px; color:var(--text-subtle); font-style:italic; font-size:12.5px;">
+                    "Partner joined last minute."
+                  </td>
+                  <td style="text-align:right;">
+                    <span class="restricted-label" title="Only Organizers can decide headcount requests">
+                      <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                      No access — Guest view
+                    </span>
+                  </td>
+                </tr>
+
               </tbody>
             </table>
           </div>
         </div>
+
       </section>
 
       <!-- ============================================== -->
@@ -4793,6 +5057,234 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
     </div>
   </main>
 
+  <!-- ── APPROVE ATTENDEE CONFIRMATION MODAL ── -->
+  <div id="approve-attendee-modal" class="modal-overlay" role="dialog" aria-modal="true"
+    aria-labelledby="approve-attendee-modal-title">
+    <div class="modal-box">
+      <!-- Icon badge -->
+      <div style="
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--success-bg); color: var(--success);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 14px;">
+        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <h3 id="approve-attendee-modal-title" style="
+            font-family: var(--font-display); font-size: 18px; font-weight: 700;
+            margin-bottom: 6px;">
+        Confirm Attendee Approval
+      </h3>
+      <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
+        You are about to approve
+        <strong id="approve-att-name" style="color: var(--text-main);">—</strong>
+        submitted under the party of
+        <strong id="approve-att-guest" style="color: var(--text-main);">—</strong>.
+        A signed QR token will be issued immediately.
+      </p>
+      <div style="
+            background: #f0fdf4; border: 1px solid var(--success-border);
+            padding: 12px 14px; border-radius: var(--radius-md);
+            font-size: 12px; color: #14532d; margin-bottom: 20px; line-height: 1.5;">
+        <strong>Audit Notice:</strong> This action will be recorded as
+        <code style="background:#dcfce7; padding:2px 5px; border-radius:4px; font-family:monospace;">attendee.approved</code>
+        in <code style="background:#dcfce7; padding:2px 5px; border-radius:4px; font-family:monospace;">AuditLogEntry</code>
+        with your actor timestamp.
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn btn-secondary" onclick="closeApproveAttendeeModal()">Cancel</button>
+        <button class="btn btn-primary" id="confirm-approve-att-btn" onclick="confirmApproveAttendee()" style="background:var(--success); border-color:var(--success);">
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Approve Attendee
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── REJECT ATTENDEE MODAL (Required Remarks) ── -->
+  <div id="reject-attendee-modal" class="modal-overlay" role="dialog" aria-modal="true"
+    aria-labelledby="reject-attendee-modal-title">
+    <div class="modal-box">
+      <!-- Icon badge -->
+      <div style="
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--error-bg); color: var(--error);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 14px;">
+        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </div>
+      <h3 id="reject-attendee-modal-title" style="
+            font-family: var(--font-display); font-size: 18px; font-weight: 700;
+            margin-bottom: 6px;">
+        Reject Attendee
+      </h3>
+      <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
+        You are rejecting
+        <strong id="reject-att-name" style="color: var(--text-main);">—</strong>.
+        A rejection reason is <strong>required</strong> — it will be included in the
+        notification sent to the primary guest.
+      </p>
+      <div class="form-group" style="margin-bottom: 6px;">
+        <label class="form-label" for="reject-att-remarks">
+          Rejection Remarks <span style="color: var(--error);">*</span>
+        </label>
+        <textarea id="reject-att-remarks" class="form-control"
+          rows="3" placeholder="e.g., Over the approved party limit for this event."
+          style="resize: vertical; min-height: 80px;"
+          oninput="clearRejectionAttError()"></textarea>
+        <div class="field-error" id="reject-att-error">
+          <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          Rejection remarks are required before submitting.
+        </div>
+      </div>
+      <div style="
+            background: #fef2f2; border: 1px solid var(--error-border);
+            padding: 12px 14px; border-radius: var(--radius-md);
+            font-size: 12px; color: #7f1d1d; margin-bottom: 20px; line-height: 1.5;">
+        <strong>Audit Notice:</strong> This action will be recorded as
+        <code style="background:#fee2e2; padding:2px 5px; border-radius:4px; font-family:monospace;">attendee.rejected</code>
+        in <code style="background:#fee2e2; padding:2px 5px; border-radius:4px; font-family:monospace;">AuditLogEntry</code>.
+        The guest may resubmit this attendee after reviewing the remarks.
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn btn-secondary" onclick="closeRejectAttendeeModal()">Cancel</button>
+        <button class="btn btn-danger" onclick="confirmRejectAttendee()">
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+          Submit Rejection
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── APPROVE HEADCOUNT CONFIRMATION MODAL ── -->
+  <div id="approve-headcount-modal" class="modal-overlay" role="dialog" aria-modal="true"
+    aria-labelledby="approve-headcount-modal-title">
+    <div class="modal-box">
+      <div style="
+            width: 44px; height: 44px; border-radius: 50%;
+            background: #f0f9ff; color: #0369a1;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 14px;">
+        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+      </div>
+      <h3 id="approve-headcount-modal-title" style="
+            font-family: var(--font-display); font-size: 18px; font-weight: 700;
+            margin-bottom: 6px;">
+        Approve Headcount Request
+      </h3>
+      <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
+        Approving the request from
+        <strong id="approve-hc-guest" style="color: var(--text-main);">—</strong>
+        for <strong id="approve-hc-amount" style="color: var(--primary);">—</strong>
+        will raise their party ceiling immediately. They can then submit the additional attendee names.
+      </p>
+      <div style="
+            background: #eff6ff; border: 1px solid #bfdbfe;
+            padding: 12px 14px; border-radius: var(--radius-md);
+            font-size: 12px; color: #1e3a5f; margin-bottom: 20px; line-height: 1.5;">
+        <strong>Audit Notice:</strong> This action will be recorded as
+        <code style="background:#dbeafe; padding:2px 5px; border-radius:4px; font-family:monospace;">headcount_request.approved</code>
+        in <code style="background:#dbeafe; padding:2px 5px; border-radius:4px; font-family:monospace;">AuditLogEntry</code>.
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn btn-secondary" onclick="closeApproveHeadcountModal()">Cancel</button>
+        <button class="btn btn-teal" onclick="confirmApproveHeadcount()">
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Approve Request
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── REJECT HEADCOUNT MODAL (Required Remarks) ── -->
+  <div id="reject-headcount-modal" class="modal-overlay" role="dialog" aria-modal="true"
+    aria-labelledby="reject-headcount-modal-title">
+    <div class="modal-box">
+      <div style="
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--error-bg); color: var(--error);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 14px;">
+        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </div>
+      <h3 id="reject-headcount-modal-title" style="
+            font-family: var(--font-display); font-size: 18px; font-weight: 700;
+            margin-bottom: 6px;">
+        Reject Headcount Request
+      </h3>
+      <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
+        You are rejecting the headcount increase request from
+        <strong id="reject-hc-guest" style="color: var(--text-main);">—</strong>.
+        A rejection reason is <strong>required</strong>.
+      </p>
+      <div class="form-group" style="margin-bottom: 6px;">
+        <label class="form-label" for="reject-hc-remarks">
+          Rejection Remarks <span style="color: var(--error);">*</span>
+        </label>
+        <textarea id="reject-hc-remarks" class="form-control"
+          rows="3" placeholder="e.g., Event is at capacity; additional heads cannot be accommodated."
+          style="resize: vertical; min-height: 80px;"
+          oninput="clearRejectionHcError()"></textarea>
+        <div class="field-error" id="reject-hc-error">
+          <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          Rejection remarks are required before submitting.
+        </div>
+      </div>
+      <div style="
+            background: #fef2f2; border: 1px solid var(--error-border);
+            padding: 12px 14px; border-radius: var(--radius-md);
+            font-size: 12px; color: #7f1d1d; margin-bottom: 20px; line-height: 1.5;">
+        <strong>Audit Notice:</strong> This action will be recorded as
+        <code style="background:#fee2e2; padding:2px 5px; border-radius:4px; font-family:monospace;">headcount_request.rejected</code>
+        in <code style="background:#fee2e2; padding:2px 5px; border-radius:4px; font-family:monospace;">AuditLogEntry</code>.
+        The guest will be notified with your remarks.
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn btn-secondary" onclick="closeRejectHeadcountModal()">Cancel</button>
+        <button class="btn btn-danger" onclick="confirmRejectHeadcount()">
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+          Submit Rejection
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- SOFT CAPACITY OVERRIDE MODAL -->
   <div id="capacity-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="capacity-modal-title">
     <div class="modal-box">
@@ -5034,11 +5526,16 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
       }
     });
 
-    function showToast(msg) {
+    function showToast(msg, isError = false) {
       const toast = document.getElementById("toast");
       document.getElementById("toast-msg").innerText = msg;
+      toast.classList.remove("toast-error");
+      if (isError) toast.classList.add("toast-error");
       toast.classList.add("show");
-      setTimeout(() => toast.classList.remove("show"), 3500);
+      setTimeout(() => {
+        toast.classList.remove("show");
+        toast.classList.remove("toast-error");
+      }, 3500);
     }
 
     /* Dropdown Menu Logic */
@@ -5162,37 +5659,111 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
       }
     }
 
-    /* Interactive Approvals */
-    function decideAttendee(rowId, name, action) {
+    /* ── Interactive Approvals (improved workflow) ── */
+
+    // Shared state for the active row being actioned
+    let activeApproveAttRowId = null;
+    let activeRejectAttRowId = null;
+    let activeApproveHcRowId = null;
+    let activeRejectHcRowId = null;
+
+    /* ─ Core row mutation (approve) ─ */
+    function applyAttendeeApprove(rowId, name) {
       const row = document.getElementById(rowId);
-      if (row) {
-        if (action === "approve") {
-          row.style.background = "#ECFDF5";
-          row.querySelector("td:nth-child(5)").innerHTML =
-            '<span class="chip chip-green">approved</span>';
-          row.querySelector("td:nth-child(6)").innerHTML =
-            '<span style="color:var(--success); font-size:12px; font-weight:600;">Signed QR Issued</span>';
-          currentRsvpCount++;
-          document.getElementById("metric-rsvp-val").innerText =
-            currentRsvpCount;
-          document.getElementById("count-accepted-val").innerText =
-            parseInt(
-              document.getElementById("count-accepted-val").innerText,
-            ) + 1;
-          showToast("Approved " + name + " (Signed QR token issued)");
-        } else {
-          row.style.background = "#FEF2F2";
-          row.querySelector("td:nth-child(5)").innerHTML =
-            '<span class="chip chip-red">rejected</span>';
-          row.querySelector("td:nth-child(6)").innerHTML =
-            '<span style="color:var(--error); font-size:12px;">Rejected</span>';
-          showToast("Rejected " + name);
-        }
-        pendingApprovalsCount = Math.max(0, pendingApprovalsCount - 1);
-        updatePendingBadges();
-      }
+      if (!row) return;
+      row.style.background = "#ECFDF5";
+      row.querySelector("td:nth-child(5)").innerHTML =
+        '<span class="chip chip-green">approved</span>';
+      row.querySelector("td:nth-child(6)").innerHTML =
+        '<span style="color:var(--success); font-size:12px; font-weight:600; display:inline-flex; align-items:center; gap:4px;">' +
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>' +
+        'Signed QR Issued</span>';
+      currentRsvpCount++;
+      const rsvpEl = document.getElementById("metric-rsvp-val");
+      if (rsvpEl) rsvpEl.innerText = currentRsvpCount;
+      const acceptedEl = document.getElementById("count-accepted-val");
+      if (acceptedEl) acceptedEl.innerText = parseInt(acceptedEl.innerText) + 1;
+      pendingApprovalsCount = Math.max(0, pendingApprovalsCount - 1);
+      updatePendingBadges();
+      showToast("Approved " + name + " — Signed QR token issued.");
     }
 
+    /* ─ Core row mutation (reject) ─ */
+    function applyAttendeeReject(rowId, name, remarks) {
+      const row = document.getElementById(rowId);
+      if (!row) return;
+      row.style.background = "#FEF2F2";
+      row.querySelector("td:nth-child(5)").innerHTML =
+        '<span class="chip chip-red">rejected</span>';
+      const remarksPreview = remarks.length > 48 ? remarks.slice(0, 48) + "…" : remarks;
+      row.querySelector("td:nth-child(6)").innerHTML =
+        '<div style="text-align:right;">' +
+        '<span style="color:var(--error); font-size:12px; font-weight:600;">Rejected</span>' +
+        '<div style="font-size:10.5px; color:var(--text-muted); margin-top:2px; font-style:italic; max-width:200px; text-align:right;">' +
+        '"' + remarksPreview + '"</div></div>';
+      pendingApprovalsCount = Math.max(0, pendingApprovalsCount - 1);
+      updatePendingBadges();
+      showToast("Rejected " + name + " — Remarks recorded.");
+    }
+
+    /* ─ Approve attendee: open confirmation modal ─ */
+    function promptApproveAttendee(rowId, name, guestName) {
+      activeApproveAttRowId = rowId;
+      document.getElementById("approve-att-name").innerText = name;
+      document.getElementById("approve-att-guest").innerText = guestName;
+      document.getElementById("approve-attendee-modal").classList.add("active");
+    }
+
+    function closeApproveAttendeeModal() {
+      document.getElementById("approve-attendee-modal").classList.remove("active");
+      activeApproveAttRowId = null;
+    }
+
+    function confirmApproveAttendee() {
+      if (activeApproveAttRowId) {
+        const name = document.getElementById("approve-att-name").innerText;
+        applyAttendeeApprove(activeApproveAttRowId, name);
+      }
+      closeApproveAttendeeModal();
+    }
+
+    /* ─ Reject attendee: open remarks modal ─ */
+    function promptRejectAttendee(rowId, name) {
+      activeRejectAttRowId = rowId;
+      document.getElementById("reject-att-name").innerText = name;
+      document.getElementById("reject-att-remarks").value = "";
+      clearRejectionAttError();
+      document.getElementById("reject-attendee-modal").classList.add("active");
+    }
+
+    function closeRejectAttendeeModal() {
+      document.getElementById("reject-attendee-modal").classList.remove("active");
+      activeRejectAttRowId = null;
+    }
+
+    function clearRejectionAttError() {
+      const err = document.getElementById("reject-att-error");
+      const ta = document.getElementById("reject-att-remarks");
+      err.classList.remove("visible");
+      ta.classList.remove("form-control-error");
+    }
+
+    function confirmRejectAttendee() {
+      const remarks = document.getElementById("reject-att-remarks").value.trim();
+      if (!remarks) {
+        document.getElementById("reject-att-error").classList.add("visible");
+        document.getElementById("reject-att-remarks").classList.add("form-control-error");
+        document.getElementById("reject-att-remarks").focus();
+        return;
+      }
+      if (activeRejectAttRowId) {
+        const name = document.getElementById("reject-att-name").innerText;
+        applyAttendeeReject(activeRejectAttRowId, name, remarks);
+      }
+      closeRejectAttendeeModal();
+    }
+
+    /* ─ Soft capacity-warning modal (existing, kept) ─ */
     function triggerCapacityWarning(rowId, name) {
       activeModalAttId = rowId;
       document.getElementById("modal-att-name").innerText = name;
@@ -5206,36 +5777,114 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
 
     function confirmCapacityOverride() {
       if (activeModalAttId) {
-        decideAttendee(activeModalAttId, "Sophia Rostova", "approve");
+        applyAttendeeApprove(activeModalAttId, "Sophia Rostova");
         showToast("Audited Override Logged: attendee.approved_over_capacity");
       }
       closeCapacityModal();
     }
 
-    function decideHeadcount(rowId, action) {
-      const row = document.getElementById(rowId);
-      if (row) {
-        if (action === "approve") {
+    /* ─ Approve headcount: open confirmation modal ─ */
+    function promptApproveHeadcount(rowId, guestName, amount) {
+      activeApproveHcRowId = rowId;
+      document.getElementById("approve-hc-guest").innerText = guestName;
+      document.getElementById("approve-hc-amount").innerText = amount;
+      document.getElementById("approve-headcount-modal").classList.add("active");
+    }
+
+    function closeApproveHeadcountModal() {
+      document.getElementById("approve-headcount-modal").classList.remove("active");
+      activeApproveHcRowId = null;
+    }
+
+    function confirmApproveHeadcount() {
+      if (activeApproveHcRowId) {
+        const row = document.getElementById(activeApproveHcRowId);
+        if (row) {
           row.style.background = "#ECFDF5";
           row.querySelector("td:nth-child(5)").innerHTML =
             '<span class="chip chip-green">Approved (+2 heads)</span>';
           showToast("Headcount request approved. Party ceiling raised to 4.");
-        } else {
-          row.style.background = "#FEF2F2";
-          row.querySelector("td:nth-child(5)").innerHTML =
-            '<span class="chip chip-red">Rejected</span>';
-          showToast("Headcount request rejected.");
         }
+      }
+      closeApproveHeadcountModal();
+    }
+
+    /* ─ Reject headcount: open remarks modal ─ */
+    function promptRejectHeadcount(rowId, guestName) {
+      activeRejectHcRowId = rowId;
+      document.getElementById("reject-hc-guest").innerText = guestName;
+      document.getElementById("reject-hc-remarks").value = "";
+      clearRejectionHcError();
+      document.getElementById("reject-headcount-modal").classList.add("active");
+    }
+
+    function closeRejectHeadcountModal() {
+      document.getElementById("reject-headcount-modal").classList.remove("active");
+      activeRejectHcRowId = null;
+    }
+
+    function clearRejectionHcError() {
+      const err = document.getElementById("reject-hc-error");
+      const ta = document.getElementById("reject-hc-remarks");
+      err.classList.remove("visible");
+      ta.classList.remove("form-control-error");
+    }
+
+    function confirmRejectHeadcount() {
+      const remarks = document.getElementById("reject-hc-remarks").value.trim();
+      if (!remarks) {
+        document.getElementById("reject-hc-error").classList.add("visible");
+        document.getElementById("reject-hc-remarks").classList.add("form-control-error");
+        document.getElementById("reject-hc-remarks").focus();
+        return;
+      }
+      if (activeRejectHcRowId) {
+        const row = document.getElementById(activeRejectHcRowId);
+        if (row) {
+          row.style.background = "#FEF2F2";
+          const remarksPreview = remarks.length > 40 ? remarks.slice(0, 40) + "…" : remarks;
+          row.querySelector("td:nth-child(5)").innerHTML =
+            '<div><span class="chip chip-red">Rejected</span>' +
+            '<div style="font-size:10.5px; color:var(--text-muted); margin-top:3px; font-style:italic;">"' + remarksPreview + '"</div></div>';
+          showToast("Headcount request rejected — Remarks recorded.");
+        }
+      }
+      closeRejectHeadcountModal();
+    }
+
+    /* ─ Simulate error ─ */
+    function simulateApprovalError(rowId, name) {
+      const row = document.getElementById(rowId);
+      if (row) {
+        // Show inline error badge in the actions cell (last td)
+        const lastTd = row.querySelector("td:last-child");
+        if (lastTd) {
+          const existing = lastTd.querySelector(".row-error-badge");
+          if (!existing) {
+            const badge = document.createElement("div");
+            badge.className = "row-error-badge";
+            badge.style.marginTop = "6px";
+            badge.style.justifyContent = "flex-end";
+            badge.innerHTML =
+              '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>' +
+              'Action failed — retry';
+            lastTd.appendChild(badge);
+            // Auto-remove after 5s
+            setTimeout(() => { if (badge.parentNode) badge.parentNode.removeChild(badge); }, 5000);
+          }
+        }
+        showToast("Error: Could not process action for " + name + ". Please try again.", true);
       }
     }
 
+    /* ─ Shared badge update ─ */
     function updatePendingBadges() {
       const subBadge = document.getElementById("sub-nav-approvals-badge");
       if (subBadge) subBadge.innerText = pendingApprovalsCount;
-      document.getElementById("metric-pending-val").innerText =
-        pendingApprovalsCount;
-      document.getElementById("queue-count-chip").innerText =
-        `Queue: ${pendingApprovalsCount} Pending`;
+      const metricPending = document.getElementById("metric-pending-val");
+      if (metricPending) metricPending.innerText = pendingApprovalsCount;
+      const queueChip = document.getElementById("queue-count-chip");
+      if (queueChip) queueChip.innerText = `Queue: ${pendingApprovalsCount} Pending`;
     }
 
     function setDesignMode(mode) {
