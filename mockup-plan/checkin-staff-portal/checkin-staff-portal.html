@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -124,6 +123,51 @@
       box-shadow: var(--shadow-subtle);
     }
 
+    .boundary-notice-copy {
+      min-width: 0;
+    }
+
+    .access-test-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .access-test-controls .proto-btn-group,
+    .proto-btn-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .access-denied-banner {
+      background: var(--error-bg);
+      border: 1px solid var(--error-border);
+      border-radius: var(--radius-md);
+      color: #991B1B;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .access-denied-banner strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    main.access-denied > :not(.boundary-notice):not(.access-denied-banner) {
+      display: none;
+    }
+
+    button:disabled,
+    input:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
     .stats-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -170,7 +214,7 @@
     .camera-frame {
       background: #020617;
       border-radius: var(--radius-md);
-      height: 220px;
+      height: 280px; /* Increased from 220px */
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -179,8 +223,78 @@
       overflow: hidden;
       color: white;
       box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
+      border: 2px solid transparent;
+      transition: all 0.3s var(--ease-spring);
     }
 
+    /* Background & Reticle Color Feedback States */
+    .camera-frame.state-accepted {
+      background: radial-gradient(circle at center, #064E3B 0%, #022C22 100%);
+      border-color: var(--success);
+    }
+    .camera-frame.state-accepted .scan-reticle {
+      border-color: var(--success);
+    }
+    .camera-frame.state-accepted .scan-reticle::before,
+    .camera-frame.state-accepted .scan-reticle::after {
+      border-color: var(--success);
+    }
+    .camera-frame.state-accepted .scan-laser {
+      background: var(--success);
+      box-shadow: 0 0 10px var(--success), 0 0 20px var(--success);
+    }
+
+    .camera-frame.state-duplicate {
+      background: radial-gradient(circle at center, #78350F 0%, #451A03 100%);
+      border-color: var(--warning);
+    }
+    .camera-frame.state-duplicate .scan-reticle {
+      border-color: var(--warning);
+    }
+    .camera-frame.state-duplicate .scan-reticle::before,
+    .camera-frame.state-duplicate .scan-reticle::after {
+      border-color: var(--warning);
+    }
+    .camera-frame.state-duplicate .scan-laser {
+      background: var(--warning);
+      box-shadow: 0 0 10px var(--warning), 0 0 20px var(--warning);
+    }
+
+    .camera-frame.state-rejected {
+      background: radial-gradient(circle at center, #7F1D1D 0%, #450A0A 100%);
+      border-color: var(--error);
+    }
+    .camera-frame.state-rejected .scan-reticle {
+      border-color: var(--error);
+    }
+    .camera-frame.state-rejected .scan-reticle::before,
+    .camera-frame.state-rejected .scan-reticle::after {
+      border-color: var(--error);
+    }
+    .camera-frame.state-rejected .scan-laser {
+      background: var(--error);
+      box-shadow: 0 0 10px var(--error), 0 0 20px var(--error);
+    }
+
+    .camera-frame.state-error {
+      background: radial-gradient(circle at center, #7F1D1D 0%, #450A0A 100%);
+      border-color: var(--error);
+    }
+
+    /* Prototype Controls Bar */
+    .proto-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border);
+      gap: 8px;
+    }
+    .proto-hint {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
     .scan-reticle {
       width: 140px;
       height: 140px;
@@ -475,6 +589,58 @@
       opacity: 1;
     }
 
+    /* Audit Log Table Styling */
+    .audit-table-wrapper {
+      overflow-x: auto;
+      margin-top: 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+
+    .audit-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 12.5px;
+    }
+
+    .audit-table th {
+      background: #F8FAFC;
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .audit-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .audit-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .chip-blue {
+      background: #EEF2FF;
+      color: var(--primary);
+      border: 1px solid var(--primary-border, #C7D2FE);
+    }
+
+    .chip-purple {
+      background: #F3E8FF;
+      color: #7E22CE;
+      border: 1px solid #E9D5FF;
+    }
+
+    .chip-red {
+      background: var(--error-bg);
+      color: var(--error);
+      border: 1px solid var(--error-border);
+    }
+
     /* Desktop enhancement (mobile-first base) */
     @media (min-width: 768px) {
       main {
@@ -483,6 +649,26 @@
 
       .stats-row {
         grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+
+    @media (max-width: 768px) {
+      .proto-controls {
+        position: sticky;
+        bottom: 0;
+        background: var(--surface);
+        padding: 12px;
+        z-index: 10;
+        border-top: 1px solid var(--border);
+        box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+        margin: 16px -16px -16px -16px;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .eirmis-nav-pill-badge {
+        display: none;
       }
     }
   </style>
@@ -516,11 +702,24 @@
   <main>
     <!-- Scoped Assignment Indicator -->
     <div class="boundary-notice">
-      <div>
+      <div class="boundary-notice-copy">
         <strong style="color:var(--text-main);">Tech Forward Gala 2026</strong><br>
-        <span style="font-size:11px;">Scanner Mode Only • Scoped Assignment</span>
+        <span style="font-size:11px;" id="authorization-detail">Assigned check-in staff • active event-day scope</span>
+        <div class="access-test-controls">
+          <span class="proto-hint">Test access role:</span>
+          <div class="proto-btn-group" aria-label="Simulate access role">
+            <button class="btn btn-secondary btn-sm" onclick="setAccessRole('Check-in Staff')">Staff</button>
+            <button class="btn btn-secondary btn-sm" onclick="setAccessRole('Organizer')">Organizer</button>
+            <button class="btn btn-secondary btn-sm" onclick="setAccessRole('Guest')">Guest</button>
+          </div>
+        </div>
       </div>
-      <span class="chip chip-green">Active</span>
+      <span class="chip chip-green" id="assignment-status">Authorized</span>
+    </div>
+
+    <div class="access-denied-banner" id="access-denied-banner" role="alert" hidden>
+      <strong>Check-in access restricted</strong>
+      <span id="access-denied-message">Only the assigned Check-in Staff or event Organizer can record attendance for this event.</span>
     </div>
 
     <!-- Live Metrics -->
@@ -537,7 +736,7 @@
 
     <!-- Camera Viewfinder -->
     <div class="viewport-card">
-      <div class="camera-frame">
+      <div class="camera-frame" id="camera-frame">
         <div class="scan-reticle">
           <div class="scan-laser"></div>
           <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -546,13 +745,25 @@
             <circle cx="12" cy="13" r="4"></circle>
           </svg>
         </div>
-        <div style="font-size:11px; color:#94A3B8; margin-top:8px;">Camera active • Scanner Station 1</div>
+        <div style="font-size:11px; color:#94A3B8; margin-top:8px;" id="camera-subtext">Camera active • Scanner Station 1</div>
       </div>
 
-      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; margin-top:12px;">
-        <button class="btn btn-primary btn-sm" onclick="runSimulatedScan('accept')">Valid QR</button>
-        <button class="btn btn-secondary btn-sm" onclick="runSimulatedScan('duplicate')">Duplicate</button>
-        <button class="btn btn-secondary btn-sm" onclick="runSimulatedScan('invalid')">Bad Token</button>
+      <!-- Controls shifted to far right with an info badge and neutral button -->
+      <div class="proto-controls">
+        <span class="proto-hint" style="display:flex; align-items:center; gap:5px;">
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted); flex-shrink:0;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          Test scanner scenarios:
+        </span>
+        <div class="proto-btn-group">
+          <button class="btn btn-secondary btn-sm" data-checkin-action onclick="runSimulatedScan('accept')">Valid QR</button>
+          <button class="btn btn-secondary btn-sm" data-checkin-action onclick="runSimulatedScan('duplicate')">Duplicate</button>
+          <button class="btn btn-secondary btn-sm" data-checkin-action onclick="runSimulatedScan('invalid')">Bad Token</button>
+          <button class="btn btn-secondary btn-sm" data-checkin-action onclick="runSimulatedScan('error')">Server Error</button>
+        </div>
       </div>
     </div>
 
@@ -587,7 +798,7 @@
             <strong>Elena Rostova</strong>
             <div style="font-size:11px; color:var(--text-muted);">Primary Guest</div>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Elena Rostova')">Check
+          <button class="btn btn-secondary btn-sm" data-checkin-action onclick="manualCheckInAttendee(this, 'Elena Rostova')">Check
             In</button>
         </div>
         <div class="attendee-row" data-name="Dmitri Rostova">
@@ -595,7 +806,7 @@
             <strong>Dmitri Rostova</strong>
             <div style="font-size:11px; color:var(--text-muted);">Party: Elena Rostova</div>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Dmitri Rostova')">Check
+          <button class="btn btn-secondary btn-sm" data-checkin-action onclick="manualCheckInAttendee(this, 'Dmitri Rostova')">Check
             In</button>
         </div>
         <div class="attendee-row" data-name="Dr. Aris Thorne">
@@ -603,7 +814,7 @@
             <strong>Dr. Aris Thorne</strong>
             <div style="font-size:11px; color:var(--text-muted);">Biotech Innovate</div>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Dr. Aris Thorne')">Check
+          <button class="btn btn-secondary btn-sm" data-checkin-action onclick="manualCheckInAttendee(this, 'Dr. Aris Thorne')">Check
             In</button>
         </div>
         <div class="attendee-row" data-name="Sophia Rostova">
@@ -611,7 +822,7 @@
             <strong>Sophia Rostova</strong>
             <div style="font-size:11px; color:var(--text-muted);">Party: Elena Rostova (Child)</div>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="manualCheckInAttendee(this, 'Sophia Rostova')">Check
+          <button class="btn btn-secondary btn-sm" data-checkin-action onclick="manualCheckInAttendee(this, 'Sophia Rostova')">Check
             In</button>
         </div>
       </div>
@@ -627,9 +838,56 @@
       <form onsubmit="handleWalkIn(event)">
         <div style="display:flex; gap:8px;">
           <input type="text" id="walkin-name" class="form-control" placeholder="Walk-in Guest Full Name *" required>
-          <button type="submit" class="btn btn-teal" style="white-space:nowrap;">+ Check In</button>
+            <button type="submit" class="btn btn-teal" data-checkin-action style="white-space:nowrap;">+ Check In</button>
         </div>
       </form>
+    </div>
+    <!-- Real-time Entrance Audit Log (Issue #43) -->
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <div class="card-title" style="margin-bottom:0;">Live Entrance Audit Log</div>
+        <span class="chip chip-blue" style="font-size:10px;">Read-Only Record</span>
+      </div>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">
+        Immutable entrance stream tracking action source, responsible staff actor, method, and outcome.
+      </p>
+
+      <div class="audit-table-wrapper">
+        <table class="audit-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Action Source (Target)</th>
+              <th>Actor (Staff)</th>
+              <th>Method</th>
+              <th>Outcome</th>
+            </tr>
+          </thead>
+          <tbody id="audit-log-body">
+            <tr>
+              <td>6:34:12 PM</td>
+              <td><strong>Elena Rostova</strong></td>
+              <td>Marcus (Station 1)</td>
+              <td><span class="chip chip-blue">Scanned</span></td>
+              <td><span class="chip chip-green">Success</span></td>
+            </tr>
+            <tr>
+              <td>6:31:05 PM</td>
+              <td><strong>Invalid Token #9921</strong></td>
+              <td>Marcus (Station 1)</td>
+              <td><span class="chip chip-blue">Scanned</span></td>
+              <td><span class="chip chip-red">Scan Failed</span></td>
+            </tr>
+            <tr>
+              <td>6:28:44 PM</td>
+              <td><strong>Marcus Reed</strong></td>
+              <td>Marcus (Station 1)</td>
+              <td><span class="chip chip-purple">Manual</span></td>
+              <td><span class="chip chip-green">Success</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </main>
 
@@ -640,6 +898,67 @@
   <script>
     let checkedInCount = 48;
 
+    function hasCheckInAccess() {
+      const session = window.EIRMIS && EIRMIS.session();
+      return !!session && ['Check-in Staff', 'Organizer'].includes(session.role);
+    }
+
+    function currentActor() {
+      const session = window.EIRMIS && EIRMIS.session();
+      return session ? session.name : 'Unknown user';
+    }
+
+    function setAccessRole(role) {
+      const users = {
+        'Check-in Staff': ['Marcus Staff', 'marcus.staff@events.org'],
+        Organizer: ['Sarah Jenkins', 'sarah.jenkins@example.com'],
+        Guest: ['Elena Rostova', 'elena.rostova@example.com']
+      };
+      const user = users[role];
+      if (user) {
+        EIRMIS.signIn(role, user[0], user[1]);
+        updateAccessState();
+      }
+    }
+
+    function updateAccessState() {
+      const session = EIRMIS.session();
+      const authorized = hasCheckInAccess();
+      const main = document.querySelector('main');
+      const status = document.getElementById('assignment-status');
+      const detail = document.getElementById('authorization-detail');
+      const banner = document.getElementById('access-denied-banner');
+      const role = session ? session.role : 'Signed out';
+
+      main.classList.toggle('access-denied', !authorized);
+      banner.hidden = authorized;
+      status.className = authorized ? 'chip chip-green' : 'chip chip-red';
+      status.innerText = authorized ? 'Authorized' : 'Restricted';
+      detail.innerText = authorized
+        ? (role === 'Organizer' ? 'Event owner • check-in permitted' : 'Assigned staff • active event-day scope')
+        : role + ' role • no check-in permission';
+      document.querySelector('.scanner-brand div div:last-child').innerText =
+        authorized ? role + ': ' + currentActor() + (role === 'Organizer' ? ' (Event Owner)' : ' (Station 1)') : role + ' • access restricted';
+      document.querySelectorAll('[data-checkin-action], #manual-search-input, #walkin-name').forEach(control => {
+        control.disabled = !authorized;
+      });
+      if (!authorized) {
+        document.getElementById('result-panel').className = 'result-panel rejected';
+        document.getElementById('result-title').innerText = 'Unauthorized Check-in Action';
+        document.getElementById('result-sub').innerText = 'No attendance was recorded. Sign in as assigned Check-in Staff or the event Organizer.';
+        document.getElementById('access-denied-message').innerText =
+          role + ' is not authorized for this event. Scanner, manual check-in, walk-in, attendee details, and audit data are unavailable.';
+      } else if (document.getElementById('result-title').innerText === 'Unauthorized Check-in Action') {
+        document.getElementById('result-panel').className = 'result-panel idle';
+        document.getElementById('result-title').innerText = 'Ready to Scan';
+        document.getElementById('result-sub').innerText = 'Point camera at attendee digital or printed QR pass';
+      }
+    }
+
+    function actionTimestamp() {
+      return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
     function showToast(msg) {
       const toast = document.getElementById('toast');
       document.getElementById('toast-msg').innerText = msg;
@@ -648,37 +967,68 @@
     }
 
     function runSimulatedScan(state) {
+      if (!hasCheckInAccess()) {
+        updateAccessState();
+        return;
+      }
       const panel = document.getElementById('result-panel');
       const iconBox = document.getElementById('result-icon-box');
       const title = document.getElementById('result-title');
       const sub = document.getElementById('result-sub');
+      const frame = document.getElementById('camera-frame');
+      const cameraSub = document.getElementById('camera-subtext');
 
+      // Reset to resolving
       panel.className = 'result-panel idle';
+      frame.className = 'camera-frame';
       title.innerText = 'Resolving signed token...';
       sub.innerText = 'Calling POST /functions/v1/checkin/scan';
+      cameraSub.innerText = 'Verifying payload...';
       iconBox.innerHTML = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>';
 
       setTimeout(() => {
+        if (!hasCheckInAccess()) {
+          updateAccessState();
+          return;
+        }
         if (state === 'accept') {
           panel.className = 'result-panel accepted';
+          frame.className = 'camera-frame state-accepted';
+          cameraSub.innerText = 'Match Verified • Dmitri Rostova';
           iconBox.innerHTML = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
           title.innerText = 'Check-in Verified: Dmitri Rostova';
-          sub.innerText = 'Approved Attendee • Party: Elena Rostova • 6:49 PM';
+          sub.innerText = 'Scanned • ' + currentActor() + ' • ' + actionTimestamp();
           checkedInCount++;
           document.getElementById('staff-checkedin-num').innerText = checkedInCount;
           showToast('Dmitri Rostova checked in successfully.');
+          logAuditEvent('Dmitri Rostova', currentActor(), 'Scanned', 'Success', true);
         } else if (state === 'duplicate') {
           panel.className = 'result-panel duplicate';
+          frame.className = 'camera-frame state-duplicate';
+          cameraSub.innerText = 'Duplicate Entry Detected';
           iconBox.innerHTML = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
           title.innerText = 'Duplicate Scan: Elena Rostova';
           sub.innerText = 'Already checked in at 6:34 PM by Staff Station 1';
           showToast('Warning: Attendee already checked in.');
-        } else {
+          logAuditEvent('Elena Rostova', currentActor(), 'Scanned', 'Duplicate Blocked', false);
+        } else if (state === 'invalid') {
           panel.className = 'result-panel rejected';
+          frame.className = 'camera-frame state-rejected';
+          cameraSub.innerText = 'Unrecognized / Expired QR';
           iconBox.innerHTML = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
           title.innerText = 'Invalid Token Signature';
           sub.innerText = 'Token not recognized or event assignment mismatch';
           showToast('Scan rejected: invalid token.');
+          logAuditEvent('Unrecognized Pass', currentActor(), 'Scanned', 'Invalid Check-in', false);
+        } else if (state === 'error') {
+          panel.className = 'result-panel rejected';
+          frame.className = 'camera-frame state-error';
+          cameraSub.innerText = 'Check-in service unavailable';
+          iconBox.innerHTML = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+          title.innerText = 'Check-in Failed';
+          sub.innerText = 'The attendance service could not record this check-in. No attendance was added.';
+          showToast('Check-in failed. Try again.');
+          logAuditEvent('Dmitri Rostova', currentActor(), 'Scanned', 'Error', false);
         }
       }, 350);
     }
@@ -705,6 +1055,11 @@
     }
 
     function manualCheckInAttendee(btn, name) {
+      if (!hasCheckInAccess()) {
+        updateAccessState();
+        return;
+      }
+      const time = actionTimestamp();
       btn.disabled = true;
       btn.className = 'btn btn-sm';
       btn.style.background = '#DCFCE7';
@@ -718,13 +1073,18 @@
       panel.className = 'result-panel accepted';
       document.getElementById('result-icon-box').innerHTML = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
       document.getElementById('result-title').innerText = 'Manual Check-in: ' + name;
-      document.getElementById('result-sub').innerText = 'Checked in manually by staff override';
+      document.getElementById('result-sub').innerText = 'Manual • ' + currentActor() + ' • ' + time;
 
       showToast('Checked in ' + name);
+      logAuditEvent(name, currentActor(), 'Manual', 'Success', true);
     }
 
     function handleWalkIn(e) {
       e.preventDefault();
+      if (!hasCheckInAccess()) {
+        updateAccessState();
+        return;
+      }
       const name = document.getElementById('walkin-name').value;
       checkedInCount++;
       document.getElementById('staff-checkedin-num').innerText = checkedInCount;
@@ -750,6 +1110,31 @@
 
       document.getElementById('walkin-name').value = '';
       showToast('Walk-in guest ' + name + ' checked in.');
+      logAuditEvent(name + ' (Walk-in)', currentActor(), 'Manual', 'Success', true);
+    }
+
+    function logAuditEvent(source, actor, method, outcomeStatus, isSuccess) {
+      const tbody = document.getElementById('audit-log-body');
+      if (!tbody) return;
+
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const methodChip = method === 'Scanned'
+        ? '<span class="chip chip-blue">Scanned</span>'
+        : '<span class="chip chip-purple">Manual</span>';
+      
+      const outcomeChip = isSuccess 
+        ? `<span class="chip chip-green">${outcomeStatus}</span>` 
+        : `<span class="chip chip-red">${outcomeStatus}</span>`;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${timeStr}</td>
+        <td><strong>${source}</strong></td>
+        <td>${actor}</td>
+        <td>${methodChip}</td>
+        <td>${outcomeChip}</td>
+      `;
+      tbody.prepend(tr);
     }
   </script>
   <script src="../assets/eirmis.js"></script>
@@ -758,6 +1143,7 @@
     if (!EIRMIS.session()) {
       EIRMIS.signIn('Check-in Staff', 'Marcus Staff', 'marcus.staff@events.org');
     }
+    updateAccessState();
   </script>
 </body>
 
