@@ -71,6 +71,3 @@ Check-in Staff have **scanning/search only** for their single assigned event. Th
 - [x] Live Entrance Audit Log records action source, actor, method, and outcome.
 - [x] Failed scans display clear errors and log without creating false attendance records.
 - [x] Audit logs are read-only and immutable.
-- [x] Manual and scanned attendance use explicit method labels and visible timestamps.
-- [x] Organizer and assigned Check-in Staff can check in; unauthorized roles see a restricted state with actions and attendee data unavailable.
-- [x] Duplicate, invalid-token, and check-in-service error outcomes are distinct and do not inflate attendance counts.
