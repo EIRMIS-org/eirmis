@@ -292,6 +292,18 @@
             opts = opts || {};
             renderNav(opts.portal || 'landing');
             showBootOverlay();
+            
+            // Auto-initialize mobile drawer from global nav links
+            setTimeout(function() {
+                var navLinksContainer = document.querySelector('.eirmis-nav-links');
+                if (navLinksContainer && typeof EIRMIS.initMobileNav === 'function') {
+                    var navHtml = navLinksContainer.innerHTML
+                                      .replace(/class="eirmis-nav-link/g, 'class="nav-btn eirmis-nav-btn')
+                                      .replace(/href="/g, 'style="padding:12px 16px;text-decoration:none;" href="');
+                    var drawerHtml = '<div style="display:flex;flex-direction:column;gap:4px;"><div style="font-family:var(--font-heading);font-weight:700;margin-bottom:8px;padding:0 12px;color:var(--text-muted);font-size:11px;text-transform:uppercase;letter-spacing:0.05em;">Portals</div>' + navHtml + '</div>';
+                    EIRMIS.initMobileNav(drawerHtml);
+                }
+            }, 100);
         },
         toast: toast,
         hideToast: hideToast,
@@ -300,6 +312,100 @@
         signOut: signOut,
         session: currentSession,
         getState: function () { return state; },
+        /* ---------------------------------------------------------------------------
+         * UI/UX-05 Additions: Mobile Nav, Drawer, Table Auto-labeling
+         * ------------------------------------------------------------------------- */
+        autoLabelTables: function () {
+            document.querySelectorAll('table:not(.no-card-stack)').forEach(function(table) {
+                var headers = Array.from(table.querySelectorAll('thead th')).map(function(th) {
+                    return th.textContent.trim();
+                });
+                table.querySelectorAll('tbody tr').forEach(function(tr) {
+                    Array.from(tr.querySelectorAll('td')).forEach(function(td, idx) {
+                        if (headers[idx]) {
+                            td.setAttribute('data-label', headers[idx]);
+                        }
+                    });
+                });
+            });
+        },
+
+        initMobileNav: function (drawerContentHtml) {
+            // Wait for DOM
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    EIRMIS.initMobileNav(drawerContentHtml);
+                });
+                return;
+            }
+
+            // Hamburger in global nav (if exists)
+            var navInner = document.querySelector('.eirmis-global-nav-inner');
+            if (navInner && !document.querySelector('.eirmis-global-nav-hamburger')) {
+                var hamburger = document.createElement('button');
+                hamburger.className = 'eirmis-hamburger eirmis-global-nav-hamburger';
+                hamburger.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+                hamburger.onclick = function() { EIRMIS.openDrawer(); };
+                navInner.insertBefore(hamburger, navInner.firstChild);
+            }
+
+            // Create drawer structure
+            if (!document.getElementById('eirmis-drawer-backdrop')) {
+                var backdrop = document.createElement('div');
+                backdrop.id = 'eirmis-drawer-backdrop';
+                backdrop.className = 'eirmis-drawer-backdrop';
+                backdrop.onclick = function() { EIRMIS.closeDrawer(); };
+                document.body.appendChild(backdrop);
+            }
+
+            if (!document.getElementById('eirmis-mobile-drawer')) {
+                var drawer = document.createElement('div');
+                drawer.id = 'eirmis-mobile-drawer';
+                drawer.className = 'eirmis-mobile-drawer';
+                
+                var header = document.createElement('div');
+                header.className = 'eirmis-drawer-header';
+                header.innerHTML = '<div style="font-weight:700;font-family:var(--font-heading);font-size:16px;">Menu</div>' +
+                                   '<button class="eirmis-hamburger" style="display:flex;" onclick="EIRMIS.closeDrawer()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>';
+                
+                var content = document.createElement('div');
+                content.id = 'eirmis-drawer-content';
+                content.style.padding = '16px';
+                
+                if (drawerContentHtml) {
+                    content.innerHTML = drawerContentHtml;
+                }
+
+                drawer.appendChild(header);
+                drawer.appendChild(content);
+                document.body.appendChild(drawer);
+            }
+            
+            // Auto-label tables when ready
+            EIRMIS.autoLabelTables();
+        },
+
+        openDrawer: function () {
+            var d = document.getElementById('eirmis-mobile-drawer');
+            var b = document.getElementById('eirmis-drawer-backdrop');
+            if (d) d.classList.add('open');
+            if (b) b.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        },
+
+        closeDrawer: function () {
+            var d = document.getElementById('eirmis-mobile-drawer');
+            var b = document.getElementById('eirmis-drawer-backdrop');
+            if (d) d.classList.remove('open');
+            if (b) b.classList.remove('open');
+            document.body.style.overflow = '';
+        },
+
+        setDrawerContent: function(html) {
+            var content = document.getElementById('eirmis-drawer-content');
+            if (content) content.innerHTML = html;
+        },
+
         save: save,
         reset: reset,
         basePath: basePath

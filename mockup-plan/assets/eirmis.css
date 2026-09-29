@@ -90,13 +90,16 @@
     width: 6px;
     height: 6px;
 }
+
 ::-webkit-scrollbar-track {
     background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
     background: #CBD5E1;
     border-radius: 9999px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
     background: #94A3B8;
 }
@@ -320,12 +323,15 @@
 .eirmis-toast.success .eirmis-toast-icon {
     background: #10B981;
 }
+
 .eirmis-toast.warning .eirmis-toast-icon {
     background: #F59E0B;
 }
+
 .eirmis-toast.error .eirmis-toast-icon {
     background: #EF4444;
 }
+
 .eirmis-toast.info .eirmis-toast-icon {
     background: #4F46E5;
 }
@@ -347,6 +353,7 @@
     border-radius: 4px;
     transition: color 0.15s;
 }
+
 .eirmis-toast-close:hover {
     color: #FFFFFF;
 }
@@ -362,13 +369,26 @@
     animation: eirmisToastProgress 3.2s linear forwards;
 }
 
-.eirmis-toast.success .eirmis-toast-progress { background: #10B981; }
-.eirmis-toast.warning .eirmis-toast-progress { background: #F59E0B; }
-.eirmis-toast.error .eirmis-toast-progress { background: #EF4444; }
+.eirmis-toast.success .eirmis-toast-progress {
+    background: #10B981;
+}
+
+.eirmis-toast.warning .eirmis-toast-progress {
+    background: #F59E0B;
+}
+
+.eirmis-toast.error .eirmis-toast-progress {
+    background: #EF4444;
+}
 
 @keyframes eirmisToastProgress {
-    from { transform: scaleX(1); }
-    to { transform: scaleX(0); }
+    from {
+        transform: scaleX(1);
+    }
+
+    to {
+        transform: scaleX(0);
+    }
 }
 
 /* ---------------------------------------------------------------------------
@@ -400,6 +420,7 @@
     color: #FFFFFF;
     box-shadow: 0 1px 2px rgba(79, 70, 229, 0.2);
 }
+
 .eirmis-btn-primary:hover {
     background: var(--primary-hover);
     box-shadow: 0 4px 12px var(--primary-glow);
@@ -411,6 +432,7 @@
     color: var(--text-main);
     box-shadow: var(--shadow-xs);
 }
+
 .eirmis-btn-secondary:hover {
     background: var(--bg);
     border-color: var(--border-hover);
@@ -421,6 +443,7 @@
     color: #FFFFFF;
     box-shadow: 0 1px 2px rgba(13, 148, 136, 0.2);
 }
+
 .eirmis-btn-teal:hover {
     background: var(--secondary-hover);
     box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
@@ -430,6 +453,7 @@
     background: var(--error);
     color: #FFFFFF;
 }
+
 .eirmis-btn-danger:hover {
     background: #991B1B;
 }
@@ -438,6 +462,7 @@
     background: transparent;
     color: var(--text-muted);
 }
+
 .eirmis-btn-ghost:hover {
     background: var(--border-subtle);
     color: var(--text-main);
@@ -510,7 +535,9 @@
 }
 
 @keyframes eirmisShimmer {
-    100% { transform: translateX(100%); }
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 /* Empty State */
@@ -546,15 +573,276 @@
     line-height: 1.5;
 }
 
+/* ---------------------------------------------------------------------------
+   UI/UX-05 Additions: Collapsibles, Drawer, Empty State
+   --------------------------------------------------------------------------- */
+
+/* Empty State */
+.eirmis-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.eirmis-empty-state svg {
+    width: 48px;
+    height: 48px;
+    color: var(--text-subtle);
+    margin-bottom: 16px;
+}
+
+.eirmis-empty-state-title {
+    font-weight: 700;
+    color: var(--text-main);
+    font-size: 16px;
+    margin-bottom: 6px;
+}
+
+.eirmis-empty-state-desc {
+    font-size: 13.5px;
+    max-width: 380px;
+    line-height: 1.5;
+}
+
+/* Collapsible Sections */
+details.eirmis-collapse {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+summary.eirmis-collapse-header {
+    padding: 16px 20px;
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-main);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    list-style: none;
+    user-select: none;
+    background: var(--bg);
+    border-bottom: 1px solid transparent;
+    transition: all 0.2s var(--ease-spring);
+}
+
+summary.eirmis-collapse-header::-webkit-details-marker {
+    display: none;
+}
+
+summary.eirmis-collapse-header::after {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="none" stroke="%2364748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    transition: transform 0.25s var(--ease-spring);
+}
+
+details.eirmis-collapse[open] summary.eirmis-collapse-header {
+    border-bottom-color: var(--border);
+}
+
+details.eirmis-collapse[open] summary.eirmis-collapse-header::after {
+    transform: rotate(180deg);
+}
+
+.eirmis-collapse-content {
+    padding: 20px;
+    animation: eirmisFadeIn 0.3s var(--ease-spring);
+}
+
+@keyframes eirmisFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile Drawer */
+.eirmis-mobile-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    background: var(--surface);
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform 300ms var(--ease-spring);
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-float);
+    overflow-y: auto;
+}
+
+.eirmis-mobile-drawer.open {
+    transform: translateX(0);
+}
+
+.eirmis-drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 199;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms var(--ease-spring);
+}
+
+.eirmis-drawer-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.eirmis-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.eirmis-hamburger {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+}
+
+.eirmis-nav-btn,
+.eirmis-mobile-drawer .nav-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    padding: 12px 16px !important;
+    border-radius: var(--radius-md) !important;
+    color: var(--text-main) !important;
+    background: transparent;
+    border: none !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    text-align: left !important;
+    text-decoration: none !important;
+    transition: all 0.18s var(--ease-spring) !important;
+    width: 100% !important;
+}
+
+.eirmis-nav-btn:hover,
+.eirmis-mobile-drawer .nav-btn:hover {
+    background: var(--bg) !important;
+}
+
+.eirmis-nav-btn.active,
+.eirmis-mobile-drawer .nav-btn.active {
+    background: var(--primary) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25) !important;
+}
+
+.eirmis-nav-btn.active svg,
+.eirmis-mobile-drawer .nav-btn.active svg {
+    stroke: #ffffff !important;
+}
+
 /* Responsive Rules */
 @media (max-width: 768px) {
     .eirmis-nav-links {
         display: none;
     }
+
     .eirmis-session-role {
         display: none;
     }
+
     .eirmis-global-nav-inner {
         padding: 0 16px;
+    }
+
+    /* Touch Target Enforcement */
+    .btn,
+    button,
+    [role="button"],
+    a.btn,
+    .eirmis-btn,
+    .seg-tab-btn,
+    .segmented-btn,
+    .sub-nav-btn,
+    .nav-btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* Hamburger */
+    .eirmis-hamburger {
+        display: flex;
+    }
+
+    /* Table Cards */
+    table:not(.no-card-stack) thead {
+        display: none;
+    }
+
+    table:not(.no-card-stack) tbody tr {
+        display: flex;
+        flex-direction: column;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        margin-bottom: 12px;
+        box-shadow: var(--shadow-sm);
+        padding: 8px 0;
+    }
+
+    table:not(.no-card-stack) tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 16px;
+        border-bottom: 1px solid var(--border-subtle);
+        text-align: right;
+    }
+
+    table:not(.no-card-stack) tbody tr td:last-child {
+        border-bottom: none;
+    }
+
+    table:not(.no-card-stack) tbody td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: var(--text-muted);
+        font-size: 11.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        text-align: left;
+        margin-right: 16px;
     }
 }
