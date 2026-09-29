@@ -407,6 +407,13 @@
       margin: 0 auto;
     }
 
+    /* Reusable utility: centers a max-width constrained card within .content-area
+       without altering the outer content-area padding or gutter balance. */
+    .centered-card {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
     .view-pane {
       display: none;
       animation: viewSlideIn 0.25s var(--ease-spring) forwards;
@@ -3036,7 +3043,7 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
       <!-- VIEW 9: PROFILE -->
       <!-- ============================================== -->
       <section id="view-profile" class="view-pane">
-        <div class="card" style="max-width: 640px">
+        <div class="card centered-card" style="max-width: 640px">
           <div style="
                 display: flex;
                 align-items: center;
@@ -3110,8 +3117,34 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
               </div>
 
               <div class="form-group">
-                <label class="form-label">Assigned Events</label>
-                <input type="text" class="form-control" value="3 Managed Events" disabled style="background: #f1f5f9" />
+                <label class="form-label" style="margin-bottom: 8px">Assigned Events</label>
+                <div style="
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  padding: 10px 12px;
+                  background: #f8fafc;
+                  border: 1px solid var(--border);
+                  border-radius: var(--radius-md);
+                ">
+                  <div style="
+                    width: 32px;
+                    height: 32px;
+                    border-radius: var(--radius-sm);
+                    background: var(--primary-light);
+                    color: var(--primary);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                  ">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                  </div>
+                  <div>
+                    <span style="font-size: 17px; font-weight: 800; color: var(--text-main); font-family: var(--font-display); line-height: 1">3</span>
+                    <span style="font-size: 12px; color: var(--text-muted); margin-left: 4px">managed events</span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -3127,10 +3160,10 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
                 Save Profile Changes
               </button>
               <button type="button" class="btn btn-secondary" onclick="
-                    EIRMIS.signOut();
-                    location.reload();
+                    this.closest('form').reset();
+                    showToast('Changes discarded.');
                   ">
-                Sign Out of Session
+                Discard Changes
               </button>
             </div>
           </form>
