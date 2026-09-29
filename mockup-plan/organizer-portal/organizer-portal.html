@@ -6207,6 +6207,16 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
     // Organizer Portal has its own navigation system (sidebar + topbar).
     // Do NOT call EIRMIS.init() here — it would inject a duplicate global nav bar.
     // Auto-seed organizer session for any shared components that need it.
+    function openImportModal() {
+      const modal = document.getElementById("import-csv-modal");
+      if (modal) modal.classList.add("active");
+    }
+
+    function closeImportModal() {
+      const modal = document.getElementById("import-csv-modal");
+      if (modal) modal.classList.remove("active");
+    }
+
     if (!EIRMIS.session()) {
       EIRMIS.signIn(
         "Organizer",
@@ -6217,7 +6227,7 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
   </script>
 
   <!-- IMPORT CSV MODAL -->
-  <div id="import-csv-modal" class="modal-overlay" style="display: none" role="dialog" aria-modal="true"
+  <div id="import-csv-modal" class="modal-overlay" role="dialog" aria-modal="true"
     aria-labelledby="import-csv-modal-title">
     <div class="modal-box">
       <div style="
