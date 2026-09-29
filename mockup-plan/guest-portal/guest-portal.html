@@ -692,59 +692,85 @@
 
     <!-- 2. INVITATION DETAILS & RSVP -->
     <section id="view-event" class="view-pane">
-      <div class="card">
+      <div class="card" id="rsvp-form-container">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
           <h2 class="card-title">Invitation Response</h2>
-          <span class="chip chip-green" id="rsvp-display-chip">accepted</span>
+          <span class="chip chip-amber" id="rsvp-display-chip">pending</span>
         </div>
 
         <p style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">
-          Confirm your attendance for <strong>Tech Forward Annual Gala 2026</strong>. Accepting reserves capacity and
-          unlocks your party roster.
+          Confirm your attendance for <strong>Tech Forward Annual Gala 2026</strong>. Accepting reserves capacity and unlocks your party roster.
         </p>
 
         <div class="rsvp-selector-group">
-          <div class="rsvp-option-btn selected-accept" id="opt-accept" onclick="setRsvp('accepted')">
-            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2.5">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
+          <div class="rsvp-option-btn" id="opt-accept" onclick="setRsvp('accepted')">
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
             <strong>Accept</strong>
             <span style="font-size:11px; opacity:0.8;">Attending</span>
           </div>
           <div class="rsvp-option-btn" id="opt-tentative" onclick="setRsvp('tentative')">
-            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 14 14"></polyline>
-            </svg>
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
             <strong>Tentative</strong>
             <span style="font-size:11px; opacity:0.8;">Uncertain</span>
           </div>
           <div class="rsvp-option-btn" id="opt-decline" onclick="setRsvp('declined')">
-            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2.5">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             <strong>Decline</strong>
             <span style="font-size:11px; opacity:0.8;">Can't Attend</span>
           </div>
         </div>
 
-        <div class="form-group" style="margin-top:20px;">
-          <label class="form-label" for="dietary-input">Dietary Preferences (Covers entire party)</label>
-          <input type="text" id="dietary-input" class="form-control" value="1 Vegetarian, 1 Pescatarian">
+        <div id="rsvp-additional-fields" style="display:none; animation: fadeSlideIn 0.3s var(--ease-spring) forwards;">
+          <div class="form-group" style="margin-top:20px;">
+            <label class="form-label" for="dietary-input">Dietary Preferences (Optional)</label>
+            <input type="text" id="dietary-input" class="form-control" placeholder="e.g., 1 Vegetarian, 1 Pescatarian">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="special-reqs">Special Requests or Accessibility Needs (Optional)</label>
+            <textarea id="special-reqs" class="form-control" rows="2" placeholder="e.g., Please seat near front stage..."></textarea>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="special-reqs">Special Requests or Accessibility Needs</label>
-          <textarea id="special-reqs" class="form-control"
-            rows="2">Please seat near front stage for presentations.</textarea>
+        <div id="rsvp-error-msg" style="display:none; color:var(--error); font-size:12.5px; margin-top:10px; margin-bottom:10px; padding:8px; background:var(--error-bg); border-radius:var(--radius-sm);">
+          Failed to save RSVP. Please try again.
         </div>
 
-        <button class="btn btn-primary" style="width:100%;" onclick="saveRsvpPreferences()">
-          Save RSVP & Continue to Roster →
+        <button id="btn-save-rsvp" class="btn btn-primary" style="width:100%; display:none; margin-top: 10px;" onclick="saveRsvpPreferences()">
+          Save RSVP & Continue →
+        </button>
+      </div>
+
+      <!-- Confirmed State View -->
+      <div class="card" id="rsvp-confirmed-container" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <h2 class="card-title">Invitation Response</h2>
+          <span class="chip chip-green" id="confirmed-status-chip">accepted</span>
+        </div>
+        
+        <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin-bottom:16px;">
+          <div style="margin-bottom:12px;">
+            <span style="font-size:12px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">RSVP Status</span>
+            <div id="confirmed-status-text" style="font-size:14px; font-weight:700; color:var(--text-main); margin-top:2px;">Attending</div>
+          </div>
+          
+          <div id="confirmed-dietary-box" style="margin-bottom:12px;">
+            <span style="font-size:12px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Dietary Preferences</span>
+            <div id="confirmed-dietary-text" style="font-size:14px; color:var(--text-main); margin-top:2px;">None</div>
+          </div>
+          
+          <div id="confirmed-special-box">
+            <span style="font-size:12px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Special Requests</span>
+            <div id="confirmed-special-text" style="font-size:14px; color:var(--text-main); margin-top:2px;">None</div>
+          </div>
+        </div>
+
+        <button class="btn btn-secondary" style="width:100%;" onclick="editRsvpPreferences()">
+          Edit Preferences
+        </button>
+        
+        <button class="btn btn-primary" style="width:100%; margin-top:10px;" id="btn-continue-roster" onclick="switchView('attendees')">
+          Manage Party Roster →
         </button>
       </div>
 
@@ -1060,7 +1086,7 @@
   <script>
     let currentPartyCount = 2;
     let maxPartySize = 3;
-    let currentRsvp = 'accepted';
+    let currentRsvp = 'pending';
     let lightboxIndex = 0;
     const gallerySlides = [
       { label: 'Cover', bg: 'linear-gradient(135deg,#4F46E5,#312E81)' },
@@ -1096,22 +1122,37 @@
 
     function setRsvp(choice) {
       document.querySelectorAll('.rsvp-option-btn').forEach(b => b.className = 'rsvp-option-btn');
+      
+      const displayChip = document.getElementById('rsvp-display-chip');
       if (choice === 'accepted') {
         document.getElementById('opt-accept').className = 'rsvp-option-btn selected-accept';
-        document.getElementById('rsvp-display-chip').className = 'chip chip-green';
-        document.getElementById('rsvp-display-chip').innerText = 'accepted';
+        displayChip.className = 'chip chip-green';
+        displayChip.innerText = 'accepted';
       } else if (choice === 'tentative') {
         document.getElementById('opt-tentative').className = 'rsvp-option-btn selected-tentative';
-        document.getElementById('rsvp-display-chip').className = 'chip chip-amber';
-        document.getElementById('rsvp-display-chip').innerText = 'tentative';
+        displayChip.className = 'chip chip-amber';
+        displayChip.innerText = 'tentative';
       } else {
         document.getElementById('opt-decline').className = 'rsvp-option-btn selected-decline';
-        document.getElementById('rsvp-display-chip').className = 'chip chip-red';
-        document.getElementById('rsvp-display-chip').innerText = 'declined';
+        displayChip.className = 'chip chip-red';
+        displayChip.innerText = 'declined';
       }
+      
       currentRsvp = choice;
-      updateRsvpLock();
-      showToast('RSVP preference updated: ' + choice);
+      
+      const fieldsContainer = document.getElementById('rsvp-additional-fields');
+      const saveBtn = document.getElementById('btn-save-rsvp');
+      
+      if (choice === 'accepted') {
+        fieldsContainer.style.display = 'block';
+        saveBtn.innerText = 'Save RSVP & Continue →';
+      } else {
+        fieldsContainer.style.display = 'none';
+        saveBtn.innerText = 'Save RSVP →';
+      }
+      
+      saveBtn.style.display = 'block';
+      document.getElementById('rsvp-error-msg').style.display = 'none';
     }
 
     function updateRsvpLock() {
@@ -1126,12 +1167,55 @@
     }
 
     function saveRsvpPreferences() {
-      if (currentRsvp !== 'accepted') {
-        showToast('Accept the invitation to unlock your party roster.');
-        return;
+      if (currentRsvp === 'pending') return;
+      
+      const dietary = document.getElementById('dietary-input').value.trim() || 'None';
+      const special = document.getElementById('special-reqs').value.trim() || 'None';
+
+      const confirmedChip = document.getElementById('confirmed-status-chip');
+      const confirmedText = document.getElementById('confirmed-status-text');
+      
+      if (currentRsvp === 'accepted') {
+        confirmedChip.className = 'chip chip-green';
+        confirmedChip.innerText = 'accepted';
+        confirmedText.innerText = 'Attending';
+      } else if (currentRsvp === 'tentative') {
+        confirmedChip.className = 'chip chip-amber';
+        confirmedChip.innerText = 'tentative';
+        confirmedText.innerText = 'Tentative';
+      } else {
+        confirmedChip.className = 'chip chip-red';
+        confirmedChip.innerText = 'declined';
+        confirmedText.innerText = 'Declined';
       }
-      showToast('RSVP preferences saved.');
-      setTimeout(() => switchView('attendees'), 400);
+      
+      document.getElementById('confirmed-dietary-text').innerText = dietary;
+      document.getElementById('confirmed-special-text').innerText = special;
+      
+      if (currentRsvp === 'accepted') {
+        document.getElementById('confirmed-dietary-box').style.display = 'block';
+        document.getElementById('confirmed-special-box').style.display = 'block';
+        document.getElementById('btn-continue-roster').style.display = 'block';
+      } else {
+        document.getElementById('confirmed-dietary-box').style.display = 'none';
+        document.getElementById('confirmed-special-box').style.display = 'none';
+        document.getElementById('btn-continue-roster').style.display = 'none';
+      }
+
+      document.getElementById('rsvp-form-container').style.display = 'none';
+      document.getElementById('rsvp-confirmed-container').style.display = 'block';
+
+      updateRsvpLock();
+      showToast('RSVP preferences saved successfully.');
+    }
+    
+    function editRsvpPreferences() {
+      document.getElementById('rsvp-confirmed-container').style.display = 'none';
+      document.getElementById('rsvp-form-container').style.display = 'block';
+    }
+    
+    function simulateRsvpError() {
+       document.getElementById('rsvp-error-msg').style.display = 'block';
     }
 
     function handleAddAttendee(e) {
