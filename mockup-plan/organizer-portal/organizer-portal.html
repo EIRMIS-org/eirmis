@@ -740,6 +740,115 @@
       margin-bottom: 16px;
     }
 
+    .event-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    .event-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .event-toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .event-filter {
+      min-width: 150px;
+      max-width: 200px;
+      height: 38px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #FFFFFF;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .event-search {
+      min-width: 220px;
+      max-width: 280px;
+      flex: 1;
+    }
+
+    .event-empty-state {
+      grid-column: 1 / -1;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 32px 20px;
+      border: 1px dashed #CBD5E1;
+      border-radius: var(--radius-lg);
+      background: #F8FAFC;
+      color: var(--text-muted);
+      min-height: 180px;
+    }
+
+    .event-empty-state strong {
+      display: block;
+      font-size: 18px;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    #view-events {
+      min-width: 0;
+    }
+
+    #view-events .card {
+      margin-bottom: 0;
+      height: 100%;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      align-self: stretch;
+    }
+
+    #view-events .card > div:nth-child(2) {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    #view-events .card > div:nth-child(2) > div:nth-last-child(2) {
+      margin-top: auto;
+    }
+
+    @media (max-width: 1200px) {
+      .event-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 900px) {
+      .event-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .event-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .card-h3 {
       font-family: var(--font-display);
       font-size: 16px;
@@ -3185,16 +3294,13 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
                 <polyline points="17 11 19 13 23 9"></polyline>
               </svg>
             </div>
-            <div style="flex: 1">
-              <div style="font-weight: 600; font-size: 13.5px">
-                3 headcount requests awaiting approval
-              </div>
-              <div style="
-                    font-size: 12.5px;
-                    color: var(--text-muted);
-                    margin-top: 2px;
-                  ">
-                Tech Forward Annual Gala 2026 • 2 hours ago
+            <div style="flex:1;">
+              <div style="font-weight:600; font-size:13.5px;">3 headcount requests awaiting approval</div>
+              <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Tech Forward Annual Gala 2026 • 2
+                hours ago</div>
+              <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn btn-primary btn-sm" onclick="switchView('approvals')">Review approvals</button>
+                <button class="btn btn-secondary btn-sm" onclick="switchView('event-overview')">Open event</button>
               </div>
             </div>
             <span class="chip chip-amber">New</span>
@@ -3223,16 +3329,13 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
             </div>
-            <div style="flex: 1">
-              <div style="font-weight: 600; font-size: 13.5px">
-                RSVP capacity reached 80%
-              </div>
-              <div style="
-                    font-size: 12.5px;
-                    color: var(--text-muted);
-                    margin-top: 2px;
-                  ">
-                Tech Forward Annual Gala 2026 • 1 day ago
+            <div style="flex:1;">
+              <div style="font-weight:600; font-size:13.5px;">RSVP capacity reached 80%</div>
+              <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Tech Forward Annual Gala 2026 • 1
+                day ago</div>
+              <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn btn-primary btn-sm" onclick="switchView('event-overview')">View event</button>
+                <button class="btn btn-secondary btn-sm" onclick="switchView('attendance')">Check live attendance</button>
               </div>
             </div>
           </div>
@@ -3265,12 +3368,9 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
               <div style="font-weight: 600; font-size: 13.5px">
                 Reminder email scheduled for tomorrow
               </div>
-              <div style="
-                    font-size: 12.5px;
-                    color: var(--text-muted);
-                    margin-top: 2px;
-                  ">
-                Apex Healthcare Summit • 1 day ago
+              <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn btn-primary btn-sm" onclick="switchView('reminders')">Manage reminders</button>
+                <button class="btn btn-secondary btn-sm" onclick="switchView('event-overview')">Open event</button>
               </div>
             </div>
           </div>
@@ -3301,17 +3401,13 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
               </svg>
             </div>
-            <div style="flex: 1">
-              <div style="font-weight: 600; font-size: 13.5px">
-                Check-in staff member activated
-              </div>
-              <div style="
-                    font-size: 12.5px;
-                    color: var(--text-muted);
-                    margin-top: 2px;
-                  ">
-                Marcus Staff (marcus.staff@events.org) logged into Station
-                Scanner • 3 hours ago
+            <div style="flex:1;">
+              <div style="font-weight:600; font-size:13.5px;">Check-in staff member activated</div>
+              <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Marcus Staff
+                (marcus.staff@events.org) logged into Station Scanner • 3 hours ago</div>
+              <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn btn-primary btn-sm" onclick="switchView('staff')">Open staff roster</button>
+                <button class="btn btn-secondary btn-sm" onclick="switchView('checkin')">Check-in setup</button>
               </div>
             </div>
           </div>
@@ -3339,17 +3435,13 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
                 <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
               </svg>
             </div>
-            <div style="flex: 1">
-              <div style="font-weight: 600; font-size: 13.5px">
-                FIFO Waitlist promotion completed
-              </div>
-              <div style="
-                    font-size: 12.5px;
-                    color: var(--text-muted);
-                    margin-top: 2px;
-                  ">
-                Dmitri Rostova promoted from waitlist queue to RSVP pending
-                review • Yesterday
+            <div style="flex:1;">
+              <div style="font-weight:600; font-size:13.5px;">FIFO Waitlist promotion completed</div>
+              <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Dmitri Rostova promoted from
+                waitlist queue to RSVP pending review • Yesterday</div>
+              <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn btn-primary btn-sm" onclick="switchView('waitlist')">Review waitlist</button>
+                <button class="btn btn-secondary btn-sm" onclick="switchView('approvals')">Open approvals</button>
               </div>
             </div>
           </div>
@@ -3378,47 +3470,48 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
           </button>
         </div>
 
-        <div style="
-              display: grid;
-              grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-              gap: 20px;
-            ">
+        <div class="event-toolbar">
+          <div class="event-toolbar-group">
+            <input id="event-search" class="form-control event-search" type="text" placeholder="Search events..." oninput="filterEventCards()">
+            <select id="event-status-filter" class="event-filter" onchange="filterEventCards()">
+              <option value="all">All statuses</option>
+              <option value="published">Published</option>
+              <option value="draft">Draft</option>
+            </select>
+            <select id="event-category-filter" class="event-filter" onchange="filterEventCards()">
+              <option value="all">All categories</option>
+              <option value="Technology">Technology</option>
+              <option value="Healthcare">Healthcare</option>
+              <option value="Leadership">Leadership</option>
+              <option value="Community">Community</option>
+              <option value="Startup">Startup</option>
+              <option value="Operations">Operations</option>
+              <option value="Finance">Finance</option>
+              <option value="Sustainability">Sustainability</option>
+              <option value="Volunteer">Volunteer</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="event-grid" id="managed-event-grid">
+          <div id="event-empty-state" class="event-empty-state">
+            <div style="font-size:24px; margin-bottom:8px;">🔎</div>
+            <strong>No events match your filters</strong>
+            <span>Try another keyword or reset the status/category filters.</span>
+            <button class="btn btn-secondary btn-sm" style="margin-top:16px;" onclick="resetEventFilters()">Clear filters</button>
+          </div>
+
           <!-- Event 1: Tech Forward Annual Gala -->
-          <div class="card" style="
-                border-top: 4px solid var(--primary);
-                cursor: pointer;
-                overflow: hidden;
-                padding: 0;
-                transition:
-                  transform 0.2s var(--ease-spring),
-                  box-shadow 0.2s;
-                box-shadow: var(--shadow-card);
-              " onmouseenter="
-                this.style.transform = 'translateY(-3px)';
-                this.style.boxShadow = '0 12px 28px -6px rgba(15,23,42,0.13)';
-              " onmouseleave="
-                this.style.transform = '';
-                this.style.boxShadow = 'var(--shadow-card)';
-              " onclick="switchView('event-overview')">
-            <div style="
-                  height: 110px;
-                  background: linear-gradient(
-                    135deg,
-                    #4f46e5 0%,
-                    #312e81 55%,
-                    #0d9488 100%
-                  );
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  color: #fff;
-                  font-family: var(--font-display);
-                  font-weight: 800;
-                  font-size: 15px;
-                  letter-spacing: -0.01em;
-                  padding: 0 20px;
-                  text-align: center;
-                ">
+          <div class="card"
+            data-status="published"
+            data-category="Technology"
+            data-name="Tech Forward Annual Gala 2026"
+            style="border-top:4px solid var(--primary); cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
+            onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
+            onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
+            onclick="switchView('event-overview')">
+            <div
+              style="height:110px; background:linear-gradient(135deg,#4F46E5 0%,#312E81 55%,#0D9488 100%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:15px; letter-spacing:-0.01em; padding:0 20px; text-align:center;">
               Tech Forward Annual Gala 2026
             </div>
             <div style="padding: 18px 20px">
@@ -3491,43 +3584,16 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
           </div>
 
           <!-- Event 2: Apex Healthcare Summit -->
-          <div class="card" style="
-                border-top: 4px solid var(--secondary);
-                cursor: pointer;
-                overflow: hidden;
-                padding: 0;
-                transition:
-                  transform 0.2s var(--ease-spring),
-                  box-shadow 0.2s;
-                box-shadow: var(--shadow-card);
-              " onmouseenter="
-                this.style.transform = 'translateY(-3px)';
-                this.style.boxShadow = '0 12px 28px -6px rgba(15,23,42,0.13)';
-              " onmouseleave="
-                this.style.transform = '';
-                this.style.boxShadow = 'var(--shadow-card)';
-              " onclick="
-                showToast('Switch to Apex Healthcare Summit event workspace')
-              ">
-            <div style="
-                  height: 110px;
-                  background: linear-gradient(
-                    135deg,
-                    #0d9488 0%,
-                    #0f766e 55%,
-                    #134e4a 100%
-                  );
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  color: #fff;
-                  font-family: var(--font-display);
-                  font-weight: 800;
-                  font-size: 15px;
-                  letter-spacing: -0.01em;
-                  padding: 0 20px;
-                  text-align: center;
-                ">
+          <div class="card"
+            data-status="published"
+            data-category="Healthcare"
+            data-name="Apex Healthcare Summit"
+            style="border-top:4px solid var(--secondary); cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
+            onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
+            onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
+            onclick="showToast('Switch to Apex Healthcare Summit event workspace')">
+            <div
+              style="height:110px; background:linear-gradient(135deg,#0D9488 0%,#0F766E 55%,#134E4A 100%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:15px; letter-spacing:-0.01em; padding:0 20px; text-align:center;">
               Apex Healthcare Summit
             </div>
             <div style="padding: 18px 20px">
@@ -3598,46 +3664,16 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
           </div>
 
           <!-- Event 3: Global Leadership Forum (Draft) -->
-          <div class="card" style="
-                border-top: 4px solid #94a3b8;
-                cursor: pointer;
-                overflow: hidden;
-                padding: 0;
-                transition:
-                  transform 0.2s var(--ease-spring),
-                  box-shadow 0.2s;
-                box-shadow: var(--shadow-card);
-                opacity: 0.85;
-              " onmouseenter="
-                this.style.transform = 'translateY(-3px)';
-                this.style.boxShadow = '0 12px 28px -6px rgba(15,23,42,0.13)';
-                this.style.opacity = '1';
-              " onmouseleave="
-                this.style.transform = '';
-                this.style.boxShadow = 'var(--shadow-card)';
-                this.style.opacity = '0.85';
-              " onclick="
-                showToast('Switch to Global Leadership Forum event workspace')
-              ">
-            <div style="
-                  height: 110px;
-                  background: linear-gradient(
-                    135deg,
-                    #1e293b 0%,
-                    #334155 55%,
-                    #475569 100%
-                  );
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  color: #fff;
-                  font-family: var(--font-display);
-                  font-weight: 800;
-                  font-size: 15px;
-                  letter-spacing: -0.01em;
-                  padding: 0 20px;
-                  text-align: center;
-                ">
+          <div class="card"
+            data-status="draft"
+            data-category="Leadership"
+            data-name="Global Leadership Forum"
+            style="border-top:4px solid #94A3B8; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card); opacity:0.85;"
+            onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)';this.style.opacity='1'"
+            onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)';this.style.opacity='0.85'"
+            onclick="showToast('Switch to Global Leadership Forum event workspace')">
+            <div
+              style="height:110px; background:linear-gradient(135deg,#1E293B 0%,#334155 55%,#475569 100%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:15px; letter-spacing:-0.01em; padding:0 20px; text-align:center;">
               Global Leadership Forum
             </div>
             <div style="padding: 18px 20px">
@@ -3707,6 +3743,398 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
               </div>
             </div>
           </div>
+
+          <!-- Event 4: Community Hack Night -->
+          <div class="card"
+            data-status="published"
+            data-category="Community"
+            data-name="Community Hack Night"
+            style="border-top:4px solid #06B6D4; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
+            onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
+            onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
+            onclick="showToast('Switch to Community Hack Night event workspace')">
+            <div
+              style="height:110px; background:linear-gradient(135deg,#06B6D4 0%,#0891B2 55%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:15px; letter-spacing:-0.01em; padding:0 20px; text-align:center;">
+              Community Hack Night
+            </div>
+            <div style="padding:18px 20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="chip chip-green">Published</span>
+                <span style="font-size:12px; color:var(--text-muted);">Mar 12, 2027</span>
+              </div>
+              <h3
+                style="font-family:var(--font-display); font-size:15px; font-weight:700; margin-bottom:3px; color:var(--text-main);">
+                Community Hack Night</h3>
+              <p style="color:var(--text-muted); font-size:12.5px; margin-bottom:14px;">Maker Space • Cap: 120</p>
+              <!-- Capacity bar -->
+              <div style="margin-bottom:8px;">
+                <div
+                  style="display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">
+                  <span>RSVP Filled</span><span style="color:#06B6D4;">75 / 120</span>
+                </div>
+                <div style="height:5px; background:#E2E8F0; border-radius:999px; overflow:hidden;">
+                  <div
+                    style="height:100%; width:62.5%; background:linear-gradient(90deg,#06B6D4,#0891B2); border-radius:999px;">
+                  </div>
+                </div>
+              </div>
+              <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                Open Registration &bull; 1 pending approvals
+              </div>
+            </div>
+          </div>
+
+          <!-- Event 5: AI & Security Forum -->
+          <div class="card"
+            data-status="published"
+            data-category="Technology"
+            data-name="AI & Security Forum"
+            style="border-top:4px solid #8B5CF6; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
+            onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
+            onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
+            onclick="showToast('Switch to AI & Security Forum event workspace')">
+            <div
+              style="height:110px; background:linear-gradient(135deg,#8B5CF6 0%,#6D28D9 55%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:15px; letter-spacing:-0.01em; padding:0 20px; text-align:center;">
+              AI & Security Forum
+            </div>
+            <div style="padding:18px 20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="chip chip-green">Published</span>
+                <span style="font-size:12px; color:var(--text-muted);">Apr 18, 2027</span>
+              </div>
+              <h3
+                style="font-family:var(--font-display); font-size:15px; font-weight:700; margin-bottom:3px; color:var(--text-main);">
+                AI & Security Forum</h3>
+              <p style="color:var(--text-muted); font-size:12.5px; margin-bottom:14px;">The Maxx Hall • Cap: 220</p>
+              <div style="margin-bottom:8px;">
+                <div
+                  style="display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">
+                  <span>RSVP Filled</span><span style="color:#8B5CF6;">140 / 220</span>
+                </div>
+                <div style="height:5px; background:#E2E8F0; border-radius:999px; overflow:hidden;">
+                  <div
+                    style="height:100%; width:63.6%; background:linear-gradient(90deg,#8B5CF6,#6D28D9); border-radius:999px;">
+                  </div>
+                </div>
+              </div>
+              <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                Open Registration &bull; 4 pending approvals
+              </div>
+            </div>
+          </div>
+
+          <!-- Event 6: Startup Founders Mixer -->
+          <div class="card"
+            data-status="published"
+            data-category="Startup"
+            data-name="Startup Founders Mixer"
+            style="border-top:4px solid #F59E0B; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
+            onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
+            onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
+            onclick="showToast('Switch to Startup Founders Mixer event workspace')">
+            <div
+              style="height:110px; background:linear-gradient(135deg,#F59E0B 0%,#D97706 55%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:15px; letter-spacing:-0.01em; padding:0 20px; text-align:center;">
+              Startup Founders Mixer
+            </div>
+            <div style="padding:18px 20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="chip chip-green">Published</span>
+                <span style="font-size:12px; color:var(--text-muted);">May 03, 2027</span>
+              </div>
+              <h3
+                style="font-family:var(--font-display); font-size:15px; font-weight:700; margin-bottom:3px; color:var(--text-main);">
+                Startup Founders Mixer</h3>
+              <p style="color:var(--text-muted); font-size:12.5px; margin-bottom:14px;">Signal Labs • Cap: 180</p>
+              <div style="margin-bottom:8px;">
+                <div
+                  style="display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">
+                  <span>RSVP Filled</span><span style="color:#F59E0B;">96 / 180</span>
+                </div>
+                <div style="height:5px; background:#E2E8F0; border-radius:999px; overflow:hidden;">
+                  <div
+                    style="height:100%; width:53.3%; background:linear-gradient(90deg,#F59E0B,#D97706); border-radius:999px;">
+                  </div>
+                </div>
+              </div>
+              <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                Open Registration &bull; 2 pending approvals
+              </div>
+            </div>
+          </div>
+
+          <!-- Event 7: Community Volunteer Day -->
+          <div class="card"
+            data-status="published"
+            data-category="Volunteer"
+            data-name="Community Volunteer Day"
+            style="border-top:4px solid #10B981; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
+            onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
+            onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
+            onclick="showToast('Switch to Community Volunteer Day event workspace')">
+            <div
+              style="height:110px; background:linear-gradient(135deg,#10B981 0%,#047857 55%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:15px; letter-spacing:-0.01em; padding:0 20px; text-align:center;">
+              Community Volunteer Day
+            </div>
+            <div style="padding:18px 20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="chip chip-green">Published</span>
+                <span style="font-size:12px; color:var(--text-muted);">Jun 09, 2027</span>
+              </div>
+              <h3
+                style="font-family:var(--font-display); font-size:15px; font-weight:700; margin-bottom:3px; color:var(--text-main);">
+                Community Volunteer Day</h3>
+              <p style="color:var(--text-muted); font-size:12.5px; margin-bottom:14px;">Civic Green Park • Cap: 90</p>
+              <div style="margin-bottom:8px;">
+                <div
+                  style="display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">
+                  <span>RSVP Filled</span><span style="color:#10B981;">61 / 90</span>
+                </div>
+                <div style="height:5px; background:#E2E8F0; border-radius:999px; overflow:hidden;">
+                  <div
+                    style="height:100%; width:67.8%; background:linear-gradient(90deg,#10B981,#047857); border-radius:999px;">
+                  </div>
+                </div>
+              </div>
+              <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                Open Registration &bull; 0 pending approvals
+              </div>
+            </div>
+          </div>
+
+          <!-- Event 8: Investor Breakfast Briefing -->
+          <div class="card"
+            data-status="published"
+            data-category="Finance"
+            data-name="Investor Breakfast Briefing"
+            style="border-top:4px solid #F43F5E; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
+            onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
+            onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
+            onclick="showToast('Switch to Investor Breakfast Briefing event workspace')">
+            <div
+              style="height:110px; background:linear-gradient(135deg,#F43F5E 0%,#BE123C 55%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:15px; letter-spacing:-0.01em; padding:0 20px; text-align:center;">
+              Investor Breakfast Briefing
+            </div>
+            <div style="padding:18px 20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="chip chip-green">Published</span>
+                <span style="font-size:12px; color:var(--text-muted);">Jul 21, 2027</span>
+              </div>
+              <h3
+                style="font-family:var(--font-display); font-size:15px; font-weight:700; margin-bottom:3px; color:var(--text-main);">
+                Investor Breakfast Briefing</h3>
+              <p style="color:var(--text-muted); font-size:12.5px; margin-bottom:14px;">Skyline Tower • Cap: 60</p>
+              <div style="margin-bottom:8px;">
+                <div
+                  style="display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">
+                  <span>RSVP Filled</span><span style="color:#F43F5E;">48 / 60</span>
+                </div>
+                <div style="height:5px; background:#E2E8F0; border-radius:999px; overflow:hidden;">
+                  <div
+                    style="height:100%; width:80%; background:linear-gradient(90deg,#F43F5E,#BE123C); border-radius:999px;">
+                  </div>
+                </div>
+              </div>
+              <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                Invite-only &bull; 1 pending approval
+              </div>
+            </div>
+          </div>
+
+          <!-- Event 9: Regional Ops Roundtable -->
+          <div class="card"
+            data-status="draft"
+            data-category="Operations"
+            data-name="Regional Ops Roundtable"
+            style="border-top:4px solid #64748B; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card); opacity:0.9;"
+            onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)';this.style.opacity='1'"
+            onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)';this.style.opacity='0.9'"
+            onclick="showToast('Switch to Regional Ops Roundtable event workspace')">
+            <div
+              style="height:110px; background:linear-gradient(135deg,#64748B 0%,#334155 55%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:15px; letter-spacing:-0.01em; padding:0 20px; text-align:center;">
+              Regional Ops Roundtable
+            </div>
+            <div style="padding:18px 20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="chip chip-slate">Draft</span>
+                <span style="font-size:12px; color:var(--text-muted);">Aug 06, 2027</span>
+              </div>
+              <h3
+                style="font-family:var(--font-display); font-size:15px; font-weight:700; margin-bottom:3px; color:var(--text-main);">
+                Regional Ops Roundtable</h3>
+              <p style="color:var(--text-muted); font-size:12.5px; margin-bottom:14px;">Harbor Room • Cap: 160</p>
+              <div style="margin-bottom:8px;">
+                <div
+                  style="display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">
+                  <span>RSVP Filled</span><span>32 / 160</span>
+                </div>
+                <div style="height:5px; background:#E2E8F0; border-radius:999px; overflow:hidden;">
+                  <div style="height:100%; width:20%; background:#64748B; border-radius:999px;"></div>
+                </div>
+              </div>
+              <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Draft mode &bull; Not yet published
+              </div>
+            </div>
+          </div>
+
+          <!-- Event 10: Women in STEM Summit -->
+          <div class="card"
+            data-status="published"
+            data-category="Technology"
+            data-name="Women in STEM Summit"
+            style="border-top:4px solid #EC4899; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
+            onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
+            onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
+            onclick="showToast('Switch to Women in STEM Summit event workspace')">
+            <div
+              style="height:110px; background:linear-gradient(135deg,#EC4899 0%,#BE185D 55%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:15px; letter-spacing:-0.01em; padding:0 20px; text-align:center;">
+              Women in STEM Summit
+            </div>
+            <div style="padding:18px 20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="chip chip-green">Published</span>
+                <span style="font-size:12px; color:var(--text-muted);">Sep 12, 2027</span>
+              </div>
+              <h3
+                style="font-family:var(--font-display); font-size:15px; font-weight:700; margin-bottom:3px; color:var(--text-main);">
+                Women in STEM Summit</h3>
+              <p style="color:var(--text-muted); font-size:12.5px; margin-bottom:14px;">Innovation Centre • Cap: 240</p>
+              <div style="margin-bottom:8px;">
+                <div
+                  style="display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">
+                  <span>RSVP Filled</span><span style="color:#EC4899;">176 / 240</span>
+                </div>
+                <div style="height:5px; background:#E2E8F0; border-radius:999px; overflow:hidden;">
+                  <div
+                    style="height:100%; width:73.3%; background:linear-gradient(90deg,#EC4899,#BE185D); border-radius:999px;">
+                  </div>
+                </div>
+              </div>
+              <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                Open Registration &bull; 3 pending approvals
+              </div>
+            </div>
+          </div>
+
+          <!-- Event 11: Green City Expo -->
+          <div class="card"
+            data-status="published"
+            data-category="Sustainability"
+            data-name="Green City Expo"
+            style="border-top:4px solid #22C55E; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card);"
+            onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)'"
+            onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'"
+            onclick="showToast('Switch to Green City Expo event workspace')">
+            <div
+              style="height:110px; background:linear-gradient(135deg,#22C55E 0%,#15803D 55%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:15px; letter-spacing:-0.01em; padding:0 20px; text-align:center;">
+              Green City Expo
+            </div>
+            <div style="padding:18px 20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="chip chip-green">Published</span>
+                <span style="font-size:12px; color:var(--text-muted);">Oct 18, 2027</span>
+              </div>
+              <h3
+                style="font-family:var(--font-display); font-size:15px; font-weight:700; margin-bottom:3px; color:var(--text-main);">
+                Green City Expo</h3>
+              <p style="color:var(--text-muted); font-size:12.5px; margin-bottom:14px;">EcoHub Arena • Cap: 340</p>
+              <div style="margin-bottom:8px;">
+                <div
+                  style="display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">
+                  <span>RSVP Filled</span><span style="color:#22C55E;">228 / 340</span>
+                </div>
+                <div style="height:5px; background:#E2E8F0; border-radius:999px; overflow:hidden;">
+                  <div
+                    style="height:100%; width:67.1%; background:linear-gradient(90deg,#22C55E,#15803D); border-radius:999px;">
+                  </div>
+                </div>
+              </div>
+              <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                Open Registration &bull; 2 pending approvals
+              </div>
+            </div>
+          </div>
+
+          <!-- Event 12: Fintech Leadership Forum -->
+          <div class="card"
+            data-status="draft"
+            data-category="Finance"
+            data-name="Fintech Leadership Forum"
+            style="border-top:4px solid #0EA5E9; cursor:pointer; overflow:hidden; padding:0; transition:transform 0.2s var(--ease-spring), box-shadow 0.2s; box-shadow:var(--shadow-card); opacity:0.92;"
+            onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 28px -6px rgba(15,23,42,0.13)';this.style.opacity='1'"
+            onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)';this.style.opacity='0.92'"
+            onclick="showToast('Switch to Fintech Leadership Forum event workspace')">
+            <div
+              style="height:110px; background:linear-gradient(135deg,#0EA5E9 0%,#0369A1 55%); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:15px; letter-spacing:-0.01em; padding:0 20px; text-align:center;">
+              Fintech Leadership Forum
+            </div>
+            <div style="padding:18px 20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="chip chip-slate">Draft</span>
+                <span style="font-size:12px; color:var(--text-muted);">Nov 29, 2027</span>
+              </div>
+              <h3
+                style="font-family:var(--font-display); font-size:15px; font-weight:700; margin-bottom:3px; color:var(--text-main);">
+                Fintech Leadership Forum</h3>
+              <p style="color:var(--text-muted); font-size:12.5px; margin-bottom:14px;">Summit Hall • Cap: 260</p>
+              <div style="margin-bottom:8px;">
+                <div
+                  style="display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">
+                  <span>RSVP Filled</span><span>44 / 260</span>
+                </div>
+                <div style="height:5px; background:#E2E8F0; border-radius:999px; overflow:hidden;">
+                  <div style="height:100%; width:16.9%; background:#0EA5E9; border-radius:999px;"></div>
+                </div>
+              </div>
+              <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Draft mode &bull; Final agenda pending
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -4910,103 +5338,46 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
       );
     }
 
-    function openImportModal() {
-      document.getElementById("import-csv-modal").style.display = "flex";
-    }
+    function filterEventCards() {
+      const searchInput = document.getElementById('event-search');
+      const statusFilter = document.getElementById('event-status-filter');
+      const categoryFilter = document.getElementById('event-category-filter');
+      const emptyState = document.getElementById('event-empty-state');
+      const cards = document.querySelectorAll('#managed-event-grid .card');
 
-    function closeImportModal() {
-      document.getElementById("import-csv-modal").style.display = "none";
-    }
+      const query = (searchInput ? searchInput.value.trim().toLowerCase() : '');
+      const status = statusFilter ? statusFilter.value : 'all';
+      const category = categoryFilter ? categoryFilter.value : 'all';
 
-    function handleMockCsvUpload(event) {
-      const fileInput = event.target;
-      const file = fileInput.files[0];
+      let visibleCount = 0;
 
-      if (!file) return;
+      cards.forEach(card => {
+        const name = (card.dataset.name || '').toLowerCase();
+        const cardStatus = (card.dataset.status || '').toLowerCase();
+        const cardCategory = (card.dataset.category || '');
+        const matchesQuery = !query || name.includes(query) || card.innerText.toLowerCase().includes(query);
+        const matchesStatus = status === 'all' || cardStatus === status;
+        const matchesCategory = category === 'all' || cardCategory === category;
+        const isVisible = matchesQuery && matchesStatus && matchesCategory;
 
-      const toast = document.getElementById("toast");
-
-      // Simulate validation by checking the file name
-      if (file.name.toLowerCase().includes("invalid")) {
-        showToast(
-          "Import Failed: Invalid CSV format. Row 4 contains a malformed email address.",
-        );
-        toast.style.background = "var(--error)";
-      } else {
-        showToast(
-          `Success: Guest records from ${file.name} imported successfully.`,
-        );
-        toast.style.background = "var(--success)";
-      }
-
-      // Reset the input so the same file can be uploaded again
-      fileInput.value = "";
-
-      // Close the modal
-      closeImportModal();
-
-      // Reset toast color back to default after 3500ms
-      setTimeout(() => {
-        toast.style.background = "#0F172A";
-      }, 3500);
-    }
-
-    function filterMockGuests() {
-      const searchQuery = document
-        .getElementById("mock-guest-search")
-        .value.toLowerCase();
-      const filterStatus = document
-        .getElementById("mock-guest-filter")
-        .value.toLowerCase();
-
-      const rows = document.querySelectorAll("#guest-list-body tr");
-
-      rows.forEach((row) => {
-        const cols = row.querySelectorAll("td");
-        if (cols.length >= 3) {
-          const name = cols[0].innerText.toLowerCase();
-          const email = cols[1].innerText.toLowerCase();
-          const status = cols[2].innerText.toLowerCase();
-
-          const matchesSearch =
-            name.includes(searchQuery) || email.includes(searchQuery);
-          const matchesFilter =
-            filterStatus === "all" || status.includes(filterStatus);
-
-          row.style.display = matchesSearch && matchesFilter ? "" : "none";
-        }
+        card.style.display = isVisible ? '' : 'none';
+        if (isVisible) visibleCount++;
       });
 
-      toggleEmptyState(
-        "#guest-list-body",
-        searchQuery + filterStatus,
-        "No guests match your search criteria.",
-      );
-    }
-
-    function simulateMap(containerId, state) {
-      const container = document.getElementById(containerId);
-      if (!container) return;
-
-      if (state === 'loading') {
-        container.innerHTML = `<div style="width:100%; height:100%; background:linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:13px;">Loading Map...</div>`;
-      } else if (state === 'error') {
-        container.innerHTML = `<div style="padding:20px; text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; background:#F8FAFC;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--warning); margin-bottom:8px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-          <span style="font-weight:600; color:var(--text-main); font-size:14px;">Map Data Unavailable</span>
-          <span style="font-size:12.5px; color:var(--text-muted); margin-top:4px;">Marina Bay Sands Grand Ballroom, Singapore</span>
-        </div>`;
-      } else if (state === 'success') {
-        container.innerHTML = `<img src="https://placehold.co/800x400/4F46E5/FFFFFF?text=Map+API+Placeholder" alt="Map Location" style="width:100%; height:100%; object-fit:cover; filter:grayscale(0.2);">`;
+      if (emptyState) {
+        emptyState.style.display = visibleCount === 0 ? 'flex' : 'none';
       }
     }
 
-    // Add shimmer animation dynamically
-    if (!document.getElementById('map-style')) {
-      const style = document.createElement('style');
-      style.id = 'map-style';
-      style.innerHTML = `@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`;
-      document.head.appendChild(style);
+    function resetEventFilters() {
+      const searchInput = document.getElementById('event-search');
+      const statusFilter = document.getElementById('event-status-filter');
+      const categoryFilter = document.getElementById('event-category-filter');
+
+      if (searchInput) searchInput.value = '';
+      if (statusFilter) statusFilter.value = 'all';
+      if (categoryFilter) categoryFilter.value = 'all';
+      filterEventCards();
     }
   </script>
   <script src="../assets/eirmis.js"></script>
