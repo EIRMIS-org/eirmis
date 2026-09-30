@@ -1,5 +1,5 @@
 # ─── CI Baseline ────────────────────────────────────────────────────────────
-# Runs on every PR and on pushes to main / develop.
+# Runs on every PR.
 # Required status checks (wire these in GitHub Settings → Branches):
 #   • CI / lint
 #   • CI / typecheck
@@ -17,11 +17,6 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - main
-      - staging
-      - develop
   pull_request:
     branches:
       - main
