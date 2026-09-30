@@ -65,3 +65,69 @@ The admin has **no access** to any event's guest list, RSVP content, or attendee
 - [x] No guest-list/RSVP/attendee screens present (respects the access boundary).
 - [x] Desktop-first layout.
 - [x] Shared runtime provides global nav, session switching, toasts, and cross-portal sync.
+
+## 10. Role(s) Affected
+
+*Check all that apply to ensure the mockup covers the appropriate user experience.*
+
+* [ ] Organizer
+* [x] Admin
+* [ ] Guest
+* [ ] Check-in Staff
+
+## 11. Layout & UI State Rule
+
+Design the Admin Portal to clearly organize administrative records and workflows.
+
+The mockup should allow Admin users to easily distinguish between:
+
+* **Active records**
+* **Pending records**
+* Records requiring attention
+* Records with no available results
+
+Active and pending sections should have clear visual hierarchy and separation.
+
+## 12. Validation / UI States
+
+The mockup should include:
+
+* Clearly separated active and pending record sections.
+* Visual indicators for records requiring Admin attention.
+* Empty state for the active records section.
+* Empty state for the pending records section.
+* Loading state while administrative records are being retrieved.
+* Error state when administrative data cannot be displayed.
+* Clear visual distinction between actionable and non-actionable records.
+* Responsive layouts for desktop, tablet, and mobile where applicable.
+
+## 13. Test Case
+
+### TC-AP-01 — Active & Pending Records
+
+1. Open the Admin Portal mockup.
+2. Verify active and pending records are visually separated.
+3. Verify each section has a clear heading or status indicator.
+
+### TC-AP-02 — Records Requiring Attention
+
+1. Review the pending records section.
+2. Verify records requiring attention are visually identifiable.
+3. Verify the primary action for each record is clear.
+
+### TC-AP-03 — Empty States
+
+1. View the active records section with no records.
+2. Verify an appropriate empty state is displayed.
+3. View the pending records section with no records.
+4. Verify an appropriate empty state is displayed.
+
+### TC-AP-04 — Loading & Error States
+
+1. Verify a loading state is represented while records are being retrieved.
+2. Verify an appropriate error state is provided when records cannot be loaded.
+
+## 14. Administrative
+
+* **Owner**: (@MarteenyWeeny )
+* **Reviewer**: (@AndreiKahano @bluebirbb @BigDrems)
