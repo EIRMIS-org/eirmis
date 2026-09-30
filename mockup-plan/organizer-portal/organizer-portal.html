@@ -3211,11 +3211,7 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
                     </label>
                   </td>
                   <td>
-                    <button class="btn btn-secondary btn-sm" onclick="
-                          showToast(
-                            'Test reminder email dispatched to organizer',
-                          )
-                        ">
+                    <button class="btn btn-secondary btn-sm" onclick="openTestSendModal('T-7 Days')">
                       Test Send
                     </button>
                   </td>
@@ -3231,7 +3227,7 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
                     </label>
                   </td>
                   <td>
-                    <button class="btn btn-secondary btn-sm" onclick="showToast('Test reminder email dispatched')">
+                    <button class="btn btn-secondary btn-sm" onclick="openTestSendModal('T-1 Day')">
                       Test Send
                     </button>
                   </td>
@@ -3247,7 +3243,7 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
                     </label>
                   </td>
                   <td>
-                    <button class="btn btn-secondary btn-sm" onclick="showToast('Test reminder email dispatched')">
+                    <button class="btn btn-secondary btn-sm" onclick="openTestSendModal('T-0 Day')">
                       Test Send
                     </button>
                   </td>
@@ -3521,7 +3517,7 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
                   <td>Nov 16, 2026</td>
                   <td>Linked (auth.users: usr_902f)</td>
                   <td>
-                    <button class="btn btn-danger btn-sm" onclick="revokeStaffRow('staff-row-1')">
+                    <button class="btn btn-danger btn-sm" onclick="openRevokeModal('staff-row-1', 'marcus.staff@events.org')">
                       Revoke Access
                     </button>
                   </td>
@@ -3532,12 +3528,10 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
                   <td>Today, 08:30 AM</td>
                   <td>Awaiting magic link login</td>
                   <td>
-                    <button class="btn btn-secondary btn-sm" onclick="
-                          showToast('Invitation magic link resent to staff')
-                        ">
+                    <button class="btn btn-secondary btn-sm" onclick="openResendModal('kyla.gatekeeper@temp-staff.com')">
                       Resend
                     </button>
-                    <button class="btn btn-danger btn-sm" onclick="revokeStaffRow('staff-row-2')">
+                    <button class="btn btn-danger btn-sm" onclick="openRevokeModal('staff-row-2', 'kyla.gatekeeper@temp-staff.com')">
                       Revoke
                     </button>
                   </td>
@@ -6257,7 +6251,163 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
         "sarah.jenkins@example.com",
       );
     }
+
+    let currentRevokeRowId = null;
+
+    function openRevokeModal(rowId, email) {
+      currentRevokeRowId = rowId;
+      const modal = document.getElementById("revoke-staff-modal");
+      const emailTarget = document.getElementById("revoke-target-email");
+      if (emailTarget) emailTarget.textContent = email;
+      if (modal) {
+        modal.classList.add("active");
+        const confirmBtn = document.getElementById("confirm-revoke-btn");
+        if (confirmBtn) {
+           confirmBtn.disabled = false;
+           confirmBtn.innerHTML = "Confirm Revoke";
+        }
+      }
+    }
+
+    function closeRevokeModal() {
+      const modal = document.getElementById("revoke-staff-modal");
+      if (modal) modal.classList.remove("active");
+      currentRevokeRowId = null;
+    }
+
+    function confirmRevoke() {
+      if (!currentRevokeRowId) return;
+      
+      const confirmBtn = document.getElementById("confirm-revoke-btn");
+      if (confirmBtn) {
+         confirmBtn.disabled = true;
+         confirmBtn.innerHTML = "Revoking...";
+      }
+
+      setTimeout(() => {
+        const row = document.getElementById(currentRevokeRowId);
+        if (row) {
+          const statusCell = row.cells[1];
+          if (statusCell) {
+            statusCell.innerHTML = '<span class="chip" style="background:var(--danger-light);color:var(--danger);">revoked</span>';
+          }
+          const actionCell = row.cells[4];
+          if (actionCell) {
+            const revokeBtn = actionCell.querySelector('.btn-danger');
+            if (revokeBtn) revokeBtn.style.display = 'none';
+          }
+        }
+        closeRevokeModal();
+        if (typeof showToast === 'function') {
+          showToast("Staff access revoked (mock)");
+        } else {
+          alert("Staff access revoked (mock)");
+        }
+      }, 500);
+    }
+
+    function openResendModal(email) {
+      const modal = document.getElementById("resend-staff-modal");
+      const emailTarget = document.getElementById("resend-target-email");
+      if (emailTarget) emailTarget.textContent = email;
+      if (modal) {
+        modal.classList.add("active");
+        const confirmBtn = document.getElementById("confirm-resend-btn");
+        if (confirmBtn) {
+           confirmBtn.disabled = false;
+           confirmBtn.innerHTML = "Resend Invitation";
+        }
+      }
+    }
+
+    function closeResendModal() {
+      const modal = document.getElementById("resend-staff-modal");
+      if (modal) modal.classList.remove("active");
+    }
+
+    function confirmResend() {
+      const confirmBtn = document.getElementById("confirm-resend-btn");
+      if (confirmBtn) {
+         confirmBtn.disabled = true;
+         confirmBtn.innerHTML = "Resending...";
+      }
+
+      setTimeout(() => {
+        closeResendModal();
+        if (typeof showToast === 'function') {
+          showToast("Invitation magic link resent to staff");
+        } else {
+          alert("Invitation magic link resent to staff");
+        }
+      }, 500);
+    }
+
+    function openTestSendModal(timingName) {
+      const modal = document.getElementById("test-send-modal");
+      const timingTarget = document.getElementById("test-send-timing");
+      if (timingTarget) timingTarget.textContent = timingName;
+      if (modal) {
+        modal.classList.add("active");
+        const confirmBtn = document.getElementById("confirm-test-send-btn");
+        if (confirmBtn) {
+           confirmBtn.disabled = false;
+           confirmBtn.innerHTML = "Send Test Email";
+        }
+      }
+    }
+
+    function closeTestSendModal() {
+      const modal = document.getElementById("test-send-modal");
+      if (modal) modal.classList.remove("active");
+    }
+
+    function confirmTestSend() {
+      const confirmBtn = document.getElementById("confirm-test-send-btn");
+      if (confirmBtn) {
+         confirmBtn.disabled = true;
+         confirmBtn.innerHTML = "Sending...";
+      }
+
+      setTimeout(() => {
+        closeTestSendModal();
+        if (typeof showToast === 'function') {
+          showToast("Test reminder email dispatched to organizer");
+        } else {
+          alert("Test reminder email dispatched to organizer");
+        }
+      }, 500);
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeRevokeModal();
+        closeResendModal();
+        closeTestSendModal();
+      }
+    });
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      const revokeModal = document.getElementById('revoke-staff-modal');
+      if (revokeModal) {
+        revokeModal.addEventListener('click', function(e) {
+          if (e.target === revokeModal) closeRevokeModal();
+        });
+      }
+      const resendModal = document.getElementById('resend-staff-modal');
+      if (resendModal) {
+        resendModal.addEventListener('click', function(e) {
+          if (e.target === resendModal) closeResendModal();
+        });
+      }
+      const testSendModal = document.getElementById('test-send-modal');
+      if (testSendModal) {
+        testSendModal.addEventListener('click', function(e) {
+          if (e.target === testSendModal) closeTestSendModal();
+        });
+      }
+    });
   </script>
+
 
   <!-- IMPORT CSV MODAL -->
   <div id="import-csv-modal" class="modal-overlay" role="dialog" aria-modal="true"
@@ -6329,6 +6479,90 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
           <input type="file" id="csv-upload-input" accept=".csv" style="display: none"
             onchange="handleMockCsvUpload(event)" />
         </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVOKE STAFF MODAL -->
+  <div id="revoke-staff-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="revoke-staff-modal-title">
+    <div class="modal-box" style="max-width: 400px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 id="revoke-staff-modal-title" style="font-family: var(--font-display); font-size: 18px; font-weight: 700; margin: 0; color: var(--danger);">
+          Revoke Access
+        </h3>
+        <button onclick="closeRevokeModal()" style="background: transparent; border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; padding: 4px;" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <p style="font-size: 14px; color: var(--text-main); line-height: 1.5; margin-bottom: 24px;">
+        Are you sure you want to revoke check-in access for <strong id="revoke-target-email"></strong>? They will immediately lose the ability to scan tickets for this event.
+      </p>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button onclick="closeRevokeModal()" class="btn btn-secondary">
+          Cancel
+        </button>
+        <button id="confirm-revoke-btn" onclick="confirmRevoke()" class="btn btn-danger">
+          Confirm Revoke
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESEND STAFF MODAL -->
+  <div id="resend-staff-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="resend-staff-modal-title">
+    <div class="modal-box" style="max-width: 400px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 id="resend-staff-modal-title" style="font-family: var(--font-display); font-size: 18px; font-weight: 700; margin: 0; color: var(--text-main);">
+          Resend Invitation
+        </h3>
+        <button onclick="closeResendModal()" style="background: transparent; border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; padding: 4px;" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <p style="font-size: 14px; color: var(--text-main); line-height: 1.5; margin-bottom: 24px;">
+        Are you sure you want to resend the magic link to <strong id="resend-target-email"></strong>?
+      </p>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button onclick="closeResendModal()" class="btn btn-secondary">
+          Cancel
+        </button>
+        <button id="confirm-resend-btn" onclick="confirmResend()" class="btn btn-primary">
+          Resend Invitation
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEST SEND MODAL -->
+  <div id="test-send-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="test-send-modal-title">
+    <div class="modal-box" style="max-width: 400px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 id="test-send-modal-title" style="font-family: var(--font-display); font-size: 18px; font-weight: 700; margin: 0; color: var(--text-main);">
+          Send Test Reminder
+        </h3>
+        <button onclick="closeTestSendModal()" style="background: transparent; border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; padding: 4px;" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <p style="font-size: 14px; color: var(--text-main); line-height: 1.5; margin-bottom: 24px;">
+        Are you sure you want to send a test email for the <strong><span id="test-send-timing"></span></strong> reminder schedule? This will be sent to your organizer email address.
+      </p>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button onclick="closeTestSendModal()" class="btn btn-secondary">
+          Cancel
+        </button>
+        <button id="confirm-test-send-btn" onclick="confirmTestSend()" class="btn btn-primary">
+          Send Test Email
+        </button>
       </div>
     </div>
   </div>
