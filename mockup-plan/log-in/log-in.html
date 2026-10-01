@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EIRMIS - Secure Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-hover: #4338CA;
+      --primary-subtle: #EEF2FF;
+      --primary-border: #C7D2FE;
+      --secondary: #0D9488;
+      --secondary-subtle: #F0FDFA;
+      --dark: #0F172A;
+      --bg: #F8FAFC;
+      --border: #E2E8F0;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --warning: #B45309;
+      --font-heading: 'Hanken Grotesk', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 13.5px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(18px) saturate(160%);
+    }
+
+    .nav-container {
+      width: min(1240px, 100%);
+      min-height: 64px;
+      margin: 0 auto;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-main);
+      text-decoration: none;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      color: #FFFFFF;
+      background: linear-gradient(135deg, var(--primary), #3730A3);
+      box-shadow: 0 6px 14px -8px rgba(79, 70, 229, 0.65);
+    }
+
+    .brand-copy { display: flex; align-items: center; gap: 8px; }
+    .brand-text { font-family: var(--font-heading); font-size: 18px; font-weight: 800; }
+
+    .brand-badge {
+      padding: 3px 8px;
+      border: 1px solid var(--primary-border);
+      border-radius: 999px;
+      color: var(--primary);
+      background: var(--primary-subtle);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 6px; }
+
+    .nav-btn {
+      padding: 8px 12px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      color: var(--text-muted);
+      background: transparent;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active { color: var(--text-main); background: #F1F5F9; }
+
+    .nav-btn.primary {
+      color: #FFFFFF;
+      background: var(--primary);
+      box-shadow: 0 5px 12px -8px rgba(79, 70, 229, 0.8);
+    }
+
+    .nav-btn.primary:hover { color: #FFFFFF; background: var(--primary-hover); }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .auth-shell {
+      width: min(1180px, 100%);
+      margin: 28px auto;
+      display: grid;
+      grid-template-columns: 40% 60%;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 28px;
+      box-shadow: 0 24px 60px -30px rgba(15, 23, 42, 0.4);
+    }
+
+    .auth-side-panel {
+      min-height: 670px;
+      padding: 42px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 22px;
+      position: relative;
+      overflow: hidden;
+      color: rgba(255, 255, 255, 0.9);
+      background: linear-gradient(180deg, #1D2A4D 0%, #111B3B 100%);
+    }
+
+    .auth-side-panel::before,
+    .auth-side-panel::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .auth-side-panel::before {
+      width: 400px;
+      height: 400px;
+      right: -118px;
+      top: -120px;
+      background: rgba(129, 140, 248, 0.14);
+      filter: blur(8px);
+    }
+
+    .auth-side-panel::after {
+      width: 360px;
+      height: 360px;
+      left: -110px;
+      bottom: -160px;
+      background: rgba(45, 212, 191, 0.09);
+      filter: blur(10px);
+    }
+
+    .auth-side-badge,
+    .auth-side-panel h1,
+    .auth-subtext,
+    .side-workflow,
+    .auth-side-metrics {
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-side-badge {
+      width: fit-content;
+      padding: 6px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 999px;
+      color: #E2E8F0;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .auth-side-badge::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #2DD4BF;
+    }
+
+    .auth-side-panel h1 {
+      max-width: 420px;
+      margin: 0;
+      color: #F8FAFC;
+      font-family: var(--font-heading);
+      font-size: clamp(40px, 4vw, 54px);
+      line-height: 0.92;
+      letter-spacing: -0.06em;
+    }
+
+    .auth-subtext {
+      max-width: 430px;
+      margin: 0;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    .side-workflow {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .workflow-step {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      align-items: center;
+      gap: 11px;
+    }
+
+    .workflow-step + .workflow-step {
+      position: relative;
+    }
+
+    .workflow-step + .workflow-step::before {
+      content: "";
+      position: absolute;
+      left: 13px;
+      top: -12px;
+      width: 1px;
+      height: 12px;
+      background: rgba(148, 163, 184, 0.3);
+    }
+
+    .workflow-index {
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(45, 212, 191, 0.28);
+      border-radius: 9px;
+      color: #99F6E4;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      background: rgba(45, 212, 191, 0.1);
+    }
+
+    .workflow-step strong,
+    .workflow-step small {
+      display: block;
+    }
+
+    .workflow-step strong {
+      color: #F8FAFC;
+      font-size: 12px;
+    }
+
+    .workflow-step small {
+      margin-top: 2px;
+      color: rgba(255, 255, 255, 0.58);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    .auth-side-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .mini-stat {
+      min-height: 90px;
+      padding: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .mini-stat strong {
+      display: block;
+      color: #FFFFFF;
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .mini-stat span {
+      display: block;
+      margin-top: 8px;
+      color: rgba(255, 255, 255, 0.62);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .auth-card {
+      min-height: 670px;
+      padding: 42px 44px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: #F4F6FB;
+    }
+
+    .auth-kicker {
+      width: fit-content;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 22px;
+      padding: 7px 12px;
+      border: 1px solid rgba(79, 70, 229, 0.12);
+      border-radius: 999px;
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(79, 70, 229, 0.06);
+    }
+
+    .auth-kicker::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+      box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.1);
+    }
+
+    .auth-header h2 {
+      margin: 0 0 10px;
+      color: #1C2339;
+      font-family: var(--font-heading);
+      font-size: 38px;
+      line-height: 1.04;
+      letter-spacing: -0.05em;
+    }
+
+    .auth-header p {
+      max-width: 500px;
+      margin: 0;
+      color: #4B5D7A;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .auth-provider-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 24px 0 18px;
+    }
+
+    .sso-btn {
+      width: 100%;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border: 1px solid rgba(66, 133, 244, 0.18);
+      border-radius: 15px;
+      color: var(--text-main);
+      text-align: left;
+      background: linear-gradient(135deg, #FFFFFF 0%, #F3F6FF 100%);
+      box-shadow: 0 14px 24px -20px rgba(66, 133, 244, 0.35);
+      transition: 0.2s ease;
+    }
+
+    .sso-btn:hover {
+      border-color: rgba(66, 133, 244, 0.28);
+      background: linear-gradient(135deg, #FFFFFF 0%, #EDF3FF 100%);
+      box-shadow: 0 18px 28px -20px rgba(66, 133, 244, 0.42);
+      transform: translateY(-1px);
+    }
+
+    .sso-btn.google-primary {
+      align-items: center;
+      padding: 15px 18px;
+      font-size: 15px;
+    }
+
+    .sso-main {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .provider-mark {
+      width: 30px;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border-radius: 9px;
+    }
+
+    .provider-mark svg { width: 16px; height: 16px; }
+    .google-mark { background: #FFFFFF; }
+    .google-mark svg { width: 22px; height: 22px; }
+
+    .provider-copy {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .provider-copy span {
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .google-primary .provider-copy span { font-size: 15px; }
+
+    .provider-copy small {
+      color: #71809A;
+      font-size: 10px;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+
+    .auth-role-group,
+    .auth-option-group {
+      display: grid;
+      gap: 10px;
+    }
+
+    .auth-role-group { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .auth-option-group { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .auth-option-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #8A96AA;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .auth-option-divider::before,
+    .auth-option-divider::after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      background: rgba(148, 163, 184, 0.28);
+    }
+
+    .auth-option-group {
+      gap: 10px;
+    }
+
+    .auth-option-group .sso-btn {
+      min-height: 112px;
+      align-items: center;
+      padding: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 16px;
+      background: #FFFFFF;
+      box-shadow: 0 10px 22px -22px rgba(15, 23, 42, 0.5);
+    }
+
+    .auth-option-group .sso-btn:nth-child(2) {
+      background: #FFFDF5;
+    }
+
+    .auth-option-group .sso-btn:nth-child(3) {
+      background: #F5FFFD;
+    }
+
+    .auth-option-group .sso-btn:hover {
+      border-color: rgba(79, 70, 229, 0.32);
+      box-shadow: 0 18px 28px -22px rgba(79, 70, 229, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .auth-option-group .sso-main {
+      width: 100%;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .auth-option-group .provider-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 13px;
+    }
+
+    .auth-option-group .provider-mark svg {
+      width: 17px;
+      height: 17px;
+    }
+
+    .auth-option-group .provider-copy span {
+      font-size: 14px;
+      line-height: 1.2;
+      white-space: normal;
+    }
+
+    .auth-option-group .provider-copy small {
+      display: block;
+      margin-top: 4px;
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .auth-footer-note {
+      margin-top: auto;
+      padding-top: 24px;
+      text-align: right;
+    }
+
+    .auth-footer-note a {
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .auth-footer-note a:hover { color: var(--text-main); }
+
+    .consent-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      margin-top: 22px;
+      color: var(--text-muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .consent-row input {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+      margin: 1px 0 0;
+      accent-color: var(--primary);
+    }
+
+    .consent-row a {
+      color: var(--primary);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .consent-row a:hover { text-decoration: underline; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(15, 23, 42, 0.48);
+      backdrop-filter: blur(6px);
+    }
+
+    .modal-backdrop[hidden] { display: none; }
+
+    .modal {
+      width: min(100%, 430px);
+      padding: 26px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 20px;
+      background: #FFFFFF;
+      box-shadow: 0 28px 70px -28px rgba(15, 23, 42, 0.55);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .modal-brand { display: flex; align-items: center; gap: 12px; }
+    .google-modal-mark {
+      width: 42px;
+      height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #FFFFFF;
+    }
+
+    .google-modal-mark svg { width: 25px; height: 25px; }
+    .modal-kicker { margin-bottom: 4px; color: var(--text-muted); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    .modal h2 { margin: 0; font-family: var(--font-heading); font-size: 24px; }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 10px;
+      color: var(--text-muted);
+      background: #F1F5F9;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .account-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding: 14px;
+      border: 1px solid var(--primary-border);
+      border-radius: 14px;
+      background: var(--primary-subtle);
+    }
+
+    .account-avatar {
+      width: 38px;
+      height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border-radius: 50%;
+      color: #FFFFFF;
+      background: var(--primary);
+      font-weight: 800;
+    }
+
+    .account-card strong,
+    .account-card span { display: block; }
+    .account-card strong { font-size: 13px; }
+    .account-card span { margin-top: 3px; color: var(--text-muted); font-size: 12px; }
+
+    .alternate-account-btn {
+      margin: 0 0 18px;
+      padding: 0;
+      border: 0;
+      color: var(--primary);
+      background: transparent;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .alternate-account-btn[hidden],
+    .alternate-account[hidden] { display: none; }
+    .alternate-account { margin-bottom: 18px; }
+    .alternate-account label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 700; }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-main);
+      background: #FFFFFF;
+      outline: none;
+    }
+
+    .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12); }
+    .modal-copy { margin: 0 0 20px; color: var(--text-muted); font-size: 13px; line-height: 1.55; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+    .legal-modal-copy {
+      max-height: 220px;
+      overflow-y: auto;
+      margin: 0 0 20px;
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .legal-modal-copy strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+
+    .legal-section {
+      margin-bottom: 16px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #F8FAFC;
+    }
+
+    .legal-section:last-child { margin-bottom: 0; }
+
+    .legal-section strong { margin-bottom: 5px; }
+
+    .feedback-modal-copy {
+      margin: 0 0 20px;
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .role-login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .role-login-form label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--text-main);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .role-login-form .form-control { margin: 0; }
+
+    .role-login-form .btn-primary {
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .role-demo-hint {
+      margin: -4px 0 2px;
+      color: var(--text-muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .role-demo-hint code {
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-weight: 700;
+    }
+
+    .role-login-error {
+      margin: -2px 0 0;
+      padding: 10px 12px;
+      border: 1px solid #FECACA;
+      border-radius: 9px;
+      color: #991B1B;
+      background: #FEF2F2;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .role-login-error[hidden] { display: none; }
+
+    .pending-modal-status {
+      width: fit-content;
+      margin-bottom: 14px;
+      padding: 5px 10px;
+      border: 1px solid #FDE68A;
+      border-radius: 999px;
+      color: var(--warning);
+      background: #FEF3C7;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .pending-modal-copy {
+      margin: 0 0 18px;
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .pending-modal-notice {
+      margin-bottom: 20px;
+      padding: 12px;
+      border: 1px solid #FDE68A;
+      border-radius: 12px;
+      color: #92400E;
+      background: #FFFBEB;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .role-application-link {
+      display: block;
+      width: 100%;
+      margin-top: 18px;
+      padding: 14px 0 0;
+      border: 0;
+      border-top: 1px solid var(--border);
+      color: var(--primary);
+      background: transparent;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .role-application-link:hover { color: var(--primary-hover); text-decoration: underline; }
+    .role-application-link[hidden] { display: none; }
+
+    .legal-confirm {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      margin: 0 0 20px;
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .legal-confirm input {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+      margin: 1px 0 0;
+      accent-color: var(--primary);
+    }
+
+    .btn-primary:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
+
+    .btn {
+      padding: 10px 14px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      font-weight: 700;
+    }
+
+    .btn-primary { color: #FFFFFF; background: var(--primary); }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-ghost { color: var(--text-muted); background: transparent; }
+    .btn-ghost:hover { color: var(--text-main); background: #F1F5F9; }
+
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .nav-container { padding: 12px 16px; }
+      .auth-shell { width: calc(100% - 32px); margin: 16px auto; }
+      .auth-shell { grid-template-columns: 1fr; }
+      .auth-side-panel { min-height: auto; padding: 32px; }
+      .auth-card { min-height: auto; padding: 32px; }
+    }
+
+    @media (max-width: 620px) {
+      .auth-role-group,
+      .auth-option-group { grid-template-columns: 1fr; }
+      .auth-side-panel h1 { font-size: 42px; }
+      .auth-card { padding: 28px 22px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="nav-container">
+      <a class="brand" href="../landing/landing.html">
+        <span class="brand-logo" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+        </span>
+        <span class="brand-copy">
+          <span class="brand-text">EIRMIS</span>
+          <span class="brand-badge">ARCHITECTURE READY</span>
+        </span>
+      </a>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a class="nav-btn" href="../landing/landing.html">Home</a>
+        <a class="nav-btn active" href="./log-in.html">SSO Auth</a>
+        <a class="nav-btn" href="../landing/landing.html#guest-login">Guest Access</a>
+        <a class="nav-btn" href="../landing/landing.html#staff-login">Staff Scanner</a>
+        <a class="nav-btn primary" href="../landing/landing.html#register">Public RSVP Form</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="auth-shell">
+    <aside class="auth-side-panel">
+      <div class="auth-side-badge">Built for event operations</div>
+      <h1>From invitation to arrival, stay in control.</h1>
+      <p class="auth-subtext">One calm workspace for the details your team cannot afford to lose between planning and the front door.</p>
+      <div class="side-workflow">
+        <div class="workflow-step">
+          <span class="workflow-index">01</span>
+          <div><strong>Shape the event</strong><small>Build the plan and invitation.</small></div>
+        </div>
+        <div class="workflow-step">
+          <span class="workflow-index">02</span>
+          <div><strong>Confirm the room</strong><small>Track RSVPs and approvals.</small></div>
+        </div>
+        <div class="workflow-step">
+          <span class="workflow-index">03</span>
+          <div><strong>Know the roster</strong><small>Keep every guest detail current.</small></div>
+        </div>
+        <div class="workflow-step">
+          <span class="workflow-index">04</span>
+          <div><strong>Welcome them in</strong><small>Move from invite to check-in.</small></div>
+        </div>
+      </div>
+      <div class="auth-side-metrics">
+        <div class="mini-stat"><strong>4</strong><span>Connected roles</span></div>
+        <div class="mini-stat"><strong>1</strong><span>Shared event source</span></div>
+      </div>
+    </aside>
+
+    <section class="auth-card" aria-labelledby="login-title">
+      <div class="auth-header">
+        <div class="auth-kicker">Secure access</div>
+        <h2 id="login-title">Welcome back!</h2>
+        <p>Sign in with your organization account to continue to your authorized EIRMIS workspace.</p>
+      </div>
+
+      <div class="auth-provider-stack">
+        <button class="sso-btn google-primary" type="button" onclick="if (requireConsent()) openGoogleModal()">
+          <span class="sso-main">
+            <span class="provider-mark google-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M21.35 12.27c0-.79-.07-1.55-.2-2.27H12v4.3h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.91-4.18 2.91-7.42z"></path>
+                <path fill="#34A853" d="M12 21.5c2.63 0 4.84-.87 6.45-2.36l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.7-1.72-5.47-4.04H3.29v2.53A9.74 9.74 0 0 0 12 21.5z"></path>
+                <path fill="#FBBC05" d="M6.53 13.57A5.86 5.86 0 0 1 6.22 12c0-.54.11-1.07.31-1.57V7.9H3.29A9.5 9.5 0 0 0 2.5 12c0 1.48.35 2.88.79 4.1l3.24-2.53z"></path>
+                <path fill="#EA4335" d="M12 6.39c1.43 0 2.71.49 3.72 1.45l2.79-2.79C16.84 3.47 14.63 2.5 12 2.5a9.74 9.74 0 0 0-8.71 5.4l3.24 2.53C7.3 8.11 9.46 6.39 12 6.39z"></path>
+              </svg>
+            </span>
+            <span class="provider-copy"><small>Recommended</small><span>Continue with Google</span></span>
+          </span>
+          <span aria-hidden="true">&#8594;</span>
+        </button>
+
+        <div class="auth-role-group">
+          <button class="sso-btn" type="button" onclick="if (requireConsent()) openRoleModal('organizer')">
+            <span class="sso-main">
+              <span class="provider-mark" style="background:var(--primary-subtle); color:var(--primary);">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+              </span>
+              <span class="provider-copy"><span>Sign in as Organizer</span><small>Manage events and invitations.</small></span>
+            </span>
+          </button>
+          <button class="sso-btn" type="button" onclick="if (requireConsent()) openRoleModal('administrator')">
+            <span class="sso-main">
+              <span class="provider-mark" style="background:rgba(15,23,42,0.07); color:var(--dark);">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  <path d="m9 12 2 2 4-4"></path>
+                </svg>
+              </span>
+              <span class="provider-copy"><span>Sign in as Administrator</span><small>Review platform access and trust.</small></span>
+            </span>
+          </button>
+        </div>
+
+        <div class="auth-option-divider">Other ways to continue</div>
+
+        <div class="auth-option-group">
+          <button class="sso-btn" type="button" onclick="if (requireConsent()) openAccessModal('guest')">
+            <span class="sso-main"><span class="provider-mark" style="background:var(--secondary-subtle); color:var(--secondary);">&#9993;</span><span class="provider-copy"><span>Continue as Guest</span><small>Secure magic link access.</small></span></span>
+          </button>
+          <button class="sso-btn" type="button" onclick="if (requireConsent()) openAccessModal('staff')">
+            <span class="sso-main"><span class="provider-mark" style="background:#FEF3C7; color:var(--warning);">&#9633;</span><span class="provider-copy"><span>Continue as Staff</span><small>Open the event-day scanner.</small></span></span>
+          </button>
+          <button class="sso-btn" type="button" onclick="if (requireConsent()) openAccessModal('register')">
+            <span class="sso-main"><span class="provider-mark" style="background:var(--primary-subtle); color:var(--primary);">+</span><span class="provider-copy"><span>Register for an Event</span><small>Join without an account.</small></span></span>
+          </button>
+        </div>
+      </div>
+
+      <label class="consent-row" for="terms-consent">
+        <input id="terms-consent" type="checkbox" required aria-required="true" onclick="event.preventDefault(); openLegalModal()">
+        <span>I agree to the <a href="#terms" onclick="event.preventDefault(); openLegalModal()">Terms and Conditions</a> and <a href="#privacy-policy" onclick="event.preventDefault(); openLegalModal()">Privacy Policy</a>.</span>
+      </label>
+
+      <div class="auth-footer-note"><a href="../landing/landing.html">&#8592; Back to home</a></div>
+    </section>
+  </main>
+
+  <div id="google-modal" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="google-modal-title" onclick="handleModalBackdrop(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-brand">
+          <span class="google-modal-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M21.35 12.27c0-.79-.07-1.55-.2-2.27H12v4.3h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.91-4.18 2.91-7.42z"></path>
+              <path fill="#34A853" d="M12 21.5c2.63 0 4.84-.87 6.45-2.36l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.7-1.72-5.47-4.04H3.29v2.53A9.74 9.74 0 0 0 12 21.5z"></path>
+              <path fill="#FBBC05" d="M6.53 13.57A5.86 5.86 0 0 1 6.22 12c0-.54.11-1.07.31-1.57V7.9H3.29A9.5 9.5 0 0 0 2.5 12c0 1.48.35 2.88.79 4.1l3.24-2.53z"></path>
+              <path fill="#EA4335" d="M12 6.39c1.43 0 2.71.49 3.72 1.45l2.79-2.79C16.84 3.47 14.63 2.5 12 2.5a9.74 9.74 0 0 0-8.71 5.4l3.24 2.53C7.3 8.11 9.46 6.39 12 6.39z"></path>
+            </svg>
+          </span>
+          <div><div class="modal-kicker">Google sign-in</div><h2 id="google-modal-title">Choose an account</h2></div>
+        </div>
+        <button class="modal-close" type="button" aria-label="Close Google sign-in" onclick="closeGoogleModal()">&times;</button>
+      </div>
+
+      <div id="account-card" class="account-card">
+        <span class="account-avatar">SJ</span>
+        <div><strong>Sarah Jenkins</strong><span>sarah.jenkins@example.com</span></div>
+      </div>
+      <button id="alternate-account-btn" class="alternate-account-btn" type="button" onclick="useAnotherAccount()">Use another account</button>
+      <div id="alternate-account" class="alternate-account" hidden>
+        <label for="alternate-email">Google account email</label>
+        <input id="alternate-email" class="form-control" type="email" placeholder="you@example.com">
+      </div>
+      <p class="modal-copy">Continue with this Google account to access your authorized EIRMIS organizer workspace.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" type="button" onclick="closeGoogleModal()">Cancel</button>
+        <button class="btn btn-primary" type="button" onclick="continueWithGoogle()">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="legal-modal" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="legal-modal-title" onclick="handleLegalModalBackdrop(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-kicker">EIRMIS policy</div>
+          <h2 id="legal-modal-title">Terms and Privacy Policy</h2>
+        </div>
+        <button class="modal-close" type="button" aria-label="Close policy dialog" onclick="closeLegalModal()">&times;</button>
+      </div>
+      <div id="legal-modal-copy" class="legal-modal-copy">
+        <div class="legal-section">
+          <strong>Terms and Conditions</strong>
+          By using EIRMIS, you agree to use the platform for authorized event planning, invitation, RSVP, and check-in activities. Account access may be reviewed or limited to protect event data and platform integrity.
+        </div>
+        <div class="legal-section">
+          <strong>Privacy Policy</strong>
+          EIRMIS uses only the information needed to authenticate users, manage invitations, coordinate RSVPs, and support secure event operations. Access is limited by role and activity is recorded for accountability.
+        </div>
+      </div>
+      <label class="legal-confirm" for="legal-review-consent">
+        <input id="legal-review-consent" type="checkbox" onchange="updateLegalAgreement()">
+        <span>I have read and understand the Terms and Conditions and Privacy Policy.</span>
+      </label>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" type="button" onclick="closeLegalModal()">Close</button>
+        <button id="legal-agree-btn" class="btn btn-primary" type="button" disabled onclick="acceptLegalConsent()">I Agree</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="feedback-modal" class="modal-backdrop" hidden role="alertdialog" aria-modal="true" aria-labelledby="feedback-modal-title" onclick="handleFeedbackModalBackdrop(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-kicker">Action required</div>
+          <h2 id="feedback-modal-title">Request sent successfully</h2>
+        </div>
+        <button class="modal-close" type="button" aria-label="Close message" onclick="closeFeedbackModal()">&times;</button>
+      </div>
+      <p id="feedback-modal-copy" class="feedback-modal-copy"></p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" type="button" onclick="closeFeedbackModal()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="access-modal" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="access-modal-title" onclick="handleAccessModalBackdrop(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div id="access-modal-kicker" class="modal-kicker">Guest access</div>
+          <h2 id="access-modal-title">Guest Passwordless Access</h2>
+        </div>
+        <button class="modal-close" type="button" aria-label="Close access dialog" onclick="closeAccessModal()">&times;</button>
+      </div>
+      <p id="access-modal-copy" class="modal-copy">Enter your email and we will send a secure, one-click magic link.</p>
+      <form class="role-login-form" onsubmit="submitAccessModal(event)">
+        <div id="access-name-wrap" hidden>
+          <label for="access-name">Full name</label>
+          <input id="access-name" class="form-control" type="text" placeholder="Your full name">
+        </div>
+        <div>
+          <label id="access-email-label" for="access-email">Your email address</label>
+          <input id="access-email" class="form-control" type="email" required placeholder="you@example.com">
+        </div>
+        <div id="access-confirm-email-wrap">
+          <label for="access-confirm-email">Confirm email address</label>
+          <input id="access-confirm-email" class="form-control" type="email" required placeholder="Re-enter your email">
+        </div>
+        <div id="access-event-wrap" hidden>
+          <label for="access-event">Event</label>
+          <select id="access-event" class="form-control">
+            <option value="" selected disabled>Select an event</option>
+            <option value="tech-forward-2026">Tech Forward Annual Gala 2026</option>
+          </select>
+          <small class="role-demo-hint">/register/tech-forward-2026</small>
+        </div>
+        <div id="access-party-wrap" hidden>
+          <label for="access-party">Party size</label>
+          <input id="access-party" class="form-control" type="number" min="1" max="10" value="1">
+        </div>
+        <p id="access-error" class="role-login-error" hidden></p>
+        <button id="access-submit" class="btn btn-primary" type="submit">Send magic link</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="role-login-modal" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="role-login-title" onclick="handleRoleModalBackdrop(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-kicker">Role account sign-in</div>
+          <h2 id="role-login-title">Organizer sign in</h2>
+        </div>
+        <button class="modal-close" type="button" aria-label="Close role sign-in" onclick="closeRoleModal()">&times;</button>
+      </div>
+      <p id="role-login-copy" class="modal-copy">Use your organization account to access event planning and invitation tools.</p>
+      <form class="role-login-form" onsubmit="submitRoleLogin(event)">
+        <div>
+          <label for="role-login-email">Work email</label>
+          <input id="role-login-email" class="form-control" type="email" required>
+        </div>
+        <div>
+          <label for="role-login-password">Password</label>
+          <input id="role-login-password" class="form-control" type="password" required placeholder="Enter your password">
+        </div>
+        <p id="role-login-error" class="role-login-error" hidden></p>
+        <p id="role-demo-hint" class="role-demo-hint"></p>
+        <button class="btn btn-primary" type="submit">Continue to workspace</button>
+      </form>
+      <button id="organizer-application-link" class="role-application-link" type="button" onclick="openOrganizerApplicationModal()" hidden>
+        Want to become an Organizer?
+      </button>
+    </div>
+  </div>
+
+  <div id="organizer-application-modal" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="organizer-application-title" onclick="handleOrganizerApplicationBackdrop(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-kicker">Organizer access</div>
+          <h2 id="organizer-application-title">Become an Organizer</h2>
+        </div>
+        <button class="modal-close" type="button" aria-label="Close Organizer application" onclick="closeOrganizerApplicationModal()">&times;</button>
+      </div>
+      <p class="modal-copy">Tell us about your event so an administrator can review your Organizer access request.</p>
+      <form class="role-login-form" onsubmit="submitOrganizerApplication(event)">
+        <div>
+          <label for="organizer-name">Full name</label>
+          <input id="organizer-name" class="form-control" type="text" required placeholder="Your full name">
+        </div>
+        <div>
+          <label for="organizer-email">Work email</label>
+          <input id="organizer-email" class="form-control" type="email" required placeholder="you@organization.com">
+        </div>
+        <div>
+          <label for="organizer-event">Event or organization</label>
+          <input id="organizer-event" class="form-control" type="text" required placeholder="Event or organization name">
+        </div>
+        <button class="btn btn-primary" type="submit">Submit application</button>
+        <button class="btn btn-ghost" type="button" onclick="backToOrganizerSignIn()">Back to Organizer Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="pending-modal" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pending-modal-title" onclick="handlePendingModalBackdrop(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-kicker">Account status</div>
+          <h2 id="pending-modal-title">Verification in Progress</h2>
+        </div>
+        <button class="modal-close" type="button" aria-label="Close verification status" onclick="closePendingModal()">&times;</button>
+      </div>
+      <div class="pending-modal-status">Account Status: Pending Review</div>
+      <p class="pending-modal-copy">Signed in as <strong id="pending-applicant-email"></strong>. Because any SSO account can register, an Administrator must verify your profile before you can publish events or dispatch invitations.</p>
+      <div class="pending-modal-notice"><strong>Security Gate:</strong> The manual verification gate protects platform trust and accountability. You will receive an automated confirmation email once activated.</div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" type="button" onclick="openRoute('../landing/landing.html')">Back to Home</button>
+        <button class="btn btn-primary" type="button" onclick="openPortal('../admin-portal/admin-portal.html')">Switch to Admin Portal</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let selectedRole = 'organizer';
+
+    const roleAccounts = {
+      organizer: {
+        email: 'sarah.jenkins@example.com',
+        password: 'Organizer@2026'
+      },
+      administrator: {
+        email: 'sysadmin@eirmis.internal',
+        password: 'Admin@2026'
+      }
+    };
+
+    function openGoogleModal() {
+      document.getElementById('account-card').hidden = false;
+      document.getElementById('alternate-account-btn').hidden = false;
+      document.getElementById('alternate-account').hidden = true;
+      document.getElementById('alternate-email').value = '';
+      document.getElementById('google-modal').hidden = false;
+    }
+
+    function closeGoogleModal() {
+      document.getElementById('google-modal').hidden = true;
+    }
+
+    function handleModalBackdrop(event) {
+      if (event.target.id === 'google-modal') closeGoogleModal();
+    }
+
+    function openLegalModal() {
+      document.getElementById('legal-review-consent').checked = false;
+      updateLegalAgreement();
+      document.getElementById('legal-modal').hidden = false;
+    }
+
+    function updateLegalAgreement() {
+      document.getElementById('legal-agree-btn').disabled = !document.getElementById('legal-review-consent').checked;
+    }
+
+    function acceptLegalConsent() {
+      if (!document.getElementById('legal-review-consent').checked) return;
+      document.getElementById('terms-consent').checked = true;
+      closeLegalModal();
+    }
+
+    function closeLegalModal() {
+      document.getElementById('legal-modal').hidden = true;
+    }
+
+    function handleLegalModalBackdrop(event) {
+      if (event.target.id === 'legal-modal') closeLegalModal();
+    }
+
+    function closeFeedbackModal() {
+      document.getElementById('feedback-modal').hidden = true;
+    }
+
+    function handleFeedbackModalBackdrop(event) {
+      if (event.target.id === 'feedback-modal') closeFeedbackModal();
+    }
+
+    function openRoleModal(role) {
+      selectedRole = role;
+      const isAdministrator = role === 'administrator';
+      document.getElementById('role-login-title').textContent = isAdministrator ? 'Administrator sign in' : 'Organizer sign in';
+      document.getElementById('role-login-copy').textContent = isAdministrator
+        ? 'Use your administrator account to manage platform trust, access, and organization settings.'
+        : 'Use your organization account to access event planning and invitation tools.';
+      const account = roleAccounts[role];
+      document.getElementById('role-login-email').value = account.email;
+      document.getElementById('role-login-password').value = '';
+      document.getElementById('role-login-error').hidden = true;
+      document.getElementById('role-login-error').textContent = '';
+      document.getElementById('role-demo-hint').innerHTML = `Demo: <code>${account.email}</code> / <code>${account.password}</code>`;
+      document.getElementById('organizer-application-link').hidden = isAdministrator;
+      document.getElementById('role-login-modal').hidden = false;
+      document.getElementById('role-login-password').focus();
+    }
+
+    function closeRoleModal() {
+      document.getElementById('role-login-modal').hidden = true;
+    }
+
+    function handleRoleModalBackdrop(event) {
+      if (event.target.id === 'role-login-modal') closeRoleModal();
+    }
+
+    function openOrganizerApplicationModal() {
+      closeRoleModal();
+      document.getElementById('organizer-application-modal').hidden = false;
+      document.getElementById('organizer-name').focus();
+    }
+
+    function closeOrganizerApplicationModal() {
+      document.getElementById('organizer-application-modal').hidden = true;
+    }
+
+    function handleOrganizerApplicationBackdrop(event) {
+      if (event.target.id === 'organizer-application-modal') closeOrganizerApplicationModal();
+    }
+
+    function openPendingModal(email) {
+      document.getElementById('pending-applicant-email').textContent = email;
+      document.getElementById('pending-modal').hidden = false;
+    }
+
+    function closePendingModal() {
+      document.getElementById('pending-modal').hidden = true;
+    }
+
+    function handlePendingModalBackdrop(event) {
+      if (event.target.id === 'pending-modal') closePendingModal();
+    }
+
+    const accessModalConfig = {
+      guest: {
+        kicker: 'Guest access',
+        title: 'Guest Passwordless Access',
+        copy: 'Enter your email and we will send a secure, one-click magic link.',
+        emailLabel: 'Your email address',
+        submit: 'Send magic link',
+        success: 'A secure guest magic link has been dispatched.'
+      },
+      staff: {
+        kicker: 'Staff access',
+        title: 'Check-in Staff Sign In',
+        copy: 'Enter the email address where your event-day scanner invitation was received.',
+        emailLabel: 'Staff member email',
+        submit: 'Send scanner token',
+        success: 'Your staff scanner token request has been dispatched.'
+      },
+      register: {
+        kicker: 'Public registration',
+        title: 'Register for an Event',
+        copy: 'Create an accepted invitation and receive a secure link to manage your party.',
+        emailLabel: 'Your email address',
+        submit: 'Create registration',
+        success: 'Your event registration was created successfully.'
+      }
+    };
+
+    let selectedAccess = 'guest';
+
+    function openAccessModal(accessType) {
+      selectedAccess = accessType;
+      const config = accessModalConfig[accessType];
+      const isRegister = accessType === 'register';
+      document.getElementById('access-modal-kicker').textContent = config.kicker;
+      document.getElementById('access-modal-title').textContent = config.title;
+      document.getElementById('access-modal-copy').textContent = config.copy;
+      document.getElementById('access-email-label').textContent = config.emailLabel;
+      document.getElementById('access-submit').textContent = config.submit;
+      document.getElementById('access-name-wrap').hidden = !isRegister;
+      document.getElementById('access-confirm-email-wrap').hidden = isRegister;
+      document.getElementById('access-event-wrap').hidden = !isRegister;
+      document.getElementById('access-party-wrap').hidden = !isRegister;
+      document.getElementById('access-name').required = isRegister;
+      document.getElementById('access-confirm-email').required = !isRegister;
+      document.getElementById('access-event').required = isRegister;
+      document.getElementById('access-email').value = '';
+      document.getElementById('access-confirm-email').value = '';
+      document.getElementById('access-name').value = '';
+      document.getElementById('access-event').selectedIndex = 0;
+      document.getElementById('access-party').value = '1';
+      document.getElementById('access-error').hidden = true;
+      document.getElementById('access-error').textContent = '';
+      document.getElementById('access-modal').hidden = false;
+      document.getElementById(isRegister ? 'access-name' : 'access-email').focus();
+    }
+
+    function closeAccessModal() {
+      document.getElementById('access-modal').hidden = true;
+    }
+
+    function handleAccessModalBackdrop(event) {
+      if (event.target.id === 'access-modal') closeAccessModal();
+    }
+
+    function submitAccessModal(event) {
+      event.preventDefault();
+      if (!requireConsent()) return;
+      if (selectedAccess !== 'register') {
+        const email = document.getElementById('access-email').value.trim().toLowerCase();
+        const confirmEmail = document.getElementById('access-confirm-email').value.trim().toLowerCase();
+        if (email !== confirmEmail) {
+          const error = document.getElementById('access-error');
+          error.textContent = 'The email addresses do not match. Please check and try again.';
+          error.hidden = false;
+          document.getElementById('access-confirm-email').focus();
+          return;
+        }
+      }
+      closeAccessModal();
+      showToast(accessModalConfig[selectedAccess].success);
+    }
+
+    function backToOrganizerSignIn() {
+      closeOrganizerApplicationModal();
+      openRoleModal('organizer');
+    }
+
+    function submitOrganizerApplication(event) {
+      event.preventDefault();
+      if (!requireConsent()) return;
+      const applicantEmail = document.getElementById('organizer-email').value;
+      closeOrganizerApplicationModal();
+      openPendingModal(applicantEmail);
+    }
+
+    function submitRoleLogin(event) {
+      event.preventDefault();
+      if (!requireConsent()) return;
+      const account = roleAccounts[selectedRole];
+      const email = document.getElementById('role-login-email').value.trim().toLowerCase();
+      const password = document.getElementById('role-login-password').value;
+      if (!account || email !== account.email || password !== account.password) {
+        const error = document.getElementById('role-login-error');
+        error.textContent = 'The email or password does not match this demo account.';
+        error.hidden = false;
+        document.getElementById('role-login-password').focus();
+        return;
+      }
+      closeRoleModal();
+      openPortal(selectedRole === 'administrator'
+        ? '../admin-portal/admin-portal.html'
+        : '../organizer-portal/organizer-portal.html');
+    }
+
+    function useAnotherAccount() {
+      document.getElementById('account-card').hidden = true;
+      document.getElementById('alternate-account-btn').hidden = true;
+      document.getElementById('alternate-account').hidden = false;
+      document.getElementById('alternate-email').focus();
+    }
+
+    function continueWithGoogle() {
+      if (!requireConsent()) return;
+      const alternateAccount = document.getElementById('alternate-account');
+      const alternateEmail = document.getElementById('alternate-email');
+      if (!alternateAccount.hidden && !alternateEmail.value.trim()) {
+        alternateEmail.focus();
+        return;
+      }
+      closeGoogleModal();
+      openPortal('../organizer-portal/organizer-portal.html');
+    }
+
+    function requireConsent() {
+      const consent = document.getElementById('terms-consent');
+      if (consent.checked) return true;
+      showToast('Please agree to the Terms and Conditions and Privacy Policy first.', 'Consent required');
+      consent.focus();
+      return false;
+    }
+
+    function openPortal(path) {
+      window.location.href = path;
+    }
+
+    function openRoute(path) {
+      window.location.href = path;
+    }
+
+    function showToast(message, title = 'Request sent successfully') {
+      document.getElementById('feedback-modal-title').textContent = title;
+      document.getElementById('feedback-modal-copy').textContent = message;
+      document.getElementById('feedback-modal').hidden = false;
+    }
+  </script>
+</body>
+</html>
