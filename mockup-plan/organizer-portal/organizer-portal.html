@@ -1448,111 +1448,6 @@
       }
     }
 
-    /* Waitlist Promotion Confirmation */
-    .waitlist-promotion-modal .modal-box {
-      max-width: 460px;
-    }
-
-    .waitlist-promotion-guest {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 14px;
-      margin: 16px 0;
-      background: #f8fafc;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-    }
-
-    .waitlist-promotion-avatar {
-      width: 38px;
-      height: 38px;
-      flex: 0 0 38px;
-      border-radius: 50%;
-      background: #eef2ff;
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    .waitlist-promotion-name {
-      font-size: 13.5px;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-
-    .waitlist-promotion-email {
-      margin-top: 2px;
-      font-size: 12px;
-      color: var(--text-muted);
-      word-break: break-word;
-    }
-
-    .waitlist-promotion-note {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      padding: 10px 12px;
-      margin-bottom: 20px;
-      border-radius: var(--radius-sm);
-      background: #eef2ff;
-      color: #3730a3;
-      font-size: 12px;
-      line-height: 1.5;
-    }
-
-    .waitlist-promotion-note svg {
-      flex: 0 0 auto;
-      margin-top: 1px;
-    }
-
-    .waitlist-promotion-error {
-      display: none;
-      align-items: flex-start;
-      gap: 8px;
-      padding: 10px 12px;
-      margin-bottom: 20px;
-      border-radius: var(--radius-sm);
-      background: var(--error-bg);
-      border: 1px solid var(--error-border);
-      color: var(--error);
-      font-size: 12px;
-      line-height: 1.5;
-    }
-
-    .waitlist-promotion-error.visible {
-      display: flex;
-    }
-
-    .waitlist-promotion-modal.processing .waitlist-promotion-confirm,
-    .waitlist-promotion-modal.processing .waitlist-promotion-cancel {
-      pointer-events: none;
-      opacity: 0.65;
-    }
-
-    .waitlist-promotion-confirm .promotion-spinner {
-      display: none;
-      width: 13px;
-      height: 13px;
-      margin-right: 6px;
-      border: 2px solid rgba(255, 255, 255, 0.45);
-      border-top-color: #ffffff;
-      border-radius: 50%;
-      animation: promotionSpin 0.7s linear infinite;
-      vertical-align: -2px;
-    }
-
-    .waitlist-promotion-modal.processing .promotion-spinner {
-      display: inline-block;
-    }
-
-    @keyframes promotionSpin {
-      to { transform: rotate(360deg); }
-    }
-
     /* Toast */
     .toast {
       position: fixed;
@@ -6258,98 +6153,20 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
     }
 
     /* Waitlist FIFO Promotion */
-    let pendingWaitlistPromotion = null;
-
     function promoteWaitlistRow(rowId, name) {
       const row = document.getElementById(rowId);
-      const modal = document.getElementById("waitlist-promotion-modal");
-      if (!row || !modal) return;
-
-      const emailCell = row.querySelector("td:nth-child(3)");
-      const email = emailCell ? emailCell.textContent.trim() : "";
-      const avatar = document.getElementById("waitlist-promotion-avatar");
-      const nameEl = document.getElementById("waitlist-promotion-name");
-      const emailEl = document.getElementById("waitlist-promotion-email");
-      const errorEl = document.getElementById("waitlist-promotion-error");
-      const confirmBtn = document.getElementById("confirm-waitlist-promotion-btn");
-
-      pendingWaitlistPromotion = { rowId, name };
-
-      if (avatar) {
-        avatar.textContent = name
-          .split(/\s+/)
-          .filter(Boolean)
-          .slice(0, 2)
-          .map((part) => part.charAt(0).toUpperCase())
-          .join("");
-      }
-      if (nameEl) nameEl.textContent = name;
-      if (emailEl) emailEl.textContent = email;
-      if (errorEl) errorEl.classList.remove("visible");
-      if (confirmBtn) {
-        confirmBtn.disabled = false;
-        confirmBtn.innerHTML = '<span class="promotion-spinner" aria-hidden="true"></span>Confirm Promote';
-      }
-
-      modal.classList.remove("processing");
-      modal.classList.add("active");
-    }
-
-    function closeWaitlistPromotionModal() {
-      const modal = document.getElementById("waitlist-promotion-modal");
-      if (!modal || modal.classList.contains("processing")) return;
-
-      modal.classList.remove("active", "processing");
-      pendingWaitlistPromotion = null;
-    }
-
-    function confirmWaitlistPromotion() {
-      const modal = document.getElementById("waitlist-promotion-modal");
-      const confirmBtn = document.getElementById("confirm-waitlist-promotion-btn");
-      const errorEl = document.getElementById("waitlist-promotion-error");
-
-      if (!modal || !confirmBtn || !pendingWaitlistPromotion) return;
-
-      const row = document.getElementById(pendingWaitlistPromotion.rowId);
-      if (!row) {
-        if (errorEl) errorEl.classList.add("visible");
-        return;
-      }
-
-      modal.classList.add("processing");
-      confirmBtn.disabled = true;
-      confirmBtn.innerHTML = '<span class="promotion-spinner" aria-hidden="true"></span>Promoting...';
-
-      // Mockup-only processing state; no backend/API call is made.
-      setTimeout(() => {
-        const targetRow = document.getElementById(pendingWaitlistPromotion.rowId);
-        const targetName = pendingWaitlistPromotion.name;
-
-        if (!targetRow) {
-          modal.classList.remove("processing");
-          confirmBtn.disabled = false;
-          confirmBtn.innerHTML = '<span class="promotion-spinner" aria-hidden="true"></span>Confirm Promote';
-          if (errorEl) errorEl.classList.add("visible");
-          return;
-        }
-
-        targetRow.querySelector("td:nth-child(5)").innerHTML =
+      if (row) {
+        row.querySelector("td:nth-child(5)").innerHTML =
           '<span class="chip chip-green">promoted</span>';
-        targetRow.querySelector("td:nth-child(6)").innerHTML =
+        row.querySelector("td:nth-child(6)").innerHTML =
           '<span style="color:var(--text-muted); font-size:12px;">Promoted (FIFO)</span>';
-
+        showToast(name + " promoted off the waitlist. Invitation unblocked.");
         const chip = document.getElementById("waitlist-count-chip");
         const remaining = document.querySelectorAll(
           "#waitlist-tbody .chip-amber",
         ).length;
-        if (chip) chip.innerText = remaining + " Waitlisted";
-
-        modal.classList.remove("active", "processing");
-        confirmBtn.disabled = false;
-        confirmBtn.innerHTML = '<span class="promotion-spinner" aria-hidden="true"></span>Confirm Promote';
-        pendingWaitlistPromotion = null;
-        showToast(targetName + " promoted off the waitlist. Invitation unblocked.");
-      }, 650);
+        chip.innerText = remaining + " Waitlisted";
+      }
     }
 
     /* Email Log Filter */
@@ -6696,80 +6513,6 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
           <input type="file" id="csv-upload-input" accept=".csv" style="display: none"
             onchange="handleMockCsvUpload(event)" />
         </label>
-      </div>
-    </div>
-  </div>
-
-  <!-- WAITLIST PROMOTION CONFIRMATION MODAL -->
-  <div id="waitlist-promotion-modal" class="modal-overlay waitlist-promotion-modal" role="dialog" aria-modal="true"
-    aria-labelledby="waitlist-promotion-modal-title">
-    <div class="modal-box">
-      <div style="
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: #eef2ff;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 14px;
-          ">
-        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M5 12h14"></path>
-          <path d="m13 6 6 6-6 6"></path>
-        </svg>
-      </div>
-
-      <h3 id="waitlist-promotion-modal-title" style="
-            font-family: var(--font-display);
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 6px;
-          ">
-        Confirm Guest Promotion
-      </h3>
-
-      <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 0;">
-        Please confirm that you want to promote this guest from the waitlist.
-      </p>
-
-      <div class="waitlist-promotion-guest">
-        <div id="waitlist-promotion-avatar" class="waitlist-promotion-avatar" aria-hidden="true">—</div>
-        <div style="min-width: 0;">
-          <div id="waitlist-promotion-name" class="waitlist-promotion-name">—</div>
-          <div id="waitlist-promotion-email" class="waitlist-promotion-email">—</div>
-        </div>
-      </div>
-
-      <div class="waitlist-promotion-note">
-        <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="16" x2="12" y2="12"></line>
-          <line x1="12" y1="8" x2="12.01" y2="8"></line>
-        </svg>
-        <span>Promotion unblocks the invitation only. The attendee will still require review.</span>
-      </div>
-
-      <div id="waitlist-promotion-error" class="waitlist-promotion-error" role="alert">
-        <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="15" y1="9" x2="9" y2="15"></line>
-          <line x1="9" y1="9" x2="15" y2="15"></line>
-        </svg>
-        <span>The promotion could not be completed in this mockup state. Please close this dialog and try again.</span>
-      </div>
-
-      <div style="display: flex; justify-content: flex-end; gap: 10px;">
-        <button onclick="closeWaitlistPromotionModal()" class="btn btn-secondary waitlist-promotion-cancel">
-          Cancel
-        </button>
-        <button id="confirm-waitlist-promotion-btn" onclick="confirmWaitlistPromotion()" class="btn btn-teal waitlist-promotion-confirm">
-          <span class="promotion-spinner" aria-hidden="true"></span>Confirm Promote
-        </button>
       </div>
     </div>
   </div>
