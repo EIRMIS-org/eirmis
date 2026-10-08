@@ -20,7 +20,6 @@ const colors = [
 const sections = [
   ['typography', 'Typography'],
   ['colors', 'Color palette'],
-  ['foundations', 'Foundations'],
   ['buttons', 'Buttons'],
   ['forms', 'Form inputs'],
   ['layout', 'Layout containers'],
@@ -167,15 +166,6 @@ function Styleguide() {
                 </div>
               </div>
             ))}
-          </div>
-        </Section>
-
-        <Section id="foundations" title="Spacing, sizing, radius, elevation & motion" description="A compact foundation scale makes layouts predictable and keeps interaction density consistent.">
-          <div className="sg-foundation-grid">
-            <div className="sg-foundation-group"><span className="sg-label">Spacing / 8px grid</span><div className="sg-token-list">{[['1', '8px'], ['2', '16px'], ['3', '24px'], ['4', '32px'], ['6', '48px'], ['8', '64px']].map(([name, value]) => <div key={name}><code>{name}</code><span className="sg-token-bar" style={{ width: value }} /><b>{value}</b></div>)}</div></div>
-            <div className="sg-foundation-group"><span className="sg-label">Control heights</span><div className="sg-metric-list"><div><b>sm</b><span>32px</span></div><div><b>md</b><span>40px</span></div><div><b>lg</b><span>48px</span></div><div><b>row</b><span>48px</span></div></div></div>
-            <div className="sg-foundation-group"><span className="sg-label">Radius</span><div className="sg-radius-list"><span className="sg-radius-sm">8</span><span className="sg-radius-md">12</span><span className="sg-radius-lg">16</span><span className="sg-radius-pill">9999</span></div></div>
-            <div className="sg-foundation-group"><span className="sg-label">Elevation & motion</span><div className="sg-elevation-list"><div className="sg-elevation-none">Cards / border only</div><div className="sg-elevation-popover">Popover / 150ms</div><div className="sg-elevation-dialog">Dialog / 240ms</div></div></div>
           </div>
         </Section>
 
