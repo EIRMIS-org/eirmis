@@ -1366,119 +1366,194 @@
         }
       }
 
-      /* Portal Preview Frames */
+      /* Portal Preview Stage & Frames */
       .portal-detail-preview {
-        flex: 1;
+        width: 100%;
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        align-items: center;
+        justify-content: center;
+        padding: 16px 14px;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border);
+        background-color: #f8fafc;
+        background-image:
+          radial-gradient(circle at center, rgba(255, 255, 255, 0.88) 0%, rgba(241, 245, 249, 0.45) 100%),
+          radial-gradient(#cbd5e1 1.25px, transparent 1.25px);
+        background-size: 100% 100%, 18px 18px;
+        box-shadow: inset 0 2px 6px rgba(15, 23, 42, 0.03);
+        position: relative;
+        overflow: hidden;
       }
 
+      /* Base preview frame - every portal uses desktop browser frame */
       .portal-preview-frame {
-        flex: 0 0 320px;
-        background: #fafafa;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-lg);
-        overflow: hidden;
+        width: 100%;
+        max-width: 1040px;
+        margin: 0 auto;
         display: flex;
         flex-direction: column;
-        height: 320px;
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        box-shadow:
+          0 20px 40px -12px rgba(15, 23, 42, 0.12),
+          0 4px 12px -2px rgba(15, 23, 42, 0.04);
+        overflow: hidden;
         cursor: zoom-in;
-        transition: box-shadow 0.2s var(--ease-spring);
+        transition: transform 0.25s var(--ease-spring), box-shadow 0.25s var(--ease-spring);
+        position: relative;
       }
 
       .portal-preview-frame:hover {
-        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+        box-shadow:
+          0 24px 48px -12px rgba(15, 23, 42, 0.18),
+          0 6px 16px -2px rgba(15, 23, 42, 0.06);
       }
 
-      .portal-preview-content {
-        flex: 1;
-        padding: 16px;
+      .portal-frame-browser-bar {
+        height: 36px;
+        background: #f1f5f9;
+        border-bottom: 1px solid var(--border);
         display: flex;
-        flex-direction: row;
         align-items: center;
+        padding: 0 14px;
         gap: 12px;
-        overflow-x: auto;
-        overflow-y: hidden;
+        user-select: none;
+        flex-shrink: 0;
       }
 
-      @media (max-width: 600px) {
-        .portal-preview-content {
-          padding: 12px;
-          gap: 10px;
-        }
+      .browser-dots {
+        display: flex;
+        align-items: center;
+        gap: 6px;
       }
 
-      @media (max-width: 320px) {
-        .portal-preview-content {
-          padding: 10px;
-          gap: 8px;
-        }
+      .browser-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      .browser-dot.close { background: #f87171; }
+      .browser-dot.minimize { background: #fbbf24; }
+      .browser-dot.maximize { background: #34d399; }
+
+      .browser-url {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 11px;
+        color: var(--text-muted);
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 2px 14px;
+        margin: 0 auto;
+        max-width: 280px;
+        width: 100%;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* Content & image scaling inside desktop frames */
+      .portal-preview-content {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        background: #0f172a;
+      }
+
+      .portal-preview-frame.organizer .portal-preview-content {
+        aspect-ratio: 1350 / 674;
+      }
+
+      .portal-preview-frame.admin .portal-preview-content {
+        aspect-ratio: 1350 / 862;
+      }
+
+      .portal-preview-frame.guest .portal-preview-content {
+        aspect-ratio: 16 / 9;
+        background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+      }
+
+      .portal-preview-frame.staff .portal-preview-content {
+        aspect-ratio: 16 / 9;
+        background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
       }
 
       .portal-preview-image {
-        flex: 0 0 560px;
-        width: 560px;
-        height: 280px;
-        object-fit: contain;
-        border-radius: var(--radius-md);
-        transition: transform 0.2s var(--ease-spring);
+        width: 100%;
+        height: 100%;
+        display: block;
+        transition: transform 0.35s var(--ease-spring);
       }
 
-      @media (max-width: 600px) {
-        .portal-preview-image {
-          border-radius: var(--radius-sm);
-        }
+      .portal-preview-frame.organizer .portal-preview-image,
+      .portal-preview-frame.admin .portal-preview-image {
+        object-fit: cover;
+        object-position: top center;
+      }
+
+      .portal-preview-frame.guest .portal-preview-image,
+      .portal-preview-frame.staff .portal-preview-image {
+        object-fit: contain;
+        object-position: center;
+        padding: 12px;
       }
 
       .portal-preview-frame:hover .portal-preview-image {
-        transform: scale(1.01);
+        transform: scale(1.015);
       }
 
-      /* Guest Preview - Landing style */
-      .portal-preview-frame.guest .portal-preview-hero {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        padding: 24px 16px;
-        gap: 12px;
-      }
+      @media (max-width: 900px) {
+        .portal-detail-preview {
+          padding: 14px 10px;
+        }
 
-      .portal-preview-hero-icon {
-        width: 64px;
-        height: 64px;
-        border-radius: 12px;
-        background: linear-gradient(
-          135deg,
-          var(--secondary-subtle) 0%,
-          var(--primary-subtle) 100%
-        );
-      }
-
-      .portal-preview-hero-text {
-        height: 16px;
-        width: 60%;
-        background: var(--border);
-        border-radius: 4px;
-      }
-
-      .portal-preview-hero-btn {
-        height: 36px;
-        width: 120px;
-        border-radius: 8px;
-        background: var(--secondary);
-      }
-
-      .portal-preview-cards {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
+        .portal-preview-frame {
+          max-width: 100%;
+        }
       }
 
       @media (max-width: 600px) {
-        .portal-preview-cards {
-          grid-template-columns: 1fr;
+        .portal-detail-preview {
+          padding: 10px 8px;
+          border-radius: var(--radius-md);
+        }
+
+        .portal-frame-browser-bar {
+          height: 28px;
+          padding: 0 10px;
+          gap: 8px;
+        }
+
+        .browser-dot {
+          width: 8px;
+          height: 8px;
+        }
+
+        .browser-url {
+          font-size: 9.5px;
+          padding: 1px 8px;
+          max-width: 180px;
+        }
+
+        .portal-preview-frame.guest .portal-preview-image,
+        .portal-preview-frame.staff .portal-preview-image {
+          padding: 6px;
+        }
+      }
+
+      @media (max-width: 360px) {
+        .portal-detail-preview {
+          padding: 8px 6px;
         }
       }
 
@@ -1538,20 +1613,6 @@
           font-size: 13px;
         }
 
-        .portal-preview-frame {
-          min-height: 200px;
-          max-height: 240px;
-        }
-
-        .portal-preview-content {
-          padding: 10px;
-          gap: 8px;
-        }
-
-        .portal-preview-image {
-          border-radius: var(--radius-sm);
-        }
-
         .portal-detail-cta {
           gap: 8px;
         }
@@ -1561,18 +1622,6 @@
           font-size: 13px;
           min-height: 44px;
         }
-      }
-
-      /* Staff Preview - Scanner style */
-      .portal-preview-frame.staff .portal-preview-content {
-        align-items: center;
-        justify-content: center;
-      }
-
-      /* Admin Preview - Dashboard style */
-      .portal-preview-frame.admin .portal-preview-content {
-        align-items: center;
-        justify-content: center;
       }
 
       .portal-detail-cta {
@@ -3153,6 +3202,14 @@
               </div>
               <div class="portal-detail-preview">
                 <div class="portal-preview-frame organizer">
+                  <div class="portal-frame-browser-bar" aria-hidden="true">
+                    <div class="browser-dots">
+                      <span class="browser-dot close"></span>
+                      <span class="browser-dot minimize"></span>
+                      <span class="browser-dot maximize"></span>
+                    </div>
+                    <div class="browser-url">eirmis.app/organizer/dashboard</div>
+                  </div>
                   <div class="portal-preview-content">
                     <img
                       src="../assets/organizer-portal.png"
@@ -3231,6 +3288,14 @@
               </div>
               <div class="portal-detail-preview">
                 <div class="portal-preview-frame guest">
+                  <div class="portal-frame-browser-bar" aria-hidden="true">
+                    <div class="browser-dots">
+                      <span class="browser-dot close"></span>
+                      <span class="browser-dot minimize"></span>
+                      <span class="browser-dot maximize"></span>
+                    </div>
+                    <div class="browser-url">eirmis.app/guest/rsvp-pass</div>
+                  </div>
                   <div class="portal-preview-content">
                     <img
                       src="../assets/guest-portal.png"
@@ -3313,6 +3378,14 @@
               </div>
               <div class="portal-detail-preview">
                 <div class="portal-preview-frame staff">
+                  <div class="portal-frame-browser-bar" aria-hidden="true">
+                    <div class="browser-dots">
+                      <span class="browser-dot close"></span>
+                      <span class="browser-dot minimize"></span>
+                      <span class="browser-dot maximize"></span>
+                    </div>
+                    <div class="browser-url">eirmis.app/staff/scanner</div>
+                  </div>
                   <div class="portal-preview-content">
                     <img
                       src="../assets/scanner-portal.png"
@@ -3393,6 +3466,14 @@
               </div>
               <div class="portal-detail-preview">
                 <div class="portal-preview-frame admin">
+                  <div class="portal-frame-browser-bar" aria-hidden="true">
+                    <div class="browser-dots">
+                      <span class="browser-dot close"></span>
+                      <span class="browser-dot minimize"></span>
+                      <span class="browser-dot maximize"></span>
+                    </div>
+                    <div class="browser-url">eirmis.app/admin/trust-gate</div>
+                  </div>
                   <div class="portal-preview-content">
                     <img
                       src="../assets/admin-portal.png"
