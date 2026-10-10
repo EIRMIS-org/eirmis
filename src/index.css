@@ -2,6 +2,8 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/inter";
+@import "@fontsource-variable/hanken-grotesk";
+@import "@fontsource-variable/plus-jakarta-sans";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -118,10 +120,11 @@
 }
 
 #root {
-  width: 1126px;
+  width: 100%;
+  max-width: 1280px;
   max-width: 100%;
   margin: 0 auto;
-  text-align: center;
+  text-align: left;
   border-inline: 1px solid var(--border);
   min-height: 100svh;
   display: flex;
@@ -182,7 +185,7 @@ code {
 }
 
 @theme inline {
-  --font-heading: var(--font-sans);
+  --font-heading: 'Hanken Grotesk Variable', sans-serif;
   --font-sans: 'Inter Variable', sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
