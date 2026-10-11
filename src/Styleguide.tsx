@@ -130,6 +130,7 @@ const sections = [
   ['cards', 'Card taxonomy'],
   ['tables', 'Tables & lists'],
   ['layout', 'Layout containers'],
+  ['global-chrome', 'Global chrome'],
   ['primitives', 'Shared primitives'],
   ['navigation', 'Navigation & feedback'],
   ['states', 'Loading & states'],
@@ -1470,7 +1471,202 @@ export default function Styleguide() {
               </div>
             </Section>
 
-            {/* 11. Shared primitives */}
+            {/* 11. Global Chrome */}
+            <Section
+              id="global-chrome"
+              title="Global chrome"
+              description="Cross-portal navigation bar, mobile drawer, boot overlay, and session management — shared runtime from eirmis.js."
+            >
+              <div className="space-y-8">
+                {/* Global Nav Bar */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Global navigation bar
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Glassmorphic sticky header with brand, portal links, and session pill. Responsive: links collapse to hamburger + drawer below 768px.
+                    </p>
+                  </div>
+                  <div className="relative">
+                    <nav className="eirmis-global-nav" style={{ position: 'relative', top: 0, zIndex: 100 }}>
+                      <div className="eirmis-global-nav-inner">
+                        <a className="eirmis-nav-brand" href="javascript:void(0)">
+                          <span className="eirmis-nav-logo">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                              <rect x="3" y="4" width="18" height="18" rx="2" />
+                              <line x1="16" y1="2" x2="16" y2="6" />
+                              <line x1="8" y1="2" x2="8" y2="6" />
+                              <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                          </span>
+                          <span className="eirmis-nav-brand-name">EIRMIS</span>
+                          <span className="eirmis-nav-pill-badge">PRODUCTION PREVIEW</span>
+                        </a>
+                        <div className="eirmis-nav-links">
+                          <a className="eirmis-nav-link active" href="javascript:void(0)">Public Hub</a>
+                          <a className="eirmis-nav-link" href="javascript:void(0)">Organizer Portal</a>
+                          <a className="eirmis-nav-link" href="javascript:void(0)">Admin Portal</a>
+                          <a className="eirmis-nav-link" href="javascript:void(0)">Guest Portal</a>
+                          <a className="eirmis-nav-link" href="javascript:void(0)">Staff Scanner</a>
+                        </div>
+                        <div className="eirmis-nav-session" id="styleguide-nav-session"></div>
+                      </div>
+                    </nav>
+                  </div>
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    Session pill renders signed-in state (avatar, name, role badge, sign out) or "Sign in" CTA when signed out.
+                  </p>
+                </div>
+
+                {/* Mobile Drawer */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Mobile drawer
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Slide-in panel from left with backdrop blur. Triggered by hamburger in global nav at mobile breakpoint.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const drawer = document.getElementById('styleguide-drawer');
+                        const backdrop = document.getElementById('styleguide-drawer-backdrop');
+                        if (drawer) drawer.classList.add('open');
+                        if (backdrop) backdrop.classList.add('open');
+                        document.body.style.overflow = 'hidden';
+                      }}
+                    >
+                      Open Drawer
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        const drawer = document.getElementById('styleguide-drawer');
+                        const backdrop = document.getElementById('styleguide-drawer-backdrop');
+                        if (drawer) drawer.classList.remove('open');
+                        if (backdrop) backdrop.classList.remove('open');
+                        document.body.style.overflow = '';
+                      }}
+                    >
+                      Close Drawer
+                    </Button>
+                  </div>
+                  <div className="mt-4">
+                    <div className="eirmis-drawer-backdrop" id="styleguide-drawer-backdrop" onClick={() => {
+                      const drawer = document.getElementById('styleguide-drawer');
+                      const backdrop = document.getElementById('styleguide-drawer-backdrop');
+                      if (drawer) drawer.classList.remove('open');
+                      if (backdrop) backdrop.classList.remove('open');
+                      document.body.style.overflow = '';
+                    }} />
+                    <aside className="eirmis-mobile-drawer" id="styleguide-drawer">
+                      <div className="eirmis-drawer-header">
+                        <div style={{ fontWeight: 700, fontFamily: 'var(--font-heading)', fontSize: '16px' }}>Menu</div>
+                        <button className="eirmis-hamburger" style={{ display: 'flex' }} onClick={() => {
+                          const drawer = document.getElementById('styleguide-drawer');
+                          const backdrop = document.getElementById('styleguide-drawer-backdrop');
+                          if (drawer) drawer.classList.remove('open');
+                          if (backdrop) backdrop.classList.remove('open');
+                          document.body.style.overflow = '';
+                        }}>
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                          </svg>
+                        </button>
+                      </div>
+                      <div id="styleguide-drawer-content" style={{ padding: '16px' }}>
+                        <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, marginBottom: '8px', padding: '0 12px', color: 'var(--text-muted)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                          Portals
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <a href="#" className="nav-btn eirmis-nav-btn active" style={{ padding: '12px 16px', textDecoration: 'none' }}>Public Hub</a>
+                          <a href="#" className="nav-btn eirmis-nav-btn" style={{ padding: '12px 16px', textDecoration: 'none' }}>Organizer Portal</a>
+                          <a href="#" className="nav-btn eirmis-nav-btn" style={{ padding: '12px 16px', textDecoration: 'none' }}>Admin Portal</a>
+                          <a href="#" className="nav-btn eirmis-nav-btn" style={{ padding: '12px 16px', textDecoration: 'none' }}>Guest Portal</a>
+                          <a href="#" className="nav-btn eirmis-nav-btn" style={{ padding: '12px 16px', textDecoration: 'none' }}>Staff Scanner</a>
+                        </div>
+                      </div>
+                    </aside>
+                  </div>
+                </div>
+
+                {/* Boot Overlay */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Boot loading overlay
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Full-screen centered spinner with animated progress bar. Auto-dismisses after ~350ms. Called via EIRMIS.init().
+                    </p>
+                  </div>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => {
+                      const overlay = document.createElement('div');
+                      overlay.id = 'styleguide-boot-overlay';
+                      overlay.style.cssText = 'position:fixed;inset:0;z-index:5000;background:#F8FAFC;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity 0.25s ease;';
+                      overlay.innerHTML = '<div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#4F46E5,#312E81);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 6px 20px rgba(79,70,229,0.35);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div><div style="font-family:Inter,system-ui,sans-serif;font-size:13.5px;color:#0F172A;font-weight:700;">EIRMIS Architecture</div><div style="width:140px;height:4px;background:#E2E8F0;border-radius:999px;overflow:hidden;"><div style="height:100%;width:45%;background:#4F46E5;border-radius:999px;animation:eirmisBootBar 0.85s ease-in-out infinite;"></div></div>';
+                      document.body.appendChild(overlay);
+                      const style = document.createElement('style');
+                      style.textContent = '@keyframes eirmisBootBar{0%{transform:translateX(-100%)}100%{transform:translateX(320%)}}';
+                      document.head.appendChild(style);
+                      setTimeout(() => {
+                        overlay.style.opacity = '0';
+                        setTimeout(() => overlay.remove(), 250);
+                      }, 350);
+                    }}
+                  >
+                    Show Boot Overlay
+                  </Button>
+                </div>
+
+                {/* Session Pill & Role Badge */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Session pill & role badge
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Avatar with initials, name, role badge, sign-out button. Variants for all 4 roles + signed-out state.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                    {['Organizer', 'Administrator', 'Guest', 'Check-in Staff'].map((role) => (
+                      <div key={role} className="p-4 border border-border rounded-xl bg-white">
+                        <div className="eirmis-session-pill" style={{ display: 'flex', alignItems: 'center', gap: '9px', padding: '4px 12px 4px 5px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-pill)', fontSize: '12px', fontWeight: 600, color: 'var(--text-main)', boxShadow: 'var(--shadow-xs)', width: 'fit-content' }}>
+                          <span className="eirmis-session-avatar" style={{ width: '26px', height: '26px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary) 0%, #312E81 100%)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10.5px', fontWeight: 700, boxShadow: '0 1px 3px rgba(79, 70, 229, 0.25)' }}>
+                            {role.split(' ').map(w => w[0]).join('').slice(0, 2)}
+                          </span>
+                          <span style={{ maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {role === 'Check-in Staff' ? 'Marcus Staff' : role === 'Administrator' ? 'Root Admin' : role === 'Guest' ? 'Elena Rostova' : 'Sarah Jenkins'}
+                          </span>
+                          <span className="eirmis-session-role" style={{ fontSize: '10.5px', color: 'var(--primary)', fontWeight: 700, background: 'var(--primary-subtle)', padding: '2px 7px', borderRadius: 'var(--radius-pill)' }}>
+                            {role}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="p-4 border border-border rounded-xl bg-white">
+                      <a className="eirmis-btn eirmis-btn-primary" style={{ padding: '6px 14px', fontSize: '12px' }} href="#">
+                        Sign in
+                      </a>
+                      <p className="mt-2 text-xs text-muted-foreground">Signed-out CTA</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Section>
+
+            {/* 12. Shared primitives */}
             <Section
               id="primitives"
               title="Shared primitives"
