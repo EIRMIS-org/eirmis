@@ -120,6 +120,7 @@ const colors = [
 const sections = [
   ['typography', 'Typography'],
   ['colors', 'Color palette'],
+  ['design-tokens', 'Design tokens'],
   ['elevation', 'Elevation & radius'],
   ['icons', 'Iconography'],
   ['buttons', 'Buttons'],
@@ -202,6 +203,94 @@ const mockupIcons = [
     usage: 'Dropdown Menu',
   },
 ]
+
+// ============================================================================
+// Design Token Constants (matching mockup-plan/assets/eirmis.css)
+// ============================================================================
+
+const extendedColors = [
+  // Brand Primary (Indigo)
+  ['Primary', '--primary', '#4F46E5', 'Main brand color, primary actions'],
+  ['Primary Hover', '--primary-hover', '#4338CA', 'Hover state for primary actions'],
+  ['Primary Subtle', '--primary-subtle', '#EEF2FF', 'Subtle backgrounds, badges'],
+  ['Primary Border', '--primary-border', '#C7D2FE', 'Borders for primary elements'],
+  ['Primary Glow', '--primary-glow', 'rgba(79, 70, 229, 0.18)', 'Glow/shadow for primary'],
+
+  // Secondary (Teal)
+  ['Secondary', '--secondary', '#0D9488', 'Invitation and RSVP accents'],
+  ['Secondary Hover', '--secondary-hover', '#0F766E', 'Hover state for secondary actions'],
+  ['Secondary Subtle', '--secondary-subtle', '#F0FDFA', 'Subtle backgrounds for teal'],
+  ['Secondary Border', '--secondary-border', '#99F6E4', 'Borders for teal elements'],
+
+  // Dark Neutrals
+  ['Dark', '--dark', '#0F172A', 'Navigation and high contrast surfaces'],
+  ['Dark Surface', '--dark-surface', '#1E293B', 'Dark mode surfaces'],
+  ['Dark Border', '--dark-border', '#334155', 'Borders in dark mode'],
+
+  // Cool Neutrals (Slate scale)
+  ['Background', '--bg', '#F8FAFC', 'Level 0 application background'],
+  ['Surface', '--surface', '#FFFFFF', 'Cards and panels'],
+  ['Surface Glass', '--surface-glass', 'rgba(255, 255, 255, 0.92)', 'Glassmorphism nav background'],
+  ['Border', '--border', '#E2E8F0', 'Dividers and control borders'],
+  ['Border Subtle', '--border-subtle', '#F1F5F9', 'Subtle dividers'],
+  ['Border Hover', '--border-hover', '#CBD5E1', 'Hover state borders'],
+  ['Text Main', '--text-main', '#0F172A', 'Primary text content'],
+  ['Text Muted', '--text-muted', '#64748B', 'Supporting labels and descriptions'],
+  ['Text Subtle', '--text-subtle', '#94A3B8', 'Placeholder and disabled text'],
+
+  // Semantic Status Feedback (WCAG 2.1 AA Compliant)
+  ['Success', '--success', '#15803D', 'Confirmed and approved status'],
+  ['Success BG', '--success-bg', '#DCFCE7', 'Success background'],
+  ['Success Border', '--success-border', '#86EFAC', 'Success borders'],
+  ['Warning', '--warning', '#B45309', 'Pending and tentative status'],
+  ['Warning BG', '--warning-bg', '#FEF3C7', 'Warning background'],
+  ['Warning Border', '--warning-border', '#FDE68A', 'Warning borders'],
+  ['Error', '--error', '#B91C1C', 'Declined and invalid status'],
+  ['Error BG', '--error-bg', '#FEE2E2', 'Error background'],
+  ['Error Border', '--error-border', '#FECACA', 'Error borders'],
+  ['Info', '--info', '#4F46E5', 'Informational status'],
+  ['Info BG', '--info-bg', '#EEF2FF', 'Info background'],
+  ['Info Border', '--info-border', '#C7D2FE', 'Info borders'],
+] as const
+
+const radiiTokens = [
+  ['XS', '--radius-xs', '4px', 'Small controls, chips, badges'],
+  ['SM', '--radius-sm', '8px', 'Buttons, inputs, form controls'],
+  ['MD', '--radius-md', '12px', 'Cards, modals, dropdowns'],
+  ['LG', '--radius-lg', '18px', 'Feature cards, larger containers'],
+  ['XL', '--radius-xl', '24px', 'Hero sections, major containers'],
+  ['Pill', '--radius-pill', '9999px', 'Pills, badges, avatar rings'],
+] as const
+
+const shadowTokens = [
+  ['XS', '--shadow-xs', '0 1px 2px 0 rgba(15, 23, 42, 0.04)', 'Cards, subtle elevation'],
+  ['SM', '--shadow-sm', '0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04)', 'Hover states, raised elements'],
+  ['MD', '--shadow-md', '0 4px 16px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.03)', 'Popovers, dropdowns, tooltips'],
+  ['LG', '--shadow-lg', '0 16px 32px -4px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.04)', 'Modals, dialogs, drawers'],
+  ['Float', '--shadow-float', '0 20px 40px -8px rgba(15, 23, 42, 0.18), 0 6px 14px -2px rgba(15, 23, 42, 0.06)', 'Toasts, floating overlays'],
+] as const
+
+const typographyTokens = [
+  ['Font Heading', '--font-heading', "'Hanken Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif", 'Headings, titles, brand text'],
+  ['Font Body', '--font-body', "'Inter', system-ui, -apple-system, sans-serif", 'Body text, UI labels, forms'],
+] as const
+
+const spacingTokens = [
+  ['Space 1', '--space-1', '4px', 'Tight spacing, icon gaps'],
+  ['Space 2', '--space-2', '8px', 'Base unit, control padding'],
+  ['Space 3', '--space-3', '12px', 'Component internal spacing'],
+  ['Space 4', '--space-4', '16px', 'Standard container padding'],
+  ['Space 5', '--space-5', '20px', 'Section spacing'],
+  ['Space 6', '--space-6', '24px', 'Major section gaps'],
+  ['Space 8', '--space-8', '32px', 'Page-level spacing'],
+  ['Space 10', '--space-10', '40px', 'Large layout gaps'],
+  ['Space 12', '--space-12', '48px', 'Hero section spacing'],
+] as const
+
+const motionTokens = [
+  ['Ease Spring', '--ease-spring', 'cubic-bezier(0.16, 1, 0.3, 1)', 'Default easing for UI animations'],
+  ['Ease In Out', '--ease-in-out', 'cubic-bezier(0.4, 0, 0.2, 1)', 'Material-style standard easing'],
+] as const
 
 function Section({
   id,
@@ -308,11 +397,10 @@ export default function Styleguide() {
                   <a
                     key={id}
                     href={`#${id}`}
-                    className={`block rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
-                      activeSection === id
-                        ? 'bg-indigo-50 font-semibold text-indigo-700'
-                        : 'text-muted-foreground hover:bg-slate-100 hover:text-foreground'
-                    }`}
+                    className={`block rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${activeSection === id
+                      ? 'bg-indigo-50 font-semibold text-indigo-700'
+                      : 'text-muted-foreground hover:bg-slate-100 hover:text-foreground'
+                      }`}
                   >
                     {label}
                   </a>
@@ -409,6 +497,116 @@ export default function Styleguide() {
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+            </Section>
+
+            {/* 2b. Design Tokens (Extended) */}
+            <Section
+              id="design-tokens"
+              title="Design tokens"
+              description="Complete EIRMIS design token reference matching assets/eirmis.css. All values are CSS custom properties for production use."
+            >
+              {/* Extended Color Palette */}
+              <div className="space-y-8">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-indigo-600">Extended color palette</h3>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                  {extendedColors.map(([name, token, hex, usage]) => (
+                    <Card key={name} className="overflow-hidden border-border bg-white shadow-xs">
+                      <div className="h-16 w-full border-b border-border" style={{ backgroundColor: hex }} />
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <strong className="block text-sm font-semibold text-foreground">{name}</strong>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard?.writeText(token);
+                              toast.success(`Copied ${token}`);
+                            }}
+                            className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 hover:bg-slate-200 font-mono"
+                            title="Copy token"
+                          >
+                            Copy
+                          </button>
+                        </div>
+                        <code className="block text-xs font-mono text-muted-foreground">{token}</code>
+                        <code className="block text-xs font-mono text-muted-foreground">{hex}</code>
+                        <p className="mt-1 text-xs text-muted-foreground leading-tight">{usage}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Radii Scale */}
+                <h3 className="text-sm font-bold uppercase tracking-wider text-indigo-600">Border radius scale</h3>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
+                  {radiiTokens.map(([name, token, value, usage]) => (
+                    <Card key={name} className="border-border bg-white p-4 shadow-xs text-center">
+                      <div className="mb-2">
+                        <div
+                          className="mx-auto h-12 w-12 rounded-lg border border-border bg-slate-50"
+                          style={{ borderRadius: value }}
+                        />
+                      </div>
+                      <strong className="block text-sm font-semibold text-foreground">{name}</strong>
+                      <code className="block text-xs font-mono text-muted-foreground">{token}</code>
+                      <code className="block text-xs font-mono text-muted-foreground">{value}</code>
+                      <p className="mt-1 text-xs text-muted-foreground">{usage}</p>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Shadow Scale */}
+                <h3 className="text-sm font-bold uppercase tracking-wider text-indigo-600">Elevation & shadow scale</h3>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-5">
+                  {shadowTokens.map(([name, token, value, usage]) => (
+                    <Card key={name} className="border-border bg-white p-4 shadow-xs">
+                      <div className="mb-3 h-16 w-full rounded-lg border border-border bg-white" style={{ boxShadow: value }} />
+                      <strong className="block text-sm font-semibold text-foreground">{name}</strong>
+                      <code className="block text-xs font-mono text-muted-foreground">{token}</code>
+                      <p className="mt-1 text-xs text-muted-foreground">{usage}</p>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Typography Tokens */}
+                <h3 className="text-sm font-bold uppercase tracking-wider text-indigo-600">Typography tokens</h3>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  {typographyTokens.map(([name, token, value, usage]) => (
+                    <Card key={name} className="border-border bg-white p-4 shadow-xs">
+                      <strong className="block text-sm font-semibold text-foreground">{name}</strong>
+                      <code className="block text-xs font-mono text-muted-foreground">{token}</code>
+                      <code className="block text-xs font-mono text-muted-foreground">{value}</code>
+                      <p className="mt-1 text-xs text-muted-foreground">{usage}</p>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Spacing Scale */}
+                <h3 className="text-sm font-bold uppercase tracking-wider text-indigo-600">Spacing scale</h3>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-6">
+                  {spacingTokens.map(([name, token, value, usage]) => (
+                    <Card key={name} className="border-border bg-white p-4 shadow-xs text-center">
+                      <div className="mb-2 h-8 w-full bg-slate-100 rounded" style={{ height: value }} />
+                      <strong className="block text-sm font-semibold text-foreground">{name}</strong>
+                      <code className="block text-xs font-mono text-muted-foreground">{token}</code>
+                      <code className="block text-xs font-mono text-muted-foreground">{value}</code>
+                      <p className="mt-1 text-xs text-muted-foreground">{usage}</p>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Motion Tokens */}
+                <h3 className="text-sm font-bold uppercase tracking-wider text-indigo-600">Motion & easing tokens</h3>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {motionTokens.map(([name, token, value, usage]) => (
+                    <Card key={name} className="border-border bg-white p-4 shadow-xs">
+                      <strong className="block text-sm font-semibold text-foreground">{name}</strong>
+                      <code className="block text-xs font-mono text-muted-foreground">{token}</code>
+                      <code className="block text-xs font-mono text-muted-foreground">{value}</code>
+                      <p className="mt-1 text-xs text-muted-foreground">{usage}</p>
+                    </Card>
+                  ))}
+                </div>
               </div>
             </Section>
 
