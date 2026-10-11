@@ -131,6 +131,7 @@ const sections = [
   ['tables', 'Tables & lists'],
   ['layout', 'Layout containers'],
   ['global-chrome', 'Global chrome'],
+  ['layout-primitives', 'Layout primitives'],
   ['primitives', 'Shared primitives'],
   ['navigation', 'Navigation & feedback'],
   ['states', 'Loading & states'],
@@ -1639,24 +1640,24 @@ export default function Styleguide() {
                       Avatar with initials, name, role badge, sign-out button. Variants for all 4 roles + signed-out state.
                     </p>
                   </div>
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                  <div className="space-y-4">
                     {['Organizer', 'Administrator', 'Guest', 'Check-in Staff'].map((role) => (
                       <div key={role} className="p-4 border border-border rounded-xl bg-white">
                         <div className="eirmis-session-pill" style={{ display: 'flex', alignItems: 'center', gap: '9px', padding: '4px 12px 4px 5px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-pill)', fontSize: '12px', fontWeight: 600, color: 'var(--text-main)', boxShadow: 'var(--shadow-xs)', width: 'fit-content' }}>
-                          <span className="eirmis-session-avatar" style={{ width: '26px', height: '26px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary) 0%, #312E81 100%)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10.5px', fontWeight: 700, boxShadow: '0 1px 3px rgba(79, 70, 229, 0.25)' }}>
+                          <span className="eirmis-session-avatar" style={{ width: '26px', height: '26px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary) 0%, #312E81 100%)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10.5px', fontWeight: 700, boxShadow: '0 1px 3px rgba(79, 70, 229, 0.25)', flexShrink: 0 }}>
                             {role.split(' ').map(w => w[0]).join('').slice(0, 2)}
                           </span>
-                          <span style={{ maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <span style={{ maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {role === 'Check-in Staff' ? 'Marcus Staff' : role === 'Administrator' ? 'Root Admin' : role === 'Guest' ? 'Elena Rostova' : 'Sarah Jenkins'}
                           </span>
-                          <span className="eirmis-session-role" style={{ fontSize: '10.5px', color: 'var(--primary)', fontWeight: 700, background: 'var(--primary-subtle)', padding: '2px 7px', borderRadius: 'var(--radius-pill)' }}>
+                          <span className="eirmis-session-role" style={{ fontSize: '10.5px', color: 'var(--primary)', fontWeight: 700, background: 'var(--primary-subtle)', padding: '2px 7px', borderRadius: 'var(--radius-pill)', flexShrink: 0 }}>
                             {role}
                           </span>
                         </div>
                       </div>
                     ))}
                     <div className="p-4 border border-border rounded-xl bg-white">
-                      <a className="eirmis-btn eirmis-btn-primary" style={{ padding: '6px 14px', fontSize: '12px' }} href="#">
+                      <a className="eirmis-btn eirmis-btn-primary" style={{ padding: '6px 14px', fontSize: '12px' }} href="javascript:void(0)">
                         Sign in
                       </a>
                       <p className="mt-2 text-xs text-muted-foreground">Signed-out CTA</p>
@@ -1666,7 +1667,379 @@ export default function Styleguide() {
               </div>
             </Section>
 
-            {/* 12. Shared primitives */}
+            {/* 12. Layout Primitives */}
+            <Section
+              id="layout-primitives"
+              title="Layout primitives"
+              description="Collapsibles, sidebars, topbars, breadcrumbs, and event grid — structural building blocks used across portals."
+            >
+              <div className="space-y-8">
+                {/* Collapsible Sections */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Collapsible sections
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Animated chevron, open state styling, content fade-in. From eirmis.css details.eirmis-collapse.
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    <details className="eirmis-collapse" open>
+                      <summary className="eirmis-collapse-header">
+                        Event details & venue
+                      </summary>
+                      <div className="eirmis-collapse-content">
+                        <p className="text-sm text-muted-foreground">
+                          Marina Bay Sands Grand Ballroom, Singapore · Nov 18, 2026 · 6:30 PM SGT
+                        </p>
+                        <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                          </svg>
+                          <span>100 Raffles Blvd, Singapore 039593</span>
+                        </div>
+                      </div>
+                    </details>
+                    <details className="eirmis-collapse">
+                      <summary className="eirmis-collapse-header">
+                        Registration settings
+                      </summary>
+                      <div className="eirmis-collapse-content">
+                        <p className="text-sm text-muted-foreground">
+                          Configure RSVP deadline, party size limits, and approval workflow.
+                        </p>
+                        <div className="mt-3 flex items-center gap-2">
+                          <label className="toggle-switch">
+                            <input type="checkbox" defaultChecked />
+                            <span className="toggle-slider"></span>
+                          </label>
+                          <span className="text-sm text-muted-foreground">Require approval</span>
+                        </div>
+                      </div>
+                    </details>
+                    <details className="eirmis-collapse">
+                      <summary className="eirmis-collapse-header">
+                        Email notifications
+                      </summary>
+                      <div className="eirmis-collapse-content">
+                        <p className="text-sm text-muted-foreground">
+                          Customize invitation, reminder, and confirmation email templates.
+                        </p>
+                      </div>
+                    </details>
+                  </div>
+                </div>
+
+                {/* Sidebar System */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Sidebar system
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Primary sidebar (250px → 72px icon rail) with sub-sidebar (220px, event-scoped). Collapse behavior with badge positioning.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                    {/* Primary Sidebar - Expanded */}
+                    <div className="rounded-xl border border-border bg-slate-50/50 p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Expanded (250px)</p>
+                      <div className="space-y-1.5 max-w-xs">
+                        <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-white border border-border text-left hover:bg-slate-50" title="Dashboard">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600 flex-shrink-0">
+                            <rect x="3" y="4" width="18" height="18" rx="2" />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                          </svg>
+                          <span className="font-medium text-sm">Dashboard</span>
+                        </button>
+                        <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-white border border-border text-left hover:bg-slate-50" title="Events">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500 flex-shrink-0">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                          </svg>
+                          <span className="text-sm flex-1">Events</span>
+                          <span className="px-2 py-0.5 text-[10px] font-bold bg-indigo-100 text-indigo-700 rounded-full">3</span>
+                        </button>
+                        <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-white border border-border text-left hover:bg-slate-50" title="Guests">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500 flex-shrink-0">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                          </svg>
+                          <span className="text-sm flex-1">Guests</span>
+                          <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-700 rounded-full">12</span>
+                        </button>
+                        <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-white border border-border text-left hover:bg-slate-50" title="Approvals">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500 flex-shrink-0">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                          </svg>
+                          <span className="text-sm flex-1">Approvals</span>
+                          <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-700 rounded-full">5</span>
+                        </button>
+                        <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-white border border-border text-left hover:bg-slate-50" title="Attendance">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500 flex-shrink-0">
+                            <rect x="2" y="3" width="20" height="14" rx="2" />
+                            <path d="M8 21h8" />
+                            <path d="M12 17v4" />
+                          </svg>
+                          <span className="text-sm">Attendance</span>
+                        </button>
+                        <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-white border border-border text-left hover:bg-slate-50" title="Staff">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500 flex-shrink-0">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                          </svg>
+                          <span className="text-sm">Staff</span>
+                        </button>
+                      </div>
+                    </div>
+                    {/* Primary Sidebar - Collapsed */}
+                    <div className="rounded-xl border border-border bg-slate-50/50 p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 text-center">Collapsed (72px)</p>
+                      <div className="flex flex-col items-center gap-2">
+                        <button className="w-12 h-12 p-2 rounded-lg bg-white border border-border flex flex-col items-center gap-1 relative" title="Dashboard">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600">
+                            <rect x="3" y="4" width="18" height="18" rx="2" />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                          </svg>
+                        </button>
+                        <button className="w-12 h-12 p-2 rounded-lg bg-white border border-border flex flex-col items-center gap-1 relative" title="Events">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                          </svg>
+                          <span className="absolute -top-1 -right-1 w-5 h-5 bg-indigo-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">3</span>
+                        </button>
+                        <button className="w-12 h-12 p-2 rounded-lg bg-white border border-border flex flex-col items-center gap-1 relative" title="Guests">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                          </svg>
+                          <span className="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">12</span>
+                        </button>
+                        <button className="w-12 h-12 p-2 rounded-lg bg-white border border-border flex flex-col items-center gap-1 relative" title="Approvals">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500">
+                            <path d="M9 12l2 2 4-4" />
+                            <circle cx="12" cy="12" r="10" />
+                          </svg>
+                          <span className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">5</span>
+                        </button>
+                        <button className="w-12 h-12 p-2 rounded-lg bg-white border border-border flex flex-col items-center gap-1" title="Attendance">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500">
+                            <rect x="2" y="3" width="20" height="14" rx="2" />
+                            <path d="M8 21h8" />
+                            <path d="M12 17v4" />
+                          </svg>
+                        </button>
+                        <button className="w-12 h-12 p-2 rounded-lg bg-white border border-border flex flex-col items-center gap-1" title="Staff">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    {/* Sub-sidebar */}
+                    <div className="rounded-xl border border-border bg-slate-50/50 p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Sub-sidebar (220px)</p>
+                      <div className="space-y-1 max-w-xs">
+                        <button className="w-full text-left p-2 rounded-lg bg-indigo-50 text-indigo-700 text-sm font-medium flex items-center gap-2">Overview</button>
+                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Guests</button>
+                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Approvals</button>
+                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Attendance</button>
+                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Staff</button>
+                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Reminders</button>
+                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Design</button>
+                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Check-in</button>
+                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Waitlist</button>
+                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Email log</button>
+                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Audit log</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Glassmorphic Topbar */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Glassmorphic topbar
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Backdrop-filter blur, search box with KBD hint, icon buttons, user pill. Responsive: search flexes, user pill condenses to avatar-only.
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-border bg-white/80 backdrop-blur-md p-4" style={{ background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(16px) saturate(180%)' }}>
+                    <div className="flex items-center justify-between gap-4 flex-wrap">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <button className="eirmis-hamburger p-2 rounded-lg hover:bg-slate-100" style={{ display: 'flex' }}>
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="3" y1="12" x2="21" y2="12" />
+                            <line x1="3" y1="6" x2="21" y2="6" />
+                            <line x1="3" y1="18" x2="21" y2="18" />
+                          </svg>
+                        </button>
+                        <div className="flex-1 min-w-0 relative">
+                          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                          </svg>
+                          <input type="text" placeholder="Search events, guests..." className="w-full pl-10 pr-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+                          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono text-slate-400 bg-slate-100 rounded">
+                            <span>⌘</span><span>K</span>
+                          </kbd>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button className="p-2 rounded-lg hover:bg-slate-100" title="Help/Support">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                          </svg>
+                        </button>
+                        <button className="p-2 rounded-lg hover:bg-slate-100" title="Notifications">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                          </svg>
+                        </button>
+                        <div className="eirmis-session-pill" style={{ display: 'flex', alignItems: 'center', gap: '9px', padding: '4px 12px 4px 5px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-pill)', fontSize: '12px', fontWeight: 600, color: 'var(--text-main)', boxShadow: 'var(--shadow-xs)' }}>
+                          <span className="eirmis-session-avatar" style={{ width: '26px', height: '26px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary) 0%, #312E81 100%)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10.5px', fontWeight: 700, boxShadow: '0 1px 3px rgba(79, 70, 229, 0.25)' }}>
+                            SJ
+                          </span>
+                          <span style={{ maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            Sarah Jenkins
+                          </span>
+                          <span className="eirmis-session-role" style={{ fontSize: '10.5px', color: 'var(--primary)', fontWeight: 700, background: 'var(--primary-subtle)', padding: '2px 7px', borderRadius: 'var(--radius-pill)' }}>
+                            Organizer
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="mt-3 text-xs text-muted-foreground">Mobile: hamburger visible, search condenses, user pill → avatar only</p>
+                  </div>
+                </div>
+
+                {/* Breadcrumbs */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Breadcrumbs
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Separator, link hover, current page styling. Used in Organizer and Admin portals.
+                    </p>
+                  </div>
+                  <div className="space-y-4">
+                    <Breadcrumb>
+                      <BreadcrumbList>
+                        <BreadcrumbItem>
+                          <BreadcrumbLink href="#">Events</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                          <BreadcrumbLink href="#">Tech Forward Annual Gala 2026</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                          <BreadcrumbPage>Guests</BreadcrumbPage>
+                        </BreadcrumbItem>
+                      </BreadcrumbList>
+                    </Breadcrumb>
+                    <Breadcrumb>
+                      <BreadcrumbList>
+                        <BreadcrumbItem>
+                          <BreadcrumbLink href="#">Admin</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                          <BreadcrumbLink href="#">Organizers</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                          <BreadcrumbPage>Arthur Vance</BreadcrumbPage>
+                        </BreadcrumbItem>
+                      </BreadcrumbList>
+                    </Breadcrumb>
+                    <Breadcrumb>
+                      <BreadcrumbList>
+                        <BreadcrumbItem>
+                          <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                          <BreadcrumbPage>Overview</BreadcrumbPage>
+                        </BreadcrumbItem>
+                      </BreadcrumbList>
+                    </Breadcrumb>
+                  </div>
+                </div>
+
+                {/* Event Grid Cards */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Event grid cards
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      4/3/2/1 column responsive grid. Hover lift, consistent padding, icon + title + meta + actions.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {[
+                      { title: 'Tech Forward Annual Gala 2026', date: 'Nov 18, 2026', venue: 'Marina Bay Sands', status: 'published', rsvp: '112/150', icon: '🏢' },
+                      { title: 'Apex Healthcare Summit', date: 'Dec 02, 2026', venue: 'Raffles City', status: 'published', rsvp: '214/300', icon: '🏥' },
+                      { title: 'Global Leadership Forum', date: 'Jan 15, 2027', venue: 'Suntec Singapore', status: 'draft', rsvp: '0/500', icon: '🌐' },
+                      { title: 'University Faculty Mixer', date: 'Feb 10, 2027', venue: 'Campus Center', status: 'draft', rsvp: '0/80', icon: '🎓' },
+                    ].map((event, i) => (
+                      <div key={i} className="card group relative overflow-hidden border border-border bg-white rounded-2xl shadow-xs transition-all hover:shadow-md hover:-translate-y-1">
+                        <div className="p-4">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="text-3xl">{event.icon}</div>
+                            <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${event.status === 'published' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                              {event.status}
+                            </span>
+                          </div>
+                          <h3 className="mt-3 font-heading text-lg font-bold text-foreground line-clamp-1">{event.title}</h3>
+                          <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" />
+                                <line x1="16" y1="2" x2="16" y2="6" />
+                                <line x1="8" y1="2" x2="8" y2="6" />
+                                <line x1="3" y1="10" x2="21" y2="10" />
+                              </svg>
+                              <span>{event.date}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                <circle cx="12" cy="10" r="3" />
+                              </svg>
+                              <span>{event.venue}</span>
+                            </div>
+                          </div>
+                          <div className="mt-3 flex items-center justify-between text-xs">
+                            <span className="font-medium text-foreground">{event.rsvp}</span>
+                            <Button size="xs" variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                              View
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </Section>
+
+            {/* 13. Shared primitives */}
             <Section
               id="primitives"
               title="Shared primitives"
@@ -1902,6 +2275,6 @@ export default function Styleguide() {
           </main>
         </div>
       </div>
-    </TooltipProvider>
+    </TooltipProvider >
   )
 }
