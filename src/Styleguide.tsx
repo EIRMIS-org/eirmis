@@ -25,6 +25,27 @@ import {
 // Shadcn UI components
 import { Alert, AlertAction, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
+import {
+  SsoButton,
+  RsvpSelector,
+  type RsvpChoice,
+  WalletPass,
+  ToggleRow,
+  SettingsSection,
+  ScanResult,
+  type ScanStatus,
+  RouteSwitcher,
+  SolutionCard,
+  QuotaBar,
+  InsetGroupedList,
+  AttendeeItem,
+  WorkflowStep,
+  AccountCard,
+  AuditCallout,
+  ErrorPage,
+  NoticeBox,
+} from '@/components/eirmis'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -144,6 +165,7 @@ const sections = [
   ['feedback-states', 'Feedback & state primitives'],
   ['specialized', 'Specialized primitives'],
   ['responsive', 'Responsive patterns'],
+  ['portal-components', 'Portal components'],
   ['primitives', 'Shared primitives'],
   ['navigation', 'Navigation & feedback'],
   ['states', 'Loading & states'],
@@ -339,6 +361,27 @@ function Section({
   )
 }
 
+function DemoCard({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <div className={cn('rounded-2xl border border-border bg-white p-6 shadow-xs', className)}>
+      {children}
+    </div>
+  )
+}
+
+function SectionLabel({ label, description }: { label: string; description?: string }) {
+  return (
+    <div className="mb-4">
+      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+        {label}
+      </span>
+      {description && (
+        <p className="mt-1 text-xs text-muted-foreground">{description}</p>
+      )}
+    </div>
+  )
+}
+
 export default function Styleguide() {
   const [buttonVariant, setButtonVariant] = useState<ButtonVariant>('primary')
   const [buttonSize, setButtonSize] = useState<ButtonSize>('md')
@@ -414,6 +457,15 @@ export default function Styleguide() {
   // Task 8 interactive states
   const [showTouchRuler, setShowTouchRuler] = useState(false)
   const [responsiveTableView, setResponsiveTableView] = useState<'desktop' | 'mobile'>('desktop')
+
+  // Portal & composite components interactive states
+  const [demoRsvp, setDemoRsvp] = useState<RsvpChoice>('accept')
+  const [demoRoute, setDemoRoute] = useState('landing')
+  const [demoScanStatus, setDemoScanStatus] = useState<ScanStatus>('approved')
+  const [demoToggle1, setDemoToggle1] = useState(true)
+  const [demoToggle2, setDemoToggle2] = useState(false)
+  const [demoToggle3, setDemoToggle3] = useState(true)
+  const [demoWorkflowStep, setDemoWorkflowStep] = useState(2)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -4103,6 +4155,336 @@ export default function Styleguide() {
                     </table>
                   </div>
                 </div>
+              </div>
+            </Section>
+
+            {/* 18. Portal & composite components */}
+            <Section
+              id="portal-components"
+              title="Portal components"
+              description="Extracted domain-specific components shared across Landing, Login, Guest, Admin, and Check-in Staff portals."
+            >
+              <div className="space-y-8">
+                {/* 1. SSO Identity Provider Stack */}
+                <DemoCard>
+                  <SectionLabel
+                    label="SSO Identity Provider Stack (Landing & Login)"
+                    description="Institutional & enterprise authentication buttons with brand icons, status badges, and interactive feedback."
+                  />
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-w-3xl">
+                    <SsoButton provider="google" />
+                    <SsoButton provider="microsoft" />
+                    <SsoButton provider="github" />
+                    <SsoButton provider="organizer" />
+                  </div>
+                </DemoCard>
+
+                {/* 2. Guest RSVP Choice Selector */}
+                <DemoCard>
+                  <SectionLabel
+                    label="Guest RSVP Choice Selector (Guest Portal)"
+                    description="Mobile-first, color-coded response cards for attending, tentative, or declined status."
+                  />
+                  <div className="max-w-2xl space-y-3">
+                    <RsvpSelector
+                      value={demoRsvp}
+                      onChange={(choice) => setDemoRsvp(choice)}
+                    />
+                    <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 px-1">
+                      <span>Interactive choice state:</span>
+                      <span className="font-mono font-bold text-foreground capitalize">
+                        {demoRsvp}
+                      </span>
+                    </div>
+                  </div>
+                </DemoCard>
+
+                {/* 3. Digital Wallet Pass */}
+                <DemoCard>
+                  <SectionLabel
+                    label="Digital Wallet Pass (Guest Portal)"
+                    description="High-fidelity digital ticket pass with attendee info, scannable QR reticle, and Apple Wallet integration."
+                  />
+                  <div className="max-w-xl">
+                    <WalletPass
+                      eventName="Annual Cybersecurity & Cloud Congress"
+                      eventDate="November 18, 2026 • 10:00 AM PST"
+                      eventLocation="Grand Ballroom • Moscone West"
+                      attendeeName="Dr. Sarah Chen, Ph.D."
+                      ticketTier="Keynote Speaker VIP"
+                      ticketCode="TKT-2026-EIRMIS-908"
+                    />
+                  </div>
+                </DemoCard>
+
+                {/* 4. Admin Settings Grid & Toggle Rows */}
+                <DemoCard>
+                  <SectionLabel
+                    label="Settings Grid & Toggle Rows (Admin Governance)"
+                    description="Two-column configuration layout pairing explanatory copy with card-encapsulated switch rows."
+                  />
+                  <div className="space-y-6">
+                    <SettingsSection
+                      title="Cryptographic Ledger Integrity"
+                      description="Enforce zero-knowledge proofs and hardware security module signing across all registration tickets."
+                      badge="Zero-Knowledge"
+                      footer={
+                        <>
+                          <span className="text-muted-foreground">Audit hash verified: 0x7e29...91a</span>
+                          <Button size="sm">Save Policy</Button>
+                        </>
+                      }
+                    >
+                      <ToggleRow
+                        title="Automatic ZK Proof Validation"
+                        description="Reject any RSVP payload that lacks a cryptographic client signature."
+                        checked={demoToggle1}
+                        onCheckedChange={setDemoToggle1}
+                        badge="Strict"
+                      />
+                      <ToggleRow
+                        title="Hardware Security Module (HSM) Signing"
+                        description="Route secret door check-in keys through FIPS 140-3 Level 4 enclaves."
+                        checked={demoToggle2}
+                        onCheckedChange={setDemoToggle2}
+                      />
+                      <ToggleRow
+                        title="Immutable Audit Logging"
+                        description="Stream real-time access events directly to governance nodes."
+                        checked={demoToggle3}
+                        onCheckedChange={setDemoToggle3}
+                        badge="Compliant"
+                      />
+                    </SettingsSection>
+                  </div>
+                </DemoCard>
+
+                {/* 5. Check-in Staff Scan Result Feedback */}
+                <DemoCard>
+                  <SectionLabel
+                    label="Scan Result Feedback Card (Staff Scanner)"
+                    description="Real-time status banner triggered immediately following QR scan with entry validation flags."
+                  />
+                  <div className="space-y-4 max-w-2xl">
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      <span className="self-center font-semibold text-muted-foreground text-[11px] mr-1">
+                        Simulate Scan:
+                      </span>
+                      {(['approved', 'duplicate', 'warning', 'rejected'] as ScanStatus[]).map((st) => (
+                        <button
+                          key={st}
+                          type="button"
+                          onClick={() => setDemoScanStatus(st)}
+                          className={cn(
+                            'rounded-lg px-2.5 py-1 font-semibold capitalize transition-all text-xs',
+                            demoScanStatus === st
+                              ? 'bg-indigo-600 text-white shadow-2xs'
+                              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                          )}
+                        >
+                          {st}
+                        </button>
+                      ))}
+                    </div>
+
+                    <ScanResult
+                      status={demoScanStatus}
+                      attendeeName="Elena Rostova"
+                      ticketCode="EIRMIS-QR-88219"
+                      ticketTier="Executive Delegate"
+                      scannedAt="12 seconds ago"
+                      notes={demoScanStatus === 'warning' ? 'Verify government photo ID at Gate A' : undefined}
+                      onNextScan={() => setDemoScanStatus('approved')}
+                    />
+                  </div>
+                </DemoCard>
+
+                {/* 6. Route Switcher Bar */}
+                <DemoCard>
+                  <SectionLabel
+                    label="Portal Route Switcher Bar (Landing Page)"
+                    description="Pill-based horizontal switcher for navigating across all 5 EIRMIS portal surfaces."
+                  />
+                  <RouteSwitcher
+                    activeRoute={demoRoute}
+                    onRouteChange={(r) => setDemoRoute(r)}
+                  />
+                </DemoCard>
+
+                {/* 7. Landing Solution Cards & Notice Box */}
+                <DemoCard>
+                  <SectionLabel
+                    label="Solution Cards & Notice Box (Landing & Microsite)"
+                    description="High-engagement product feature cards and institutional alert callouts."
+                  />
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                      <SolutionCard
+                        title="Decentralized RSVP Pipeline"
+                        description="Self-sovereign guest invitations with one-click verification and zero spam friction."
+                        tags={['Zero-Knowledge', 'Self-Serve', 'Instant']}
+                        badge="Core"
+                        href="#explore"
+                      />
+                      <SolutionCard
+                        title="Door Staff Scanner Suite"
+                        description="Offline-capable mobile camera scanner with sub-100ms ticket barcode decoding."
+                        tags={['PWA Camera', 'Offline Sync', 'Sub-100ms']}
+                        badge="Production"
+                        href="#explore"
+                      />
+                      <SolutionCard
+                        title="Zero-Knowledge Audit Trail"
+                        description="Cryptographically verifiable access logs providing indisputable proof of attendance."
+                        tags={['SOC 2 Type II', 'Immutable', 'GDPR']}
+                        badge="Security"
+                        href="#explore"
+                      />
+                    </div>
+
+                    <NoticeBox title="Institutional Compliance Guarantee">
+                      All event data stays encrypted under AES-256-GCM. Personal identifiable information (PII) is discarded automatically 30 days after event conclusion per institutional policy.
+                    </NoticeBox>
+                  </div>
+                </DemoCard>
+
+                {/* 8. Capacity Quota & Inset Grouped Attendees */}
+                <DemoCard>
+                  <SectionLabel
+                    label="Quota Capacity & Inset Grouped Attendees (Guest & Organizer)"
+                    description="Visual capacity trackers and iOS-inspired inset grouped list views."
+                  />
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div className="space-y-3">
+                      <strong className="text-xs font-bold text-foreground block">Real-time Quota Bars</strong>
+                      <QuotaBar current={84} max={100} label="Main Auditorium VIP" />
+                      <QuotaBar current={98} max={100} label="Executive Workshop Room" />
+                    </div>
+
+                    <div className="space-y-3">
+                      <strong className="text-xs font-bold text-foreground block">Inset Grouped Attendees List</strong>
+                      <InsetGroupedList>
+                        <AttendeeItem
+                          name="Marcus Vance"
+                          email="m.vance@university.edu"
+                          role="Keynote Speaker"
+                          status="confirmed"
+                          onClick={() => {}}
+                        />
+                        <AttendeeItem
+                          name="Chloe Bennett"
+                          email="c.bennett@techcorp.io"
+                          role="Panelist"
+                          status="pending"
+                          onClick={() => {}}
+                        />
+                        <AttendeeItem
+                          name="Devon Miller"
+                          email="devon@agency.design"
+                          role="Guest"
+                          status="declined"
+                          onClick={() => {}}
+                        />
+                      </InsetGroupedList>
+                    </div>
+                  </div>
+                </DemoCard>
+
+                {/* 9. Workflow Steps & Account Identity Switcher */}
+                <DemoCard>
+                  <SectionLabel
+                    label="Login Workflow Steps & Account Switcher (Auth Flows)"
+                    description="Step progression indicator and multi-account identity selection cards."
+                  />
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 items-start">
+                    <div className="space-y-4 rounded-xl border border-border bg-slate-50/60 p-4">
+                      <div className="flex items-center justify-between">
+                        <strong className="text-xs font-bold text-foreground block">Verification Workflow</strong>
+                        <div className="flex gap-1 text-[11px]">
+                          {[1, 2, 3].map((step) => (
+                            <button
+                              key={step}
+                              type="button"
+                              onClick={() => setDemoWorkflowStep(step)}
+                              className={cn(
+                                'px-2 py-0.5 rounded font-semibold transition-all',
+                                demoWorkflowStep === step
+                                  ? 'bg-indigo-600 text-white'
+                                  : 'bg-white border border-border text-slate-600 hover:bg-slate-100'
+                              )}
+                            >
+                              Step {step}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <WorkflowStep
+                        step={1}
+                        title="Institutional SSO Verification"
+                        description="Authenticated via Entra ID directory"
+                        status={demoWorkflowStep > 1 ? 'completed' : demoWorkflowStep === 1 ? 'current' : 'upcoming'}
+                      />
+                      <WorkflowStep
+                        step={2}
+                        title="Role Clearance Assignment"
+                        description="Selecting active workspace and credentials"
+                        status={demoWorkflowStep > 2 ? 'completed' : demoWorkflowStep === 2 ? 'current' : 'upcoming'}
+                      />
+                      <WorkflowStep
+                        step={3}
+                        title="Zero-Knowledge Session Handshake"
+                        description="Issue scoped JWT and local cryptographic keypair"
+                        status={demoWorkflowStep === 3 ? 'current' : 'upcoming'}
+                      />
+                    </div>
+
+                    <div className="space-y-3">
+                      <strong className="text-xs font-bold text-foreground block">Identity Accounts</strong>
+                      <AccountCard
+                        name="Alex Rivera"
+                        email="alex.rivera@eirmis.org"
+                        organization="Platform Administrator"
+                        active={true}
+                        onSwitch={() => {}}
+                        onSelect={() => {}}
+                      />
+                      <AccountCard
+                        name="Jordan Lee"
+                        email="jordan.lee@partner.org"
+                        organization="Event Organizer"
+                        active={false}
+                        onSwitch={() => {}}
+                        onSelect={() => {}}
+                      />
+                    </div>
+                  </div>
+                </DemoCard>
+
+                {/* 10. Audit Callout & 403 Error State */}
+                <DemoCard>
+                  <SectionLabel
+                    label="Zero-Knowledge Audit Callout & 403 Error Template"
+                    description="Governance code snippets and restricted permission error handling."
+                  />
+                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 items-start">
+                    <AuditCallout
+                      policyId="SEC-EIRMIS-091"
+                      title="Cryptographic Hardware Boundary"
+                      description="Requests beyond this gateway must supply an Ed25519 signature verified against the master governance registry."
+                      codeSnippet={`// Zero-knowledge token verification\nconst verified = await crypto.subtle.verify(\n  { name: 'Ed25519' },\n  governanceKey,\n  signature,\n  payloadBuffer\n);`}
+                    />
+
+                    <ErrorPage
+                      errorCode="403"
+                      title="Restricted Administrative Clearance"
+                      description="Your current identity lacks the necessary cryptographic clearance level to inspect this event ledger partition."
+                      primaryLabel="Back to Safety"
+                      secondaryLabel="Request Access"
+                      onPrimaryAction={() => {}}
+                      onSecondaryAction={() => {}}
+                    />
+                  </div>
+                </DemoCard>
               </div>
             </Section>
 
