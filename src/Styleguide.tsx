@@ -12,6 +12,7 @@ import {
   LockIcon,
   LuggageIcon,
   MailIcon,
+  SearchIcon,
   ShieldCheckIcon,
   SparklesIcon,
   Trash2Icon,
@@ -138,6 +139,7 @@ const sections = [
   ['global-chrome', 'Global chrome'],
   ['layout-primitives', 'Layout primitives'],
   ['data-display', 'Data display primitives'],
+  ['form-interactions', 'Form & interaction primitives'],
   ['primitives', 'Shared primitives'],
   ['navigation', 'Navigation & feedback'],
   ['states', 'Loading & states'],
@@ -367,6 +369,16 @@ export default function Styleguide() {
     totalRsvps > 0 ? ((rsvpDistribution.tentative / totalRsvps) * 100).toFixed(1) : '0'
   const pctUnanswered =
     totalRsvps > 0 ? ((rsvpDistribution.unanswered / totalRsvps) * 100).toFixed(1) : '0'
+
+  // Task 5 interactive states
+  const [segmentedTab, setSegmentedTab] = useState('overview')
+  const [guestSegmentedTab, setGuestSegmentedTab] = useState('rsvp')
+  const [wizardStep, setWizardStep] = useState(3)
+  const [customToggle1, setCustomToggle1] = useState(true)
+  const [customToggle2, setCustomToggle2] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [customDropdownOpen, setCustomDropdownOpen] = useState(false)
+  const [formFieldError, setFormFieldError] = useState(true)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -2536,6 +2548,454 @@ export default function Styleguide() {
                               </div>
                             </div>
                           </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Section>
+
+            {/* 14. Form & Interaction Primitives */}
+            <Section
+              id="form-interactions"
+              title="Form & interaction primitives"
+              description="Segmented controls, wizard stepper, custom spring toggles, pill search inputs, icon action buttons, and live validation error states."
+            >
+              <div className="space-y-8">
+                {/* 1. Segmented Controls */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Segmented controls (.segmented-control)
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Full-width or inline pill container distinct from underline tabs. Active pill lifts with subtle elevation and border shadow.
+                    </p>
+                  </div>
+
+                  <div className="space-y-6">
+                    {/* Admin Portal Segmented Nav */}
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
+                        Admin Portal Navigation (Full-width pill track)
+                      </p>
+                      <div className="inline-flex rounded-full bg-slate-200/80 p-1 gap-1 text-xs font-semibold text-muted-foreground">
+                        {[
+                          { id: 'overview', label: 'Overview' },
+                          { id: 'organizers', label: 'Organizers' },
+                          { id: 'audit', label: 'Audit Log' },
+                          { id: 'settings', label: 'Platform Policy' },
+                        ].map((tab) => (
+                          <button
+                            key={tab.id}
+                            type="button"
+                            onClick={() => setSegmentedTab(tab.id)}
+                            className={`rounded-full px-4 py-1.5 transition-all duration-150 cursor-pointer ${
+                              segmentedTab === tab.id
+                                ? 'bg-white text-foreground shadow-xs font-bold'
+                                : 'text-slate-600 hover:text-foreground'
+                            }`}
+                          >
+                            {tab.label}
+                          </button>
+                        ))}
+                      </div>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Active tab: <strong className="text-indigo-600">{segmentedTab}</strong>
+                      </p>
+                    </div>
+
+                    {/* Guest Portal Tab Buttons */}
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
+                        Guest Portal Tab Switcher (.seg-tab-btn)
+                      </p>
+                      <div className="inline-flex rounded-xl bg-slate-100 p-1 gap-1 text-xs font-medium border border-border">
+                        {[
+                          { id: 'rsvp', label: 'RSVP Response' },
+                          { id: 'details', label: 'Event Schedule' },
+                          { id: 'venue', label: 'Venue & Travel' },
+                        ].map((tab) => (
+                          <button
+                            key={tab.id}
+                            type="button"
+                            onClick={() => setGuestSegmentedTab(tab.id)}
+                            className={`rounded-lg px-3.5 py-1.5 transition-all duration-150 cursor-pointer ${
+                              guestSegmentedTab === tab.id
+                                ? 'bg-white text-indigo-700 shadow-xs font-bold border border-border'
+                                : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                          >
+                            {tab.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Stepper / Wizard */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                        Stepper &amp; wizard (.stepper-bar)
+                      </span>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Progressive milestone stepper with filled progress track, done (check), active (glowing ring), and pending states.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="xs"
+                        variant="outline"
+                        disabled={wizardStep === 1}
+                        onClick={() => setWizardStep((s) => Math.max(1, s - 1))}
+                      >
+                        Previous Step
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant="primary"
+                        disabled={wizardStep === 4}
+                        onClick={() => setWizardStep((s) => Math.min(4, s + 1))}
+                      >
+                        Next Step
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="relative py-6 max-w-2xl mx-auto">
+                    {/* Background line */}
+                    <div className="absolute top-10 left-8 right-8 h-0.5 bg-slate-200 -translate-y-1/2 z-0" />
+                    {/* Fill line */}
+                    <div
+                      className="absolute top-10 left-8 h-0.5 bg-indigo-600 -translate-y-1/2 z-0 transition-all duration-300 ease-out"
+                      style={{
+                        width: `${((wizardStep - 1) / 3) * 100}%`,
+                        maxWidth: 'calc(100% - 64px)',
+                      }}
+                    />
+
+                    {/* Nodes */}
+                    <div className="relative z-10 flex justify-between items-start">
+                      {[
+                        { step: 1, title: 'Basics', desc: 'Title & Venue' },
+                        { step: 2, title: 'Schedule', desc: 'Date & Time' },
+                        { step: 3, title: 'Settings', desc: 'RSVP Rules' },
+                        { step: 4, title: 'Publish', desc: 'Review & Live' },
+                      ].map((item) => {
+                        const isDone = item.step < wizardStep
+                        const isActive = item.step === wizardStep
+
+                        return (
+                          <button
+                            key={item.step}
+                            type="button"
+                            onClick={() => setWizardStep(item.step)}
+                            className="flex flex-col items-center bg-white px-2 group cursor-pointer focus:outline-none"
+                          >
+                            <div
+                              className={`size-8 rounded-full flex items-center justify-center font-heading text-xs font-bold transition-all duration-200 ${
+                                isDone
+                                  ? 'bg-indigo-600 text-white'
+                                  : isActive
+                                  ? 'bg-indigo-600 text-white ring-4 ring-indigo-500/20 shadow-xs'
+                                  : 'bg-slate-100 text-slate-500 border-2 border-slate-200 group-hover:border-slate-300'
+                              }`}
+                            >
+                              {isDone ? <CheckIcon className="size-4 stroke-[3]" /> : item.step}
+                            </div>
+                            <span
+                              className={`mt-2 text-xs font-semibold ${
+                                isActive ? 'text-indigo-600 font-bold' : isDone ? 'text-foreground' : 'text-muted-foreground'
+                              }`}
+                            >
+                              {item.title}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground hidden sm:block">
+                              {item.desc}
+                            </span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Custom Toggle Switch */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Custom toggle switch (.toggle-switch)
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      44×24px track with 18px thumb and smooth cubic-bezier spring animation. Used for event policies and privacy controls.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-2xl">
+                    <div className="flex items-center justify-between rounded-xl border border-border bg-slate-50/50 p-4">
+                      <div>
+                        <strong className="block text-xs font-semibold text-foreground">
+                          Require RSVP Approval
+                        </strong>
+                        <p className="text-xs text-muted-foreground">
+                          Gate registrations through organizer queue
+                        </p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={customToggle1}
+                          onChange={(e) => setCustomToggle1(e.target.checked)}
+                        />
+                        <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all after:duration-200 peer-checked:bg-indigo-600 shadow-inner"></div>
+                      </label>
+                    </div>
+
+                    <div className="flex items-center justify-between rounded-xl border border-border bg-slate-50/50 p-4">
+                      <div>
+                        <strong className="block text-xs font-semibold text-foreground">
+                          Plus-One Allotments
+                        </strong>
+                        <p className="text-xs text-muted-foreground">
+                          Allow invitees to register an extra guest
+                        </p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={customToggle2}
+                          onChange={(e) => setCustomToggle2(e.target.checked)}
+                        />
+                        <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all after:duration-200 peer-checked:bg-indigo-600 shadow-inner"></div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Search Box + KBD Hint */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Search box + KBD hint (.search-box, .kbd-hint)
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Pill-shaped input with left-aligned search icon, active glow ring, and platform keyboard shortcut indicator.
+                    </p>
+                  </div>
+
+                  <div className="max-w-md">
+                    <div className="relative flex items-center">
+                      <SearchIcon className="absolute left-3.5 size-4 text-slate-400 pointer-events-none" />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search guests, email, or tickets..."
+                        className="w-full rounded-full border border-border bg-white pl-10 pr-16 py-2 text-xs text-foreground placeholder:text-muted-foreground shadow-2xs transition-all focus:border-indigo-600 focus:outline-none focus:ring-3 focus:ring-indigo-500/15"
+                      />
+                      <kbd className="absolute right-3 inline-flex items-center gap-0.5 rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-slate-500">
+                        <span>⌘</span><span>K</span>
+                      </kbd>
+                    </div>
+                    {searchQuery && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Filtering for: <span className="font-semibold text-foreground">&quot;{searchQuery}&quot;</span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* 5. Icon Action Buttons */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Icon action buttons (.action-btn, .action-btn-group)
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Compact 32×32px quick-action targets with active scale depression, semantic background tints, and elevated hover shadows.
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex flex-wrap items-center gap-4">
+                      {/* Approve Button */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          className="size-8 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-700 flex items-center justify-center transition-all duration-150 hover:bg-emerald-100 hover:border-emerald-400 hover:shadow-xs active:scale-95 cursor-pointer"
+                          title="Approve guest registration"
+                          onClick={() => toast.success('Approved RSVP for guest')}
+                        >
+                          <CheckIcon className="size-4 stroke-[2.5]" />
+                        </button>
+                        <span className="text-xs text-muted-foreground">Approve (.action-btn-approve)</span>
+                      </div>
+
+                      {/* Reject Button */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          className="size-8 rounded-lg border border-rose-300 bg-rose-50 text-rose-700 flex items-center justify-center transition-all duration-150 hover:bg-rose-100 hover:border-rose-400 hover:shadow-xs active:scale-95 cursor-pointer"
+                          title="Reject guest registration"
+                          onClick={() => toast.error('Rejected RSVP for guest')}
+                        >
+                          <XIcon className="size-4 stroke-[2.5]" />
+                        </button>
+                        <span className="text-xs text-muted-foreground">Reject (.action-btn-reject)</span>
+                      </div>
+
+                      {/* Simulate / Info Button */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          className="size-8 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 flex items-center justify-center transition-all duration-150 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-xs active:scale-95 cursor-pointer"
+                          title="Simulate check-in barcode scan"
+                          onClick={() => toast.info('Simulated camera reticle trigger')}
+                        >
+                          <SparklesIcon className="size-4" />
+                        </button>
+                        <span className="text-xs text-muted-foreground">Simulate (.action-btn-simulate)</span>
+                      </div>
+                    </div>
+
+                    {/* Button Group in Context */}
+                    <div className="flex items-center justify-between rounded-xl border border-border bg-slate-50/50 p-3 max-w-md">
+                      <div>
+                        <strong className="block text-xs font-semibold text-foreground">Arthur Vance (VIP Speaker)</strong>
+                        <span className="text-[11px] text-muted-foreground">Requesting table seat #4</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          className="size-8 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-700 flex items-center justify-center transition-all hover:bg-emerald-100 active:scale-95 cursor-pointer"
+                          title="Approve"
+                          onClick={() => toast.success('Approved Arthur Vance')}
+                        >
+                          <CheckIcon className="size-4 stroke-[2.5]" />
+                        </button>
+                        <button
+                          type="button"
+                          className="size-8 rounded-lg border border-rose-300 bg-rose-50 text-rose-700 flex items-center justify-center transition-all hover:bg-rose-100 active:scale-95 cursor-pointer"
+                          title="Reject"
+                          onClick={() => toast.error('Rejected Arthur Vance')}
+                        >
+                          <XIcon className="size-4 stroke-[2.5]" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 6. Custom Dropdown Menus */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Custom dropdown menu (.dropdown, .dropdown-menu)
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Right-aligned context menu with spring entrance translation, item icons, divider separators, and danger actions.
+                    </p>
+                  </div>
+
+                  <div className="relative inline-block text-left">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCustomDropdownOpen((prev) => !prev)}
+                      className="gap-2"
+                    >
+                      <span>Actions Menu</span>
+                      <ChevronDownIcon className="size-3.5" />
+                    </Button>
+
+                    {customDropdownOpen && (
+                      <div
+                        className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-52 rounded-xl border border-border bg-white p-1.5 shadow-lg z-50 animate-in fade-in-50 slide-in-from-top-2 duration-150"
+                        onMouseLeave={() => setCustomDropdownOpen(false)}
+                      >
+                        <button
+                          type="button"
+                          className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-slate-100 transition-colors text-left cursor-pointer"
+                          onClick={() => {
+                            toast('Downloading attendee roster')
+                            setCustomDropdownOpen(false)
+                          }}
+                        >
+                          <DownloadIcon className="size-3.5 text-muted-foreground" />
+                          <span>Export Guest CSV</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-slate-100 transition-colors text-left cursor-pointer"
+                          onClick={() => {
+                            toast('Invitation batch sent')
+                            setCustomDropdownOpen(false)
+                          }}
+                        >
+                          <MailIcon className="size-3.5 text-muted-foreground" />
+                          <span>Send Reminders</span>
+                        </button>
+                        <div className="my-1 border-t border-border" />
+                        <button
+                          type="button"
+                          className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 transition-colors text-left cursor-pointer"
+                          onClick={() => {
+                            toast.error('Removed event registration')
+                            setCustomDropdownOpen(false)
+                          }}
+                        >
+                          <Trash2Icon className="size-3.5 text-rose-600" />
+                          <span>Cancel Event</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 7. Field Error States */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                        Field error states (.field-error, .form-control-error)
+                      </span>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Validation error display with red focus ring accent, input border tint, and flex icon message.
+                      </p>
+                    </div>
+                    <Button
+                      size="xs"
+                      variant={formFieldError ? 'outline' : 'primary'}
+                      onClick={() => setFormFieldError((prev) => !prev)}
+                    >
+                      Toggle State: {formFieldError ? 'Invalid (Red Ring)' : 'Valid Input'}
+                    </Button>
+                  </div>
+
+                  <div className="max-w-md space-y-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-foreground mb-1.5">
+                        Corporate Contact Email
+                      </label>
+                      <input
+                        type="email"
+                        defaultValue="invalid-email@sample"
+                        className={`w-full rounded-xl border px-3.5 py-2 text-xs text-foreground placeholder:text-muted-foreground transition-all focus:outline-none ${
+                          formFieldError
+                            ? 'border-rose-500 bg-rose-50/20 ring-3 ring-rose-500/10 focus:border-rose-600'
+                            : 'border-border bg-white focus:border-indigo-600 focus:ring-3 focus:ring-indigo-500/15'
+                        }`}
+                      />
+                      {formFieldError && (
+                        <div className="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-rose-600">
+                          <AlertCircleIcon className="size-3.5 shrink-0" />
+                          <span>Please provide a valid company domain email address.</span>
                         </div>
                       )}
                     </div>
