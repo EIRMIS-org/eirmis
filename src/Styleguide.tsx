@@ -143,6 +143,7 @@ const sections = [
   ['form-interactions', 'Form & interaction primitives'],
   ['feedback-states', 'Feedback & state primitives'],
   ['specialized', 'Specialized primitives'],
+  ['responsive', 'Responsive patterns'],
   ['primitives', 'Shared primitives'],
   ['navigation', 'Navigation & feedback'],
   ['states', 'Loading & states'],
@@ -409,6 +410,10 @@ export default function Styleguide() {
   const [cameraScanState, setCameraScanState] = useState<
     'idle' | 'accepted' | 'duplicate' | 'rejected'
   >('idle')
+
+  // Task 8 interactive states
+  const [showTouchRuler, setShowTouchRuler] = useState(false)
+  const [responsiveTableView, setResponsiveTableView] = useState<'desktop' | 'mobile'>('desktop')
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -3807,6 +3812,295 @@ export default function Styleguide() {
                         <span className="text-[11px] text-muted-foreground">#94A3B8 (Unanswered)</span>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </Section>
+
+            {/* 17. Responsive Patterns */}
+            <Section
+              id="responsive"
+              title="Responsive patterns"
+              description="Table-to-card auto-transformations, 44px touch target enforcement, mobile drawer collapses, and portal container width guidelines."
+            >
+              <div className="space-y-8">
+                {/* 1. Table → Card Stack Auto-Transform */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                        Table → card stack auto-transform (eirmis.css:809-847)
+                      </span>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Below 768px, tables automatically flatten into stacked cards. Table cells become label/value rows using data-label attributes.
+                      </p>
+                    </div>
+                    {/* View Switcher */}
+                    <div className="flex items-center gap-1.5">
+                      <Button
+                        size="xs"
+                        variant={responsiveTableView === 'desktop' ? 'primary' : 'outline'}
+                        onClick={() => setResponsiveTableView('desktop')}
+                      >
+                        Desktop Table View (≥768px)
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant={responsiveTableView === 'mobile' ? 'primary' : 'outline'}
+                        onClick={() => setResponsiveTableView('mobile')}
+                      >
+                        Mobile Card Stack (&lt;768px)
+                      </Button>
+                    </div>
+                  </div>
+
+                  {responsiveTableView === 'desktop' ? (
+                    /* Desktop Table View */
+                    <div className="overflow-x-auto rounded-xl border border-border bg-white">
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead className="bg-slate-50 border-b border-border text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                          <tr>
+                            <th className="py-2.5 px-4">Attendee</th>
+                            <th className="py-2.5 px-4">Category</th>
+                            <th className="py-2.5 px-4">RSVP Status</th>
+                            <th className="py-2.5 px-4">Table</th>
+                            <th className="py-2.5 px-4 text-right">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {[
+                            { name: 'Sarah Jenkins', cat: 'Keynote Speaker', status: 'Confirmed', statusColor: 'bg-emerald-100 text-emerald-800', table: 'Table #1' },
+                            { name: 'Arthur Vance', cat: 'Corporate Sponsor', status: 'Pending', statusColor: 'bg-amber-100 text-amber-800', table: 'Table #4' },
+                            { name: 'Elena Rostova', cat: 'General Attendee', status: 'Waitlist', statusColor: 'bg-slate-100 text-slate-700', table: 'Unassigned' },
+                          ].map((row, i) => (
+                            <tr key={i} className="hover:bg-slate-50/70 transition-colors">
+                              <td className="py-3 px-4 font-semibold text-foreground">{row.name}</td>
+                              <td className="py-3 px-4 text-muted-foreground">{row.cat}</td>
+                              <td className="py-3 px-4">
+                                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${row.statusColor}`}>
+                                  {row.status}
+                                </span>
+                              </td>
+                              <td className="py-3 px-4 text-muted-foreground">{row.table}</td>
+                              <td className="py-3 px-4 text-right">
+                                <Button size="xs" variant="ghost">Manage</Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    /* Mobile Card Stack Simulation */
+                    <div className="space-y-3 max-w-md mx-auto">
+                      {[
+                        { name: 'Sarah Jenkins', cat: 'Keynote Speaker', status: 'Confirmed', statusColor: 'bg-emerald-100 text-emerald-800', table: 'Table #1' },
+                        { name: 'Arthur Vance', cat: 'Corporate Sponsor', status: 'Pending', statusColor: 'bg-amber-100 text-amber-800', table: 'Table #4' },
+                        { name: 'Elena Rostova', cat: 'General Attendee', status: 'Waitlist', statusColor: 'bg-slate-100 text-slate-700', table: 'Unassigned' },
+                      ].map((row, i) => (
+                        <div key={i} className="rounded-xl border border-border bg-white p-3 shadow-xs space-y-2 text-xs">
+                          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                            <span className="font-bold text-[11px] uppercase tracking-wider text-muted-foreground">Attendee</span>
+                            <strong className="font-semibold text-foreground">{row.name}</strong>
+                          </div>
+                          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                            <span className="font-bold text-[11px] uppercase tracking-wider text-muted-foreground">Category</span>
+                            <span className="text-muted-foreground">{row.cat}</span>
+                          </div>
+                          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                            <span className="font-bold text-[11px] uppercase tracking-wider text-muted-foreground">Status</span>
+                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${row.statusColor}`}>{row.status}</span>
+                          </div>
+                          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                            <span className="font-bold text-[11px] uppercase tracking-wider text-muted-foreground">Table</span>
+                            <span className="text-muted-foreground">{row.table}</span>
+                          </div>
+                          <div className="flex items-center justify-between pt-1">
+                            <span className="font-bold text-[11px] uppercase tracking-wider text-muted-foreground">Action</span>
+                            <Button size="xs" variant="outline">Manage</Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="mt-4 rounded-xl bg-slate-50 p-3 text-xs text-muted-foreground border border-border">
+                    <p className="font-semibold text-foreground">💡 Auto-label Implementation Note:</p>
+                    <p className="mt-1">
+                      Tables are automatically labeled via <code>EIRMIS.autoLabelTables()</code> which maps <code>th</code> content into cell <code>data-label</code> attributes. Use the <code>.no-card-stack</code> class on table elements to opt-out of mobile card flattening.
+                    </p>
+                  </div>
+                </div>
+
+                {/* 2. Touch Target Enforcement */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                        Touch target enforcement (eirmis.css:790-802)
+                      </span>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        WCAG 2.5.5 compliance: Interactive controls strictly enforce a 44×44px minimum hit area on viewports &lt;768px.
+                      </p>
+                    </div>
+                    <Button
+                      size="xs"
+                      variant={showTouchRuler ? 'primary' : 'outline'}
+                      onClick={() => setShowTouchRuler((prev) => !prev)}
+                    >
+                      {showTouchRuler ? 'Hide Ruler Box' : 'Show 44×44px Ruler Box'}
+                    </Button>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-6 p-4 rounded-xl bg-slate-50/50 border border-border max-w-xl">
+                    {/* Button Demo */}
+                    <div className="relative inline-flex flex-col items-center">
+                      <button
+                        type="button"
+                        className={`min-h-[44px] min-w-[44px] px-4 rounded-lg bg-indigo-600 text-white font-medium text-xs flex items-center justify-center transition-all ${
+                          showTouchRuler ? 'ring-2 ring-rose-500 ring-offset-2' : ''
+                        }`}
+                      >
+                        44px Button
+                      </button>
+                      {showTouchRuler && (
+                        <span className="mt-1 text-[10px] font-mono font-bold text-rose-600">44 × 44px min</span>
+                      )}
+                    </div>
+
+                    {/* Icon Button Demo */}
+                    <div className="relative inline-flex flex-col items-center">
+                      <button
+                        type="button"
+                        className={`min-h-[44px] min-w-[44px] rounded-lg border border-border bg-white text-foreground flex items-center justify-center transition-all ${
+                          showTouchRuler ? 'ring-2 ring-rose-500 ring-offset-2' : ''
+                        }`}
+                      >
+                        <SearchIcon className="size-4 text-slate-500" />
+                      </button>
+                      {showTouchRuler && (
+                        <span className="mt-1 text-[10px] font-mono font-bold text-rose-600">44 × 44px min</span>
+                      )}
+                    </div>
+
+                    {/* Segmented Button Demo */}
+                    <div className="relative inline-flex flex-col items-center">
+                      <button
+                        type="button"
+                        className={`min-h-[44px] px-3.5 rounded-full border border-border bg-white text-foreground text-xs font-semibold flex items-center justify-center transition-all ${
+                          showTouchRuler ? 'ring-2 ring-rose-500 ring-offset-2' : ''
+                        }`}
+                      >
+                        Pill Action
+                      </button>
+                      {showTouchRuler && (
+                        <span className="mt-1 text-[10px] font-mono font-bold text-rose-600">h: 44px min</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Navigation Collapse → Drawer */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Navigation collapse &amp; mobile drawer
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Demonstrates the 768px transition: horizontal links collapse, hamburger toggle appears, and modal drawer handles portal navigation.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-2xl">
+                    <div className="rounded-xl border border-border bg-white p-4 space-y-2">
+                      <strong className="block text-xs font-bold text-foreground">Desktop Mode (≥768px)</strong>
+                      <div className="flex items-center gap-2 rounded-lg bg-slate-100 p-2 text-xs">
+                        <span className="font-bold text-indigo-600">EIRMIS</span>
+                        <div className="flex gap-1 text-[11px] text-muted-foreground ml-2">
+                          <span className="bg-white px-1.5 py-0.5 rounded shadow-2xs text-foreground font-medium">Public</span>
+                          <span className="px-1.5 py-0.5">Organizer</span>
+                          <span className="px-1.5 py-0.5">Admin</span>
+                        </div>
+                      </div>
+                      <span className="text-[11px] text-muted-foreground block">Links spread out in top glassmorphic bar</span>
+                    </div>
+
+                    <div className="rounded-xl border border-border bg-white p-4 space-y-2">
+                      <strong className="block text-xs font-bold text-foreground">Mobile Mode (&lt;768px)</strong>
+                      <div className="flex items-center justify-between rounded-lg bg-slate-100 p-2 text-xs">
+                        <span className="font-bold text-indigo-600">EIRMIS</span>
+                        <button
+                          type="button"
+                          className="size-7 rounded bg-white border border-border flex items-center justify-center text-slate-700"
+                          onClick={() => {
+                            const drawer = document.getElementById('styleguide-drawer')
+                            const backdrop = document.getElementById('styleguide-drawer-backdrop')
+                            if (drawer) drawer.classList.add('open')
+                            if (backdrop) backdrop.classList.add('open')
+                          }}
+                        >
+                          ☰
+                        </button>
+                      </div>
+                      <span className="text-[11px] text-muted-foreground block">Hamburger opens slide-out drawer</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Container Widths per Portal */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Container widths per portal
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Strict viewport boundaries calibrated to user density, device context, and Miller&apos;s Law cognitive limits.
+                    </p>
+                  </div>
+
+                  <div className="overflow-x-auto rounded-xl border border-border bg-white">
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead className="bg-slate-50 border-b border-border text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <tr>
+                          <th className="py-2.5 px-4">Portal Application</th>
+                          <th className="py-2.5 px-4">Max Width</th>
+                          <th className="py-2.5 px-4">Primary Layout Structure</th>
+                          <th className="py-2.5 px-4">Breakpoint Target</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border">
+                        <tr>
+                          <td className="py-3 px-4 font-semibold text-foreground">Landing / Public Microsite</td>
+                          <td className="py-3 px-4 font-mono font-bold text-indigo-600">1240px</td>
+                          <td className="py-3 px-4 text-muted-foreground">Fluid container, responsive hero, full-width sections</td>
+                          <td className="py-3 px-4 text-muted-foreground">Desktop, Tablet, Mobile (320px+)</td>
+                        </tr>
+                        <tr>
+                          <td className="py-3 px-4 font-semibold text-foreground">Organizer Workspace</td>
+                          <td className="py-3 px-4 font-mono font-bold text-indigo-600">1240px</td>
+                          <td className="py-3 px-4 text-muted-foreground">Two-column layout (1.65fr 1fr), collapsible sidebar (250→72px)</td>
+                          <td className="py-3 px-4 text-muted-foreground">1200px / 900px / 768px / 560px</td>
+                        </tr>
+                        <tr>
+                          <td className="py-3 px-4 font-semibold text-foreground">System Admin Governance</td>
+                          <td className="py-3 px-4 font-mono font-bold text-indigo-600">1240px</td>
+                          <td className="py-3 px-4 text-muted-foreground">Glanceable 4-chunk KPI strip, audit logs, zero-knowledge boundary</td>
+                          <td className="py-3 px-4 text-muted-foreground">1240px desktop down to 768px tablet</td>
+                        </tr>
+                        <tr>
+                          <td className="py-3 px-4 font-semibold text-foreground">Guest Portal (RSVP Flow)</td>
+                          <td className="py-3 px-4 font-mono font-bold text-teal-600">680px</td>
+                          <td className="py-3 px-4 text-muted-foreground">Centered card container, mobile-first RSVP touch responses</td>
+                          <td className="py-3 px-4 text-muted-foreground">Optimized for handheld smartphones (375-430px)</td>
+                        </tr>
+                        <tr>
+                          <td className="py-3 px-4 font-semibold text-foreground">Check-in Staff Scanner</td>
+                          <td className="py-3 px-4 font-mono font-bold text-teal-600">500px</td>
+                          <td className="py-3 px-4 text-muted-foreground">Focused camera viewfinder reticle, high-stress door scanning</td>
+                          <td className="py-3 px-4 text-muted-foreground">Handheld mobile only (max 500px)</td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
