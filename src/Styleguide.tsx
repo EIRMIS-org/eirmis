@@ -1,13 +1,18 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import {
+  ActivityIcon,
+  AlertCircleIcon,
   Building2Icon,
+  CheckCircleIcon,
   CheckIcon,
   ChevronDownIcon,
   ClockIcon,
   CopyIcon,
   DownloadIcon,
+  LockIcon,
   LuggageIcon,
   MailIcon,
+  ShieldCheckIcon,
   SparklesIcon,
   Trash2Icon,
   UserIcon,
@@ -132,6 +137,7 @@ const sections = [
   ['layout', 'Layout containers'],
   ['global-chrome', 'Global chrome'],
   ['layout-primitives', 'Layout primitives'],
+  ['data-display', 'Data display primitives'],
   ['primitives', 'Shared primitives'],
   ['navigation', 'Navigation & feedback'],
   ['states', 'Loading & states'],
@@ -338,6 +344,29 @@ export default function Styleguide() {
   const [rejectModalOpen, setRejectModalOpen] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
   const [activeSection, setActiveSection] = useState('typography')
+
+  // Task 4 interactive states
+  const [boundaryRole, setBoundaryRole] = useState<'Check-in Staff' | 'Organizer' | 'Guest'>('Check-in Staff')
+  const [rsvpDistribution, setRsvpDistribution] = useState({
+    accepted: 84,
+    declined: 14,
+    tentative: 14,
+    unanswered: 38,
+  })
+
+  const totalRsvps =
+    rsvpDistribution.accepted +
+    rsvpDistribution.declined +
+    rsvpDistribution.tentative +
+    rsvpDistribution.unanswered
+  const pctAccepted =
+    totalRsvps > 0 ? ((rsvpDistribution.accepted / totalRsvps) * 100).toFixed(1) : '0'
+  const pctDeclined =
+    totalRsvps > 0 ? ((rsvpDistribution.declined / totalRsvps) * 100).toFixed(1) : '0'
+  const pctTentative =
+    totalRsvps > 0 ? ((rsvpDistribution.tentative / totalRsvps) * 100).toFixed(1) : '0'
+  const pctUnanswered =
+    totalRsvps > 0 ? ((rsvpDistribution.unanswered / totalRsvps) * 100).toFixed(1) : '0'
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -2034,6 +2063,482 @@ export default function Styleguide() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                </div>
+              </div>
+            </Section>
+
+            {/* 13. Data Display Primitives */}
+            <Section
+              id="data-display"
+              title="Data display primitives"
+              description="KPI metrics, glanceable stat cards, segmented progress bars, activity streams, and zero-knowledge boundary notices."
+            >
+              <div className="space-y-8">
+                {/* 1. KPI & Metric Cards */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      KPI & Metric cards
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Glanceable system metrics (Miller&apos;s Law 4-chunk layout) and event-scoped metric cards with hover lift, status accents, and progress indicators.
+                    </p>
+                  </div>
+
+                  {/* Admin KPI Strip */}
+                  <div className="mb-6">
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
+                      Admin Portal — Platform &amp; Security Glance Strip (.kpi-card)
+                    </p>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                      {/* KPI 1 */}
+                      <div className="rounded-xl border border-border bg-white p-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                        <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                          <span>Pending Organizers</span>
+                          <ClockIcon className="size-4 text-amber-600" />
+                        </div>
+                        <div className="mt-2 font-heading text-2xl font-extrabold text-amber-600 sm:text-3xl">
+                          2
+                        </div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          Awaiting manual gate review
+                        </div>
+                      </div>
+
+                      {/* KPI 2 */}
+                      <div className="rounded-xl border border-border bg-white p-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                        <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                          <span>Active Organizers</span>
+                          <CheckCircleIcon className="size-4 text-emerald-600" />
+                        </div>
+                        <div className="mt-2 font-heading text-2xl font-extrabold text-foreground sm:text-3xl">
+                          24
+                        </div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          Authorized to create events
+                        </div>
+                      </div>
+
+                      {/* KPI 3 */}
+                      <div className="rounded-xl border border-border bg-white p-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                        <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                          <span>Malware Engine</span>
+                          <ShieldCheckIcon className="size-4 text-indigo-600" />
+                        </div>
+                        <div className="mt-2 font-heading text-xl font-bold text-emerald-600 sm:text-2xl">
+                          Malware Engine v3
+                        </div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          Static sandbox parsing: Active
+                        </div>
+                      </div>
+
+                      {/* KPI 4 */}
+                      <div className="rounded-xl border border-border bg-white p-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                        <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                          <span>Audit Log Stream</span>
+                          <ActivityIcon className="size-4 text-muted-foreground" />
+                        </div>
+                        <div className="mt-2 font-heading text-xl font-bold text-foreground sm:text-2xl">
+                          100% Intact
+                        </div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          Immutable append-only ledger
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Organizer Metric Grid */}
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
+                      Organizer Portal — Event Capacity &amp; Action Metrics (.metric-card)
+                    </p>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                      {/* Metric 1 */}
+                      <div className="rounded-2xl border border-border bg-white p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                        <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                          <span>Total Capacity</span>
+                          <Building2Icon className="size-4 text-slate-400" />
+                        </div>
+                        <div className="mt-3 font-heading text-3xl font-extrabold text-foreground">
+                          150
+                        </div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          Max venue allocation
+                        </div>
+                      </div>
+
+                      {/* Metric 2 (With Progress Bar) */}
+                      <div className="rounded-2xl border border-border bg-white p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                        <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                          <span>RSVPs</span>
+                          <MailIcon className="size-4 text-slate-400" />
+                        </div>
+                        <div className="mt-3 flex items-baseline gap-1.5 font-heading text-3xl font-extrabold text-foreground">
+                          <span>112</span>
+                          <span className="text-base font-medium text-muted-foreground">/ 150</span>
+                        </div>
+                        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                          <div
+                            className="h-full rounded-full bg-indigo-600 transition-all duration-500"
+                            style={{ width: '74.6%' }}
+                          />
+                        </div>
+                        <div className="mt-1 text-[11px] text-muted-foreground">
+                          74.6% confirmed attendance
+                        </div>
+                      </div>
+
+                      {/* Metric 3 (Left-Border Accent) */}
+                      <div className="rounded-2xl border border-border border-l-[3px] border-l-amber-500 bg-white p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                        <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                          <span>Pending Approvals</span>
+                          <LuggageIcon className="size-4 text-slate-400" />
+                        </div>
+                        <div className="mt-3 flex items-center justify-between">
+                          <span className="font-heading text-3xl font-extrabold text-foreground">3</span>
+                          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-800">
+                            Requires Action
+                          </span>
+                        </div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          Awaiting VIP organizer sign-off
+                        </div>
+                      </div>
+
+                      {/* Metric 4 */}
+                      <div className="rounded-2xl border border-border bg-white p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                        <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                          <span>Checked In</span>
+                          <UsersIcon className="size-4 text-slate-400" />
+                        </div>
+                        <div className="mt-3 font-heading text-3xl font-extrabold text-teal-600">
+                          48
+                        </div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          Scanned at entrance reticle
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Stat Cards (Check-in Scanner) */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Stat cards (Check-in Scanner)
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Clean 2-column centered cards designed for rapid glanceability during fast-paced door credential scanning (.stat-card).
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-xl">
+                    <div className="rounded-xl border border-border bg-white p-5 text-center shadow-xs">
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                        Checked-In
+                      </div>
+                      <div className="mt-2 font-heading text-4xl font-extrabold text-teal-600">
+                        48
+                      </div>
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        Scanned entrance attendees
+                      </div>
+                    </div>
+                    <div className="rounded-xl border border-border bg-white p-5 text-center shadow-xs">
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                        Expected Total
+                      </div>
+                      <div className="mt-2 font-heading text-4xl font-extrabold text-foreground">
+                        112
+                      </div>
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        Confirmed guest roster
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Segmented Progress Bar */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                        Segmented progress bar &amp; RSVP breakdown
+                      </span>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Proportional multi-state track with animated width transitions (.segmented-bar) and companion semantic breakdown dots.
+                      </p>
+                    </div>
+                    {/* Distribution Preset Buttons */}
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <Button
+                        size="xs"
+                        variant="outline"
+                        onClick={() =>
+                          setRsvpDistribution({ accepted: 84, declined: 14, tentative: 14, unanswered: 38 })
+                        }
+                      >
+                        Default Seed
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant="outline"
+                        onClick={() =>
+                          setRsvpDistribution({ accepted: 120, declined: 10, tentative: 8, unanswered: 12 })
+                        }
+                      >
+                        High Turnout
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant="outline"
+                        onClick={() =>
+                          setRsvpDistribution({ accepted: 40, declined: 35, tentative: 25, unanswered: 50 })
+                        }
+                      >
+                        Heavy Influx
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="max-w-2xl rounded-xl border border-border bg-slate-50/50 p-5">
+                    <div className="mb-3 flex items-center justify-between text-xs font-semibold text-foreground">
+                      <span>RSVP Summary</span>
+                      <span className="text-muted-foreground">{totalRsvps} Total Invitees</span>
+                    </div>
+
+                    {/* The Segmented Bar */}
+                    <div
+                      className="h-2.5 w-full overflow-hidden rounded-full bg-slate-200 flex"
+                      title={`Accepted: ${rsvpDistribution.accepted}, Declined: ${rsvpDistribution.declined}, Tentative: ${rsvpDistribution.tentative}, Unanswered: ${rsvpDistribution.unanswered}`}
+                    >
+                      <div
+                        className="bg-emerald-500 transition-all duration-500 ease-in-out"
+                        style={{ width: `${pctAccepted}%` }}
+                        title={`Accepted: ${rsvpDistribution.accepted} (${pctAccepted}%)`}
+                      />
+                      <div
+                        className="bg-rose-500 transition-all duration-500 ease-in-out"
+                        style={{ width: `${pctDeclined}%` }}
+                        title={`Declined: ${rsvpDistribution.declined} (${pctDeclined}%)`}
+                      />
+                      <div
+                        className="bg-amber-500 transition-all duration-500 ease-in-out"
+                        style={{ width: `${pctTentative}%` }}
+                        title={`Tentative: ${rsvpDistribution.tentative} (${pctTentative}%)`}
+                      />
+                      <div
+                        className="bg-slate-300 transition-all duration-500 ease-in-out"
+                        style={{ width: `${pctUnanswered}%` }}
+                        title={`No Response: ${rsvpDistribution.unanswered} (${pctUnanswered}%)`}
+                      />
+                    </div>
+
+                    {/* Breakdown List */}
+                    <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                      <div className="flex items-center justify-between rounded-lg bg-white p-2.5 border border-border">
+                        <div className="flex items-center gap-2">
+                          <span className="size-2.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                          <span className="text-xs font-medium text-foreground">Accepted</span>
+                        </div>
+                        <span className="text-xs font-bold text-foreground">
+                          {rsvpDistribution.accepted} <span className="text-[10px] text-muted-foreground font-normal">({pctAccepted}%)</span>
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between rounded-lg bg-white p-2.5 border border-border">
+                        <div className="flex items-center gap-2">
+                          <span className="size-2.5 rounded-full bg-rose-500 flex-shrink-0" />
+                          <span className="text-xs font-medium text-foreground">Declined</span>
+                        </div>
+                        <span className="text-xs font-bold text-foreground">
+                          {rsvpDistribution.declined} <span className="text-[10px] text-muted-foreground font-normal">({pctDeclined}%)</span>
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between rounded-lg bg-white p-2.5 border border-border">
+                        <div className="flex items-center gap-2">
+                          <span className="size-2.5 rounded-full bg-amber-500 flex-shrink-0" />
+                          <span className="text-xs font-medium text-foreground">Tentative</span>
+                        </div>
+                        <span className="text-xs font-bold text-foreground">
+                          {rsvpDistribution.tentative} <span className="text-[10px] text-muted-foreground font-normal">({pctTentative}%)</span>
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between rounded-lg bg-white p-2.5 border border-border">
+                        <div className="flex items-center gap-2">
+                          <span className="size-2.5 rounded-full bg-slate-400 flex-shrink-0" />
+                          <span className="text-xs font-medium text-foreground">No Response</span>
+                        </div>
+                        <span className="text-xs font-bold text-foreground">
+                          {rsvpDistribution.unanswered} <span className="text-[10px] text-muted-foreground font-normal">({pctUnanswered}%)</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Activity Stream */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Activity stream
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Chronological event feed with circular colored icon badges, actor attribution, and relative timestamps (.activity-list).
+                    </p>
+                  </div>
+                  <div className="max-w-xl space-y-3.5">
+                    {/* Item 1 - Green */}
+                    <div className="flex items-start gap-3 rounded-xl border border-border bg-slate-50/40 p-3">
+                      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                        <CheckIcon className="size-4 stroke-[2.5]" />
+                      </div>
+                      <div className="min-w-0 flex-1 text-xs">
+                        <div className="text-foreground">
+                          <span className="font-semibold text-foreground">Sarah Jenkins</span> RSVP&apos;d{' '}
+                          <strong className="text-emerald-700 font-semibold">Attending</strong>
+                        </div>
+                        <div className="mt-1 text-[11px] text-muted-foreground">10 mins ago</div>
+                      </div>
+                    </div>
+
+                    {/* Item 2 - Red */}
+                    <div className="flex items-start gap-3 rounded-xl border border-border bg-slate-50/40 p-3">
+                      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-rose-50 text-rose-600">
+                        <XIcon className="size-4 stroke-[2.5]" />
+                      </div>
+                      <div className="min-w-0 flex-1 text-xs">
+                        <div className="text-foreground">
+                          <span className="font-semibold text-foreground">Michael Chang</span> RSVP&apos;d{' '}
+                          <strong className="text-rose-700 font-semibold">Declined</strong>
+                        </div>
+                        <div className="mt-1 text-[11px] text-muted-foreground">45 mins ago</div>
+                      </div>
+                    </div>
+
+                    {/* Item 3 - Purple / Indigo */}
+                    <div className="flex items-start gap-3 rounded-xl border border-border bg-slate-50/40 p-3">
+                      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+                        <SparklesIcon className="size-4 stroke-[2.5]" />
+                      </div>
+                      <div className="min-w-0 flex-1 text-xs">
+                        <div className="text-foreground">
+                          <span className="font-semibold text-foreground">System Admin</span> updated the event description and venue access rules.
+                        </div>
+                        <div className="mt-1 text-[11px] text-muted-foreground">2 hours ago</div>
+                      </div>
+                    </div>
+
+                    {/* Item 4 - Amber */}
+                    <div className="flex items-start gap-3 rounded-xl border border-border bg-slate-50/40 p-3">
+                      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-600">
+                        <ClockIcon className="size-4 stroke-[2.5]" />
+                      </div>
+                      <div className="min-w-0 flex-1 text-xs">
+                        <div className="text-foreground">
+                          <span className="font-semibold text-foreground">Waitlist System</span> auto-promoted{' '}
+                          <span className="font-semibold text-foreground">Elena Rostova</span> to confirmed guest.
+                        </div>
+                        <div className="mt-1 text-[11px] text-muted-foreground">4 hours ago</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 5. Boundary & Security Banners */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Boundary &amp; security banners
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      High-visibility zero-knowledge architectural policy banners and scoped access boundary notices (.boundary-banner, .boundary-notice).
+                    </p>
+                  </div>
+
+                  <div className="space-y-5">
+                    {/* Policy Banner: Zero-Knowledge Architecture (Primary / Info) */}
+                    <div className="rounded-xl border border-border border-l-4 border-l-indigo-600 bg-white p-4 shadow-xs sm:p-5">
+                      <div className="flex items-start gap-3.5">
+                        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+                          <LockIcon className="size-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-heading text-sm font-bold text-foreground">
+                              Zero-Knowledge Event Data Architecture
+                            </span>
+                            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                              ENFORCED BY POLICY
+                            </span>
+                          </div>
+                          <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
+                            System Administrators govern organizer verification and platform security defaults only. Admins have zero database read or write permissions over event guest lists, invitations, or attendee rosters.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Interactive Role Scoped Assignment Notice */}
+                    <div className="rounded-xl border border-border bg-slate-50/50 p-4">
+                      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                          Interactive Scope Simulator
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs text-muted-foreground mr-1">Simulate role:</span>
+                          {(['Check-in Staff', 'Organizer', 'Guest'] as const).map((r) => (
+                            <Button
+                              key={r}
+                              size="xs"
+                              variant={boundaryRole === r ? 'primary' : 'outline'}
+                              onClick={() => setBoundaryRole(r)}
+                            >
+                              {r === 'Check-in Staff' ? 'Staff' : r}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {boundaryRole !== 'Guest' ? (
+                        <div className="flex flex-col gap-3 rounded-xl border border-border border-l-4 border-l-emerald-600 bg-white p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <strong className="text-sm font-bold text-foreground">Tech Forward Gala 2026</strong>
+                            </div>
+                            <p className="mt-0.5 text-xs text-muted-foreground">
+                              Assigned {boundaryRole.toLowerCase()} • active event-day scanning scope
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-bold text-emerald-800">
+                              Authorized
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="rounded-xl border border-border border-l-4 border-l-rose-600 bg-rose-50/40 p-4 shadow-xs">
+                          <div className="flex items-start gap-3">
+                            <AlertCircleIcon className="size-5 text-rose-600 shrink-0 mt-0.5" />
+                            <div className="flex-1">
+                              <strong className="text-sm font-bold text-rose-950">
+                                Check-in access restricted
+                              </strong>
+                              <p className="mt-1 text-xs text-rose-800">
+                                Only the assigned Check-in Staff or event Organizer can record attendance for this event. Your current role is <strong>Guest</strong>.
+                              </p>
+                              <div className="mt-3">
+                                <Button size="xs" variant="outline" className="border-rose-300 text-rose-900 hover:bg-rose-100">
+                                  Request Door Access
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
