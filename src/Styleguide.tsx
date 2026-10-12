@@ -9,6 +9,7 @@ import {
   ClockIcon,
   CopyIcon,
   DownloadIcon,
+  InfoIcon,
   LockIcon,
   LuggageIcon,
   MailIcon,
@@ -140,6 +141,7 @@ const sections = [
   ['layout-primitives', 'Layout primitives'],
   ['data-display', 'Data display primitives'],
   ['form-interactions', 'Form & interaction primitives'],
+  ['feedback-states', 'Feedback & state primitives'],
   ['primitives', 'Shared primitives'],
   ['navigation', 'Navigation & feedback'],
   ['states', 'Loading & states'],
@@ -379,6 +381,28 @@ export default function Styleguide() {
   const [searchQuery, setSearchQuery] = useState('')
   const [customDropdownOpen, setCustomDropdownOpen] = useState(false)
   const [formFieldError, setFormFieldError] = useState(true)
+
+  // Task 6 interactive states
+  const [activeToast, setActiveToast] = useState<{
+    id: number
+    type: 'success' | 'warning' | 'error' | 'info'
+    message: string
+  } | null>(null)
+  const [customModalSheetOpen, setCustomModalSheetOpen] = useState(false)
+  const [waitlistModalOpen, setWaitlistModalOpen] = useState(false)
+  const [waitlistError, setWaitlistError] = useState(false)
+  const [waitlistProcessing, setWaitlistProcessing] = useState(false)
+
+  const triggerProgressToast = (
+    type: 'success' | 'warning' | 'error' | 'info',
+    message: string
+  ) => {
+    const id = Date.now()
+    setActiveToast({ id, type, message })
+    setTimeout(() => {
+      setActiveToast((curr) => (curr?.id === id ? null : curr))
+    }, 3200)
+  }
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -3002,6 +3026,479 @@ export default function Styleguide() {
                   </div>
                 </div>
               </div>
+            </Section>
+
+            {/* 15. Feedback & State Primitives */}
+            <Section
+              id="feedback-states"
+              title="Feedback & state primitives"
+              description="Toasts with progress bars, modal sheets, waitlist promotion flows, restricted table rows, and user avatar pills."
+            >
+              <div className="space-y-8">
+                {/* 1. Toast with Progress Bar */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Toast with animated progress bar (.eirmis-toast)
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Dark glassmorphic container with semantic circular badge, linear 3.2s progress duration bar, and spring elevation entrance.
+                    </p>
+                  </div>
+
+                  {/* Trigger Buttons */}
+                  <div className="flex flex-wrap items-center gap-2 mb-6">
+                    <Button
+                      size="xs"
+                      variant="outline"
+                      className="border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                      onClick={() =>
+                        triggerProgressToast('success', 'RSVP confirmed for Elena Rostova (Marina Bay Ballroom).')
+                      }
+                    >
+                      Trigger Success Toast
+                    </Button>
+                    <Button
+                      size="xs"
+                      variant="outline"
+                      className="border-amber-300 text-amber-700 hover:bg-amber-50"
+                      onClick={() =>
+                        triggerProgressToast('warning', 'Venue capacity at 90% (135/150 seats reserved).')
+                      }
+                    >
+                      Trigger Warning Toast
+                    </Button>
+                    <Button
+                      size="xs"
+                      variant="outline"
+                      className="border-rose-300 text-rose-700 hover:bg-rose-50"
+                      onClick={() =>
+                        triggerProgressToast('error', 'Invalid check-in QR credentials. Please verify scanner.')
+                      }
+                    >
+                      Trigger Error Toast
+                    </Button>
+                    <Button
+                      size="xs"
+                      variant="outline"
+                      className="border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+                      onClick={() =>
+                        triggerProgressToast('info', 'Batch reminder dispatched to 24 unconfirmed guests.')
+                      }
+                    >
+                      Trigger Info Toast
+                    </Button>
+                  </div>
+
+                  {/* Static Previews of the 4 Variants */}
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-3xl">
+                    {/* Success Preview */}
+                    <div className="relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/95 p-3.5 text-white shadow-md backdrop-blur-md">
+                      <div className="flex items-center gap-3">
+                        <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white">
+                          <CheckIcon className="size-3.5 stroke-[3]" />
+                        </div>
+                        <span className="text-xs font-medium flex-1">Guest RSVP accepted and seat reserved</span>
+                        <span className="text-xs text-slate-400">×</span>
+                      </div>
+                      <div className="absolute bottom-0 left-0 h-[3px] w-full bg-emerald-500" />
+                    </div>
+
+                    {/* Warning Preview */}
+                    <div className="relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/95 p-3.5 text-white shadow-md backdrop-blur-md">
+                      <div className="flex items-center gap-3">
+                        <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-amber-500 text-white">
+                          <ClockIcon className="size-3.5 stroke-[3]" />
+                        </div>
+                        <span className="text-xs font-medium flex-1">RSVP deadline closes in 4 hours</span>
+                        <span className="text-xs text-slate-400">×</span>
+                      </div>
+                      <div className="absolute bottom-0 left-0 h-[3px] w-full bg-amber-500" />
+                    </div>
+
+                    {/* Error Preview */}
+                    <div className="relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/95 p-3.5 text-white shadow-md backdrop-blur-md">
+                      <div className="flex items-center gap-3">
+                        <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-rose-500 text-white">
+                          <XIcon className="size-3.5 stroke-[3]" />
+                        </div>
+                        <span className="text-xs font-medium flex-1">Duplicate check-in scan detected</span>
+                        <span className="text-xs text-slate-400">×</span>
+                      </div>
+                      <div className="absolute bottom-0 left-0 h-[3px] w-full bg-rose-500" />
+                    </div>
+
+                    {/* Info Preview */}
+                    <div className="relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/95 p-3.5 text-white shadow-md backdrop-blur-md">
+                      <div className="flex items-center gap-3">
+                        <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-indigo-500 text-white">
+                          <InfoIcon className="size-3.5 stroke-[3]" />
+                        </div>
+                        <span className="text-xs font-medium flex-1">Export file ready for download</span>
+                        <span className="text-xs text-slate-400">×</span>
+                      </div>
+                      <div className="absolute bottom-0 left-0 h-[3px] w-full bg-indigo-500" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Custom Modal Sheets */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Custom modal sheet (.modal-overlay, .modal-box)
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      480px responsive dialog card featuring spring scale entrance (scale 0.95→1), backdrop blur, and full accessibility keys.
+                    </p>
+                  </div>
+
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => setCustomModalSheetOpen(true)}
+                  >
+                    Open Custom Modal Sheet Demo
+                  </Button>
+                </div>
+
+                {/* 3. Waitlist Promotion Modal */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Waitlist promotion flow (.waitlist-promotion-modal)
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Targeted organizer modal with attendee credentials card, buffer capacity note, toggleable overrun error, and processing spinner.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => setWaitlistModalOpen(true)}
+                    >
+                      Open Waitlist Promotion Modal
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setWaitlistError((prev) => !prev)}
+                    >
+                      Simulate State: {waitlistError ? 'Error (Capacity Overrun)' : 'Normal Buffer'}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* 4. Restricted Row State */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Restricted row state (.row-restricted, .restricted-label)
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Muted opacity, disabled action buttons, and lock status pill with hover explanation tooltip for locked or policy-restricted attendees.
+                    </p>
+                  </div>
+
+                  <div className="overflow-x-auto rounded-xl border border-border bg-white">
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead className="bg-slate-50 border-b border-border text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <tr>
+                          <th className="py-2.5 px-4">Attendee</th>
+                          <th className="py-2.5 px-4">Status</th>
+                          <th className="py-2.5 px-4">Restriction Note</th>
+                          <th className="py-2.5 px-4 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border">
+                        {/* Normal Row */}
+                        <tr className="hover:bg-slate-50/70 transition-colors">
+                          <td className="py-3 px-4 font-semibold text-foreground">Sarah Jenkins</td>
+                          <td className="py-3 px-4">
+                            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                              Confirmed
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-muted-foreground">Standard attendee record</td>
+                          <td className="py-3 px-4 text-right">
+                            <Button size="xs" variant="ghost">Edit</Button>
+                          </td>
+                        </tr>
+
+                        {/* Restricted Row */}
+                        <tr className="bg-slate-50/80 opacity-80 hover:bg-slate-100/60 transition-colors">
+                          <td className="py-3 px-4 font-medium text-slate-600">
+                            Arthur Vance <span className="text-[10px] text-muted-foreground">(Keynote VIP)</span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="inline-flex items-center gap-1 rounded-md bg-slate-200 px-2 py-0.5 text-[10px] font-bold text-slate-700" title="This guest RSVP is locked by platform administrator policy.">
+                              <LockIcon className="size-3 text-slate-600" />
+                              <span>LOCKED BY POLICY</span>
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-[11px] text-muted-foreground">
+                            Read-only: Governed by System Admin security gate
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <Button size="xs" variant="ghost" disabled className="cursor-not-allowed opacity-40">
+                              Locked
+                            </Button>
+                          </td>
+                        </tr>
+
+                        {/* Normal Row */}
+                        <tr className="hover:bg-slate-50/70 transition-colors">
+                          <td className="py-3 px-4 font-semibold text-foreground">Michael Chang</td>
+                          <td className="py-3 px-4">
+                            <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-800">
+                              Declined
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-muted-foreground">Seat released to waitlist</td>
+                          <td className="py-3 px-4 text-right">
+                            <Button size="xs" variant="ghost">Edit</Button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* 5. User Pill / Avatar */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      User pill &amp; avatar (.user-pill, .eirmis-session-pill)
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Gradient initials avatar, full name with overflow ellipsis, semantic role tag, and condensed mobile presentation.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-4">
+                    {/* Full Pill */}
+                    <div className="flex items-center gap-2 rounded-full border border-border bg-white py-1 px-3 shadow-xs hover:border-slate-300 transition-all cursor-pointer">
+                      <div className="flex size-7 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-indigo-900 text-xs font-bold text-white shadow-2xs">
+                        SJ
+                      </div>
+                      <span className="text-xs font-semibold text-foreground">Sarah Jenkins</span>
+                      <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-bold text-indigo-700">
+                        Organizer
+                      </span>
+                    </div>
+
+                    {/* Admin Pill */}
+                    <div className="flex items-center gap-2 rounded-full border border-border bg-white py-1 px-3 shadow-xs hover:border-slate-300 transition-all cursor-pointer">
+                      <div className="flex size-7 items-center justify-center rounded-full bg-gradient-to-br from-slate-700 to-slate-900 text-xs font-bold text-white shadow-2xs">
+                        RA
+                      </div>
+                      <span className="text-xs font-semibold text-foreground">Root Admin</span>
+                      <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                        Administrator
+                      </span>
+                    </div>
+
+                    {/* Mobile Condensed Variant */}
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-indigo-900 text-xs font-bold text-white shadow-xs cursor-pointer hover:scale-105 transition-transform"
+                        title="Sarah Jenkins (Organizer)"
+                      >
+                        SJ
+                      </div>
+                      <span className="text-xs text-muted-foreground">Condensed Mobile (Avatar Only)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating Custom Toast */}
+              {activeToast && (
+                <div
+                  className="fixed bottom-6 right-6 z-[3000] flex max-w-sm items-center gap-3 overflow-hidden rounded-xl border border-white/15 bg-slate-950/95 p-3.5 text-white shadow-2xl backdrop-blur-xl animate-in fade-in-50 slide-in-from-bottom-5 duration-200"
+                  role="alert"
+                >
+                  <div
+                    className={`flex size-6 shrink-0 items-center justify-center rounded-full text-white ${
+                      activeToast.type === 'success'
+                        ? 'bg-emerald-500'
+                        : activeToast.type === 'warning'
+                        ? 'bg-amber-500'
+                        : activeToast.type === 'error'
+                        ? 'bg-rose-500'
+                        : 'bg-indigo-500'
+                    }`}
+                  >
+                    {activeToast.type === 'success' ? (
+                      <CheckIcon className="size-3.5 stroke-[3]" />
+                    ) : activeToast.type === 'warning' ? (
+                      <ClockIcon className="size-3.5 stroke-[3]" />
+                    ) : activeToast.type === 'error' ? (
+                      <XIcon className="size-3.5 stroke-[3]" />
+                    ) : (
+                      <InfoIcon className="size-3.5 stroke-[3]" />
+                    )}
+                  </div>
+                  <span className="flex-1 text-xs font-medium leading-relaxed">{activeToast.message}</span>
+                  <button
+                    type="button"
+                    onClick={() => setActiveToast(null)}
+                    className="text-slate-400 hover:text-white transition-colors cursor-pointer text-base leading-none px-1"
+                  >
+                    ×
+                  </button>
+                  <div
+                    className={`absolute bottom-0 left-0 h-[3px] w-full ${
+                      activeToast.type === 'success'
+                        ? 'bg-emerald-500'
+                        : activeToast.type === 'warning'
+                        ? 'bg-amber-500'
+                        : activeToast.type === 'error'
+                        ? 'bg-rose-500'
+                        : 'bg-indigo-500'
+                    }`}
+                    style={{
+                      animation: 'eirmisToastProgress 3.2s linear forwards',
+                      transformOrigin: 'left',
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* Interactive Modal Sheet Overlay */}
+              {customModalSheetOpen && (
+                <div
+                  className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 backdrop-blur-sm p-4 animate-in fade-in-50 duration-150"
+                  onClick={() => setCustomModalSheetOpen(false)}
+                >
+                  <div
+                    className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="flex items-center justify-between border-b border-border pb-3">
+                      <h3 className="font-heading text-base font-bold text-foreground">
+                        Custom Modal Sheet
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={() => setCustomModalSheetOpen(false)}
+                        className="text-muted-foreground hover:text-foreground text-sm font-bold"
+                      >
+                        ×
+                      </button>
+                    </div>
+                    <div className="py-4 text-xs text-muted-foreground leading-relaxed">
+                      This modal demonstrates EIRMIS custom sheet design (.modal-box). It features spring scaling animation (0.95→1), backdrop blur filtering, and responsive max-width containment.
+                    </div>
+                    <div className="flex justify-end gap-2 border-t border-border pt-3">
+                      <Button size="xs" variant="ghost" onClick={() => setCustomModalSheetOpen(false)}>
+                        Cancel
+                      </Button>
+                      <Button size="xs" variant="primary" onClick={() => {
+                        toast.success('Modal action confirmed')
+                        setCustomModalSheetOpen(false)
+                      }}>
+                        Confirm Action
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Interactive Waitlist Promotion Modal */}
+              {waitlistModalOpen && (
+                <div
+                  className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 backdrop-blur-sm p-4 animate-in fade-in-50 duration-150"
+                  onClick={() => !waitlistProcessing && setWaitlistModalOpen(false)}
+                >
+                  <div
+                    className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="flex items-center justify-between border-b border-border pb-3">
+                      <h3 className="font-heading text-base font-bold text-foreground">
+                        Promote Attendee to Confirmed Guest
+                      </h3>
+                      <button
+                        type="button"
+                        disabled={waitlistProcessing}
+                        onClick={() => setWaitlistModalOpen(false)}
+                        className="text-muted-foreground hover:text-foreground text-sm font-bold disabled:opacity-50"
+                      >
+                        ×
+                      </button>
+                    </div>
+
+                    {/* Guest Information Card */}
+                    <div className="my-4 flex items-center gap-3 rounded-xl border border-border bg-slate-50 p-3">
+                      <div className="flex size-10 items-center justify-center rounded-full bg-indigo-50 font-heading text-sm font-bold text-indigo-700">
+                        ER
+                      </div>
+                      <div className="min-w-0 flex-1 text-xs">
+                        <strong className="block font-semibold text-foreground">Elena Rostova</strong>
+                        <span className="text-[11px] text-muted-foreground">elena.rostova@globaltech.com</span>
+                      </div>
+                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+                        Waitlist #1
+                      </span>
+                    </div>
+
+                    {/* Information Note */}
+                    <div className="mb-4 flex items-start gap-2.5 rounded-xl bg-indigo-50 p-3 text-xs text-indigo-900 leading-relaxed">
+                      <InfoIcon className="size-4 text-indigo-600 shrink-0 mt-0.5" />
+                      <span>
+                        Promoting this guest immediately deducts 1 seat from the remaining event capacity buffer and emails an encrypted QR access ticket.
+                      </span>
+                    </div>
+
+                    {/* Optional Error State */}
+                    {waitlistError && (
+                      <div className="mb-4 flex items-start gap-2.5 rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-800">
+                        <AlertCircleIcon className="size-4 text-rose-600 shrink-0 mt-0.5" />
+                        <span>
+                          <strong>Capacity Exceeded:</strong> All 150 ballroom seats are reserved. You must increase venue capacity in Event Settings before promoting.
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Actions */}
+                    <div className="flex justify-end gap-2 border-t border-border pt-3">
+                      <Button
+                        size="xs"
+                        variant="ghost"
+                        disabled={waitlistProcessing}
+                        onClick={() => setWaitlistModalOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant="primary"
+                        disabled={waitlistProcessing || waitlistError}
+                        onClick={() => {
+                          setWaitlistProcessing(true)
+                          setTimeout(() => {
+                            setWaitlistProcessing(false)
+                            setWaitlistModalOpen(false)
+                            triggerProgressToast('success', 'Elena Rostova successfully promoted to confirmed attendee.')
+                          }, 1200)
+                        }}
+                      >
+                        {waitlistProcessing ? (
+                          <span className="flex items-center gap-1.5">
+                            <span className="size-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                            <span>Processing...</span>
+                          </span>
+                        ) : (
+                          'Promote to Confirmed'
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </Section>
 
             {/* 13. Shared primitives */}
