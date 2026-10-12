@@ -142,6 +142,7 @@ const sections = [
   ['data-display', 'Data display primitives'],
   ['form-interactions', 'Form & interaction primitives'],
   ['feedback-states', 'Feedback & state primitives'],
+  ['specialized', 'Specialized primitives'],
   ['primitives', 'Shared primitives'],
   ['navigation', 'Navigation & feedback'],
   ['states', 'Loading & states'],
@@ -403,6 +404,11 @@ export default function Styleguide() {
       setActiveToast((curr) => (curr?.id === id ? null : curr))
     }, 3200)
   }
+
+  // Task 7 interactive states
+  const [cameraScanState, setCameraScanState] = useState<
+    'idle' | 'accepted' | 'duplicate' | 'rejected'
+  >('idle')
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -3499,6 +3505,311 @@ export default function Styleguide() {
                   </div>
                 </div>
               )}
+            </Section>
+
+            {/* 16. Specialized Primitives */}
+            <Section
+              id="specialized"
+              title="Specialized primitives"
+              description="Check-in scanner camera viewfinder feedback states, admin pulsing role pill, and semantic RSVP breakdown dots."
+            >
+              <div className="space-y-8">
+                {/* 1. Scan Camera Viewfinder */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                        Scan camera viewfinder (.camera-frame)
+                      </span>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Dark viewport with 140×140 reticle, animated laser sweep, and color feedback transitions for check-in verification states.
+                      </p>
+                    </div>
+                    {/* Simulator Controls */}
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <Button
+                        size="xs"
+                        variant={cameraScanState === 'idle' ? 'primary' : 'outline'}
+                        onClick={() => setCameraScanState('idle')}
+                      >
+                        Idle Sweep
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant={cameraScanState === 'accepted' ? 'primary' : 'outline'}
+                        className={cameraScanState === 'accepted' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+                        onClick={() => setCameraScanState('accepted')}
+                      >
+                        Accepted (Green)
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant={cameraScanState === 'duplicate' ? 'primary' : 'outline'}
+                        className={cameraScanState === 'duplicate' ? 'bg-amber-600 hover:bg-amber-700' : ''}
+                        onClick={() => setCameraScanState('duplicate')}
+                      >
+                        Duplicate (Amber)
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant={cameraScanState === 'rejected' ? 'primary' : 'outline'}
+                        className={cameraScanState === 'rejected' ? 'bg-rose-600 hover:bg-rose-700' : ''}
+                        onClick={() => setCameraScanState('rejected')}
+                      >
+                        Rejected (Red)
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Interactive Live Scanner Preview */}
+                  <div className="max-w-md mx-auto mb-8">
+                    <div
+                      className={`relative flex h-[280px] flex-col items-center justify-center overflow-hidden rounded-2xl border-2 transition-all duration-300 shadow-2xl ${
+                        cameraScanState === 'accepted'
+                          ? 'border-emerald-500'
+                          : cameraScanState === 'duplicate'
+                          ? 'border-amber-500'
+                          : cameraScanState === 'rejected'
+                          ? 'border-rose-500'
+                          : 'border-cyan-500/30'
+                      }`}
+                      style={{
+                        background:
+                          cameraScanState === 'accepted'
+                            ? 'radial-gradient(circle at center, #064E3B 0%, #022C22 100%)'
+                            : cameraScanState === 'duplicate'
+                            ? 'radial-gradient(circle at center, #78350F 0%, #451A03 100%)'
+                            : cameraScanState === 'rejected'
+                            ? 'radial-gradient(circle at center, #7F1D1D 0%, #450A0A 100%)'
+                            : '#020617',
+                      }}
+                    >
+                      {/* Reticle */}
+                      <div
+                        className={`relative flex size-[140px] items-center justify-center rounded-xl border-2 border-dashed transition-all duration-300 ${
+                          cameraScanState === 'accepted'
+                            ? 'border-emerald-400'
+                            : cameraScanState === 'duplicate'
+                            ? 'border-amber-400'
+                            : cameraScanState === 'rejected'
+                            ? 'border-rose-400'
+                            : 'border-cyan-400/80'
+                        }`}
+                      >
+                        {/* Stylized Reticle Corners */}
+                        <div
+                          className={`absolute -top-0.5 -left-0.5 size-4 border-t-[3px] border-l-[3px] rounded-tl-sm transition-colors duration-300 ${
+                            cameraScanState === 'accepted'
+                              ? 'border-emerald-400'
+                              : cameraScanState === 'duplicate'
+                              ? 'border-amber-400'
+                              : cameraScanState === 'rejected'
+                              ? 'border-rose-400'
+                              : 'border-cyan-400'
+                          }`}
+                        />
+                        <div
+                          className={`absolute -bottom-0.5 -right-0.5 size-4 border-b-[3px] border-r-[3px] rounded-br-sm transition-colors duration-300 ${
+                            cameraScanState === 'accepted'
+                              ? 'border-emerald-400'
+                              : cameraScanState === 'duplicate'
+                              ? 'border-amber-400'
+                              : cameraScanState === 'rejected'
+                              ? 'border-rose-400'
+                              : 'border-cyan-400'
+                          }`}
+                        />
+
+                        {/* Animated Laser Sweep */}
+                        <div
+                          className="absolute inset-x-0 h-[2px] transition-all duration-300"
+                          style={{
+                            background:
+                              cameraScanState === 'accepted'
+                                ? '#10B981'
+                                : cameraScanState === 'duplicate'
+                                ? '#F59E0B'
+                                : cameraScanState === 'rejected'
+                                ? '#EF4444'
+                                : '#38BDF8',
+                            boxShadow: `0 0 12px ${
+                              cameraScanState === 'accepted'
+                                ? '#10B981'
+                                : cameraScanState === 'duplicate'
+                                ? '#F59E0B'
+                                : cameraScanState === 'rejected'
+                                ? '#EF4444'
+                                : '#38BDF8'
+                            }`,
+                            animation: 'scanLaser 2s infinite ease-in-out',
+                          }}
+                        />
+
+                        {/* Center Icon */}
+                        <SparklesIcon className="size-8 text-white/20" />
+                      </div>
+
+                      {/* State Caption */}
+                      <div className="mt-4 font-mono text-xs font-semibold tracking-wider uppercase text-white/80">
+                        {cameraScanState === 'idle' && 'Position QR code within frame'}
+                        {cameraScanState === 'accepted' && '✓ Check-in Verified'}
+                        {cameraScanState === 'duplicate' && '⚠ Duplicate Scan Warning'}
+                        {cameraScanState === 'rejected' && '✕ Invalid Credentials'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Side-by-Side Gallery of all 4 states */}
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
+                      All Viewfinder Feedback States (Side-by-Side Reference)
+                    </p>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                      {/* State 1: Idle */}
+                      <div className="rounded-xl border border-border bg-slate-950 p-4 text-center">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 block mb-2">
+                          1. Idle / Scanning
+                        </span>
+                        <div className="h-28 rounded-lg bg-[#020617] flex items-center justify-center border border-cyan-500/20">
+                          <div className="size-16 border border-dashed border-cyan-400/60 rounded flex items-center justify-center">
+                            <span className="size-1 rounded-full bg-cyan-400 animate-ping" />
+                          </div>
+                        </div>
+                        <span className="mt-2 block text-[11px] text-slate-400">Cyan Reticle + Laser Sweep</span>
+                      </div>
+
+                      {/* State 2: Accepted */}
+                      <div className="rounded-xl border border-emerald-500/40 bg-slate-950 p-4 text-center">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block mb-2">
+                          2. Accepted (.state-accepted)
+                        </span>
+                        <div
+                          className="h-28 rounded-lg flex items-center justify-center border border-emerald-500"
+                          style={{ background: 'radial-gradient(circle, #064E3B 0%, #022C22 100%)' }}
+                        >
+                          <div className="size-16 border-2 border-emerald-400 rounded flex items-center justify-center">
+                            <CheckIcon className="size-6 text-emerald-400" />
+                          </div>
+                        </div>
+                        <span className="mt-2 block text-[11px] text-emerald-300">Green Glow Radial Gradient</span>
+                      </div>
+
+                      {/* State 3: Duplicate */}
+                      <div className="rounded-xl border border-amber-500/40 bg-slate-950 p-4 text-center">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-2">
+                          3. Duplicate (.state-duplicate)
+                        </span>
+                        <div
+                          className="h-28 rounded-lg flex items-center justify-center border border-amber-500"
+                          style={{ background: 'radial-gradient(circle, #78350F 0%, #451A03 100%)' }}
+                        >
+                          <div className="size-16 border-2 border-amber-400 rounded flex items-center justify-center">
+                            <ClockIcon className="size-6 text-amber-400" />
+                          </div>
+                        </div>
+                        <span className="mt-2 block text-[11px] text-amber-300">Amber Warning Gradient</span>
+                      </div>
+
+                      {/* State 4: Rejected */}
+                      <div className="rounded-xl border border-rose-500/40 bg-slate-950 p-4 text-center">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400 block mb-2">
+                          4. Rejected (.state-rejected)
+                        </span>
+                        <div
+                          className="h-28 rounded-lg flex items-center justify-center border border-rose-500"
+                          style={{ background: 'radial-gradient(circle, #7F1D1D 0%, #450A0A 100%)' }}
+                        >
+                          <div className="size-16 border-2 border-rose-400 rounded flex items-center justify-center">
+                            <XIcon className="size-6 text-rose-400" />
+                          </div>
+                        </div>
+                        <span className="mt-2 block text-[11px] text-rose-300">Red Alert Gradient</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Admin Role Pill */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      Admin role pill (.admin-pill, .admin-pill-dot)
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Security badge with pulsing status dot to clearly denote high-privilege administrative sessions.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-6">
+                    {/* Light Surface Admin Pill */}
+                    <div className="flex items-center gap-2 p-3 rounded-xl border border-border bg-slate-50/50">
+                      <span className="text-xs text-muted-foreground mr-1">Light context:</span>
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-slate-100 py-1 px-3 text-[11px] font-bold tracking-wider text-slate-700">
+                        <span className="relative flex size-2">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-500 opacity-75" />
+                          <span className="relative inline-flex size-2 rounded-full bg-indigo-600" />
+                        </span>
+                        <span>ADMIN</span>
+                      </span>
+                    </div>
+
+                    {/* Dark Surface Admin Pill */}
+                    <div className="flex items-center gap-2 p-3 rounded-xl bg-slate-900 text-white">
+                      <span className="text-xs text-slate-400 mr-1">Dark nav context:</span>
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-slate-800 py-1 px-3 text-[11px] font-bold tracking-wider text-slate-200">
+                        <span className="relative flex size-2">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                          <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+                        </span>
+                        <span>SYSTEM ADMIN</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. RSVP Breakdown Dots */}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      RSVP breakdown dots (.dot-green, .dot-red, .dot-amber, .dot-gray)
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      10px circular indicators mapped strictly to semantic color tokens for glanceable status categorization.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 max-w-2xl">
+                    <div className="flex items-center gap-3 rounded-xl border border-border bg-white p-3 shadow-2xs">
+                      <span className="size-2.5 rounded-full bg-emerald-500 shrink-0" />
+                      <div>
+                        <strong className="block text-xs font-semibold text-foreground">dot-green</strong>
+                        <span className="text-[11px] text-muted-foreground">#10B981 (Accepted)</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 rounded-xl border border-border bg-white p-3 shadow-2xs">
+                      <span className="size-2.5 rounded-full bg-rose-500 shrink-0" />
+                      <div>
+                        <strong className="block text-xs font-semibold text-foreground">dot-red</strong>
+                        <span className="text-[11px] text-muted-foreground">#EF4444 (Declined)</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 rounded-xl border border-border bg-white p-3 shadow-2xs">
+                      <span className="size-2.5 rounded-full bg-amber-500 shrink-0" />
+                      <div>
+                        <strong className="block text-xs font-semibold text-foreground">dot-amber</strong>
+                        <span className="text-[11px] text-muted-foreground">#F59E0B (Tentative)</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 rounded-xl border border-border bg-white p-3 shadow-2xs">
+                      <span className="size-2.5 rounded-full bg-slate-400 shrink-0" />
+                      <div>
+                        <strong className="block text-xs font-semibold text-foreground">dot-gray</strong>
+                        <span className="text-[11px] text-muted-foreground">#94A3B8 (Unanswered)</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </Section>
 
             {/* 13. Shared primitives */}
