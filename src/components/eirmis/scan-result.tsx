@@ -1,4 +1,4 @@
-import React from 'react'
+import type { ReactNode } from 'react'
 import {
   AlertTriangleIcon,
   CheckCircle2Icon,
@@ -33,7 +33,7 @@ const statusConfig: Record<
     subtitle: string
     badgeVariant: 'success' | 'warning' | 'error' | 'outline'
     badgeText: string
-    icon: React.ReactNode
+    icon: ReactNode
     containerClass: string
     iconBoxClass: string
   }

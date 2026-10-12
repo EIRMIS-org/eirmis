@@ -1,4 +1,3 @@
-import React from 'react'
 import { CalendarIcon, DownloadIcon, MapPinIcon, QrCodeIcon, ShieldCheckIcon, UserIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 

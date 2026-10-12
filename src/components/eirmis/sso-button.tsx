@@ -1,15 +1,15 @@
-import React from 'react'
+import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
 export type SsoProvider = 'google' | 'microsoft' | 'github' | 'organizer' | 'guest' | 'staff'
 
-export interface SsoButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface SsoButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   provider?: SsoProvider
   title?: string
   subtitle?: string
   badgeText?: string
   primary?: boolean
-  icon?: React.ReactNode
+  icon?: ReactNode
 }
 
 function GoogleIcon() {
@@ -60,7 +60,7 @@ function GithubIcon() {
 
 const defaultContent: Record<
   SsoProvider,
-  { title: string; subtitle?: string; icon: React.ReactNode; defaultBadge?: string }
+  { title: string; subtitle?: string; icon: ReactNode; defaultBadge?: string }
 > = {
   google: {
     title: 'Continue with Google',

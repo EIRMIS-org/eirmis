@@ -1,4 +1,3 @@
-import React from 'react'
 import { CompassIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 

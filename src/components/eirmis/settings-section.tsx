@@ -1,4 +1,4 @@
-import React from 'react'
+import type { ReactNode } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
@@ -6,8 +6,8 @@ export interface SettingsSectionProps {
   title: string
   description?: string
   badge?: string
-  children: React.ReactNode
-  footer?: React.ReactNode
+  children: ReactNode
+  footer?: ReactNode
   className?: string
 }
 

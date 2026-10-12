@@ -1,4 +1,4 @@
-import React from 'react'
+import { useId } from 'react'
 import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
 
@@ -25,7 +25,7 @@ export function ToggleRow({
   badge,
   className,
 }: ToggleRowProps) {
-  const switchId = id || React.useId()
+  const switchId = id || useId()
 
   return (
     <div

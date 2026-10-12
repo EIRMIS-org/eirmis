@@ -1,17 +1,13 @@
-import React from 'react'
+import type { ReactNode } from 'react'
 import {
-  AlertCircleIcon,
   CheckIcon,
   ChevronRightIcon,
-  ExternalLinkIcon,
   InfoIcon,
   ShieldAlertIcon,
   SparklesIcon,
-  UserIcon,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 
@@ -21,7 +17,7 @@ import { cn } from '@/lib/utils'
 export interface SolutionCardProps {
   title: string
   description: string
-  icon?: React.ReactNode
+  icon?: ReactNode
   tags?: string[]
   badge?: string
   href?: string
@@ -196,7 +192,7 @@ export function InsetGroupedList({
   children,
   className,
 }: {
-  children: React.ReactNode
+  children: ReactNode
   className?: string
 }) {
   return (
@@ -448,7 +444,7 @@ export function NoticeBox({
   className,
 }: {
   title?: string
-  children: React.ReactNode
+  children: ReactNode
   className?: string
 }) {
   return (

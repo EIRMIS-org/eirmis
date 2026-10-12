@@ -1,4 +1,4 @@
-import React from 'react'
+import type { ReactNode } from 'react'
 import { CheckCircleIcon, ClockIcon, XCircleIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -21,7 +21,7 @@ export function RsvpSelector({
     id: RsvpChoice
     label: string
     sublabel: string
-    icon: React.ReactNode
+    icon: ReactNode
     activeClass: string
   }> = [
     {
