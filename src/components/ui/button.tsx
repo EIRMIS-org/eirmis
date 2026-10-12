@@ -7,19 +7,23 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        default:
+          "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)] shadow-sm focus-visible:ring-[var(--primary-glow)]",
         outline:
-          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:bg-input/30",
+          "border border-[var(--border)] bg-transparent text-foreground hover:bg-[var(--muted)] hover:border-[var(--border-hover)] focus-visible:ring-[var(--primary-glow)]",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:bg-[var(--secondary-hover)] shadow-sm focus-visible:ring-[var(--primary-glow)]",
         ghost:
-          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
+          "bg-transparent text-foreground hover:bg-[var(--muted)] focus-visible:ring-[var(--primary-glow)]",
         destructive:
-          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
-        link: "text-primary underline-offset-4 hover:underline",
-        primary: "bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm",
-        teal: "bg-teal-600 text-white hover:bg-teal-700 shadow-sm",
-        danger: "bg-red-600 text-white hover:bg-red-700 shadow-sm",
+          "bg-[var(--error-bg)] text-[var(--error)] border border-[var(--error-border)] hover:bg-[var(--error-border)] focus-visible:border-[var(--error)] focus-visible:ring-[rgba(185,28,28,0.2)]",
+        link: "text-[var(--primary)] underline-offset-4 hover:underline",
+        primary:
+          "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)] shadow-sm focus-visible:ring-[var(--primary-glow)]",
+        teal:
+          "bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:bg-[var(--secondary-hover)] shadow-sm focus-visible:ring-[rgba(13,148,136,0.2)]",
+        danger:
+          "bg-[var(--error)] text-white hover:bg-[#991B1B] shadow-sm focus-visible:ring-[rgba(185,28,28,0.2)]",
       },
       size: {
         default:

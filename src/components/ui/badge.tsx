@@ -8,24 +8,25 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+        default:
+          "bg-[var(--primary)] text-[var(--primary-foreground)] [a]:hover:bg-[var(--primary-hover)]",
         secondary:
-          "bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80",
+          "bg-[var(--secondary)] text-[var(--secondary-foreground)] [a]:hover:bg-[var(--secondary-hover)]",
         destructive:
-          "bg-destructive/10 text-destructive focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20",
+          "bg-[var(--error-bg)] text-[var(--error)] border border-[var(--error-border)] [a]:hover:bg-[var(--error-border)]",
         outline:
-          "border-border text-foreground [a]:hover:bg-muted [a]:hover:text-muted-foreground",
+          "border border-[var(--border)] text-foreground [a]:hover:bg-[var(--muted)]",
         ghost:
-          "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
-        link: "text-primary underline-offset-4 hover:underline",
+          "hover:bg-[var(--muted)] hover:text-muted-foreground",
+        link: "text-[var(--primary)] underline-offset-4 hover:underline",
         success:
-          "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800",
+          "bg-[var(--success-bg)] text-[var(--success)] border border-[var(--success-border)]",
         warning:
-          "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800",
+          "bg-[var(--warning-bg)] text-[var(--warning)] border border-[var(--warning-border)]",
         error:
-          "bg-red-100 text-red-800 border-red-200 dark:bg-red-950/60 dark:text-red-300 dark:border-red-800",
+          "bg-[var(--error-bg)] text-[var(--error)] border border-[var(--error-border)]",
         info:
-          "bg-sky-100 text-sky-800 border-sky-200 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800",
+          "bg-[var(--info-bg)] text-[var(--info)] border border-[var(--info-border)]",
       },
       size: {
         default: "px-3 py-1 text-xs",
