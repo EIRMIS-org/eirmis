@@ -25,7 +25,8 @@ export function ToggleRow({
   badge,
   className,
 }: ToggleRowProps) {
-  const switchId = id || useId()
+  const generatedId = useId()
+  const switchId = id || generatedId
 
   return (
     <div
