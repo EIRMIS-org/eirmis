@@ -43,36 +43,36 @@ const statusConfig: Record<
     subtitle: 'Credential verified & recorded successfully',
     badgeVariant: 'success',
     badgeText: 'Verified Entry',
-    icon: <CheckCircle2Icon className="size-6 text-emerald-600" />,
-    containerClass: 'border-emerald-200 bg-emerald-50/40',
-    iconBoxClass: 'bg-emerald-100 text-emerald-700 ring-2 ring-emerald-500/20',
+    icon: <CheckCircle2Icon className="size-6 text-success" />,
+    containerClass: 'border-success-border bg-success-bg/40',
+    iconBoxClass: 'bg-success-bg text-success ring-2 ring-success/20',
   },
   duplicate: {
     title: 'Duplicate Scan Detected',
     subtitle: 'This pass has already been processed at Gate B',
     badgeVariant: 'warning',
     badgeText: 'Already Checked In',
-    icon: <ClockIcon className="size-6 text-amber-600" />,
-    containerClass: 'border-amber-200 bg-amber-50/40',
-    iconBoxClass: 'bg-amber-100 text-amber-700 ring-2 ring-amber-500/20',
+    icon: <ClockIcon className="size-6 text-warning" />,
+    containerClass: 'border-warning-border bg-warning-bg/40',
+    iconBoxClass: 'bg-warning-bg text-warning ring-2 ring-warning/20',
   },
   warning: {
     title: 'Verification Flag',
     subtitle: 'Attendee requires ID check or badge exchange',
     badgeVariant: 'warning',
     badgeText: 'Attention Needed',
-    icon: <AlertTriangleIcon className="size-6 text-amber-600" />,
-    containerClass: 'border-amber-200 bg-amber-50/40',
-    iconBoxClass: 'bg-amber-100 text-amber-700 ring-2 ring-amber-500/20',
+    icon: <AlertTriangleIcon className="size-6 text-warning" />,
+    containerClass: 'border-warning-border bg-warning-bg/40',
+    iconBoxClass: 'bg-warning-bg text-warning ring-2 ring-warning/20',
   },
   rejected: {
     title: 'Access Denied',
     subtitle: 'Ticket invalid, revoked, or non-matching cryptographic signature',
     badgeVariant: 'error',
     badgeText: 'Invalid Credential',
-    icon: <XCircleIcon className="size-6 text-rose-600" />,
-    containerClass: 'border-rose-200 bg-rose-50/40',
-    iconBoxClass: 'bg-rose-100 text-rose-700 ring-2 ring-rose-500/20',
+    icon: <XCircleIcon className="size-6 text-error" />,
+    containerClass: 'border-error-border bg-error-bg/40',
+    iconBoxClass: 'bg-error-bg text-error ring-2 ring-error/20',
   },
 }
 
@@ -134,7 +134,7 @@ export function ScanResult({
       </div>
 
       {/* Attendee Details strip */}
-      <div className="mt-4 grid grid-cols-2 gap-3 rounded-xl border border-border/60 bg-white/80 p-3.5 text-xs sm:grid-cols-3">
+      <div className="mt-4 grid grid-cols-2 gap-3 rounded-xl border border-border/60 bg-surface/80 p-3.5 text-xs sm:grid-cols-3">
         <div>
           <span className="block text-[10px] uppercase font-bold text-muted-foreground">
             Attendee
@@ -160,7 +160,7 @@ export function ScanResult({
       </div>
 
       {notes && (
-        <p className="mt-3 text-xs text-slate-600 bg-white/60 p-2.5 rounded-lg border border-border/40">
+        <p className="mt-3 text-xs text-muted-foreground bg-surface/60 p-2.5 rounded-lg border border-border/40">
           <strong>Staff note:</strong> {notes}
         </p>
       )}
@@ -178,7 +178,7 @@ export function ScanResult({
             size="sm"
             variant="outline"
             onClick={onOverride}
-            className="flex-1 sm:flex-initial text-rose-600 border-rose-200 hover:bg-rose-50"
+            className="flex-1 sm:flex-initial text-error border-error-border hover:bg-error-bg"
           >
             Manual Override
           </Button>

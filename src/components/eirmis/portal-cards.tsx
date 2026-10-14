@@ -36,13 +36,13 @@ export function SolutionCard({
   return (
     <div
       className={cn(
-        'group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-white p-6 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-md',
+        'group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-surface p-6 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary-border hover:shadow-md',
         className
       )}
     >
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex size-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 ring-1 ring-indigo-500/20 transition-transform group-hover:scale-105">
+          <div className="flex size-10 items-center justify-center rounded-xl bg-primary-subtle text-primary ring-1 ring-primary-glow transition-transform group-hover:scale-105">
             {icon ?? <SparklesIcon className="size-5" />}
           </div>
           {badge && (
@@ -53,7 +53,7 @@ export function SolutionCard({
         </div>
 
         <div>
-          <h4 className="font-heading text-base font-bold text-foreground group-hover:text-indigo-600 transition-colors">
+          <h4 className="font-heading text-base font-bold text-foreground group-hover:text-primary transition-colors">
             {title}
           </h4>
           <p className="mt-1 text-xs text-muted-foreground leading-relaxed line-clamp-3">
@@ -67,14 +67,14 @@ export function SolutionCard({
           {tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600"
+              className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
             >
               {tag}
             </span>
           ))}
         </div>
         {href && (
-          <span className="flex items-center gap-1 text-xs font-semibold text-indigo-600 group-hover:translate-x-0.5 transition-transform">
+          <span className="flex items-center gap-1 text-xs font-semibold text-primary group-hover:translate-x-0.5 transition-transform">
             Explore <ChevronRightIcon className="size-3.5" />
           </span>
         )}
@@ -106,7 +106,7 @@ export function QuotaBar({
   const isFull = percent >= 100
 
   return (
-    <div className={cn('space-y-2 rounded-xl border border-border/80 bg-white p-4 shadow-2xs', className)}>
+    <div className={cn('space-y-2 rounded-xl border border-border/80 bg-surface p-4 shadow-2xs', className)}>
       <div className="flex items-center justify-between text-xs">
         <span className="font-semibold text-foreground">{label}</span>
         <span className="font-mono text-muted-foreground">
@@ -118,15 +118,15 @@ export function QuotaBar({
         value={percent}
         className={cn(
           'h-2',
-          isFull && '[&>div]:bg-rose-500',
-          isHigh && !isFull && '[&>div]:bg-amber-500',
-          !isHigh && '[&>div]:bg-indigo-600'
+          isFull && '[&>div]:bg-error',
+          isHigh && !isFull && '[&>div]:bg-warning',
+          !isHigh && '[&>div]:bg-primary'
         )}
       />
 
       <div className="flex items-center justify-between text-[11px] text-muted-foreground">
         <span>0</span>
-        <span className="font-medium text-slate-600">
+        <span className="font-medium text-muted-foreground">
           {isFull ? 'Limit reached' : `${max - current} slots remaining`}
         </span>
         <span>{max}</span>
@@ -163,12 +163,12 @@ export function AttendeeItem({
     <div
       onClick={onClick}
       className={cn(
-        'flex items-center justify-between gap-3 px-4 py-3 bg-white transition-colors hover:bg-slate-50/80',
+        'flex items-center justify-between gap-3 px-4 py-3 bg-surface transition-colors hover:bg-muted/80',
         onClick && 'cursor-pointer'
       )}
     >
       <div className="flex items-center gap-3 min-w-0">
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-subtle text-primary font-bold text-xs">
           {name.charAt(0)}
         </div>
         <div className="min-w-0">
@@ -182,7 +182,7 @@ export function AttendeeItem({
       </div>
       <div className="flex items-center gap-2 shrink-0">
         {statusBadges[status]}
-        {onClick && <ChevronRightIcon className="size-4 text-slate-400" />}
+        {onClick && <ChevronRightIcon className="size-4 text-muted-foreground" />}
       </div>
     </div>
   )
@@ -198,7 +198,7 @@ export function InsetGroupedList({
   return (
     <div
       className={cn(
-        'overflow-hidden rounded-2xl border border-border/80 bg-white divide-y divide-border/60 shadow-2xs',
+        'overflow-hidden rounded-2xl border border-border/80 bg-surface divide-y divide-border/60 shadow-2xs',
         className
       )}
     >
@@ -228,9 +228,9 @@ export function WorkflowStep({
       <div
         className={cn(
           'flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition-all',
-          status === 'completed' && 'bg-emerald-500 text-white',
-          status === 'current' && 'bg-indigo-600 text-white ring-2 ring-indigo-200',
-          status === 'upcoming' && 'bg-slate-200 text-slate-600'
+          status === 'completed' && 'bg-success text-success-foreground',
+          status === 'current' && 'bg-primary text-primary-foreground ring-2 ring-primary-border',
+          status === 'upcoming' && 'bg-border text-muted-foreground'
         )}
       >
         {status === 'completed' ? <CheckIcon className="size-3.5" /> : step}
@@ -239,7 +239,7 @@ export function WorkflowStep({
         <strong
           className={cn(
             'block',
-            status === 'current' ? 'text-indigo-600 font-bold' : 'text-foreground'
+            status === 'current' ? 'text-primary font-bold' : 'text-foreground'
           )}
         >
           {title}
@@ -280,13 +280,13 @@ export function AccountCard({
   return (
     <div
       className={cn(
-        'flex items-center justify-between rounded-2xl border border-border bg-white p-3.5 shadow-2xs transition-all',
-        active && 'ring-1 ring-indigo-500/20 border-indigo-200',
+        'flex items-center justify-between rounded-2xl border border-border bg-surface p-3.5 shadow-2xs transition-all',
+        active && 'ring-1 ring-primary-glow border-primary-border',
         className
       )}
     >
       <div className="flex items-center gap-3 min-w-0">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white font-bold text-sm shadow-xs">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-hover text-primary-foreground font-bold text-sm shadow-xs">
           {name.charAt(0)}
         </div>
         <div className="min-w-0">
@@ -295,7 +295,7 @@ export function AccountCard({
               {name}
             </span>
             {active && (
-              <span className="rounded-full bg-emerald-100 px-1.5 py-0.2 text-[9px] font-bold text-emerald-800">
+              <span className="rounded-full bg-success-bg px-1.5 py-0.2 text-[9px] font-bold text-success">
                 Active
               </span>
             )}
@@ -311,7 +311,7 @@ export function AccountCard({
           <button
             type="button"
             onClick={onSwitch}
-            className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800"
+            className="text-[11px] font-semibold text-primary hover:text-primary"
           >
             Switch
           </button>
@@ -347,16 +347,16 @@ export function AuditCallout({
   return (
     <div
       className={cn(
-        'rounded-xl border border-indigo-100 bg-indigo-50/50 p-4 text-xs shadow-2xs',
+        'rounded-xl border border-primary-border bg-primary-subtle/50 p-4 text-xs shadow-2xs',
         className
       )}
     >
-      <div className="flex items-center justify-between pb-2 border-b border-indigo-100/80">
-        <div className="flex items-center gap-1.5 font-bold text-indigo-900">
-          <ShieldAlertIcon className="size-4 text-indigo-600" />
+      <div className="flex items-center justify-between pb-2 border-b border-primary-border">
+        <div className="flex items-center gap-1.5 font-bold text-foreground">
+          <ShieldAlertIcon className="size-4 text-primary" />
           <span>{title}</span>
         </div>
-        <span className="font-mono text-[10px] font-bold text-indigo-600 bg-white px-2 py-0.5 rounded-full border border-indigo-200">
+        <span className="font-mono text-[10px] font-bold text-primary bg-surface px-2 py-0.5 rounded-full border border-primary-border">
           {policyId}
         </span>
       </div>
@@ -401,15 +401,15 @@ export function ErrorPage({
   return (
     <div
       className={cn(
-        'flex min-h-[420px] flex-col items-center justify-center rounded-3xl border border-border/80 bg-gradient-to-b from-white to-slate-50 p-8 text-center shadow-xs',
+        'flex min-h-[420px] flex-col items-center justify-center rounded-3xl border border-border/80 bg-gradient-to-b from-surface to-background p-8 text-center shadow-xs',
         className
       )}
     >
-      <div className="flex size-14 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 shadow-xs ring-4 ring-rose-50 mb-4">
+      <div className="flex size-14 items-center justify-center rounded-2xl bg-error-bg text-error shadow-xs ring-4 ring-error-bg/50 mb-4">
         <ShieldAlertIcon className="size-7" />
       </div>
 
-      <span className="font-mono text-xs font-bold uppercase tracking-wider text-rose-600">
+      <span className="font-mono text-xs font-bold uppercase tracking-wider text-error">
         Error {errorCode}
       </span>
       <h2 className="mt-1 font-heading text-xl font-bold text-foreground sm:text-2xl">
@@ -450,13 +450,13 @@ export function NoticeBox({
   return (
     <div
       className={cn(
-        'flex items-start gap-3 rounded-xl border border-indigo-200 bg-indigo-50/60 p-4 text-xs text-indigo-950',
+        'flex items-start gap-3 rounded-xl border border-primary-border bg-primary-subtle/60 p-4 text-xs text-foreground',
         className
       )}
     >
-      <InfoIcon className="size-4 shrink-0 text-indigo-600 mt-0.5" />
+      <InfoIcon className="size-4 shrink-0 text-primary mt-0.5" />
       <div className="min-w-0">
-        {title && <strong className="block font-bold text-indigo-900">{title}</strong>}
+        {title && <strong className="block font-bold text-foreground">{title}</strong>}
         <div className="text-muted-foreground text-xs">{children}</div>
       </div>
     </div>

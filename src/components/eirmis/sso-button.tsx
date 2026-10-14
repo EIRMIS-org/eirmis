@@ -83,7 +83,7 @@ const defaultContent: Record<
     subtitle: 'Manage events, attendees, and invitation pipelines',
     icon: (
       <svg
-        className="size-4 shrink-0 text-indigo-600"
+        className="size-4 shrink-0 text-primary"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -101,7 +101,7 @@ const defaultContent: Record<
     subtitle: 'Enter with invitation code or personal RSVP link',
     icon: (
       <svg
-        className="size-4 shrink-0 text-emerald-600"
+        className="size-4 shrink-0 text-success"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -118,7 +118,7 @@ const defaultContent: Record<
     subtitle: 'Door personnel badge & QR verification station',
     icon: (
       <svg
-        className="size-4 shrink-0 text-amber-600"
+        className="size-4 shrink-0 text-warning"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -156,9 +156,9 @@ export function SsoButton({
       type="button"
       className={cn(
         'group relative flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3.5 text-left transition-all duration-200',
-        'border-border/80 bg-white hover:border-border hover:shadow-xs active:scale-[0.99]',
+        'border-border/80 bg-surface hover:border-border hover:shadow-xs active:scale-[0.99]',
         isGooglePrimary &&
-          'border-indigo-100 bg-gradient-to-br from-white to-indigo-50/40 hover:border-indigo-200 hover:shadow-sm',
+          'border-primary-border bg-gradient-to-br from-surface to-primary-subtle/40 hover:border-primary-border hover:shadow-sm',
         className
       )}
       {...props}
@@ -166,17 +166,17 @@ export function SsoButton({
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <span
           className={cn(
-            'flex size-9 shrink-0 items-center justify-center rounded-xl border border-slate-100 bg-white shadow-2xs transition-transform group-hover:scale-105',
-            provider === 'organizer' && 'bg-indigo-50/80 border-indigo-100',
-            provider === 'guest' && 'bg-emerald-50/80 border-emerald-100',
-            provider === 'staff' && 'bg-amber-50/80 border-amber-100'
+            'flex size-9 shrink-0 items-center justify-center rounded-xl border border-border-subtle bg-surface shadow-2xs transition-transform group-hover:scale-105',
+            provider === 'organizer' && 'bg-primary-subtle/80 border-primary-border',
+            provider === 'guest' && 'bg-success-bg border-success-border',
+            provider === 'staff' && 'bg-warning-bg border-warning-border'
           )}
         >
           {displayIcon}
         </span>
         <div className="min-w-0 flex-1">
           {displayBadge && (
-            <span className="block text-[10px] font-bold uppercase tracking-wider text-indigo-600">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-primary">
               {displayBadge}
             </span>
           )}
@@ -190,7 +190,7 @@ export function SsoButton({
           )}
         </div>
       </div>
-      <span className="shrink-0 text-slate-400 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-foreground">
+      <span className="shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-foreground">
         →
       </span>
     </button>

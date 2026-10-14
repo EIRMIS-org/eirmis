@@ -80,12 +80,14 @@
 
   /* Semantic status tokens */
   --success: #15803D;
+  --success-foreground: #FFFFFF;
   --success-bg: #DCFCE7;
   --success-border: #86EFAC;
   --warning: #B45309;
   --warning-bg: #FEF3C7;
   --warning-border: #FDE68A;
   --error: #B91C1C;
+  --error-hover: #991B1B;
   --error-bg: #FEE2E2;
   --error-border: #FECACA;
   --info: #4F46E5;
@@ -242,8 +244,10 @@ code {
 
   /* EIRMIS semantic color tokens exposed as Tailwind utilities */
   --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --color-success-bg: var(--success-bg);
   --color-success-border: var(--success-border);
+  --color-error-hover: var(--error-hover);
   --color-warning: var(--warning);
   --color-warning-bg: var(--warning-bg);
   --color-warning-border: var(--warning-border);
@@ -334,12 +338,14 @@ code {
 
   /* Semantic status tokens (brighter text, translucent backgrounds) */
   --success: #4ADE80;
+  --success-foreground: #0B1120;
   --success-bg: rgba(34, 197, 94, 0.12);
   --success-border: rgba(74, 222, 128, 0.35);
   --warning: #FBBF24;
   --warning-bg: rgba(245, 158, 11, 0.12);
   --warning-border: rgba(251, 191, 36, 0.35);
   --error: #F87171;
+  --error-hover: #EF4444;
   --error-bg: rgba(239, 68, 68, 0.12);
   --error-border: rgba(248, 113, 113, 0.35);
   --info: #818CF8;

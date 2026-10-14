@@ -23,7 +23,7 @@ const buttonVariants = cva(
         teal:
           "bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:bg-[var(--secondary-hover)] shadow-sm focus-visible:ring-[rgba(13,148,136,0.2)]",
         danger:
-          "bg-[var(--error)] text-white hover:bg-[#991B1B] shadow-sm focus-visible:ring-[rgba(185,28,28,0.2)]",
+          "bg-[var(--error)] text-white hover:bg-[var(--error-hover)] shadow-sm focus-visible:ring-[rgba(185,28,28,0.2)]",
       },
       size: {
         default:

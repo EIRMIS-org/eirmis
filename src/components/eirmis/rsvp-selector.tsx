@@ -28,25 +28,25 @@ export function RsvpSelector({
       id: 'accept',
       label: 'Attending',
       sublabel: 'Will be there in person',
-      icon: <CheckCircleIcon className="size-5 shrink-0 text-emerald-600" />,
+      icon: <CheckCircleIcon className="size-5 shrink-0 text-success" />,
       activeClass:
-        'border-emerald-500 bg-emerald-50/70 text-emerald-900 shadow-sm ring-1 ring-emerald-500/20',
+        'border-success bg-success-bg/70 text-success shadow-sm ring-1 ring-success/20',
     },
     {
       id: 'tentative',
       label: 'Tentative',
       sublabel: 'Pending schedule confirmation',
-      icon: <ClockIcon className="size-5 shrink-0 text-amber-600" />,
+      icon: <ClockIcon className="size-5 shrink-0 text-warning" />,
       activeClass:
-        'border-amber-500 bg-amber-50/70 text-amber-900 shadow-sm ring-1 ring-amber-500/20',
+        'border-warning bg-warning-bg/70 text-warning shadow-sm ring-1 ring-warning/20',
     },
     {
       id: 'decline',
       label: 'Decline',
       sublabel: 'Unable to attend event',
-      icon: <XCircleIcon className="size-5 shrink-0 text-rose-600" />,
+      icon: <XCircleIcon className="size-5 shrink-0 text-error" />,
       activeClass:
-        'border-rose-500 bg-rose-50/70 text-rose-900 shadow-sm ring-1 ring-rose-500/20',
+        'border-error bg-error-bg/70 text-error shadow-sm ring-1 ring-error/20',
     },
   ]
 
@@ -62,12 +62,12 @@ export function RsvpSelector({
             onClick={() => onChange?.(option.id)}
             className={cn(
               'group relative flex flex-col items-center justify-center rounded-2xl border-2 p-4 text-center transition-all duration-200',
-              'border-border/80 bg-white hover:border-slate-300 hover:bg-slate-50/50 active:scale-[0.98]',
+              'border-border/80 bg-surface hover:border-border-hover hover:bg-muted/50 active:scale-[0.98]',
               disabled && 'cursor-not-allowed opacity-50',
               isSelected && option.activeClass
             )}
           >
-            <div className="mb-2 flex size-10 items-center justify-center rounded-xl bg-white shadow-2xs transition-transform group-hover:scale-105">
+            <div className="mb-2 flex size-10 items-center justify-center rounded-xl bg-surface shadow-2xs transition-transform group-hover:scale-105">
               {option.icon}
             </div>
             <strong className="text-xs font-bold text-foreground">
@@ -77,7 +77,7 @@ export function RsvpSelector({
               {option.sublabel}
             </span>
             {isSelected && (
-              <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-bold shadow-2xs">
+              <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-surface px-2 py-0.5 text-[10px] font-bold shadow-2xs">
                 Selected
               </span>
             )}

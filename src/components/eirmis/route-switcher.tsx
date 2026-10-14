@@ -34,13 +34,13 @@ export function RouteSwitcher({
   return (
     <div
       className={cn(
-        'flex items-center gap-2 overflow-x-auto rounded-2xl border border-border/80 bg-white p-1.5 shadow-xs scrollbar-none',
+        'flex items-center gap-2 overflow-x-auto rounded-2xl border border-border/80 bg-surface p-1.5 shadow-xs scrollbar-none',
         className
       )}
     >
       {label && (
         <div className="flex items-center gap-1.5 px-2.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground shrink-0 select-none">
-          <CompassIcon className="size-3.5 text-indigo-500" />
+          <CompassIcon className="size-3.5 text-primary" />
           <span>{label}</span>
         </div>
       )}
@@ -56,8 +56,8 @@ export function RouteSwitcher({
               className={cn(
                 'group relative flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-all duration-150',
                 isActive
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-muted-foreground hover:bg-slate-100 hover:text-foreground'
+                  ? 'bg-primary text-primary-foreground shadow-xs'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >
               <span>{route.label}</span>
@@ -66,8 +66,8 @@ export function RouteSwitcher({
                   className={cn(
                     'rounded-full px-1.5 py-0.2 text-[10px] font-bold',
                     isActive
-                      ? 'bg-white/20 text-white'
-                      : 'bg-slate-200/80 text-slate-700'
+                      ? 'bg-surface/20 text-white'
+                      : 'bg-border/80 text-foreground'
                   )}
                 >
                   {route.count}
@@ -78,8 +78,8 @@ export function RouteSwitcher({
                   className={cn(
                     'rounded-full px-1.5 py-0.2 text-[9px] font-bold uppercase tracking-wider',
                     isActive
-                      ? 'bg-emerald-400 text-slate-900'
-                      : 'bg-emerald-100 text-emerald-800'
+                      ? 'bg-success text-success-foreground'
+                      : 'bg-success-bg text-success'
                   )}
                 >
                   {route.badge}
