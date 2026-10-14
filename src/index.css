@@ -64,6 +64,7 @@
   /* Neutral surface scale */
   --muted: #F1F5F9;
   --muted-foreground: #64748B;
+  --skeleton: #F1F5F9;
   --accent: #EEF2FF;
   --accent-foreground: #4F46E5;
 
@@ -260,6 +261,7 @@ code {
 
   /* EIRMIS brand + surface tokens exposed as Tailwind utilities */
   --color-surface: var(--surface);
+  --color-skeleton: var(--skeleton);
   --color-primary-hover: var(--primary-hover);
   --color-primary-subtle: var(--primary-subtle);
   --color-primary-border: var(--primary-border);
@@ -322,6 +324,7 @@ code {
   /* Neutral surfaces */
   --muted: #1E293B;
   --muted-foreground: #94A3B8;
+  --skeleton: #334155;
   --accent: rgba(99, 102, 241, 0.15);
   --accent-foreground: #A5B4FC;
 
