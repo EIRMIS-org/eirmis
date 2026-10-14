@@ -346,7 +346,7 @@ function Section({
     <section id={id} className="scroll-mt-24 border-b border-border/70 py-14">
       <div className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-start sm:gap-8">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+          <p className="text-xs font-bold uppercase tracking-wider text-primary">
             Component primitive
           </p>
           <h2 className="mt-1 font-heading text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
@@ -366,7 +366,7 @@ function Section({
 
 function DemoCard({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn('rounded-2xl border border-border bg-white p-6 shadow-xs', className)}>
+    <div className={cn('rounded-2xl border border-border bg-surface p-6 shadow-xs', className)}>
       {children}
     </div>
   )
@@ -375,7 +375,7 @@ function DemoCard({ children, className }: { children: ReactNode; className?: st
 function SectionLabel({ label, description }: { label: string; description?: string }) {
   return (
     <div className="mb-4">
-      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+      <span className="text-xs font-bold uppercase tracking-wider text-primary">
         {label}
       </span>
       {description && (
@@ -491,14 +491,14 @@ export default function Styleguide() {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-slate-50/70 text-foreground text-left">
+      <div className="min-h-screen bg-background/70 text-foreground text-left">
         <Toaster position="bottom-right" richColors />
 
         {/* Page Header */}
-        <header className="border-b border-border/80 bg-gradient-to-br from-indigo-50/60 via-white to-slate-50 px-6 py-14 sm:px-12 sm:py-16 text-left">
+        <header className="border-b border-border/80 bg-gradient-to-br from-primary-subtle/60 via-surface to-background px-6 py-14 sm:px-12 sm:py-16 text-left">
           <div className="mx-auto flex max-w-7xl flex-col justify-between gap-6 md:flex-row md:items-end text-left">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50/80 px-3 py-1 text-xs font-semibold text-indigo-700 shadow-xs">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary-border bg-primary-subtle/80 px-3 py-1 text-xs font-semibold text-primary shadow-xs">
                 <SparklesIcon className="size-3.5" />
                 EIRMIS / Internal reference
               </div>
@@ -511,7 +511,7 @@ export default function Styleguide() {
             </div>
             <div className="flex items-center gap-3">
               <ThemeToggle />
-              <Badge variant="outline" className="border-indigo-200 bg-indigo-50 text-indigo-700 font-semibold px-3 py-1">
+              <Badge variant="outline" className="border-primary-border bg-primary-subtle text-primary font-semibold px-3 py-1">
                 v1.0 · shadcn UI
               </Badge>
             </div>
@@ -532,8 +532,8 @@ export default function Styleguide() {
                     key={id}
                     href={`#${id}`}
                     className={`block rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${activeSection === id
-                      ? 'bg-indigo-50 font-semibold text-indigo-700'
-                      : 'text-muted-foreground hover:bg-slate-100 hover:text-foreground'
+                      ? 'bg-primary-subtle font-semibold text-primary'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                       }`}
                   >
                     {label}
@@ -551,7 +551,7 @@ export default function Styleguide() {
               title="Typography"
               description="Semantic roles keep typography consistent across portals. Display type is reserved for marketing and major introductions; application screens use compact headings."
             >
-              <Card className="divide-y divide-border overflow-hidden rounded-2xl border-border bg-white shadow-xs">
+              <Card className="divide-y divide-border overflow-hidden rounded-2xl border-border bg-surface shadow-xs">
                 <div className="grid grid-cols-1 gap-2 p-5 sm:grid-cols-[200px_1fr] sm:items-baseline">
                   <span className="text-xs font-medium text-muted-foreground">Display / 48px / 800</span>
                   <p className="font-heading text-4xl font-extrabold tracking-tight sm:text-5xl">
@@ -576,13 +576,13 @@ export default function Styleguide() {
                 </div>
                 <div className="grid grid-cols-1 gap-2 p-5 sm:grid-cols-[200px_1fr] sm:items-baseline">
                   <span className="text-xs font-medium text-muted-foreground">Body / 15px / 400</span>
-                  <p className="text-sm leading-relaxed text-slate-700 sm:text-base">
+                  <p className="text-sm leading-relaxed text-foreground sm:text-base">
                     Track responses, manage attendees, and keep every detail moving forward.
                   </p>
                 </div>
                 <div className="grid grid-cols-1 gap-2 p-5 sm:grid-cols-[200px_1fr] sm:items-baseline">
                   <span className="text-xs font-medium text-muted-foreground">Label / 13px / 600</span>
-                  <p className="text-sm font-semibold text-slate-900">Event date and time</p>
+                  <p className="text-sm font-semibold text-foreground">Event date and time</p>
                 </div>
                 <div className="grid grid-cols-1 gap-2 p-5 sm:grid-cols-[200px_1fr] sm:items-baseline">
                   <span className="text-xs font-medium text-muted-foreground">Caption / 12px / 400</span>
@@ -590,18 +590,18 @@ export default function Styleguide() {
                 </div>
                 <div className="grid grid-cols-1 gap-2 p-5 sm:grid-cols-[200px_1fr] sm:items-baseline">
                   <span className="text-xs font-medium text-muted-foreground">Numeric / tabular</span>
-                  <p className="font-mono text-sm tabular-nums text-slate-800">
+                  <p className="font-mono text-sm tabular-nums text-foreground">
                     128 guests · 72% responded · 09:30
                   </p>
                 </div>
                 <div className="grid grid-cols-1 gap-2 p-5 sm:grid-cols-[200px_1fr] sm:items-baseline">
                   <span className="text-xs font-medium text-muted-foreground">Mono / technical</span>
-                  <p className="font-mono text-xs text-slate-600">event_7f31 · RSVP-2048</p>
+                  <p className="font-mono text-xs text-muted-foreground">event_7f31 · RSVP-2048</p>
                 </div>
               </Card>
 
-              <div className="mt-4 rounded-xl border border-dashed border-border bg-slate-100/70 p-4 text-xs font-mono text-muted-foreground">
-                <span className="mb-2 block font-sans text-xs font-bold uppercase tracking-wider text-slate-700">
+              <div className="mt-4 rounded-xl border border-dashed border-border bg-muted/70 p-4 text-xs font-mono text-muted-foreground">
+                <span className="mb-2 block font-sans text-xs font-bold uppercase tracking-wider text-foreground">
                   Tailwind Utility mapping
                 </span>
                 <div className="grid gap-1">
@@ -622,7 +622,7 @@ export default function Styleguide() {
             >
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
                 {colors.map(([name, hex, usage]) => (
-                  <Card key={name} className="overflow-hidden border-border bg-white shadow-xs">
+                  <Card key={name} className="overflow-hidden border-border bg-surface shadow-xs">
                     <div className="h-16 w-full border-b border-border" style={{ backgroundColor: hex }} />
                     <CardContent className="p-3">
                       <strong className="block text-sm font-semibold text-foreground">{name}</strong>
@@ -642,10 +642,10 @@ export default function Styleguide() {
             >
               {/* Extended Color Palette */}
               <div className="space-y-8">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-indigo-600">Extended color palette</h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-primary">Extended color palette</h3>
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                   {extendedColors.map(([name, token, hex, usage]) => (
-                    <Card key={name} className="overflow-hidden border-border bg-white shadow-xs">
+                    <Card key={name} className="overflow-hidden border-border bg-surface shadow-xs">
                       <div className="h-16 w-full border-b border-border" style={{ backgroundColor: hex }} />
                       <CardContent className="p-3">
                         <div className="flex items-center justify-between gap-2 mb-1">
@@ -656,7 +656,7 @@ export default function Styleguide() {
                               navigator.clipboard?.writeText(token);
                               toast.success(`Copied ${token}`);
                             }}
-                            className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 hover:bg-slate-200 font-mono"
+                            className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground hover:bg-border font-mono"
                             title="Copy token"
                           >
                             Copy
@@ -671,13 +671,13 @@ export default function Styleguide() {
                 </div>
 
                 {/* Radii Scale */}
-                <h3 className="text-sm font-bold uppercase tracking-wider text-indigo-600">Border radius scale</h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-primary">Border radius scale</h3>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
                   {radiiTokens.map(([name, token, value, usage]) => (
-                    <Card key={name} className="border-border bg-white p-4 shadow-xs text-center">
+                    <Card key={name} className="border-border bg-surface p-4 shadow-xs text-center">
                       <div className="mb-2">
                         <div
-                          className="mx-auto h-12 w-12 rounded-lg border border-border bg-slate-50"
+                          className="mx-auto h-12 w-12 rounded-lg border border-border bg-muted"
                           style={{ borderRadius: value }}
                         />
                       </div>
@@ -690,11 +690,11 @@ export default function Styleguide() {
                 </div>
 
                 {/* Shadow Scale */}
-                <h3 className="text-sm font-bold uppercase tracking-wider text-indigo-600">Elevation & shadow scale</h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-primary">Elevation & shadow scale</h3>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-5">
                   {shadowTokens.map(([name, token, value, usage]) => (
-                    <Card key={name} className="border-border bg-white p-4 shadow-xs">
-                      <div className="mb-3 h-16 w-full rounded-lg border border-border bg-white" style={{ boxShadow: value }} />
+                    <Card key={name} className="border-border bg-surface p-4 shadow-xs">
+                      <div className="mb-3 h-16 w-full rounded-lg border border-border bg-surface" style={{ boxShadow: value }} />
                       <strong className="block text-sm font-semibold text-foreground">{name}</strong>
                       <code className="block text-xs font-mono text-muted-foreground">{token}</code>
                       <p className="mt-1 text-xs text-muted-foreground">{usage}</p>
@@ -703,10 +703,10 @@ export default function Styleguide() {
                 </div>
 
                 {/* Typography Tokens */}
-                <h3 className="text-sm font-bold uppercase tracking-wider text-indigo-600">Typography tokens</h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-primary">Typography tokens</h3>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                   {typographyTokens.map(([name, token, value, usage]) => (
-                    <Card key={name} className="border-border bg-white p-4 shadow-xs">
+                    <Card key={name} className="border-border bg-surface p-4 shadow-xs">
                       <strong className="block text-sm font-semibold text-foreground">{name}</strong>
                       <code className="block text-xs font-mono text-muted-foreground">{token}</code>
                       <code className="block text-xs font-mono text-muted-foreground">{value}</code>
@@ -716,11 +716,11 @@ export default function Styleguide() {
                 </div>
 
                 {/* Spacing Scale */}
-                <h3 className="text-sm font-bold uppercase tracking-wider text-indigo-600">Spacing scale</h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-primary">Spacing scale</h3>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-6">
                   {spacingTokens.map(([name, token, value, usage]) => (
-                    <Card key={name} className="border-border bg-white p-4 shadow-xs text-center">
-                      <div className="mb-2 h-8 w-full bg-slate-100 rounded" style={{ height: value }} />
+                    <Card key={name} className="border-border bg-surface p-4 shadow-xs text-center">
+                      <div className="mb-2 h-8 w-full bg-muted rounded" style={{ height: value }} />
                       <strong className="block text-sm font-semibold text-foreground">{name}</strong>
                       <code className="block text-xs font-mono text-muted-foreground">{token}</code>
                       <code className="block text-xs font-mono text-muted-foreground">{value}</code>
@@ -730,10 +730,10 @@ export default function Styleguide() {
                 </div>
 
                 {/* Motion Tokens */}
-                <h3 className="text-sm font-bold uppercase tracking-wider text-indigo-600">Motion & easing tokens</h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-primary">Motion & easing tokens</h3>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {motionTokens.map(([name, token, value, usage]) => (
-                    <Card key={name} className="border-border bg-white p-4 shadow-xs">
+                    <Card key={name} className="border-border bg-surface p-4 shadow-xs">
                       <strong className="block text-sm font-semibold text-foreground">{name}</strong>
                       <code className="block text-xs font-mono text-muted-foreground">{token}</code>
                       <code className="block text-xs font-mono text-muted-foreground">{value}</code>
@@ -751,22 +751,22 @@ export default function Styleguide() {
               description="Use tonal layering first. Reserve shadows for floating containers, dialogs, dropdowns, and toasts."
             >
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <Card className="border-border bg-white p-5 shadow-xs">
-                  <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                <Card className="border-border bg-surface p-5 shadow-xs">
+                  <span className="text-xs font-bold uppercase tracking-wider text-primary">
                     Level 1 / Card
                   </span>
                   <strong className="mt-2 block font-heading text-lg font-bold">Event summary</strong>
                   <p className="mt-1 text-xs text-muted-foreground">Border, ring-1, subtle shadow-xs.</p>
                 </Card>
-                <Card className="border-border bg-white p-5 shadow-md">
-                  <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                <Card className="border-border bg-surface p-5 shadow-md">
+                  <span className="text-xs font-bold uppercase tracking-wider text-primary">
                     Level 2 / Popover
                   </span>
                   <strong className="mt-2 block font-heading text-lg font-bold">Filter menu</strong>
                   <p className="mt-1 text-xs text-muted-foreground">Soft shadow-md elevation.</p>
                 </Card>
-                <Card className="border-border bg-white p-5 shadow-xl">
-                  <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                <Card className="border-border bg-surface p-5 shadow-xl">
+                  <span className="text-xs font-bold uppercase tracking-wider text-primary">
                     Level 3 / Dialog
                   </span>
                   <strong className="mt-2 block font-heading text-lg font-bold">Confirm action</strong>
@@ -775,16 +775,16 @@ export default function Styleguide() {
               </div>
 
               <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <div className="grid min-h-14 place-content-center rounded-lg border border-indigo-200 bg-indigo-50/70 p-2 text-center text-xs font-medium text-indigo-700">
+                <div className="grid min-h-14 place-content-center rounded-lg border border-primary-border bg-primary-subtle/70 p-2 text-center text-xs font-medium text-primary">
                   8px (rounded-lg) / controls
                 </div>
-                <div className="grid min-h-14 place-content-center rounded-xl border border-indigo-200 bg-indigo-50/70 p-2 text-center text-xs font-medium text-indigo-700">
+                <div className="grid min-h-14 place-content-center rounded-xl border border-primary-border bg-primary-subtle/70 p-2 text-center text-xs font-medium text-primary">
                   12px (rounded-xl) / cards
                 </div>
-                <div className="grid min-h-14 place-content-center rounded-2xl border border-indigo-200 bg-indigo-50/70 p-2 text-center text-xs font-medium text-indigo-700">
+                <div className="grid min-h-14 place-content-center rounded-2xl border border-primary-border bg-primary-subtle/70 p-2 text-center text-xs font-medium text-primary">
                   16px (rounded-2xl) / feature cards
                 </div>
-                <div className="grid min-h-14 place-content-center rounded-full border border-indigo-200 bg-indigo-50/70 p-2 text-center text-xs font-medium text-indigo-700">
+                <div className="grid min-h-14 place-content-center rounded-full border border-primary-border bg-primary-subtle/70 p-2 text-center text-xs font-medium text-primary">
                   9999px (rounded-full) / chips
                 </div>
               </div>
@@ -807,9 +807,9 @@ export default function Styleguide() {
                       }
                       toast.success(`Copied <${name}Icon /> to clipboard`)
                     }}
-                    className="group flex flex-col items-center justify-between rounded-2xl border border-border/80 bg-white p-3.5 text-center shadow-xs transition-all hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-sm cursor-pointer"
+                    className="group flex flex-col items-center justify-between rounded-2xl border border-border/80 bg-surface p-3.5 text-center shadow-xs transition-all hover:-translate-y-0.5 hover:border-primary-border hover:shadow-sm cursor-pointer"
                   >
-                    <div className="flex size-11 items-center justify-center rounded-xl bg-slate-50 text-slate-700 transition-colors group-hover:bg-indigo-50 group-hover:text-indigo-600">
+                    <div className="flex size-11 items-center justify-center rounded-xl bg-muted text-foreground transition-colors group-hover:bg-primary-subtle group-hover:text-primary">
                       <IconComponent className="size-5 stroke-[1.8]" />
                     </div>
                     <div className="mt-2.5 w-full">
@@ -820,16 +820,16 @@ export default function Styleguide() {
                         {usage}
                       </span>
                     </div>
-                    <span className="mt-2 inline-block rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-medium text-slate-600 group-hover:bg-indigo-100 group-hover:text-indigo-700">
+                    <span className="mt-2 inline-block rounded-full bg-muted px-2 py-0.5 text-[9px] font-medium text-muted-foreground group-hover:bg-primary-subtle group-hover:text-primary">
                       {category}
                     </span>
                   </button>
                 ))}
               </div>
 
-              <div className="mt-4 flex items-center justify-between rounded-xl border border-indigo-100 bg-indigo-50/60 px-4 py-3 text-xs text-indigo-900">
+              <div className="mt-4 flex items-center justify-between rounded-xl border border-primary-border bg-primary-subtle/60 px-4 py-3 text-xs text-foreground">
                 <div className="flex items-center gap-2">
-                  <CheckIcon className="size-4 text-indigo-600" />
+                  <CheckIcon className="size-4 text-primary" />
                   <span>
                     Click any icon to copy its JSX component snippet. All icons use{' '}
                     <strong>lucide-react</strong> with standard <code>size-4</code> / <code>size-5</code> and <code>stroke-[1.8]</code> styling.
@@ -844,7 +844,7 @@ export default function Styleguide() {
               title="Buttons"
               description="shadcn button component with EIRMIS brand extensions (primary, teal, danger) and custom sizes."
             >
-              <div className="flex flex-wrap items-end gap-6 rounded-2xl border border-border bg-white p-5 shadow-xs">
+              <div className="flex flex-wrap items-end gap-6 rounded-2xl border border-border bg-surface p-5 shadow-xs">
                 <div className="space-y-1.5">
                   <Label htmlFor="btn-variant-select" className="text-xs font-semibold text-muted-foreground">
                     Variant
@@ -1003,7 +1003,7 @@ export default function Styleguide() {
                 </div>
               </div>
 
-              <div className="mt-6 flex flex-wrap items-center gap-6 rounded-xl border border-border bg-white p-4 shadow-xs">
+              <div className="mt-6 flex flex-wrap items-center gap-6 rounded-xl border border-border bg-surface p-4 shadow-xs">
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="toggle-error"
@@ -1043,12 +1043,12 @@ export default function Styleguide() {
               title="Controls & toggles"
               description="Dropdowns, switches, tabs, and approval actions need visible selected, disabled, loading, and destructive states."
             >
-              <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+              <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
                   {/* Dropdown 1: Select (Status) */}
                   <div className="flex flex-col justify-between space-y-3">
                     <div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      <span className="text-xs font-bold uppercase tracking-wider text-primary">
                         Dropdown
                       </span>
                       <p className="mt-1 text-xs text-muted-foreground">
@@ -1088,7 +1088,7 @@ export default function Styleguide() {
                   {/* Dropdown 2: Contextual Menu */}
                   <div className="flex flex-col justify-between space-y-3">
                     <div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      <span className="text-xs font-bold uppercase tracking-wider text-primary">
                         Action menu
                       </span>
                       <p className="mt-1 text-xs text-muted-foreground">
@@ -1142,7 +1142,7 @@ export default function Styleguide() {
                   {/* Switch */}
                   <div className="flex flex-col justify-between space-y-3">
                     <div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      <span className="text-xs font-bold uppercase tracking-wider text-primary">
                         Switch
                       </span>
                       <p className="mt-1 text-xs text-muted-foreground">
@@ -1150,7 +1150,7 @@ export default function Styleguide() {
                       </p>
                     </div>
 
-                    <div className="flex w-full max-w-[280px] items-center justify-between rounded-xl border border-border/80 bg-slate-50/70 p-3 shadow-2xs">
+                    <div className="flex w-full max-w-[280px] items-center justify-between rounded-xl border border-border/80 bg-muted/70 p-3 shadow-2xs">
                       <div className="space-y-0.5">
                         <Label htmlFor="open-reg" className="text-xs font-semibold cursor-pointer">
                           Open registration
@@ -1168,7 +1168,7 @@ export default function Styleguide() {
 
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <span>Registration:</span>
-                      <span className={`font-semibold ${toggleOn ? 'text-emerald-700' : 'text-slate-500'}`}>
+                      <span className={`font-semibold ${toggleOn ? 'text-emerald-700' : 'text-muted-foreground'}`}>
                         {toggleOn ? 'Enabled' : 'Disabled'}
                       </span>
                     </div>
@@ -1179,7 +1179,7 @@ export default function Styleguide() {
                 <div className="mt-8 border-t border-border pt-6">
                   <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                     <div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      <span className="text-xs font-bold uppercase tracking-wider text-primary">
                         Organizer approval
                       </span>
                       <h3 className="mt-1 font-heading text-lg font-bold text-foreground">
@@ -1236,7 +1236,7 @@ export default function Styleguide() {
               title="Modals & popups"
               description="Floating layers clarify context without losing the underlying workflow. Modals use shadcn Dialog, tooltips use Tooltip, and notifications use Sonner."
             >
-              <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-border bg-white p-6 shadow-xs">
+              <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-border bg-surface p-6 shadow-xs">
                 {/* Confirmation Dialog */}
                 <Dialog open={rejectModalOpen} onOpenChange={setRejectModalOpen}>
                   <DialogTrigger render={<Button variant="outline" />}>
@@ -1303,7 +1303,7 @@ export default function Styleguide() {
               </div>
 
               {/* Inline Toast demonstration card */}
-              <div className="mt-4 flex max-w-sm items-center gap-3 rounded-xl border border-border bg-white p-3.5 shadow-sm">
+              <div className="mt-4 flex max-w-sm items-center gap-3 rounded-xl border border-border bg-surface p-3.5 shadow-sm">
                 <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
                 <div className="flex-1 text-xs">
                   <strong className="block font-semibold text-foreground">
@@ -1323,12 +1323,12 @@ export default function Styleguide() {
             >
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {/* Total Capacity */}
-                <Card className="border-border/80 bg-white p-5 shadow-xs flex flex-col justify-between text-left">
+                <Card className="border-border/80 bg-surface p-5 shadow-xs flex flex-col justify-between text-left">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                       Total capacity
                     </span>
-                    <Building2Icon className="size-4.5 text-slate-400 stroke-[1.8]" />
+                    <Building2Icon className="size-4.5 text-muted-foreground stroke-[1.8]" />
                   </div>
                   <div className="mt-4 font-heading text-3xl font-extrabold text-foreground">
                     150
@@ -1336,25 +1336,25 @@ export default function Styleguide() {
                 </Card>
 
                 {/* RSVPs */}
-                <Card className="border-border/80 bg-white p-5 shadow-xs flex flex-col justify-between text-left">
+                <Card className="border-border/80 bg-surface p-5 shadow-xs flex flex-col justify-between text-left">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                       Rsvps
                     </span>
-                    <MailIcon className="size-4.5 text-slate-400 stroke-[1.8]" />
+                    <MailIcon className="size-4.5 text-muted-foreground stroke-[1.8]" />
                   </div>
                   <div className="mt-4 space-y-2.5">
                     <div className="flex items-baseline gap-1.5">
                       <span className="font-heading text-3xl font-extrabold text-foreground">
                         112
                       </span>
-                      <span className="text-sm font-semibold text-slate-400">
+                      <span className="text-sm font-semibold text-muted-foreground">
                         / 150
                       </span>
                     </div>
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
                       <div
-                        className="h-full rounded-full bg-indigo-600 transition-all"
+                        className="h-full rounded-full bg-primary transition-all"
                         style={{ width: `${Math.round((112 / 150) * 100)}%` }}
                       />
                     </div>
@@ -1362,12 +1362,12 @@ export default function Styleguide() {
                 </Card>
 
                 {/* Pending Approvals */}
-                <Card className="border-border/80 border-l-4 border-l-amber-500 bg-white p-5 shadow-xs flex flex-col justify-between text-left">
+                <Card className="border-border/80 border-l-4 border-l-amber-500 bg-surface p-5 shadow-xs flex flex-col justify-between text-left">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                       Pending approvals
                     </span>
-                    <LuggageIcon className="size-4.5 text-slate-400 stroke-[1.8]" />
+                    <LuggageIcon className="size-4.5 text-muted-foreground stroke-[1.8]" />
                   </div>
                   <div className="mt-4 flex items-center gap-2.5">
                     <span className="font-heading text-3xl font-extrabold text-foreground">
@@ -1380,12 +1380,12 @@ export default function Styleguide() {
                 </Card>
 
                 {/* Checked In */}
-                <Card className="border-border/80 bg-white p-5 shadow-xs flex flex-col justify-between text-left">
+                <Card className="border-border/80 bg-surface p-5 shadow-xs flex flex-col justify-between text-left">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                       Checked in
                     </span>
-                    <UserIcon className="size-4.5 text-slate-400 stroke-[1.8]" />
+                    <UserIcon className="size-4.5 text-muted-foreground stroke-[1.8]" />
                   </div>
                   <div className="mt-4 font-heading text-3xl font-extrabold text-foreground">
                     48
@@ -1401,7 +1401,7 @@ export default function Styleguide() {
               description="Desktop tables become stacked lists on mobile. Status badges use semantic EIRMIS variants."
             >
               {/* Desktop Table */}
-              <div className="hidden sm:block overflow-hidden rounded-2xl border border-border bg-white shadow-xs text-left">
+              <div className="hidden sm:block overflow-hidden rounded-2xl border border-border bg-surface shadow-xs text-left">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -1486,7 +1486,7 @@ export default function Styleguide() {
 
               {/* Mobile Stacked List */}
               <div className="grid gap-3 sm:hidden text-left">
-                <Card className="p-4 border-border bg-white shadow-xs text-left">
+                <Card className="p-4 border-border bg-surface shadow-xs text-left">
                   <div className="flex items-center justify-between text-left">
                     <div className="text-left">
                       <strong className="block text-sm font-semibold text-foreground">Elena Rostova</strong>
@@ -1521,7 +1521,7 @@ export default function Styleguide() {
                   </div>
                 </Card>
 
-                <Card className="p-4 border-border bg-white shadow-xs text-left">
+                <Card className="p-4 border-border bg-surface shadow-xs text-left">
                   <div className="flex items-center justify-between text-left">
                     <div className="text-left">
                       <strong className="block text-sm font-semibold text-foreground">Marcus Reed</strong>
@@ -1565,7 +1565,7 @@ export default function Styleguide() {
               description="Cards use tonal layering, consistent borders, and soft-rounded corners."
             >
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <Card className="border-border bg-white p-5 shadow-xs">
+                <Card className="border-border bg-surface p-5 shadow-xs">
                   <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     Level 1 / Card
                   </span>
@@ -1577,8 +1577,8 @@ export default function Styleguide() {
                   </p>
                 </Card>
 
-                <Card className="border-border bg-white p-5 shadow-md">
-                  <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                <Card className="border-border bg-surface p-5 shadow-md">
+                  <span className="text-xs font-bold uppercase tracking-wider text-primary">
                     Interactive card
                   </span>
                   <h3 className="mt-2 font-heading text-lg font-bold text-foreground">
@@ -1612,9 +1612,9 @@ export default function Styleguide() {
             >
               <div className="space-y-8">
                 {/* Global Nav Bar */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Global navigation bar
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -1653,9 +1653,9 @@ export default function Styleguide() {
                 </div>
 
                 {/* Mobile Drawer */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Mobile drawer
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -1731,9 +1731,9 @@ export default function Styleguide() {
                 </div>
 
                 {/* Boot Overlay */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Boot loading overlay
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -1763,9 +1763,9 @@ export default function Styleguide() {
                 </div>
 
                 {/* Session Pill & Role Badge */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Session pill & role badge
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -1774,7 +1774,7 @@ export default function Styleguide() {
                   </div>
                   <div className="space-y-4">
                     {['Organizer', 'Administrator', 'Guest', 'Check-in Staff'].map((role) => (
-                      <div key={role} className="p-4 border border-border rounded-xl bg-white">
+                      <div key={role} className="p-4 border border-border rounded-xl bg-surface">
                         <div className="eirmis-session-pill" style={{ display: 'flex', alignItems: 'center', gap: '9px', padding: '4px 12px 4px 5px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-pill)', fontSize: '12px', fontWeight: 600, color: 'var(--text-main)', boxShadow: 'var(--shadow-xs)', width: 'fit-content' }}>
                           <span className="eirmis-session-avatar" style={{ width: '26px', height: '26px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary) 0%, #312E81 100%)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10.5px', fontWeight: 700, boxShadow: '0 1px 3px rgba(79, 70, 229, 0.25)', flexShrink: 0 }}>
                             {role.split(' ').map(w => w[0]).join('').slice(0, 2)}
@@ -1788,7 +1788,7 @@ export default function Styleguide() {
                         </div>
                       </div>
                     ))}
-                    <div className="p-4 border border-border rounded-xl bg-white">
+                    <div className="p-4 border border-border rounded-xl bg-surface">
                       <a className="eirmis-btn eirmis-btn-primary" style={{ padding: '6px 14px', fontSize: '12px' }} href="javascript:void(0)">
                         Sign in
                       </a>
@@ -1807,9 +1807,9 @@ export default function Styleguide() {
             >
               <div className="space-y-8">
                 {/* Collapsible Sections */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Collapsible sections
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -1865,9 +1865,9 @@ export default function Styleguide() {
                 </div>
 
                 {/* Sidebar System */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Sidebar system
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -1876,11 +1876,11 @@ export default function Styleguide() {
                   </div>
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                     {/* Primary Sidebar - Expanded */}
-                    <div className="rounded-xl border border-border bg-slate-50/50 p-4">
+                    <div className="rounded-xl border border-border bg-muted/50 p-4">
                       <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Expanded (250px)</p>
                       <div className="space-y-1.5 max-w-xs">
-                        <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-white border border-border text-left hover:bg-slate-50" title="Dashboard">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600 flex-shrink-0">
+                        <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-surface border border-border text-left hover:bg-muted" title="Dashboard">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary flex-shrink-0">
                             <rect x="3" y="4" width="18" height="18" rx="2" />
                             <line x1="16" y1="2" x2="16" y2="6" />
                             <line x1="8" y1="2" x2="8" y2="6" />
@@ -1888,15 +1888,15 @@ export default function Styleguide() {
                           </svg>
                           <span className="font-medium text-sm">Dashboard</span>
                         </button>
-                        <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-white border border-border text-left hover:bg-slate-50" title="Events">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500 flex-shrink-0">
+                        <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-surface border border-border text-left hover:bg-muted" title="Events">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground flex-shrink-0">
                             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                           </svg>
                           <span className="text-sm flex-1">Events</span>
-                          <span className="px-2 py-0.5 text-[10px] font-bold bg-indigo-100 text-indigo-700 rounded-full">3</span>
+                          <span className="px-2 py-0.5 text-[10px] font-bold bg-primary-subtle text-primary rounded-full">3</span>
                         </button>
-                        <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-white border border-border text-left hover:bg-slate-50" title="Guests">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500 flex-shrink-0">
+                        <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-surface border border-border text-left hover:bg-muted" title="Guests">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground flex-shrink-0">
                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                             <circle cx="9" cy="7" r="4" />
                             <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -1905,23 +1905,23 @@ export default function Styleguide() {
                           <span className="text-sm flex-1">Guests</span>
                           <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-700 rounded-full">12</span>
                         </button>
-                        <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-white border border-border text-left hover:bg-slate-50" title="Approvals">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500 flex-shrink-0">
+                        <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-surface border border-border text-left hover:bg-muted" title="Approvals">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground flex-shrink-0">
                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                           </svg>
                           <span className="text-sm flex-1">Approvals</span>
                           <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-700 rounded-full">5</span>
                         </button>
-                        <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-white border border-border text-left hover:bg-slate-50" title="Attendance">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500 flex-shrink-0">
+                        <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-surface border border-border text-left hover:bg-muted" title="Attendance">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground flex-shrink-0">
                             <rect x="2" y="3" width="20" height="14" rx="2" />
                             <path d="M8 21h8" />
                             <path d="M12 17v4" />
                           </svg>
                           <span className="text-sm">Attendance</span>
                         </button>
-                        <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-white border border-border text-left hover:bg-slate-50" title="Staff">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500 flex-shrink-0">
+                        <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-surface border border-border text-left hover:bg-muted" title="Staff">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground flex-shrink-0">
                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                           </svg>
                           <span className="text-sm">Staff</span>
@@ -1929,25 +1929,25 @@ export default function Styleguide() {
                       </div>
                     </div>
                     {/* Primary Sidebar - Collapsed */}
-                    <div className="rounded-xl border border-border bg-slate-50/50 p-4">
+                    <div className="rounded-xl border border-border bg-muted/50 p-4">
                       <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 text-center">Collapsed (72px)</p>
                       <div className="flex flex-col items-center gap-2">
-                        <button className="w-12 h-12 p-2 rounded-lg bg-white border border-border flex flex-col items-center gap-1 relative" title="Dashboard">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600">
+                        <button className="w-12 h-12 p-2 rounded-lg bg-surface border border-border flex flex-col items-center gap-1 relative" title="Dashboard">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary">
                             <rect x="3" y="4" width="18" height="18" rx="2" />
                             <line x1="16" y1="2" x2="16" y2="6" />
                             <line x1="8" y1="2" x2="8" y2="6" />
                             <line x1="3" y1="10" x2="21" y2="10" />
                           </svg>
                         </button>
-                        <button className="w-12 h-12 p-2 rounded-lg bg-white border border-border flex flex-col items-center gap-1 relative" title="Events">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500">
+                        <button className="w-12 h-12 p-2 rounded-lg bg-surface border border-border flex flex-col items-center gap-1 relative" title="Events">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground">
                             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                           </svg>
-                          <span className="absolute -top-1 -right-1 w-5 h-5 bg-indigo-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">3</span>
+                          <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-[9px] font-bold rounded-full flex items-center justify-center">3</span>
                         </button>
-                        <button className="w-12 h-12 p-2 rounded-lg bg-white border border-border flex flex-col items-center gap-1 relative" title="Guests">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500">
+                        <button className="w-12 h-12 p-2 rounded-lg bg-surface border border-border flex flex-col items-center gap-1 relative" title="Guests">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground">
                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                             <circle cx="9" cy="7" r="4" />
                             <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -1955,61 +1955,61 @@ export default function Styleguide() {
                           </svg>
                           <span className="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">12</span>
                         </button>
-                        <button className="w-12 h-12 p-2 rounded-lg bg-white border border-border flex flex-col items-center gap-1 relative" title="Approvals">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500">
+                        <button className="w-12 h-12 p-2 rounded-lg bg-surface border border-border flex flex-col items-center gap-1 relative" title="Approvals">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground">
                             <path d="M9 12l2 2 4-4" />
                             <circle cx="12" cy="12" r="10" />
                           </svg>
                           <span className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">5</span>
                         </button>
-                        <button className="w-12 h-12 p-2 rounded-lg bg-white border border-border flex flex-col items-center gap-1" title="Attendance">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500">
+                        <button className="w-12 h-12 p-2 rounded-lg bg-surface border border-border flex flex-col items-center gap-1" title="Attendance">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground">
                             <rect x="2" y="3" width="20" height="14" rx="2" />
                             <path d="M8 21h8" />
                             <path d="M12 17v4" />
                           </svg>
                         </button>
-                        <button className="w-12 h-12 p-2 rounded-lg bg-white border border-border flex flex-col items-center gap-1" title="Staff">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500">
+                        <button className="w-12 h-12 p-2 rounded-lg bg-surface border border-border flex flex-col items-center gap-1" title="Staff">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground">
                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                           </svg>
                         </button>
                       </div>
                     </div>
                     {/* Sub-sidebar */}
-                    <div className="rounded-xl border border-border bg-slate-50/50 p-4">
+                    <div className="rounded-xl border border-border bg-muted/50 p-4">
                       <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Sub-sidebar (220px)</p>
                       <div className="space-y-1 max-w-xs">
-                        <button className="w-full text-left p-2 rounded-lg bg-indigo-50 text-indigo-700 text-sm font-medium flex items-center gap-2">Overview</button>
-                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Guests</button>
-                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Approvals</button>
-                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Attendance</button>
-                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Staff</button>
-                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Reminders</button>
-                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Design</button>
-                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Check-in</button>
-                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Waitlist</button>
-                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Email log</button>
-                        <button className="w-full text-left p-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm flex items-center gap-2">Audit log</button>
+                        <button className="w-full text-left p-2 rounded-lg bg-primary-subtle text-primary text-sm font-medium flex items-center gap-2">Overview</button>
+                        <button className="w-full text-left p-2 rounded-lg text-muted-foreground hover:bg-muted text-sm flex items-center gap-2">Guests</button>
+                        <button className="w-full text-left p-2 rounded-lg text-muted-foreground hover:bg-muted text-sm flex items-center gap-2">Approvals</button>
+                        <button className="w-full text-left p-2 rounded-lg text-muted-foreground hover:bg-muted text-sm flex items-center gap-2">Attendance</button>
+                        <button className="w-full text-left p-2 rounded-lg text-muted-foreground hover:bg-muted text-sm flex items-center gap-2">Staff</button>
+                        <button className="w-full text-left p-2 rounded-lg text-muted-foreground hover:bg-muted text-sm flex items-center gap-2">Reminders</button>
+                        <button className="w-full text-left p-2 rounded-lg text-muted-foreground hover:bg-muted text-sm flex items-center gap-2">Design</button>
+                        <button className="w-full text-left p-2 rounded-lg text-muted-foreground hover:bg-muted text-sm flex items-center gap-2">Check-in</button>
+                        <button className="w-full text-left p-2 rounded-lg text-muted-foreground hover:bg-muted text-sm flex items-center gap-2">Waitlist</button>
+                        <button className="w-full text-left p-2 rounded-lg text-muted-foreground hover:bg-muted text-sm flex items-center gap-2">Email log</button>
+                        <button className="w-full text-left p-2 rounded-lg text-muted-foreground hover:bg-muted text-sm flex items-center gap-2">Audit log</button>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Glassmorphic Topbar */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Glassmorphic topbar
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
                       Backdrop-filter blur, search box with KBD hint, icon buttons, user pill. Responsive: search flexes, user pill condenses to avatar-only.
                     </p>
                   </div>
-                  <div className="rounded-xl border border-border bg-white/80 backdrop-blur-md p-4" style={{ background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(16px) saturate(180%)' }}>
+                  <div className="rounded-xl border border-border backdrop-blur-md p-4" style={{ background: 'var(--surface-glass)', backdropFilter: 'blur(16px) saturate(180%)' }}>
                     <div className="flex items-center justify-between gap-4 flex-wrap">
                       <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <button className="eirmis-hamburger p-2 rounded-lg hover:bg-slate-100" style={{ display: 'flex' }}>
+                        <button className="eirmis-hamburger p-2 rounded-lg hover:bg-muted" style={{ display: 'flex' }}>
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <line x1="3" y1="12" x2="21" y2="12" />
                             <line x1="3" y1="6" x2="21" y2="6" />
@@ -2017,25 +2017,25 @@ export default function Styleguide() {
                           </svg>
                         </button>
                         <div className="flex-1 min-w-0 relative">
-                          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <circle cx="11" cy="11" r="8" />
                             <line x1="21" y1="21" x2="16.65" y2="16.65" />
                           </svg>
-                          <input type="text" placeholder="Search events, guests..." className="w-full pl-10 pr-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
-                          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono text-slate-400 bg-slate-100 rounded">
+                          <input type="text" placeholder="Search events, guests..." className="w-full pl-10 pr-4 py-2 rounded-lg border border-border bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary-glow focus:border-primary" />
+                          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono text-muted-foreground bg-muted rounded">
                             <span>⌘</span><span>K</span>
                           </kbd>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <button className="p-2 rounded-lg hover:bg-slate-100" title="Help/Support">
+                        <button className="p-2 rounded-lg hover:bg-muted" title="Help/Support">
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <circle cx="12" cy="12" r="10" />
                             <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
                             <line x1="12" y1="17" x2="12.01" y2="17" />
                           </svg>
                         </button>
-                        <button className="p-2 rounded-lg hover:bg-slate-100" title="Notifications">
+                        <button className="p-2 rounded-lg hover:bg-muted" title="Notifications">
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
@@ -2059,9 +2059,9 @@ export default function Styleguide() {
                 </div>
 
                 {/* Breadcrumbs */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Breadcrumbs
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -2114,9 +2114,9 @@ export default function Styleguide() {
                 </div>
 
                 {/* Event Grid Cards */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Event grid cards
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -2130,11 +2130,11 @@ export default function Styleguide() {
                       { title: 'Global Leadership Forum', date: 'Jan 15, 2027', venue: 'Suntec Singapore', status: 'draft', rsvp: '0/500', icon: '🌐' },
                       { title: 'University Faculty Mixer', date: 'Feb 10, 2027', venue: 'Campus Center', status: 'draft', rsvp: '0/80', icon: '🎓' },
                     ].map((event, i) => (
-                      <div key={i} className="card group relative overflow-hidden border border-border bg-white rounded-2xl shadow-xs transition-all hover:shadow-md hover:-translate-y-1">
+                      <div key={i} className="card group relative overflow-hidden border border-border bg-surface rounded-2xl shadow-xs transition-all hover:shadow-md hover:-translate-y-1">
                         <div className="p-4">
                           <div className="flex items-start justify-between gap-2">
                             <div className="text-3xl">{event.icon}</div>
-                            <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${event.status === 'published' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                            <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${event.status === 'published' ? 'bg-emerald-100 text-emerald-700' : 'bg-muted text-muted-foreground'}`}>
                               {event.status}
                             </span>
                           </div>
@@ -2179,9 +2179,9 @@ export default function Styleguide() {
             >
               <div className="space-y-8">
                 {/* 1. KPI & Metric Cards */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       KPI & Metric cards
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -2196,7 +2196,7 @@ export default function Styleguide() {
                     </p>
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                       {/* KPI 1 */}
-                      <div className="rounded-xl border border-border bg-white p-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                      <div className="rounded-xl border border-border bg-surface p-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                         <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
                           <span>Pending Organizers</span>
                           <ClockIcon className="size-4 text-amber-600" />
@@ -2210,7 +2210,7 @@ export default function Styleguide() {
                       </div>
 
                       {/* KPI 2 */}
-                      <div className="rounded-xl border border-border bg-white p-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                      <div className="rounded-xl border border-border bg-surface p-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                         <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
                           <span>Active Organizers</span>
                           <CheckCircleIcon className="size-4 text-emerald-600" />
@@ -2224,10 +2224,10 @@ export default function Styleguide() {
                       </div>
 
                       {/* KPI 3 */}
-                      <div className="rounded-xl border border-border bg-white p-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                      <div className="rounded-xl border border-border bg-surface p-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                         <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
                           <span>Malware Engine</span>
-                          <ShieldCheckIcon className="size-4 text-indigo-600" />
+                          <ShieldCheckIcon className="size-4 text-primary" />
                         </div>
                         <div className="mt-2 font-heading text-xl font-bold text-emerald-600 sm:text-2xl">
                           Malware Engine v3
@@ -2238,7 +2238,7 @@ export default function Styleguide() {
                       </div>
 
                       {/* KPI 4 */}
-                      <div className="rounded-xl border border-border bg-white p-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                      <div className="rounded-xl border border-border bg-surface p-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                         <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
                           <span>Audit Log Stream</span>
                           <ActivityIcon className="size-4 text-muted-foreground" />
@@ -2260,10 +2260,10 @@ export default function Styleguide() {
                     </p>
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                       {/* Metric 1 */}
-                      <div className="rounded-2xl border border-border bg-white p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                      <div className="rounded-2xl border border-border bg-surface p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                         <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                           <span>Total Capacity</span>
-                          <Building2Icon className="size-4 text-slate-400" />
+                          <Building2Icon className="size-4 text-muted-foreground" />
                         </div>
                         <div className="mt-3 font-heading text-3xl font-extrabold text-foreground">
                           150
@@ -2274,18 +2274,18 @@ export default function Styleguide() {
                       </div>
 
                       {/* Metric 2 (With Progress Bar) */}
-                      <div className="rounded-2xl border border-border bg-white p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                      <div className="rounded-2xl border border-border bg-surface p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                         <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                           <span>RSVPs</span>
-                          <MailIcon className="size-4 text-slate-400" />
+                          <MailIcon className="size-4 text-muted-foreground" />
                         </div>
                         <div className="mt-3 flex items-baseline gap-1.5 font-heading text-3xl font-extrabold text-foreground">
                           <span>112</span>
                           <span className="text-base font-medium text-muted-foreground">/ 150</span>
                         </div>
-                        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                           <div
-                            className="h-full rounded-full bg-indigo-600 transition-all duration-500"
+                            className="h-full rounded-full bg-primary transition-all duration-500"
                             style={{ width: '74.6%' }}
                           />
                         </div>
@@ -2295,10 +2295,10 @@ export default function Styleguide() {
                       </div>
 
                       {/* Metric 3 (Left-Border Accent) */}
-                      <div className="rounded-2xl border border-border border-l-[3px] border-l-amber-500 bg-white p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                      <div className="rounded-2xl border border-border border-l-[3px] border-l-amber-500 bg-surface p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                         <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                           <span>Pending Approvals</span>
-                          <LuggageIcon className="size-4 text-slate-400" />
+                          <LuggageIcon className="size-4 text-muted-foreground" />
                         </div>
                         <div className="mt-3 flex items-center justify-between">
                           <span className="font-heading text-3xl font-extrabold text-foreground">3</span>
@@ -2312,10 +2312,10 @@ export default function Styleguide() {
                       </div>
 
                       {/* Metric 4 */}
-                      <div className="rounded-2xl border border-border bg-white p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                      <div className="rounded-2xl border border-border bg-surface p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                         <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                           <span>Checked In</span>
-                          <UsersIcon className="size-4 text-slate-400" />
+                          <UsersIcon className="size-4 text-muted-foreground" />
                         </div>
                         <div className="mt-3 font-heading text-3xl font-extrabold text-teal-600">
                           48
@@ -2329,9 +2329,9 @@ export default function Styleguide() {
                 </div>
 
                 {/* 2. Stat Cards (Check-in Scanner) */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Stat cards (Check-in Scanner)
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -2339,7 +2339,7 @@ export default function Styleguide() {
                     </p>
                   </div>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-xl">
-                    <div className="rounded-xl border border-border bg-white p-5 text-center shadow-xs">
+                    <div className="rounded-xl border border-border bg-surface p-5 text-center shadow-xs">
                       <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                         Checked-In
                       </div>
@@ -2350,7 +2350,7 @@ export default function Styleguide() {
                         Scanned entrance attendees
                       </div>
                     </div>
-                    <div className="rounded-xl border border-border bg-white p-5 text-center shadow-xs">
+                    <div className="rounded-xl border border-border bg-surface p-5 text-center shadow-xs">
                       <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                         Expected Total
                       </div>
@@ -2365,10 +2365,10 @@ export default function Styleguide() {
                 </div>
 
                 {/* 3. Segmented Progress Bar */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                     <div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      <span className="text-xs font-bold uppercase tracking-wider text-primary">
                         Segmented progress bar &amp; RSVP breakdown
                       </span>
                       <p className="mt-1 text-xs text-muted-foreground">
@@ -2407,7 +2407,7 @@ export default function Styleguide() {
                     </div>
                   </div>
 
-                  <div className="max-w-2xl rounded-xl border border-border bg-slate-50/50 p-5">
+                  <div className="max-w-2xl rounded-xl border border-border bg-muted/50 p-5">
                     <div className="mb-3 flex items-center justify-between text-xs font-semibold text-foreground">
                       <span>RSVP Summary</span>
                       <span className="text-muted-foreground">{totalRsvps} Total Invitees</span>
@@ -2415,7 +2415,7 @@ export default function Styleguide() {
 
                     {/* The Segmented Bar */}
                     <div
-                      className="h-2.5 w-full overflow-hidden rounded-full bg-slate-200 flex"
+                      className="h-2.5 w-full overflow-hidden rounded-full bg-border flex"
                       title={`Accepted: ${rsvpDistribution.accepted}, Declined: ${rsvpDistribution.declined}, Tentative: ${rsvpDistribution.tentative}, Unanswered: ${rsvpDistribution.unanswered}`}
                     >
                       <div
@@ -2434,7 +2434,7 @@ export default function Styleguide() {
                         title={`Tentative: ${rsvpDistribution.tentative} (${pctTentative}%)`}
                       />
                       <div
-                        className="bg-slate-300 transition-all duration-500 ease-in-out"
+                        className="bg-border-hover transition-all duration-500 ease-in-out"
                         style={{ width: `${pctUnanswered}%` }}
                         title={`No Response: ${rsvpDistribution.unanswered} (${pctUnanswered}%)`}
                       />
@@ -2442,7 +2442,7 @@ export default function Styleguide() {
 
                     {/* Breakdown List */}
                     <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                      <div className="flex items-center justify-between rounded-lg bg-white p-2.5 border border-border">
+                      <div className="flex items-center justify-between rounded-lg bg-surface p-2.5 border border-border">
                         <div className="flex items-center gap-2">
                           <span className="size-2.5 rounded-full bg-emerald-500 flex-shrink-0" />
                           <span className="text-xs font-medium text-foreground">Accepted</span>
@@ -2451,7 +2451,7 @@ export default function Styleguide() {
                           {rsvpDistribution.accepted} <span className="text-[10px] text-muted-foreground font-normal">({pctAccepted}%)</span>
                         </span>
                       </div>
-                      <div className="flex items-center justify-between rounded-lg bg-white p-2.5 border border-border">
+                      <div className="flex items-center justify-between rounded-lg bg-surface p-2.5 border border-border">
                         <div className="flex items-center gap-2">
                           <span className="size-2.5 rounded-full bg-rose-500 flex-shrink-0" />
                           <span className="text-xs font-medium text-foreground">Declined</span>
@@ -2460,7 +2460,7 @@ export default function Styleguide() {
                           {rsvpDistribution.declined} <span className="text-[10px] text-muted-foreground font-normal">({pctDeclined}%)</span>
                         </span>
                       </div>
-                      <div className="flex items-center justify-between rounded-lg bg-white p-2.5 border border-border">
+                      <div className="flex items-center justify-between rounded-lg bg-surface p-2.5 border border-border">
                         <div className="flex items-center gap-2">
                           <span className="size-2.5 rounded-full bg-amber-500 flex-shrink-0" />
                           <span className="text-xs font-medium text-foreground">Tentative</span>
@@ -2469,7 +2469,7 @@ export default function Styleguide() {
                           {rsvpDistribution.tentative} <span className="text-[10px] text-muted-foreground font-normal">({pctTentative}%)</span>
                         </span>
                       </div>
-                      <div className="flex items-center justify-between rounded-lg bg-white p-2.5 border border-border">
+                      <div className="flex items-center justify-between rounded-lg bg-surface p-2.5 border border-border">
                         <div className="flex items-center gap-2">
                           <span className="size-2.5 rounded-full bg-slate-400 flex-shrink-0" />
                           <span className="text-xs font-medium text-foreground">No Response</span>
@@ -2483,9 +2483,9 @@ export default function Styleguide() {
                 </div>
 
                 {/* 4. Activity Stream */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Activity stream
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -2494,7 +2494,7 @@ export default function Styleguide() {
                   </div>
                   <div className="max-w-xl space-y-3.5">
                     {/* Item 1 - Green */}
-                    <div className="flex items-start gap-3 rounded-xl border border-border bg-slate-50/40 p-3">
+                    <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/40 p-3">
                       <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
                         <CheckIcon className="size-4 stroke-[2.5]" />
                       </div>
@@ -2508,7 +2508,7 @@ export default function Styleguide() {
                     </div>
 
                     {/* Item 2 - Red */}
-                    <div className="flex items-start gap-3 rounded-xl border border-border bg-slate-50/40 p-3">
+                    <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/40 p-3">
                       <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-rose-50 text-rose-600">
                         <XIcon className="size-4 stroke-[2.5]" />
                       </div>
@@ -2522,8 +2522,8 @@ export default function Styleguide() {
                     </div>
 
                     {/* Item 3 - Purple / Indigo */}
-                    <div className="flex items-start gap-3 rounded-xl border border-border bg-slate-50/40 p-3">
-                      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+                    <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/40 p-3">
+                      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-subtle text-primary">
                         <SparklesIcon className="size-4 stroke-[2.5]" />
                       </div>
                       <div className="min-w-0 flex-1 text-xs">
@@ -2535,7 +2535,7 @@ export default function Styleguide() {
                     </div>
 
                     {/* Item 4 - Amber */}
-                    <div className="flex items-start gap-3 rounded-xl border border-border bg-slate-50/40 p-3">
+                    <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/40 p-3">
                       <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-600">
                         <ClockIcon className="size-4 stroke-[2.5]" />
                       </div>
@@ -2551,9 +2551,9 @@ export default function Styleguide() {
                 </div>
 
                 {/* 5. Boundary & Security Banners */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Boundary &amp; security banners
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -2563,9 +2563,9 @@ export default function Styleguide() {
 
                   <div className="space-y-5">
                     {/* Policy Banner: Zero-Knowledge Architecture (Primary / Info) */}
-                    <div className="rounded-xl border border-border border-l-4 border-l-indigo-600 bg-white p-4 shadow-xs sm:p-5">
+                    <div className="rounded-xl border border-border border-l-4 border-l-primary bg-surface p-4 shadow-xs sm:p-5">
                       <div className="flex items-start gap-3.5">
-                        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+                        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-subtle text-primary">
                           <LockIcon className="size-4" />
                         </div>
                         <div className="min-w-0 flex-1">
@@ -2585,7 +2585,7 @@ export default function Styleguide() {
                     </div>
 
                     {/* Interactive Role Scoped Assignment Notice */}
-                    <div className="rounded-xl border border-border bg-slate-50/50 p-4">
+                    <div className="rounded-xl border border-border bg-muted/50 p-4">
                       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                         <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                           Interactive Scope Simulator
@@ -2606,7 +2606,7 @@ export default function Styleguide() {
                       </div>
 
                       {boundaryRole !== 'Guest' ? (
-                        <div className="flex flex-col gap-3 rounded-xl border border-border border-l-4 border-l-emerald-600 bg-white p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex flex-col gap-3 rounded-xl border border-border border-l-4 border-l-emerald-600 bg-surface p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between">
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
                               <strong className="text-sm font-bold text-foreground">Tech Forward Gala 2026</strong>
@@ -2655,9 +2655,9 @@ export default function Styleguide() {
             >
               <div className="space-y-8">
                 {/* 1. Segmented Controls */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Segmented controls (.segmented-control)
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -2671,7 +2671,7 @@ export default function Styleguide() {
                       <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
                         Admin Portal Navigation (Full-width pill track)
                       </p>
-                      <div className="inline-flex rounded-full bg-slate-200/80 p-1 gap-1 text-xs font-semibold text-muted-foreground">
+                      <div className="inline-flex rounded-full bg-border/80 p-1 gap-1 text-xs font-semibold text-muted-foreground">
                         {[
                           { id: 'overview', label: 'Overview' },
                           { id: 'organizers', label: 'Organizers' },
@@ -2683,8 +2683,8 @@ export default function Styleguide() {
                             type="button"
                             onClick={() => setSegmentedTab(tab.id)}
                             className={`rounded-full px-4 py-1.5 transition-all duration-150 cursor-pointer ${segmentedTab === tab.id
-                              ? 'bg-white text-foreground shadow-xs font-bold'
-                              : 'text-slate-600 hover:text-foreground'
+                              ? 'bg-surface text-foreground shadow-xs font-bold'
+                              : 'text-muted-foreground hover:text-foreground'
                               }`}
                           >
                             {tab.label}
@@ -2692,7 +2692,7 @@ export default function Styleguide() {
                         ))}
                       </div>
                       <p className="mt-2 text-xs text-muted-foreground">
-                        Active tab: <strong className="text-indigo-600">{segmentedTab}</strong>
+                        Active tab: <strong className="text-primary">{segmentedTab}</strong>
                       </p>
                     </div>
 
@@ -2701,7 +2701,7 @@ export default function Styleguide() {
                       <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
                         Guest Portal Tab Switcher (.seg-tab-btn)
                       </p>
-                      <div className="inline-flex rounded-xl bg-slate-100 p-1 gap-1 text-xs font-medium border border-border">
+                      <div className="inline-flex rounded-xl bg-muted p-1 gap-1 text-xs font-medium border border-border">
                         {[
                           { id: 'rsvp', label: 'RSVP Response' },
                           { id: 'details', label: 'Event Schedule' },
@@ -2712,7 +2712,7 @@ export default function Styleguide() {
                             type="button"
                             onClick={() => setGuestSegmentedTab(tab.id)}
                             className={`rounded-lg px-3.5 py-1.5 transition-all duration-150 cursor-pointer ${guestSegmentedTab === tab.id
-                              ? 'bg-white text-indigo-700 shadow-xs font-bold border border-border'
+                              ? 'bg-surface text-primary shadow-xs font-bold border border-border'
                               : 'text-muted-foreground hover:text-foreground'
                               }`}
                           >
@@ -2725,10 +2725,10 @@ export default function Styleguide() {
                 </div>
 
                 {/* 2. Stepper / Wizard */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                     <div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      <span className="text-xs font-bold uppercase tracking-wider text-primary">
                         Stepper &amp; wizard (.stepper-bar)
                       </span>
                       <p className="mt-1 text-xs text-muted-foreground">
@@ -2757,10 +2757,10 @@ export default function Styleguide() {
 
                   <div className="relative py-6 max-w-2xl mx-auto">
                     {/* Background line */}
-                    <div className="absolute top-10 left-8 right-8 h-0.5 bg-slate-200 -translate-y-1/2 z-0" />
+                    <div className="absolute top-10 left-8 right-8 h-0.5 bg-border -translate-y-1/2 z-0" />
                     {/* Fill line */}
                     <div
-                      className="absolute top-10 left-8 h-0.5 bg-indigo-600 -translate-y-1/2 z-0 transition-all duration-300 ease-out"
+                      className="absolute top-10 left-8 h-0.5 bg-primary -translate-y-1/2 z-0 transition-all duration-300 ease-out"
                       style={{
                         width: `${((wizardStep - 1) / 3) * 100}%`,
                         maxWidth: 'calc(100% - 64px)',
@@ -2783,20 +2783,20 @@ export default function Styleguide() {
                             key={item.step}
                             type="button"
                             onClick={() => setWizardStep(item.step)}
-                            className="flex flex-col items-center bg-white px-2 group cursor-pointer focus:outline-none"
+                            className="flex flex-col items-center bg-surface px-2 group cursor-pointer focus:outline-none"
                           >
                             <div
                               className={`size-8 rounded-full flex items-center justify-center font-heading text-xs font-bold transition-all duration-200 ${isDone
-                                ? 'bg-indigo-600 text-white'
+                                ? 'bg-primary text-primary-foreground'
                                 : isActive
-                                  ? 'bg-indigo-600 text-white ring-4 ring-indigo-500/20 shadow-xs'
-                                  : 'bg-slate-100 text-slate-500 border-2 border-slate-200 group-hover:border-slate-300'
+                                  ? 'bg-primary text-primary-foreground ring-4 ring-primary-glow shadow-xs'
+                                  : 'bg-muted text-muted-foreground border-2 border-border group-hover:border-border-hover'
                                 }`}
                             >
                               {isDone ? <CheckIcon className="size-4 stroke-[3]" /> : item.step}
                             </div>
                             <span
-                              className={`mt-2 text-xs font-semibold ${isActive ? 'text-indigo-600 font-bold' : isDone ? 'text-foreground' : 'text-muted-foreground'
+                              className={`mt-2 text-xs font-semibold ${isActive ? 'text-primary font-bold' : isDone ? 'text-foreground' : 'text-muted-foreground'
                                 }`}
                             >
                               {item.title}
@@ -2812,9 +2812,9 @@ export default function Styleguide() {
                 </div>
 
                 {/* 3. Custom Toggle Switch */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Custom toggle switch (.toggle-switch)
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -2823,7 +2823,7 @@ export default function Styleguide() {
                   </div>
 
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-2xl">
-                    <div className="flex items-center justify-between rounded-xl border border-border bg-slate-50/50 p-4">
+                    <div className="flex items-center justify-between rounded-xl border border-border bg-muted/50 p-4">
                       <div>
                         <strong className="block text-xs font-semibold text-foreground">
                           Require RSVP Approval
@@ -2839,11 +2839,11 @@ export default function Styleguide() {
                           checked={customToggle1}
                           onChange={(e) => setCustomToggle1(e.target.checked)}
                         />
-                        <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all after:duration-200 peer-checked:bg-indigo-600 shadow-inner"></div>
+                        <div className="w-11 h-6 bg-border-hover peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-surface after:border-border-hover after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all after:duration-200 peer-checked:bg-primary shadow-inner"></div>
                       </label>
                     </div>
 
-                    <div className="flex items-center justify-between rounded-xl border border-border bg-slate-50/50 p-4">
+                    <div className="flex items-center justify-between rounded-xl border border-border bg-muted/50 p-4">
                       <div>
                         <strong className="block text-xs font-semibold text-foreground">
                           Plus-One Allotments
@@ -2859,16 +2859,16 @@ export default function Styleguide() {
                           checked={customToggle2}
                           onChange={(e) => setCustomToggle2(e.target.checked)}
                         />
-                        <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all after:duration-200 peer-checked:bg-indigo-600 shadow-inner"></div>
+                        <div className="w-11 h-6 bg-border-hover peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-surface after:border-border-hover after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all after:duration-200 peer-checked:bg-primary shadow-inner"></div>
                       </label>
                     </div>
                   </div>
                 </div>
 
                 {/* 4. Search Box + KBD Hint */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Search box + KBD hint (.search-box, .kbd-hint)
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -2878,15 +2878,15 @@ export default function Styleguide() {
 
                   <div className="max-w-md">
                     <div className="relative flex items-center">
-                      <SearchIcon className="absolute left-3.5 size-4 text-slate-400 pointer-events-none" />
+                      <SearchIcon className="absolute left-3.5 size-4 text-muted-foreground pointer-events-none" />
                       <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search guests, email, or tickets..."
-                        className="w-full rounded-full border border-border bg-white pl-10 pr-16 py-2 text-xs text-foreground placeholder:text-muted-foreground shadow-2xs transition-all focus:border-indigo-600 focus:outline-none focus:ring-3 focus:ring-indigo-500/15"
+                        className="w-full rounded-full border border-border bg-surface pl-10 pr-16 py-2 text-xs text-foreground placeholder:text-muted-foreground shadow-2xs transition-all focus:border-primary focus:outline-none focus:ring-3 focus:ring-primary-glow"
                       />
-                      <kbd className="absolute right-3 inline-flex items-center gap-0.5 rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-slate-500">
+                      <kbd className="absolute right-3 inline-flex items-center gap-0.5 rounded-md border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] font-semibold text-muted-foreground">
                         <span>⌘</span><span>K</span>
                       </kbd>
                     </div>
@@ -2899,9 +2899,9 @@ export default function Styleguide() {
                 </div>
 
                 {/* 5. Icon Action Buttons */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Icon action buttons (.action-btn, .action-btn-group)
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -2941,7 +2941,7 @@ export default function Styleguide() {
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          className="size-8 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 flex items-center justify-center transition-all duration-150 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-xs active:scale-95 cursor-pointer"
+                          className="size-8 rounded-lg border border-border bg-muted text-muted-foreground flex items-center justify-center transition-all duration-150 hover:bg-primary-subtle hover:border-primary-border hover:text-primary hover:shadow-xs active:scale-95 cursor-pointer"
                           title="Simulate check-in barcode scan"
                           onClick={() => toast.info('Simulated camera reticle trigger')}
                         >
@@ -2952,7 +2952,7 @@ export default function Styleguide() {
                     </div>
 
                     {/* Button Group in Context */}
-                    <div className="flex items-center justify-between rounded-xl border border-border bg-slate-50/50 p-3 max-w-md">
+                    <div className="flex items-center justify-between rounded-xl border border-border bg-muted/50 p-3 max-w-md">
                       <div>
                         <strong className="block text-xs font-semibold text-foreground">Arthur Vance (VIP Speaker)</strong>
                         <span className="text-[11px] text-muted-foreground">Requesting table seat #4</span>
@@ -2980,9 +2980,9 @@ export default function Styleguide() {
                 </div>
 
                 {/* 6. Custom Dropdown Menus */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Custom dropdown menu (.dropdown, .dropdown-menu)
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -3003,12 +3003,12 @@ export default function Styleguide() {
 
                     {customDropdownOpen && (
                       <div
-                        className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-52 rounded-xl border border-border bg-white p-1.5 shadow-lg z-50 animate-in fade-in-50 slide-in-from-top-2 duration-150"
+                        className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-52 rounded-xl border border-border bg-surface p-1.5 shadow-lg z-50 animate-in fade-in-50 slide-in-from-top-2 duration-150"
                         onMouseLeave={() => setCustomDropdownOpen(false)}
                       >
                         <button
                           type="button"
-                          className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-slate-100 transition-colors text-left cursor-pointer"
+                          className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors text-left cursor-pointer"
                           onClick={() => {
                             toast('Downloading attendee roster')
                             setCustomDropdownOpen(false)
@@ -3019,7 +3019,7 @@ export default function Styleguide() {
                         </button>
                         <button
                           type="button"
-                          className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-slate-100 transition-colors text-left cursor-pointer"
+                          className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors text-left cursor-pointer"
                           onClick={() => {
                             toast('Invitation batch sent')
                             setCustomDropdownOpen(false)
@@ -3046,10 +3046,10 @@ export default function Styleguide() {
                 </div>
 
                 {/* 7. Field Error States */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                     <div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      <span className="text-xs font-bold uppercase tracking-wider text-primary">
                         Field error states (.field-error, .form-control-error)
                       </span>
                       <p className="mt-1 text-xs text-muted-foreground">
@@ -3075,7 +3075,7 @@ export default function Styleguide() {
                         defaultValue="invalid-email@sample"
                         className={`w-full rounded-xl border px-3.5 py-2 text-xs text-foreground placeholder:text-muted-foreground transition-all focus:outline-none ${formFieldError
                           ? 'border-rose-500 bg-rose-50/20 ring-3 ring-rose-500/10 focus:border-rose-600'
-                          : 'border-border bg-white focus:border-indigo-600 focus:ring-3 focus:ring-indigo-500/15'
+                          : 'border-border bg-surface focus:border-primary focus:ring-3 focus:ring-primary-glow'
                           }`}
                       />
                       {formFieldError && (
@@ -3098,9 +3098,9 @@ export default function Styleguide() {
             >
               <div className="space-y-8">
                 {/* 1. Toast with Progress Bar */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Toast with animated progress bar (.eirmis-toast)
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -3143,7 +3143,7 @@ export default function Styleguide() {
                     <Button
                       size="xs"
                       variant="outline"
-                      className="border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+                      className="border-primary-border text-primary hover:bg-primary-subtle"
                       onClick={() =>
                         triggerProgressToast('info', 'Batch reminder dispatched to 24 unconfirmed guests.')
                       }
@@ -3193,21 +3193,21 @@ export default function Styleguide() {
                     {/* Info Preview */}
                     <div className="relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/95 p-3.5 text-white shadow-md backdrop-blur-md">
                       <div className="flex items-center gap-3">
-                        <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-indigo-500 text-white">
+                        <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
                           <InfoIcon className="size-3.5 stroke-[3]" />
                         </div>
                         <span className="text-xs font-medium flex-1">Export file ready for download</span>
                         <span className="text-xs text-slate-400">×</span>
                       </div>
-                      <div className="absolute bottom-0 left-0 h-[3px] w-full bg-indigo-500" />
+                      <div className="absolute bottom-0 left-0 h-[3px] w-full bg-primary" />
                     </div>
                   </div>
                 </div>
 
                 {/* 2. Custom Modal Sheets */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Custom modal sheet (.modal-overlay, .modal-box)
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -3225,9 +3225,9 @@ export default function Styleguide() {
                 </div>
 
                 {/* 3. Waitlist Promotion Modal */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Waitlist promotion flow (.waitlist-promotion-modal)
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -3254,9 +3254,9 @@ export default function Styleguide() {
                 </div>
 
                 {/* 4. Restricted Row State */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Restricted row state (.row-restricted, .restricted-label)
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -3264,9 +3264,9 @@ export default function Styleguide() {
                     </p>
                   </div>
 
-                  <div className="overflow-x-auto rounded-xl border border-border bg-white">
+                  <div className="overflow-x-auto rounded-xl border border-border bg-surface">
                     <table className="w-full text-left text-xs border-collapse">
-                      <thead className="bg-slate-50 border-b border-border text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                      <thead className="bg-muted border-b border-border text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                         <tr>
                           <th className="py-2.5 px-4">Attendee</th>
                           <th className="py-2.5 px-4">Status</th>
@@ -3276,7 +3276,7 @@ export default function Styleguide() {
                       </thead>
                       <tbody className="divide-y divide-border">
                         {/* Normal Row */}
-                        <tr className="hover:bg-slate-50/70 transition-colors">
+                        <tr className="hover:bg-muted/70 transition-colors">
                           <td className="py-3 px-4 font-semibold text-foreground">Sarah Jenkins</td>
                           <td className="py-3 px-4">
                             <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
@@ -3290,13 +3290,13 @@ export default function Styleguide() {
                         </tr>
 
                         {/* Restricted Row */}
-                        <tr className="bg-slate-50/80 opacity-80 hover:bg-slate-100/60 transition-colors">
-                          <td className="py-3 px-4 font-medium text-slate-600">
+                        <tr className="bg-muted/80 opacity-80 hover:bg-muted/60 transition-colors">
+                          <td className="py-3 px-4 font-medium text-muted-foreground">
                             Arthur Vance <span className="text-[10px] text-muted-foreground">(Keynote VIP)</span>
                           </td>
                           <td className="py-3 px-4">
-                            <span className="inline-flex items-center gap-1 rounded-md bg-slate-200 px-2 py-0.5 text-[10px] font-bold text-slate-700" title="This guest RSVP is locked by platform administrator policy.">
-                              <LockIcon className="size-3 text-slate-600" />
+                            <span className="inline-flex items-center gap-1 rounded-md bg-border px-2 py-0.5 text-[10px] font-bold text-foreground" title="This guest RSVP is locked by platform administrator policy.">
+                              <LockIcon className="size-3 text-muted-foreground" />
                               <span>LOCKED BY POLICY</span>
                             </span>
                           </td>
@@ -3311,7 +3311,7 @@ export default function Styleguide() {
                         </tr>
 
                         {/* Normal Row */}
-                        <tr className="hover:bg-slate-50/70 transition-colors">
+                        <tr className="hover:bg-muted/70 transition-colors">
                           <td className="py-3 px-4 font-semibold text-foreground">Michael Chang</td>
                           <td className="py-3 px-4">
                             <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-800">
@@ -3329,9 +3329,9 @@ export default function Styleguide() {
                 </div>
 
                 {/* 5. User Pill / Avatar */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       User pill &amp; avatar (.user-pill, .eirmis-session-pill)
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -3341,18 +3341,18 @@ export default function Styleguide() {
 
                   <div className="flex flex-wrap items-center gap-4">
                     {/* Full Pill */}
-                    <div className="flex items-center gap-2 rounded-full border border-border bg-white py-1 px-3 shadow-xs hover:border-slate-300 transition-all cursor-pointer">
+                    <div className="flex items-center gap-2 rounded-full border border-border bg-surface py-1 px-3 shadow-xs hover:border-border-hover transition-all cursor-pointer">
                       <div className="flex size-7 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-indigo-900 text-xs font-bold text-white shadow-2xs">
                         SJ
                       </div>
                       <span className="text-xs font-semibold text-foreground">Sarah Jenkins</span>
-                      <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-bold text-indigo-700">
+                      <span className="rounded-full bg-primary-subtle px-2 py-0.5 text-[10px] font-bold text-primary">
                         Organizer
                       </span>
                     </div>
 
                     {/* Admin Pill */}
-                    <div className="flex items-center gap-2 rounded-full border border-border bg-white py-1 px-3 shadow-xs hover:border-slate-300 transition-all cursor-pointer">
+                    <div className="flex items-center gap-2 rounded-full border border-border bg-surface py-1 px-3 shadow-xs hover:border-border-hover transition-all cursor-pointer">
                       <div className="flex size-7 items-center justify-center rounded-full bg-gradient-to-br from-slate-700 to-slate-900 text-xs font-bold text-white shadow-2xs">
                         RA
                       </div>
@@ -3389,7 +3389,7 @@ export default function Styleguide() {
                         ? 'bg-amber-500'
                         : activeToast.type === 'error'
                           ? 'bg-rose-500'
-                          : 'bg-indigo-500'
+                          : 'bg-primary'
                       }`}
                   >
                     {activeToast.type === 'success' ? (
@@ -3417,7 +3417,7 @@ export default function Styleguide() {
                         ? 'bg-amber-500'
                         : activeToast.type === 'error'
                           ? 'bg-rose-500'
-                          : 'bg-indigo-500'
+                          : 'bg-primary'
                       }`}
                     style={{
                       animation: 'eirmisToastProgress 3.2s linear forwards',
@@ -3434,7 +3434,7 @@ export default function Styleguide() {
                   onClick={() => setCustomModalSheetOpen(false)}
                 >
                   <div
-                    className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200"
+                    className="w-full max-w-md rounded-2xl bg-surface p-6 shadow-2xl animate-in zoom-in-95 duration-200"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <div className="flex items-center justify-between border-b border-border pb-3">
@@ -3474,7 +3474,7 @@ export default function Styleguide() {
                   onClick={() => !waitlistProcessing && setWaitlistModalOpen(false)}
                 >
                   <div
-                    className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200"
+                    className="w-full max-w-md rounded-2xl bg-surface p-6 shadow-2xl animate-in zoom-in-95 duration-200"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <div className="flex items-center justify-between border-b border-border pb-3">
@@ -3492,8 +3492,8 @@ export default function Styleguide() {
                     </div>
 
                     {/* Guest Information Card */}
-                    <div className="my-4 flex items-center gap-3 rounded-xl border border-border bg-slate-50 p-3">
-                      <div className="flex size-10 items-center justify-center rounded-full bg-indigo-50 font-heading text-sm font-bold text-indigo-700">
+                    <div className="my-4 flex items-center gap-3 rounded-xl border border-border bg-muted p-3">
+                      <div className="flex size-10 items-center justify-center rounded-full bg-primary-subtle font-heading text-sm font-bold text-primary">
                         ER
                       </div>
                       <div className="min-w-0 flex-1 text-xs">
@@ -3506,8 +3506,8 @@ export default function Styleguide() {
                     </div>
 
                     {/* Information Note */}
-                    <div className="mb-4 flex items-start gap-2.5 rounded-xl bg-indigo-50 p-3 text-xs text-indigo-900 leading-relaxed">
-                      <InfoIcon className="size-4 text-indigo-600 shrink-0 mt-0.5" />
+                    <div className="mb-4 flex items-start gap-2.5 rounded-xl bg-primary-subtle p-3 text-xs text-foreground leading-relaxed">
+                      <InfoIcon className="size-4 text-primary shrink-0 mt-0.5" />
                       <span>
                         Promoting this guest immediately deducts 1 seat from the remaining event capacity buffer and emails an encrypted QR access ticket.
                       </span>
@@ -3569,10 +3569,10 @@ export default function Styleguide() {
             >
               <div className="space-y-8">
                 {/* 1. Scan Camera Viewfinder */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                     <div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      <span className="text-xs font-bold uppercase tracking-wider text-primary">
                         Scan camera viewfinder (.camera-frame)
                       </span>
                       <p className="mt-1 text-xs text-muted-foreground">
@@ -3779,9 +3779,9 @@ export default function Styleguide() {
                 </div>
 
                 {/* 2. Admin Role Pill */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Admin role pill (.admin-pill, .admin-pill-dot)
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -3791,12 +3791,12 @@ export default function Styleguide() {
 
                   <div className="flex flex-wrap items-center gap-6">
                     {/* Light Surface Admin Pill */}
-                    <div className="flex items-center gap-2 p-3 rounded-xl border border-border bg-slate-50/50">
+                    <div className="flex items-center gap-2 p-3 rounded-xl border border-border bg-muted/50">
                       <span className="text-xs text-muted-foreground mr-1">Light context:</span>
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-slate-100 py-1 px-3 text-[11px] font-bold tracking-wider text-slate-700">
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted py-1 px-3 text-[11px] font-bold tracking-wider text-foreground">
                         <span className="relative flex size-2">
-                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-500 opacity-75" />
-                          <span className="relative inline-flex size-2 rounded-full bg-indigo-600" />
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+                          <span className="relative inline-flex size-2 rounded-full bg-primary" />
                         </span>
                         <span>ADMIN</span>
                       </span>
@@ -3817,9 +3817,9 @@ export default function Styleguide() {
                 </div>
 
                 {/* 3. RSVP Breakdown Dots */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       RSVP breakdown dots (.dot-green, .dot-red, .dot-amber, .dot-gray)
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -3828,28 +3828,28 @@ export default function Styleguide() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 max-w-2xl">
-                    <div className="flex items-center gap-3 rounded-xl border border-border bg-white p-3 shadow-2xs">
+                    <div className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3 shadow-2xs">
                       <span className="size-2.5 rounded-full bg-emerald-500 shrink-0" />
                       <div>
                         <strong className="block text-xs font-semibold text-foreground">dot-green</strong>
                         <span className="text-[11px] text-muted-foreground">#10B981 (Accepted)</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 rounded-xl border border-border bg-white p-3 shadow-2xs">
+                    <div className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3 shadow-2xs">
                       <span className="size-2.5 rounded-full bg-rose-500 shrink-0" />
                       <div>
                         <strong className="block text-xs font-semibold text-foreground">dot-red</strong>
                         <span className="text-[11px] text-muted-foreground">#EF4444 (Declined)</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 rounded-xl border border-border bg-white p-3 shadow-2xs">
+                    <div className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3 shadow-2xs">
                       <span className="size-2.5 rounded-full bg-amber-500 shrink-0" />
                       <div>
                         <strong className="block text-xs font-semibold text-foreground">dot-amber</strong>
                         <span className="text-[11px] text-muted-foreground">#F59E0B (Tentative)</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 rounded-xl border border-border bg-white p-3 shadow-2xs">
+                    <div className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3 shadow-2xs">
                       <span className="size-2.5 rounded-full bg-slate-400 shrink-0" />
                       <div>
                         <strong className="block text-xs font-semibold text-foreground">dot-gray</strong>
@@ -3869,10 +3869,10 @@ export default function Styleguide() {
             >
               <div className="space-y-8">
                 {/* 1. Table → Card Stack Auto-Transform */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                     <div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      <span className="text-xs font-bold uppercase tracking-wider text-primary">
                         Table → card stack auto-transform (eirmis.css:809-847)
                       </span>
                       <p className="mt-1 text-xs text-muted-foreground">
@@ -3900,9 +3900,9 @@ export default function Styleguide() {
 
                   {responsiveTableView === 'desktop' ? (
                     /* Desktop Table View */
-                    <div className="overflow-x-auto rounded-xl border border-border bg-white">
+                    <div className="overflow-x-auto rounded-xl border border-border bg-surface">
                       <table className="w-full text-left text-xs border-collapse">
-                        <thead className="bg-slate-50 border-b border-border text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <thead className="bg-muted border-b border-border text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                           <tr>
                             <th className="py-2.5 px-4">Attendee</th>
                             <th className="py-2.5 px-4">Category</th>
@@ -3915,9 +3915,9 @@ export default function Styleguide() {
                           {[
                             { name: 'Sarah Jenkins', cat: 'Keynote Speaker', status: 'Confirmed', statusColor: 'bg-emerald-100 text-emerald-800', table: 'Table #1' },
                             { name: 'Arthur Vance', cat: 'Corporate Sponsor', status: 'Pending', statusColor: 'bg-amber-100 text-amber-800', table: 'Table #4' },
-                            { name: 'Elena Rostova', cat: 'General Attendee', status: 'Waitlist', statusColor: 'bg-slate-100 text-slate-700', table: 'Unassigned' },
+                            { name: 'Elena Rostova', cat: 'General Attendee', status: 'Waitlist', statusColor: 'bg-muted text-foreground', table: 'Unassigned' },
                           ].map((row, i) => (
-                            <tr key={i} className="hover:bg-slate-50/70 transition-colors">
+                            <tr key={i} className="hover:bg-muted/70 transition-colors">
                               <td className="py-3 px-4 font-semibold text-foreground">{row.name}</td>
                               <td className="py-3 px-4 text-muted-foreground">{row.cat}</td>
                               <td className="py-3 px-4">
@@ -3940,22 +3940,22 @@ export default function Styleguide() {
                       {[
                         { name: 'Sarah Jenkins', cat: 'Keynote Speaker', status: 'Confirmed', statusColor: 'bg-emerald-100 text-emerald-800', table: 'Table #1' },
                         { name: 'Arthur Vance', cat: 'Corporate Sponsor', status: 'Pending', statusColor: 'bg-amber-100 text-amber-800', table: 'Table #4' },
-                        { name: 'Elena Rostova', cat: 'General Attendee', status: 'Waitlist', statusColor: 'bg-slate-100 text-slate-700', table: 'Unassigned' },
+                        { name: 'Elena Rostova', cat: 'General Attendee', status: 'Waitlist', statusColor: 'bg-muted text-foreground', table: 'Unassigned' },
                       ].map((row, i) => (
-                        <div key={i} className="rounded-xl border border-border bg-white p-3 shadow-xs space-y-2 text-xs">
-                          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                        <div key={i} className="rounded-xl border border-border bg-surface p-3 shadow-xs space-y-2 text-xs">
+                          <div className="flex items-center justify-between border-b border-border-subtle pb-2">
                             <span className="font-bold text-[11px] uppercase tracking-wider text-muted-foreground">Attendee</span>
                             <strong className="font-semibold text-foreground">{row.name}</strong>
                           </div>
-                          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                          <div className="flex items-center justify-between border-b border-border-subtle pb-2">
                             <span className="font-bold text-[11px] uppercase tracking-wider text-muted-foreground">Category</span>
                             <span className="text-muted-foreground">{row.cat}</span>
                           </div>
-                          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                          <div className="flex items-center justify-between border-b border-border-subtle pb-2">
                             <span className="font-bold text-[11px] uppercase tracking-wider text-muted-foreground">Status</span>
                             <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${row.statusColor}`}>{row.status}</span>
                           </div>
-                          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                          <div className="flex items-center justify-between border-b border-border-subtle pb-2">
                             <span className="font-bold text-[11px] uppercase tracking-wider text-muted-foreground">Table</span>
                             <span className="text-muted-foreground">{row.table}</span>
                           </div>
@@ -3968,7 +3968,7 @@ export default function Styleguide() {
                     </div>
                   )}
 
-                  <div className="mt-4 rounded-xl bg-slate-50 p-3 text-xs text-muted-foreground border border-border">
+                  <div className="mt-4 rounded-xl bg-muted p-3 text-xs text-muted-foreground border border-border">
                     <p className="font-semibold text-foreground">💡 Auto-label Implementation Note:</p>
                     <p className="mt-1">
                       Tables are automatically labeled via <code>EIRMIS.autoLabelTables()</code> which maps <code>th</code> content into cell <code>data-label</code> attributes. Use the <code>.no-card-stack</code> class on table elements to opt-out of mobile card flattening.
@@ -3977,10 +3977,10 @@ export default function Styleguide() {
                 </div>
 
                 {/* 2. Touch Target Enforcement */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                     <div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                      <span className="text-xs font-bold uppercase tracking-wider text-primary">
                         Touch target enforcement (eirmis.css:790-802)
                       </span>
                       <p className="mt-1 text-xs text-muted-foreground">
@@ -3996,12 +3996,12 @@ export default function Styleguide() {
                     </Button>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-6 p-4 rounded-xl bg-slate-50/50 border border-border max-w-xl">
+                  <div className="flex flex-wrap items-center gap-6 p-4 rounded-xl bg-muted/50 border border-border max-w-xl">
                     {/* Button Demo */}
                     <div className="relative inline-flex flex-col items-center">
                       <button
                         type="button"
-                        className={`min-h-[44px] min-w-[44px] px-4 rounded-lg bg-indigo-600 text-white font-medium text-xs flex items-center justify-center transition-all ${showTouchRuler ? 'ring-2 ring-rose-500 ring-offset-2' : ''
+                        className={`min-h-[44px] min-w-[44px] px-4 rounded-lg bg-primary text-primary-foreground font-medium text-xs flex items-center justify-center transition-all ${showTouchRuler ? 'ring-2 ring-rose-500 ring-offset-2' : ''
                           }`}
                       >
                         44px Button
@@ -4015,10 +4015,10 @@ export default function Styleguide() {
                     <div className="relative inline-flex flex-col items-center">
                       <button
                         type="button"
-                        className={`min-h-[44px] min-w-[44px] rounded-lg border border-border bg-white text-foreground flex items-center justify-center transition-all ${showTouchRuler ? 'ring-2 ring-rose-500 ring-offset-2' : ''
+                        className={`min-h-[44px] min-w-[44px] rounded-lg border border-border bg-surface text-foreground flex items-center justify-center transition-all ${showTouchRuler ? 'ring-2 ring-rose-500 ring-offset-2' : ''
                           }`}
                       >
-                        <SearchIcon className="size-4 text-slate-500" />
+                        <SearchIcon className="size-4 text-muted-foreground" />
                       </button>
                       {showTouchRuler && (
                         <span className="mt-1 text-[10px] font-mono font-bold text-rose-600">44 × 44px min</span>
@@ -4029,7 +4029,7 @@ export default function Styleguide() {
                     <div className="relative inline-flex flex-col items-center">
                       <button
                         type="button"
-                        className={`min-h-[44px] px-3.5 rounded-full border border-border bg-white text-foreground text-xs font-semibold flex items-center justify-center transition-all ${showTouchRuler ? 'ring-2 ring-rose-500 ring-offset-2' : ''
+                        className={`min-h-[44px] px-3.5 rounded-full border border-border bg-surface text-foreground text-xs font-semibold flex items-center justify-center transition-all ${showTouchRuler ? 'ring-2 ring-rose-500 ring-offset-2' : ''
                           }`}
                       >
                         Pill Action
@@ -4042,9 +4042,9 @@ export default function Styleguide() {
                 </div>
 
                 {/* 3. Navigation Collapse → Drawer */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Navigation collapse &amp; mobile drawer
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -4053,12 +4053,12 @@ export default function Styleguide() {
                   </div>
 
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-2xl">
-                    <div className="rounded-xl border border-border bg-white p-4 space-y-2">
+                    <div className="rounded-xl border border-border bg-surface p-4 space-y-2">
                       <strong className="block text-xs font-bold text-foreground">Desktop Mode (≥768px)</strong>
-                      <div className="flex items-center gap-2 rounded-lg bg-slate-100 p-2 text-xs">
-                        <span className="font-bold text-indigo-600">EIRMIS</span>
+                      <div className="flex items-center gap-2 rounded-lg bg-muted p-2 text-xs">
+                        <span className="font-bold text-primary">EIRMIS</span>
                         <div className="flex gap-1 text-[11px] text-muted-foreground ml-2">
-                          <span className="bg-white px-1.5 py-0.5 rounded shadow-2xs text-foreground font-medium">Public</span>
+                          <span className="bg-surface px-1.5 py-0.5 rounded shadow-2xs text-foreground font-medium">Public</span>
                           <span className="px-1.5 py-0.5">Organizer</span>
                           <span className="px-1.5 py-0.5">Admin</span>
                         </div>
@@ -4066,13 +4066,13 @@ export default function Styleguide() {
                       <span className="text-[11px] text-muted-foreground block">Links spread out in top glassmorphic bar</span>
                     </div>
 
-                    <div className="rounded-xl border border-border bg-white p-4 space-y-2">
+                    <div className="rounded-xl border border-border bg-surface p-4 space-y-2">
                       <strong className="block text-xs font-bold text-foreground">Mobile Mode (&lt;768px)</strong>
-                      <div className="flex items-center justify-between rounded-lg bg-slate-100 p-2 text-xs">
-                        <span className="font-bold text-indigo-600">EIRMIS</span>
+                      <div className="flex items-center justify-between rounded-lg bg-muted p-2 text-xs">
+                        <span className="font-bold text-primary">EIRMIS</span>
                         <button
                           type="button"
-                          className="size-7 rounded bg-white border border-border flex items-center justify-center text-slate-700"
+                          className="size-7 rounded bg-surface border border-border flex items-center justify-center text-foreground"
                           onClick={() => {
                             const drawer = document.getElementById('styleguide-drawer')
                             const backdrop = document.getElementById('styleguide-drawer-backdrop')
@@ -4089,9 +4089,9 @@ export default function Styleguide() {
                 </div>
 
                 {/* 4. Container Widths per Portal */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Container widths per portal
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -4099,9 +4099,9 @@ export default function Styleguide() {
                     </p>
                   </div>
 
-                  <div className="overflow-x-auto rounded-xl border border-border bg-white">
+                  <div className="overflow-x-auto rounded-xl border border-border bg-surface">
                     <table className="w-full text-left text-xs border-collapse">
-                      <thead className="bg-slate-50 border-b border-border text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                      <thead className="bg-muted border-b border-border text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                         <tr>
                           <th className="py-2.5 px-4">Portal Application</th>
                           <th className="py-2.5 px-4">Max Width</th>
@@ -4112,19 +4112,19 @@ export default function Styleguide() {
                       <tbody className="divide-y divide-border">
                         <tr>
                           <td className="py-3 px-4 font-semibold text-foreground">Landing / Public Microsite</td>
-                          <td className="py-3 px-4 font-mono font-bold text-indigo-600">1240px</td>
+                          <td className="py-3 px-4 font-mono font-bold text-primary">1240px</td>
                           <td className="py-3 px-4 text-muted-foreground">Fluid container, responsive hero, full-width sections</td>
                           <td className="py-3 px-4 text-muted-foreground">Desktop, Tablet, Mobile (320px+)</td>
                         </tr>
                         <tr>
                           <td className="py-3 px-4 font-semibold text-foreground">Organizer Workspace</td>
-                          <td className="py-3 px-4 font-mono font-bold text-indigo-600">1240px</td>
+                          <td className="py-3 px-4 font-mono font-bold text-primary">1240px</td>
                           <td className="py-3 px-4 text-muted-foreground">Two-column layout (1.65fr 1fr), collapsible sidebar (250→72px)</td>
                           <td className="py-3 px-4 text-muted-foreground">1200px / 900px / 768px / 560px</td>
                         </tr>
                         <tr>
                           <td className="py-3 px-4 font-semibold text-foreground">System Admin Governance</td>
-                          <td className="py-3 px-4 font-mono font-bold text-indigo-600">1240px</td>
+                          <td className="py-3 px-4 font-mono font-bold text-primary">1240px</td>
                           <td className="py-3 px-4 text-muted-foreground">Glanceable 4-chunk KPI strip, audit logs, zero-knowledge boundary</td>
                           <td className="py-3 px-4 text-muted-foreground">1240px desktop down to 768px tablet</td>
                         </tr>
@@ -4267,8 +4267,8 @@ export default function Styleguide() {
                           className={cn(
                             'rounded-lg px-2.5 py-1 font-semibold capitalize transition-all text-xs',
                             demoScanStatus === st
-                              ? 'bg-indigo-600 text-white shadow-2xs'
-                              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                              ? 'bg-primary text-primary-foreground shadow-2xs'
+                              : 'bg-muted text-foreground hover:bg-border'
                           )}
                         >
                           {st}
@@ -4386,7 +4386,7 @@ export default function Styleguide() {
                     description="Step progression indicator and multi-account identity selection cards."
                   />
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2 items-start">
-                    <div className="space-y-4 rounded-xl border border-border bg-slate-50/60 p-4">
+                    <div className="space-y-4 rounded-xl border border-border bg-muted/60 p-4">
                       <div className="flex items-center justify-between">
                         <strong className="text-xs font-bold text-foreground block">Verification Workflow</strong>
                         <div className="flex gap-1 text-[11px]">
@@ -4398,8 +4398,8 @@ export default function Styleguide() {
                               className={cn(
                                 'px-2 py-0.5 rounded font-semibold transition-all',
                                 demoWorkflowStep === step
-                                  ? 'bg-indigo-600 text-white'
-                                  : 'bg-white border border-border text-slate-600 hover:bg-slate-100'
+                                  ? 'bg-primary text-primary-foreground'
+                                  : 'bg-surface border border-border text-muted-foreground hover:bg-muted'
                               )}
                             >
                               Step {step}
@@ -4485,9 +4485,9 @@ export default function Styleguide() {
             >
               <div className="space-y-6">
                 {/* Status chips */}
-                <div className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+                <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       Status chips
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -4504,7 +4504,7 @@ export default function Styleguide() {
                 </div>
 
                 {/* Empty State */}
-                <Card className="border-dashed border-2 border-border/80 bg-white/70 p-8 text-left shadow-xs">
+                <Card className="border-dashed border-2 border-border/80 bg-surface/70 p-8 text-left shadow-xs">
                   <UsersIcon className="size-9 text-muted-foreground/60" />
                   <h3 className="mt-3 font-heading text-base font-bold text-foreground">
                     No events yet
@@ -4520,9 +4520,9 @@ export default function Styleguide() {
                 </Card>
 
                 {/* Toast banner */}
-                <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-white p-3.5 shadow-xs">
+                <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface p-3.5 shadow-xs">
                   <div className="flex items-center gap-2.5">
-                    <span className="size-2 rounded-full bg-indigo-600" />
+                    <span className="size-2 rounded-full bg-primary" />
                     <div>
                       <strong className="block text-xs font-semibold text-foreground">
                         Invitation sent
@@ -4551,7 +4551,7 @@ export default function Styleguide() {
             >
               <div className="space-y-6">
                 {/* Tabs */}
-                <Card className="p-5 border-border bg-white shadow-xs">
+                <Card className="p-5 border-border bg-surface shadow-xs">
                   <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     Tabs
                   </span>
@@ -4576,7 +4576,7 @@ export default function Styleguide() {
                 </Card>
 
                 {/* Breadcrumb */}
-                <Card className="p-5 border-border bg-white shadow-xs">
+                <Card className="p-5 border-border bg-surface shadow-xs">
                   <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     Breadcrumbs
                   </span>
@@ -4600,7 +4600,7 @@ export default function Styleguide() {
                 </Card>
 
                 {/* Pagination */}
-                <Card className="p-5 border-border bg-white shadow-xs">
+                <Card className="p-5 border-border bg-surface shadow-xs">
                   <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     Pagination
                   </span>
@@ -4642,7 +4642,7 @@ export default function Styleguide() {
                     12 invitations are still awaiting a response before the guest list freezes.
                   </AlertDescription>
                   <AlertAction>
-                    <Button size="xs" variant="outline" className="border-amber-300 bg-white text-amber-900 hover:bg-amber-100">
+                    <Button size="xs" variant="outline" className="border-amber-300 bg-surface text-amber-900 hover:bg-amber-100">
                       Review guests
                     </Button>
                   </AlertAction>
@@ -4658,7 +4658,7 @@ export default function Styleguide() {
             >
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {/* Skeleton Loader */}
-                <Card className="p-5 border-border bg-white shadow-xs space-y-3">
+                <Card className="p-5 border-border bg-surface shadow-xs space-y-3">
                   <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     Skeleton state
                   </span>
@@ -4669,7 +4669,7 @@ export default function Styleguide() {
                 </Card>
 
                 {/* Empty State Card */}
-                <Card className="p-5 border-border bg-white shadow-xs flex flex-col justify-between">
+                <Card className="p-5 border-border bg-surface shadow-xs flex flex-col justify-between">
                   <div>
                     <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                       Empty data
@@ -4689,8 +4689,8 @@ export default function Styleguide() {
                 </Card>
 
                 {/* Elevated Layer Preview */}
-                <Card className="p-5 border-border bg-white shadow-lg space-y-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                <Card className="p-5 border-border bg-surface shadow-lg space-y-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-primary">
                     Dialog preview
                   </span>
                   <strong className="block font-heading text-base font-bold text-foreground">
