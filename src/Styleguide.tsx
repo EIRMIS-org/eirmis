@@ -149,6 +149,7 @@ const colors = [
 ] as const
 
 const sections = [
+  ['theming', 'Theming'],
   ['typography', 'Typography'],
   ['colors', 'Color palette'],
   ['design-tokens', 'Design tokens'],
@@ -4708,6 +4709,125 @@ export default function Styleguide() {
                     </Button>
                   </div>
                 </Card>
+              </div>
+            </Section>
+
+            {/* 14. Theming */}
+            <Section
+              id="theming"
+              title="Theming — light & dark mode"
+              description="The design system is theme-aware. A single .dark class on <html> swaps every CSS custom property. Use tokens, never raw palette utilities, so components adapt automatically."
+            >
+              {/* How it works + live toggle */}
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 items-start">
+                <Card className="p-5 border-border bg-surface shadow-xs">
+                  <span className="text-xs font-bold uppercase tracking-wider text-primary">
+                    How it works
+                  </span>
+                  <ul className="mt-3 space-y-2 text-xs text-muted-foreground leading-relaxed">
+                    <li>
+                      <strong className="text-foreground">next-themes</strong> wraps the app
+                      (<code className="font-mono text-[11px] bg-muted px-1 py-0.5 rounded">ThemeProvider</code> in{' '}
+                      <code className="font-mono text-[11px] bg-muted px-1 py-0.5 rounded">main.tsx</code>) and toggles the{' '}
+                      <code className="font-mono text-[11px] bg-muted px-1 py-0.5 rounded">.dark</code> class on{' '}
+                      <code className="font-mono text-[11px] bg-muted px-1 py-0.5 rounded">{'<html>'}</code>.
+                    </li>
+                    <li>
+                      Tailwind v4 maps the class via{' '}
+                      <code className="font-mono text-[11px] bg-muted px-1 py-0.5 rounded">@custom-variant dark</code>;
+                      every token in <code className="font-mono text-[11px] bg-muted px-1 py-0.5 rounded">:root</code> has a
+                      dark counterpart in <code className="font-mono text-[11px] bg-muted px-1 py-0.5 rounded">.dark</code>.
+                    </li>
+                    <li>
+                      The choice persists to <code className="font-mono text-[11px] bg-muted px-1 py-0.5 rounded">localStorage</code>{' '}
+                      (key: <code className="font-mono text-[11px] bg-muted px-1 py-0.5 rounded">theme</code>). System preference
+                      detection is intentionally disabled.
+                    </li>
+                  </ul>
+                </Card>
+
+                <Card className="p-5 border-border bg-surface shadow-xs">
+                  <span className="text-xs font-bold uppercase tracking-wider text-primary">
+                    Live toggle
+                  </span>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    The same control mounted in the page header. Click to switch — every
+                    token-driven surface on this page responds instantly.
+                  </p>
+                  <div className="mt-4 flex items-center gap-3">
+                    <ThemeToggle />
+                    <span className="text-xs font-medium text-foreground">
+                      Light ↔ Dark
+                    </span>
+                  </div>
+                </Card>
+              </div>
+
+              {/* Light → dark token mapping */}
+              <div className="mt-6">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-primary">
+                  Token mapping — light / dark values
+                </h3>
+                <div className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead className="bg-muted border-b border-border text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                      <tr>
+                        <th className="py-2.5 px-4">Token</th>
+                        <th className="py-2.5 px-4">Light</th>
+                        <th className="py-2.5 px-4">Dark</th>
+                        <th className="py-2.5 px-4">Usage</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        ['--background', '#F8FAFC', '#0B1120', 'Page background'],
+                        ['--surface', '#FFFFFF', '#1E293B', 'Cards, panels, inputs'],
+                        ['--foreground', '#0F172A', '#F1F5F9', 'Primary text'],
+                        ['--muted', '#F1F5F9', '#1E293B', 'Subtle fills, hover states'],
+                        ['--muted-foreground', '#64748B', '#94A3B8', 'Secondary text'],
+                        ['--border', '#E2E8F0', '#334155', 'Dividers, control borders'],
+                        ['--primary', '#4F46E5', '#818CF8', 'Brand actions, active states'],
+                        ['--primary-subtle', '#EEF2FF', 'rgba(99,102,241,.15)', 'Badges, subtle brand fills'],
+                        ['--secondary', '#0D9488', '#2DD4BF', 'Teal accents'],
+                        ['--success', '#15803D', '#4ADE80', 'Confirmed / approved'],
+                        ['--warning', '#B45309', '#FBBF24', 'Pending / tentative'],
+                        ['--error', '#B91C1C', '#F87171', 'Declined / invalid'],
+                        ['--surface-glass', 'rgba(255,255,255,.92)', 'rgba(15,23,42,.92)', 'Glassmorphic nav'],
+                      ].map(([token, light, dark, usage]) => (
+                        <tr key={token} className="hover:bg-muted/50 transition-colors">
+                          <td className="py-2.5 px-4 font-mono font-semibold text-primary">{token}</td>
+                          <td className="py-2.5 px-4">
+                            <span className="inline-flex items-center gap-1.5">
+                              <span className="size-3 rounded border border-border" style={{ backgroundColor: light }} />
+                              <span className="font-mono text-[10px] text-muted-foreground">{light}</span>
+                            </span>
+                          </td>
+                          <td className="py-2.5 px-4">
+                            <span className="inline-flex items-center gap-1.5">
+                              <span className="size-3 rounded border border-border" style={{ backgroundColor: dark }} />
+                              <span className="font-mono text-[10px] text-muted-foreground">{dark}</span>
+                            </span>
+                          </td>
+                          <td className="py-2.5 px-4 text-muted-foreground">{usage}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Usage rules */}
+              <div className="mt-6 rounded-xl border border-primary-border bg-primary-subtle/60 p-4 text-xs text-foreground">
+                <div className="flex items-center gap-2 pb-2 mb-2 border-b border-primary-border">
+                  <CheckIcon className="size-4 text-primary" />
+                  <strong className="font-bold">Usage rules</strong>
+                </div>
+                <ul className="list-disc pl-5 space-y-1.5 text-muted-foreground leading-relaxed">
+                  <li>Always prefer semantic tokens (<code className="font-mono text-[11px] bg-surface px-1 py-0.5 rounded">bg-surface</code>, <code className="font-mono text-[11px] bg-surface px-1 py-0.5 rounded">text-primary</code>) over raw palette utilities (<code className="font-mono text-[11px] bg-surface px-1 py-0.5 rounded">bg-white</code>, <code className="font-mono text-[11px] bg-surface px-1 py-0.5 rounded">text-indigo-600</code>).</li>
+                  <li>Pair solid brand fills with <code className="font-mono text-[11px] bg-surface px-1 py-0.5 rounded">text-primary-foreground</code>, not <code className="font-mono text-[11px] bg-surface px-1 py-0.5 rounded">text-white</code>.</li>
+                  <li>Intentionally-dark surfaces (wallet pass, scanner viewfinder, toasts) keep raw dark palettes in both themes.</li>
+                  <li>Never use <code className="font-mono text-[11px] bg-surface px-1 py-0.5 rounded">prefers-color-scheme</code> media queries — the class toggle is the single source of truth.</li>
+                </ul>
               </div>
             </Section>
           </main>
