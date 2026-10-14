@@ -1168,7 +1168,7 @@ export default function Styleguide() {
 
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <span>Registration:</span>
-                      <span className={`font-semibold ${toggleOn ? 'text-emerald-700' : 'text-muted-foreground'}`}>
+                      <span className={`font-semibold ${toggleOn ? 'text-success' : 'text-muted-foreground'}`}>
                         {toggleOn ? 'Enabled' : 'Disabled'}
                       </span>
                     </div>
@@ -1362,7 +1362,7 @@ export default function Styleguide() {
                 </Card>
 
                 {/* Pending Approvals */}
-                <Card className="border-border/80 border-l-4 border-l-amber-500 bg-surface p-5 shadow-xs flex flex-col justify-between text-left">
+                <Card className="border-border/80 border-l-4 border-l-warning bg-surface p-5 shadow-xs flex flex-col justify-between text-left">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                       Pending approvals
@@ -1373,7 +1373,7 @@ export default function Styleguide() {
                     <span className="font-heading text-3xl font-extrabold text-foreground">
                       3
                     </span>
-                    <span className="inline-flex items-center rounded-md bg-amber-100/90 px-2 py-0.5 text-[10px] font-bold tracking-wider text-amber-800">
+                    <span className="inline-flex items-center rounded-md bg-warning-bg/90 px-2 py-0.5 text-[10px] font-bold tracking-wider text-warning">
                       REQUIRES ACTION
                     </span>
                   </div>
@@ -1426,7 +1426,7 @@ export default function Styleguide() {
                           <Button
                             size="icon"
                             variant="outline"
-                            className="size-8 rounded-xl border-emerald-300 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 hover:border-emerald-400 shadow-2xs transition-colors"
+                            className="size-8 rounded-xl border-success-border bg-success-bg text-success hover:bg-success-border hover:text-success hover:border-success shadow-2xs transition-colors"
                             title="Approve"
                             aria-label="Approve"
                             onClick={() => toast.success('Approved Elena Rostova')}
@@ -1436,7 +1436,7 @@ export default function Styleguide() {
                           <Button
                             size="icon"
                             variant="outline"
-                            className="size-8 rounded-xl border-rose-300 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 hover:border-rose-400 shadow-2xs transition-colors"
+                            className="size-8 rounded-xl border-error-border bg-error-bg text-error hover:bg-error-border hover:text-error hover:border-error shadow-2xs transition-colors"
                             title="Reject"
                             aria-label="Reject"
                             onClick={() => toast.error('Rejected Elena Rostova')}
@@ -1460,7 +1460,7 @@ export default function Styleguide() {
                           <Button
                             size="icon"
                             variant="outline"
-                            className="size-8 rounded-xl border-emerald-300 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 hover:border-emerald-400 shadow-2xs transition-colors"
+                            className="size-8 rounded-xl border-success-border bg-success-bg text-success hover:bg-success-border hover:text-success hover:border-success shadow-2xs transition-colors"
                             title="Approve"
                             aria-label="Approve"
                             onClick={() => toast.success('Approved Marcus Reed')}
@@ -1470,7 +1470,7 @@ export default function Styleguide() {
                           <Button
                             size="icon"
                             variant="outline"
-                            className="size-8 rounded-xl border-rose-300 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 hover:border-rose-400 shadow-2xs transition-colors"
+                            className="size-8 rounded-xl border-error-border bg-error-bg text-error hover:bg-error-border hover:text-error hover:border-error shadow-2xs transition-colors"
                             title="Reject"
                             aria-label="Reject"
                             onClick={() => toast.error('Rejected Marcus Reed')}
@@ -1500,7 +1500,7 @@ export default function Styleguide() {
                       <Button
                         size="icon"
                         variant="outline"
-                        className="size-7 rounded-lg border-emerald-300 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 shadow-2xs"
+                        className="size-7 rounded-lg border-success-border bg-success-bg text-success hover:bg-success-border shadow-2xs"
                         title="Approve"
                         aria-label="Approve"
                         onClick={() => toast.success('Approved Elena Rostova')}
@@ -1510,7 +1510,7 @@ export default function Styleguide() {
                       <Button
                         size="icon"
                         variant="outline"
-                        className="size-7 rounded-lg border-rose-300 bg-rose-50 text-rose-600 hover:bg-rose-100 shadow-2xs"
+                        className="size-7 rounded-lg border-error-border bg-error-bg text-error hover:bg-error-border shadow-2xs"
                         title="Reject"
                         aria-label="Reject"
                         onClick={() => toast.error('Rejected Elena Rostova')}
@@ -1535,7 +1535,7 @@ export default function Styleguide() {
                       <Button
                         size="icon"
                         variant="outline"
-                        className="size-7 rounded-lg border-emerald-300 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 shadow-2xs"
+                        className="size-7 rounded-lg border-success-border bg-success-bg text-success hover:bg-success-border shadow-2xs"
                         title="Approve"
                         aria-label="Approve"
                         onClick={() => toast.success('Approved Marcus Reed')}
@@ -1545,7 +1545,7 @@ export default function Styleguide() {
                       <Button
                         size="icon"
                         variant="outline"
-                        className="size-7 rounded-lg border-rose-300 bg-rose-50 text-rose-600 hover:bg-rose-100 shadow-2xs"
+                        className="size-7 rounded-lg border-error-border bg-error-bg text-error hover:bg-error-border shadow-2xs"
                         title="Reject"
                         aria-label="Reject"
                         onClick={() => toast.error('Rejected Marcus Reed')}
@@ -1903,14 +1903,14 @@ export default function Styleguide() {
                             <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                           </svg>
                           <span className="text-sm flex-1">Guests</span>
-                          <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-700 rounded-full">12</span>
+                          <span className="px-2 py-0.5 text-[10px] font-bold bg-warning-bg text-warning rounded-full">12</span>
                         </button>
                         <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-surface border border-border text-left hover:bg-muted" title="Approvals">
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground flex-shrink-0">
                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                           </svg>
                           <span className="text-sm flex-1">Approvals</span>
-                          <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-700 rounded-full">5</span>
+                          <span className="px-2 py-0.5 text-[10px] font-bold bg-success-bg text-success rounded-full">5</span>
                         </button>
                         <button className="w-full flex items-center gap-3 p-2 rounded-lg bg-surface border border-border text-left hover:bg-muted" title="Attendance">
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground flex-shrink-0">
@@ -2134,7 +2134,7 @@ export default function Styleguide() {
                         <div className="p-4">
                           <div className="flex items-start justify-between gap-2">
                             <div className="text-3xl">{event.icon}</div>
-                            <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${event.status === 'published' ? 'bg-emerald-100 text-emerald-700' : 'bg-muted text-muted-foreground'}`}>
+                            <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${event.status === 'published' ? 'bg-success-bg text-success' : 'bg-muted text-muted-foreground'}`}>
                               {event.status}
                             </span>
                           </div>
@@ -2199,9 +2199,9 @@ export default function Styleguide() {
                       <div className="rounded-xl border border-border bg-surface p-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                         <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
                           <span>Pending Organizers</span>
-                          <ClockIcon className="size-4 text-amber-600" />
+                          <ClockIcon className="size-4 text-warning" />
                         </div>
-                        <div className="mt-2 font-heading text-2xl font-extrabold text-amber-600 sm:text-3xl">
+                        <div className="mt-2 font-heading text-2xl font-extrabold text-warning sm:text-3xl">
                           2
                         </div>
                         <div className="mt-1 text-xs text-muted-foreground">
@@ -2213,7 +2213,7 @@ export default function Styleguide() {
                       <div className="rounded-xl border border-border bg-surface p-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                         <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
                           <span>Active Organizers</span>
-                          <CheckCircleIcon className="size-4 text-emerald-600" />
+                          <CheckCircleIcon className="size-4 text-success" />
                         </div>
                         <div className="mt-2 font-heading text-2xl font-extrabold text-foreground sm:text-3xl">
                           24
@@ -2229,7 +2229,7 @@ export default function Styleguide() {
                           <span>Malware Engine</span>
                           <ShieldCheckIcon className="size-4 text-primary" />
                         </div>
-                        <div className="mt-2 font-heading text-xl font-bold text-emerald-600 sm:text-2xl">
+                        <div className="mt-2 font-heading text-xl font-bold text-success sm:text-2xl">
                           Malware Engine v3
                         </div>
                         <div className="mt-1 text-xs text-muted-foreground">
@@ -2295,14 +2295,14 @@ export default function Styleguide() {
                       </div>
 
                       {/* Metric 3 (Left-Border Accent) */}
-                      <div className="rounded-2xl border border-border border-l-[3px] border-l-amber-500 bg-surface p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                      <div className="rounded-2xl border border-border border-l-[3px] border-l-warning bg-surface p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                         <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                           <span>Pending Approvals</span>
                           <LuggageIcon className="size-4 text-muted-foreground" />
                         </div>
                         <div className="mt-3 flex items-center justify-between">
                           <span className="font-heading text-3xl font-extrabold text-foreground">3</span>
-                          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-800">
+                          <span className="rounded-full bg-warning-bg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-warning">
                             Requires Action
                           </span>
                         </div>
@@ -2317,7 +2317,7 @@ export default function Styleguide() {
                           <span>Checked In</span>
                           <UsersIcon className="size-4 text-muted-foreground" />
                         </div>
-                        <div className="mt-3 font-heading text-3xl font-extrabold text-teal-600">
+                        <div className="mt-3 font-heading text-3xl font-extrabold text-secondary">
                           48
                         </div>
                         <div className="mt-1 text-xs text-muted-foreground">
@@ -2343,7 +2343,7 @@ export default function Styleguide() {
                       <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                         Checked-In
                       </div>
-                      <div className="mt-2 font-heading text-4xl font-extrabold text-teal-600">
+                      <div className="mt-2 font-heading text-4xl font-extrabold text-secondary">
                         48
                       </div>
                       <div className="mt-1 text-xs text-muted-foreground">
@@ -2495,13 +2495,13 @@ export default function Styleguide() {
                   <div className="max-w-xl space-y-3.5">
                     {/* Item 1 - Green */}
                     <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/40 p-3">
-                      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-success-bg text-success">
                         <CheckIcon className="size-4 stroke-[2.5]" />
                       </div>
                       <div className="min-w-0 flex-1 text-xs">
                         <div className="text-foreground">
                           <span className="font-semibold text-foreground">Sarah Jenkins</span> RSVP&apos;d{' '}
-                          <strong className="text-emerald-700 font-semibold">Attending</strong>
+                          <strong className="text-success font-semibold">Attending</strong>
                         </div>
                         <div className="mt-1 text-[11px] text-muted-foreground">10 mins ago</div>
                       </div>
@@ -2509,13 +2509,13 @@ export default function Styleguide() {
 
                     {/* Item 2 - Red */}
                     <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/40 p-3">
-                      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-rose-50 text-rose-600">
+                      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-error-bg text-error">
                         <XIcon className="size-4 stroke-[2.5]" />
                       </div>
                       <div className="min-w-0 flex-1 text-xs">
                         <div className="text-foreground">
                           <span className="font-semibold text-foreground">Michael Chang</span> RSVP&apos;d{' '}
-                          <strong className="text-rose-700 font-semibold">Declined</strong>
+                          <strong className="text-error font-semibold">Declined</strong>
                         </div>
                         <div className="mt-1 text-[11px] text-muted-foreground">45 mins ago</div>
                       </div>
@@ -2536,7 +2536,7 @@ export default function Styleguide() {
 
                     {/* Item 4 - Amber */}
                     <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/40 p-3">
-                      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-600">
+                      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-warning-bg text-warning">
                         <ClockIcon className="size-4 stroke-[2.5]" />
                       </div>
                       <div className="min-w-0 flex-1 text-xs">
@@ -2573,7 +2573,7 @@ export default function Styleguide() {
                             <span className="font-heading text-sm font-bold text-foreground">
                               Zero-Knowledge Event Data Architecture
                             </span>
-                            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                            <span className="rounded-full bg-success-bg px-2 py-0.5 text-[10px] font-bold text-success">
                               ENFORCED BY POLICY
                             </span>
                           </div>
@@ -2606,7 +2606,7 @@ export default function Styleguide() {
                       </div>
 
                       {boundaryRole !== 'Guest' ? (
-                        <div className="flex flex-col gap-3 rounded-xl border border-border border-l-4 border-l-emerald-600 bg-surface p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex flex-col gap-3 rounded-xl border border-border border-l-4 border-l-success bg-surface p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between">
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
                               <strong className="text-sm font-bold text-foreground">Tech Forward Gala 2026</strong>
@@ -2616,24 +2616,24 @@ export default function Styleguide() {
                             </p>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-bold text-emerald-800">
+                            <span className="rounded-full bg-success-bg px-2.5 py-1 text-[11px] font-bold text-success">
                               Authorized
                             </span>
                           </div>
                         </div>
                       ) : (
-                        <div className="rounded-xl border border-border border-l-4 border-l-rose-600 bg-rose-50/40 p-4 shadow-xs">
+                        <div className="rounded-xl border border-border border-l-4 border-l-error bg-error-bg/40 p-4 shadow-xs">
                           <div className="flex items-start gap-3">
-                            <AlertCircleIcon className="size-5 text-rose-600 shrink-0 mt-0.5" />
+                            <AlertCircleIcon className="size-5 text-error shrink-0 mt-0.5" />
                             <div className="flex-1">
-                              <strong className="text-sm font-bold text-rose-950">
+                              <strong className="text-sm font-bold text-error">
                                 Check-in access restricted
                               </strong>
-                              <p className="mt-1 text-xs text-rose-800">
+                              <p className="mt-1 text-xs text-error">
                                 Only the assigned Check-in Staff or event Organizer can record attendance for this event. Your current role is <strong>Guest</strong>.
                               </p>
                               <div className="mt-3">
-                                <Button size="xs" variant="outline" className="border-rose-300 text-rose-900 hover:bg-rose-100">
+                                <Button size="xs" variant="outline" className="border-error-border text-error hover:bg-error-border">
                                   Request Door Access
                                 </Button>
                               </div>
@@ -2915,7 +2915,7 @@ export default function Styleguide() {
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          className="size-8 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-700 flex items-center justify-center transition-all duration-150 hover:bg-emerald-100 hover:border-emerald-400 hover:shadow-xs active:scale-95 cursor-pointer"
+                          className="size-8 rounded-lg border border-success-border bg-success-bg text-success flex items-center justify-center transition-all duration-150 hover:bg-success-border hover:border-success hover:shadow-xs active:scale-95 cursor-pointer"
                           title="Approve guest registration"
                           onClick={() => toast.success('Approved RSVP for guest')}
                         >
@@ -2928,7 +2928,7 @@ export default function Styleguide() {
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          className="size-8 rounded-lg border border-rose-300 bg-rose-50 text-rose-700 flex items-center justify-center transition-all duration-150 hover:bg-rose-100 hover:border-rose-400 hover:shadow-xs active:scale-95 cursor-pointer"
+                          className="size-8 rounded-lg border border-error-border bg-error-bg text-error flex items-center justify-center transition-all duration-150 hover:bg-error-border hover:border-error hover:shadow-xs active:scale-95 cursor-pointer"
                           title="Reject guest registration"
                           onClick={() => toast.error('Rejected RSVP for guest')}
                         >
@@ -2960,7 +2960,7 @@ export default function Styleguide() {
                       <div className="flex items-center gap-1.5">
                         <button
                           type="button"
-                          className="size-8 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-700 flex items-center justify-center transition-all hover:bg-emerald-100 active:scale-95 cursor-pointer"
+                          className="size-8 rounded-lg border border-success-border bg-success-bg text-success flex items-center justify-center transition-all hover:bg-success-border active:scale-95 cursor-pointer"
                           title="Approve"
                           onClick={() => toast.success('Approved Arthur Vance')}
                         >
@@ -2968,7 +2968,7 @@ export default function Styleguide() {
                         </button>
                         <button
                           type="button"
-                          className="size-8 rounded-lg border border-rose-300 bg-rose-50 text-rose-700 flex items-center justify-center transition-all hover:bg-rose-100 active:scale-95 cursor-pointer"
+                          className="size-8 rounded-lg border border-error-border bg-error-bg text-error flex items-center justify-center transition-all hover:bg-error-border active:scale-95 cursor-pointer"
                           title="Reject"
                           onClick={() => toast.error('Rejected Arthur Vance')}
                         >
@@ -3031,13 +3031,13 @@ export default function Styleguide() {
                         <div className="my-1 border-t border-border" />
                         <button
                           type="button"
-                          className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 transition-colors text-left cursor-pointer"
+                          className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-error hover:bg-error-bg transition-colors text-left cursor-pointer"
                           onClick={() => {
                             toast.error('Removed event registration')
                             setCustomDropdownOpen(false)
                           }}
                         >
-                          <Trash2Icon className="size-3.5 text-rose-600" />
+                          <Trash2Icon className="size-3.5 text-error" />
                           <span>Cancel Event</span>
                         </button>
                       </div>
@@ -3074,12 +3074,12 @@ export default function Styleguide() {
                         type="email"
                         defaultValue="invalid-email@sample"
                         className={`w-full rounded-xl border px-3.5 py-2 text-xs text-foreground placeholder:text-muted-foreground transition-all focus:outline-none ${formFieldError
-                          ? 'border-rose-500 bg-rose-50/20 ring-3 ring-rose-500/10 focus:border-rose-600'
+                          ? 'border-error bg-error-bg/20 ring-3 ring-error/10 focus:border-error'
                           : 'border-border bg-surface focus:border-primary focus:ring-3 focus:ring-primary-glow'
                           }`}
                       />
                       {formFieldError && (
-                        <div className="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-rose-600">
+                        <div className="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-error">
                           <AlertCircleIcon className="size-3.5 shrink-0" />
                           <span>Please provide a valid company domain email address.</span>
                         </div>
@@ -3113,7 +3113,7 @@ export default function Styleguide() {
                     <Button
                       size="xs"
                       variant="outline"
-                      className="border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                      className="border-success-border text-success hover:bg-success-bg"
                       onClick={() =>
                         triggerProgressToast('success', 'RSVP confirmed for Elena Rostova (Marina Bay Ballroom).')
                       }
@@ -3123,7 +3123,7 @@ export default function Styleguide() {
                     <Button
                       size="xs"
                       variant="outline"
-                      className="border-amber-300 text-amber-700 hover:bg-amber-50"
+                      className="border-warning-border text-warning hover:bg-warning-bg"
                       onClick={() =>
                         triggerProgressToast('warning', 'Venue capacity at 90% (135/150 seats reserved).')
                       }
@@ -3133,7 +3133,7 @@ export default function Styleguide() {
                     <Button
                       size="xs"
                       variant="outline"
-                      className="border-rose-300 text-rose-700 hover:bg-rose-50"
+                      className="border-error-border text-error hover:bg-error-bg"
                       onClick={() =>
                         triggerProgressToast('error', 'Invalid check-in QR credentials. Please verify scanner.')
                       }
@@ -3279,7 +3279,7 @@ export default function Styleguide() {
                         <tr className="hover:bg-muted/70 transition-colors">
                           <td className="py-3 px-4 font-semibold text-foreground">Sarah Jenkins</td>
                           <td className="py-3 px-4">
-                            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                            <span className="rounded-full bg-success-bg px-2 py-0.5 text-[10px] font-bold text-success">
                               Confirmed
                             </span>
                           </td>
@@ -3314,7 +3314,7 @@ export default function Styleguide() {
                         <tr className="hover:bg-muted/70 transition-colors">
                           <td className="py-3 px-4 font-semibold text-foreground">Michael Chang</td>
                           <td className="py-3 px-4">
-                            <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-800">
+                            <span className="rounded-full bg-error-bg px-2 py-0.5 text-[10px] font-bold text-error">
                               Declined
                             </span>
                           </td>
@@ -3357,7 +3357,7 @@ export default function Styleguide() {
                         RA
                       </div>
                       <span className="text-xs font-semibold text-foreground">Root Admin</span>
-                      <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                      <span className="rounded-full bg-success-bg px-2 py-0.5 text-[10px] font-bold text-success">
                         Administrator
                       </span>
                     </div>
@@ -3500,7 +3500,7 @@ export default function Styleguide() {
                         <strong className="block font-semibold text-foreground">Elena Rostova</strong>
                         <span className="text-[11px] text-muted-foreground">elena.rostova@globaltech.com</span>
                       </div>
-                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+                      <span className="rounded-full bg-warning-bg px-2 py-0.5 text-[10px] font-bold text-warning">
                         Waitlist #1
                       </span>
                     </div>
@@ -3515,8 +3515,8 @@ export default function Styleguide() {
 
                     {/* Optional Error State */}
                     {waitlistError && (
-                      <div className="mb-4 flex items-start gap-2.5 rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-800">
-                        <AlertCircleIcon className="size-4 text-rose-600 shrink-0 mt-0.5" />
+                      <div className="mb-4 flex items-start gap-2.5 rounded-xl bg-error-bg border border-error-border p-3 text-xs text-error">
+                        <AlertCircleIcon className="size-4 text-error shrink-0 mt-0.5" />
                         <span>
                           <strong>Capacity Exceeded:</strong> All 150 ballroom seats are reserved. You must increase venue capacity in Event Settings before promoting.
                         </span>
@@ -3913,8 +3913,8 @@ export default function Styleguide() {
                         </thead>
                         <tbody className="divide-y divide-border">
                           {[
-                            { name: 'Sarah Jenkins', cat: 'Keynote Speaker', status: 'Confirmed', statusColor: 'bg-emerald-100 text-emerald-800', table: 'Table #1' },
-                            { name: 'Arthur Vance', cat: 'Corporate Sponsor', status: 'Pending', statusColor: 'bg-amber-100 text-amber-800', table: 'Table #4' },
+                            { name: 'Sarah Jenkins', cat: 'Keynote Speaker', status: 'Confirmed', statusColor: 'bg-success-bg text-success', table: 'Table #1' },
+                            { name: 'Arthur Vance', cat: 'Corporate Sponsor', status: 'Pending', statusColor: 'bg-warning-bg text-warning', table: 'Table #4' },
                             { name: 'Elena Rostova', cat: 'General Attendee', status: 'Waitlist', statusColor: 'bg-muted text-foreground', table: 'Unassigned' },
                           ].map((row, i) => (
                             <tr key={i} className="hover:bg-muted/70 transition-colors">
@@ -3938,8 +3938,8 @@ export default function Styleguide() {
                     /* Mobile Card Stack Simulation */
                     <div className="space-y-3 max-w-md mx-auto">
                       {[
-                        { name: 'Sarah Jenkins', cat: 'Keynote Speaker', status: 'Confirmed', statusColor: 'bg-emerald-100 text-emerald-800', table: 'Table #1' },
-                        { name: 'Arthur Vance', cat: 'Corporate Sponsor', status: 'Pending', statusColor: 'bg-amber-100 text-amber-800', table: 'Table #4' },
+                        { name: 'Sarah Jenkins', cat: 'Keynote Speaker', status: 'Confirmed', statusColor: 'bg-success-bg text-success', table: 'Table #1' },
+                        { name: 'Arthur Vance', cat: 'Corporate Sponsor', status: 'Pending', statusColor: 'bg-warning-bg text-warning', table: 'Table #4' },
                         { name: 'Elena Rostova', cat: 'General Attendee', status: 'Waitlist', statusColor: 'bg-muted text-foreground', table: 'Unassigned' },
                       ].map((row, i) => (
                         <div key={i} className="rounded-xl border border-border bg-surface p-3 shadow-xs space-y-2 text-xs">
@@ -4001,13 +4001,13 @@ export default function Styleguide() {
                     <div className="relative inline-flex flex-col items-center">
                       <button
                         type="button"
-                        className={`min-h-[44px] min-w-[44px] px-4 rounded-lg bg-primary text-primary-foreground font-medium text-xs flex items-center justify-center transition-all ${showTouchRuler ? 'ring-2 ring-rose-500 ring-offset-2' : ''
+                        className={`min-h-[44px] min-w-[44px] px-4 rounded-lg bg-primary text-primary-foreground font-medium text-xs flex items-center justify-center transition-all ${showTouchRuler ? 'ring-2 ring-error ring-offset-2' : ''
                           }`}
                       >
                         44px Button
                       </button>
                       {showTouchRuler && (
-                        <span className="mt-1 text-[10px] font-mono font-bold text-rose-600">44 × 44px min</span>
+                        <span className="mt-1 text-[10px] font-mono font-bold text-error">44 × 44px min</span>
                       )}
                     </div>
 
@@ -4015,13 +4015,13 @@ export default function Styleguide() {
                     <div className="relative inline-flex flex-col items-center">
                       <button
                         type="button"
-                        className={`min-h-[44px] min-w-[44px] rounded-lg border border-border bg-surface text-foreground flex items-center justify-center transition-all ${showTouchRuler ? 'ring-2 ring-rose-500 ring-offset-2' : ''
+                        className={`min-h-[44px] min-w-[44px] rounded-lg border border-border bg-surface text-foreground flex items-center justify-center transition-all ${showTouchRuler ? 'ring-2 ring-error ring-offset-2' : ''
                           }`}
                       >
                         <SearchIcon className="size-4 text-muted-foreground" />
                       </button>
                       {showTouchRuler && (
-                        <span className="mt-1 text-[10px] font-mono font-bold text-rose-600">44 × 44px min</span>
+                        <span className="mt-1 text-[10px] font-mono font-bold text-error">44 × 44px min</span>
                       )}
                     </div>
 
@@ -4029,13 +4029,13 @@ export default function Styleguide() {
                     <div className="relative inline-flex flex-col items-center">
                       <button
                         type="button"
-                        className={`min-h-[44px] px-3.5 rounded-full border border-border bg-surface text-foreground text-xs font-semibold flex items-center justify-center transition-all ${showTouchRuler ? 'ring-2 ring-rose-500 ring-offset-2' : ''
+                        className={`min-h-[44px] px-3.5 rounded-full border border-border bg-surface text-foreground text-xs font-semibold flex items-center justify-center transition-all ${showTouchRuler ? 'ring-2 ring-error ring-offset-2' : ''
                           }`}
                       >
                         Pill Action
                       </button>
                       {showTouchRuler && (
-                        <span className="mt-1 text-[10px] font-mono font-bold text-rose-600">h: 44px min</span>
+                        <span className="mt-1 text-[10px] font-mono font-bold text-error">h: 44px min</span>
                       )}
                     </div>
                   </div>
@@ -4130,13 +4130,13 @@ export default function Styleguide() {
                         </tr>
                         <tr>
                           <td className="py-3 px-4 font-semibold text-foreground">Guest Portal (RSVP Flow)</td>
-                          <td className="py-3 px-4 font-mono font-bold text-teal-600">680px</td>
+                          <td className="py-3 px-4 font-mono font-bold text-secondary">680px</td>
                           <td className="py-3 px-4 text-muted-foreground">Centered card container, mobile-first RSVP touch responses</td>
                           <td className="py-3 px-4 text-muted-foreground">Optimized for handheld smartphones (375-430px)</td>
                         </tr>
                         <tr>
                           <td className="py-3 px-4 font-semibold text-foreground">Check-in Staff Scanner</td>
-                          <td className="py-3 px-4 font-mono font-bold text-teal-600">500px</td>
+                          <td className="py-3 px-4 font-mono font-bold text-secondary">500px</td>
                           <td className="py-3 px-4 text-muted-foreground">Focused camera viewfinder reticle, high-stress door scanning</td>
                           <td className="py-3 px-4 text-muted-foreground">Handheld mobile only (max 500px)</td>
                         </tr>
@@ -4633,16 +4633,16 @@ export default function Styleguide() {
                 </Card>
 
                 {/* Alert */}
-                <Alert className="border-amber-200 bg-amber-50/70 text-amber-900">
-                  <ClockIcon className="size-4 text-amber-700" />
-                  <AlertTitle className="font-semibold text-amber-900">
+                <Alert className="border-warning-border bg-warning-bg/70 text-warning">
+                  <ClockIcon className="size-4 text-warning" />
+                  <AlertTitle className="font-semibold text-warning">
                     RSVP deadline approaching
                   </AlertTitle>
-                  <AlertDescription className="text-xs text-amber-800">
+                  <AlertDescription className="text-xs text-warning">
                     12 invitations are still awaiting a response before the guest list freezes.
                   </AlertDescription>
                   <AlertAction>
-                    <Button size="xs" variant="outline" className="border-amber-300 bg-surface text-amber-900 hover:bg-amber-100">
+                    <Button size="xs" variant="outline" className="border-warning-border bg-surface text-warning hover:bg-warning-border">
                       Review guests
                     </Button>
                   </AlertAction>
