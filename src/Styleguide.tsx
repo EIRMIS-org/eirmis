@@ -22,6 +22,9 @@ import {
   XIcon,
 } from 'lucide-react'
 
+// Theme
+import { ThemeToggle } from '@/components/theme-toggle'
+
 // Shadcn UI components
 import { Alert, AlertAction, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
@@ -507,6 +510,7 @@ export default function Styleguide() {
               </p>
             </div>
             <div className="flex items-center gap-3">
+              <ThemeToggle />
               <Badge variant="outline" className="border-indigo-200 bg-indigo-50 text-indigo-700 font-semibold px-3 py-1">
                 v1.0 · shadcn UI
               </Badge>
@@ -2678,11 +2682,10 @@ export default function Styleguide() {
                             key={tab.id}
                             type="button"
                             onClick={() => setSegmentedTab(tab.id)}
-                            className={`rounded-full px-4 py-1.5 transition-all duration-150 cursor-pointer ${
-                              segmentedTab === tab.id
-                                ? 'bg-white text-foreground shadow-xs font-bold'
-                                : 'text-slate-600 hover:text-foreground'
-                            }`}
+                            className={`rounded-full px-4 py-1.5 transition-all duration-150 cursor-pointer ${segmentedTab === tab.id
+                              ? 'bg-white text-foreground shadow-xs font-bold'
+                              : 'text-slate-600 hover:text-foreground'
+                              }`}
                           >
                             {tab.label}
                           </button>
@@ -2708,11 +2711,10 @@ export default function Styleguide() {
                             key={tab.id}
                             type="button"
                             onClick={() => setGuestSegmentedTab(tab.id)}
-                            className={`rounded-lg px-3.5 py-1.5 transition-all duration-150 cursor-pointer ${
-                              guestSegmentedTab === tab.id
-                                ? 'bg-white text-indigo-700 shadow-xs font-bold border border-border'
-                                : 'text-muted-foreground hover:text-foreground'
-                            }`}
+                            className={`rounded-lg px-3.5 py-1.5 transition-all duration-150 cursor-pointer ${guestSegmentedTab === tab.id
+                              ? 'bg-white text-indigo-700 shadow-xs font-bold border border-border'
+                              : 'text-muted-foreground hover:text-foreground'
+                              }`}
                           >
                             {tab.label}
                           </button>
@@ -2784,20 +2786,18 @@ export default function Styleguide() {
                             className="flex flex-col items-center bg-white px-2 group cursor-pointer focus:outline-none"
                           >
                             <div
-                              className={`size-8 rounded-full flex items-center justify-center font-heading text-xs font-bold transition-all duration-200 ${
-                                isDone
-                                  ? 'bg-indigo-600 text-white'
-                                  : isActive
+                              className={`size-8 rounded-full flex items-center justify-center font-heading text-xs font-bold transition-all duration-200 ${isDone
+                                ? 'bg-indigo-600 text-white'
+                                : isActive
                                   ? 'bg-indigo-600 text-white ring-4 ring-indigo-500/20 shadow-xs'
                                   : 'bg-slate-100 text-slate-500 border-2 border-slate-200 group-hover:border-slate-300'
-                              }`}
+                                }`}
                             >
                               {isDone ? <CheckIcon className="size-4 stroke-[3]" /> : item.step}
                             </div>
                             <span
-                              className={`mt-2 text-xs font-semibold ${
-                                isActive ? 'text-indigo-600 font-bold' : isDone ? 'text-foreground' : 'text-muted-foreground'
-                              }`}
+                              className={`mt-2 text-xs font-semibold ${isActive ? 'text-indigo-600 font-bold' : isDone ? 'text-foreground' : 'text-muted-foreground'
+                                }`}
                             >
                               {item.title}
                             </span>
@@ -3073,11 +3073,10 @@ export default function Styleguide() {
                       <input
                         type="email"
                         defaultValue="invalid-email@sample"
-                        className={`w-full rounded-xl border px-3.5 py-2 text-xs text-foreground placeholder:text-muted-foreground transition-all focus:outline-none ${
-                          formFieldError
-                            ? 'border-rose-500 bg-rose-50/20 ring-3 ring-rose-500/10 focus:border-rose-600'
-                            : 'border-border bg-white focus:border-indigo-600 focus:ring-3 focus:ring-indigo-500/15'
-                        }`}
+                        className={`w-full rounded-xl border px-3.5 py-2 text-xs text-foreground placeholder:text-muted-foreground transition-all focus:outline-none ${formFieldError
+                          ? 'border-rose-500 bg-rose-50/20 ring-3 ring-rose-500/10 focus:border-rose-600'
+                          : 'border-border bg-white focus:border-indigo-600 focus:ring-3 focus:ring-indigo-500/15'
+                          }`}
                       />
                       {formFieldError && (
                         <div className="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-rose-600">
@@ -3384,15 +3383,14 @@ export default function Styleguide() {
                   role="alert"
                 >
                   <div
-                    className={`flex size-6 shrink-0 items-center justify-center rounded-full text-white ${
-                      activeToast.type === 'success'
-                        ? 'bg-emerald-500'
-                        : activeToast.type === 'warning'
+                    className={`flex size-6 shrink-0 items-center justify-center rounded-full text-white ${activeToast.type === 'success'
+                      ? 'bg-emerald-500'
+                      : activeToast.type === 'warning'
                         ? 'bg-amber-500'
                         : activeToast.type === 'error'
-                        ? 'bg-rose-500'
-                        : 'bg-indigo-500'
-                    }`}
+                          ? 'bg-rose-500'
+                          : 'bg-indigo-500'
+                      }`}
                   >
                     {activeToast.type === 'success' ? (
                       <CheckIcon className="size-3.5 stroke-[3]" />
@@ -3413,15 +3411,14 @@ export default function Styleguide() {
                     ×
                   </button>
                   <div
-                    className={`absolute bottom-0 left-0 h-[3px] w-full ${
-                      activeToast.type === 'success'
-                        ? 'bg-emerald-500'
-                        : activeToast.type === 'warning'
+                    className={`absolute bottom-0 left-0 h-[3px] w-full ${activeToast.type === 'success'
+                      ? 'bg-emerald-500'
+                      : activeToast.type === 'warning'
                         ? 'bg-amber-500'
                         : activeToast.type === 'error'
-                        ? 'bg-rose-500'
-                        : 'bg-indigo-500'
-                    }`}
+                          ? 'bg-rose-500'
+                          : 'bg-indigo-500'
+                      }`}
                     style={{
                       animation: 'eirmisToastProgress 3.2s linear forwards',
                       transformOrigin: 'left',
@@ -3621,60 +3618,56 @@ export default function Styleguide() {
                   {/* Interactive Live Scanner Preview */}
                   <div className="max-w-md mx-auto mb-8">
                     <div
-                      className={`relative flex h-[280px] flex-col items-center justify-center overflow-hidden rounded-2xl border-2 transition-all duration-300 shadow-2xl ${
-                        cameraScanState === 'accepted'
-                          ? 'border-emerald-500'
-                          : cameraScanState === 'duplicate'
+                      className={`relative flex h-[280px] flex-col items-center justify-center overflow-hidden rounded-2xl border-2 transition-all duration-300 shadow-2xl ${cameraScanState === 'accepted'
+                        ? 'border-emerald-500'
+                        : cameraScanState === 'duplicate'
                           ? 'border-amber-500'
                           : cameraScanState === 'rejected'
-                          ? 'border-rose-500'
-                          : 'border-cyan-500/30'
-                      }`}
+                            ? 'border-rose-500'
+                            : 'border-cyan-500/30'
+                        }`}
                       style={{
                         background:
                           cameraScanState === 'accepted'
                             ? 'radial-gradient(circle at center, #064E3B 0%, #022C22 100%)'
                             : cameraScanState === 'duplicate'
-                            ? 'radial-gradient(circle at center, #78350F 0%, #451A03 100%)'
-                            : cameraScanState === 'rejected'
-                            ? 'radial-gradient(circle at center, #7F1D1D 0%, #450A0A 100%)'
-                            : '#020617',
+                              ? 'radial-gradient(circle at center, #78350F 0%, #451A03 100%)'
+                              : cameraScanState === 'rejected'
+                                ? 'radial-gradient(circle at center, #7F1D1D 0%, #450A0A 100%)'
+                                : '#020617',
                       }}
                     >
                       {/* Reticle */}
                       <div
-                        className={`relative flex size-[140px] items-center justify-center rounded-xl border-2 border-dashed transition-all duration-300 ${
-                          cameraScanState === 'accepted'
-                            ? 'border-emerald-400'
-                            : cameraScanState === 'duplicate'
+                        className={`relative flex size-[140px] items-center justify-center rounded-xl border-2 border-dashed transition-all duration-300 ${cameraScanState === 'accepted'
+                          ? 'border-emerald-400'
+                          : cameraScanState === 'duplicate'
                             ? 'border-amber-400'
                             : cameraScanState === 'rejected'
-                            ? 'border-rose-400'
-                            : 'border-cyan-400/80'
-                        }`}
+                              ? 'border-rose-400'
+                              : 'border-cyan-400/80'
+                          }`}
                       >
                         {/* Stylized Reticle Corners */}
                         <div
-                          className={`absolute -top-0.5 -left-0.5 size-4 border-t-[3px] border-l-[3px] rounded-tl-sm transition-colors duration-300 ${
-                            cameraScanState === 'accepted'
-                              ? 'border-emerald-400'
-                              : cameraScanState === 'duplicate'
+                          className={`absolute -top-0.5 -left-0.5 size-4 border-t-[3px] border-l-[3px] rounded-tl-sm transition-colors duration-300 ${cameraScanState === 'accepted'
+                            ? 'border-emerald-400'
+                            : cameraScanState === 'duplicate'
                               ? 'border-amber-400'
                               : cameraScanState === 'rejected'
-                              ? 'border-rose-400'
-                              : 'border-cyan-400'
-                          }`}
+                                ? 'border-rose-400'
+                                : 'border-cyan-400'
+                            }`}
                         />
                         <div
-                          className={`absolute -bottom-0.5 -right-0.5 size-4 border-b-[3px] border-r-[3px] rounded-br-sm transition-colors duration-300 ${
-                            cameraScanState === 'accepted'
-                              ? 'border-emerald-400'
-                              : cameraScanState === 'duplicate'
+                          className={`absolute -bottom-0.5 -right-0.5 size-4 border-b-[3px] border-r-[3px] rounded-br-sm transition-colors duration-300 ${cameraScanState === 'accepted'
+                            ? 'border-emerald-400'
+                            : cameraScanState === 'duplicate'
                               ? 'border-amber-400'
                               : cameraScanState === 'rejected'
-                              ? 'border-rose-400'
-                              : 'border-cyan-400'
-                          }`}
+                                ? 'border-rose-400'
+                                : 'border-cyan-400'
+                            }`}
                         />
 
                         {/* Animated Laser Sweep */}
@@ -3685,19 +3678,18 @@ export default function Styleguide() {
                               cameraScanState === 'accepted'
                                 ? '#10B981'
                                 : cameraScanState === 'duplicate'
+                                  ? '#F59E0B'
+                                  : cameraScanState === 'rejected'
+                                    ? '#EF4444'
+                                    : '#38BDF8',
+                            boxShadow: `0 0 12px ${cameraScanState === 'accepted'
+                              ? '#10B981'
+                              : cameraScanState === 'duplicate'
                                 ? '#F59E0B'
                                 : cameraScanState === 'rejected'
-                                ? '#EF4444'
-                                : '#38BDF8',
-                            boxShadow: `0 0 12px ${
-                              cameraScanState === 'accepted'
-                                ? '#10B981'
-                                : cameraScanState === 'duplicate'
-                                ? '#F59E0B'
-                                : cameraScanState === 'rejected'
-                                ? '#EF4444'
-                                : '#38BDF8'
-                            }`,
+                                  ? '#EF4444'
+                                  : '#38BDF8'
+                              }`,
                             animation: 'scanLaser 2s infinite ease-in-out',
                           }}
                         />
@@ -4009,9 +4001,8 @@ export default function Styleguide() {
                     <div className="relative inline-flex flex-col items-center">
                       <button
                         type="button"
-                        className={`min-h-[44px] min-w-[44px] px-4 rounded-lg bg-indigo-600 text-white font-medium text-xs flex items-center justify-center transition-all ${
-                          showTouchRuler ? 'ring-2 ring-rose-500 ring-offset-2' : ''
-                        }`}
+                        className={`min-h-[44px] min-w-[44px] px-4 rounded-lg bg-indigo-600 text-white font-medium text-xs flex items-center justify-center transition-all ${showTouchRuler ? 'ring-2 ring-rose-500 ring-offset-2' : ''
+                          }`}
                       >
                         44px Button
                       </button>
@@ -4024,9 +4015,8 @@ export default function Styleguide() {
                     <div className="relative inline-flex flex-col items-center">
                       <button
                         type="button"
-                        className={`min-h-[44px] min-w-[44px] rounded-lg border border-border bg-white text-foreground flex items-center justify-center transition-all ${
-                          showTouchRuler ? 'ring-2 ring-rose-500 ring-offset-2' : ''
-                        }`}
+                        className={`min-h-[44px] min-w-[44px] rounded-lg border border-border bg-white text-foreground flex items-center justify-center transition-all ${showTouchRuler ? 'ring-2 ring-rose-500 ring-offset-2' : ''
+                          }`}
                       >
                         <SearchIcon className="size-4 text-slate-500" />
                       </button>
@@ -4039,9 +4029,8 @@ export default function Styleguide() {
                     <div className="relative inline-flex flex-col items-center">
                       <button
                         type="button"
-                        className={`min-h-[44px] px-3.5 rounded-full border border-border bg-white text-foreground text-xs font-semibold flex items-center justify-center transition-all ${
-                          showTouchRuler ? 'ring-2 ring-rose-500 ring-offset-2' : ''
-                        }`}
+                        className={`min-h-[44px] px-3.5 rounded-full border border-border bg-white text-foreground text-xs font-semibold flex items-center justify-center transition-all ${showTouchRuler ? 'ring-2 ring-rose-500 ring-offset-2' : ''
+                          }`}
                       >
                         Pill Action
                       </button>
@@ -4369,21 +4358,21 @@ export default function Styleguide() {
                           email="m.vance@university.edu"
                           role="Keynote Speaker"
                           status="confirmed"
-                          onClick={() => {}}
+                          onClick={() => { }}
                         />
                         <AttendeeItem
                           name="Chloe Bennett"
                           email="c.bennett@techcorp.io"
                           role="Panelist"
                           status="pending"
-                          onClick={() => {}}
+                          onClick={() => { }}
                         />
                         <AttendeeItem
                           name="Devon Miller"
                           email="devon@agency.design"
                           role="Guest"
                           status="declined"
-                          onClick={() => {}}
+                          onClick={() => { }}
                         />
                       </InsetGroupedList>
                     </div>
@@ -4445,16 +4434,16 @@ export default function Styleguide() {
                         email="alex.rivera@eirmis.org"
                         organization="Platform Administrator"
                         active={true}
-                        onSwitch={() => {}}
-                        onSelect={() => {}}
+                        onSwitch={() => { }}
+                        onSelect={() => { }}
                       />
                       <AccountCard
                         name="Jordan Lee"
                         email="jordan.lee@partner.org"
                         organization="Event Organizer"
                         active={false}
-                        onSwitch={() => {}}
-                        onSelect={() => {}}
+                        onSwitch={() => { }}
+                        onSelect={() => { }}
                       />
                     </div>
                   </div>
@@ -4480,8 +4469,8 @@ export default function Styleguide() {
                       description="Your current identity lacks the necessary cryptographic clearance level to inspect this event ledger partition."
                       primaryLabel="Back to Safety"
                       secondaryLabel="Request Access"
-                      onPrimaryAction={() => {}}
-                      onSecondaryAction={() => {}}
+                      onPrimaryAction={() => { }}
+                      onSecondaryAction={() => { }}
                     />
                   </div>
                 </DemoCard>
