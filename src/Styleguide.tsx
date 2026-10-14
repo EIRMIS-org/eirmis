@@ -1785,23 +1785,23 @@ export default function Styleguide() {
                   <div className="space-y-4">
                     {['Organizer', 'Administrator', 'Guest', 'Check-in Staff'].map((role) => (
                       <div key={role} className="p-4 border border-border rounded-xl bg-surface">
-                        <div className="eirmis-session-pill" style={{ display: 'flex', alignItems: 'center', gap: '9px', padding: '4px 12px 4px 5px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-pill)', fontSize: '12px', fontWeight: 600, color: 'var(--text-main)', boxShadow: 'var(--shadow-xs)', width: 'fit-content' }}>
-                          <span className="eirmis-session-avatar" style={{ width: '26px', height: '26px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)', color: 'var(--primary-foreground)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10.5px', fontWeight: 700, boxShadow: '0 1px 3px var(--primary-glow)', flexShrink: 0 }}>
+                        <div className="flex w-fit items-center gap-2 rounded-full border border-border bg-surface py-1 pr-3 pl-1.5 text-xs font-semibold text-foreground shadow-xs">
+                          <span className="flex size-6.5 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-hover text-[10.5px] font-bold text-primary-foreground shadow-xs">
                             {role.split(' ').map(w => w[0]).join('').slice(0, 2)}
                           </span>
-                          <span style={{ maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <span className="max-w-[140px] truncate">
                             {role === 'Check-in Staff' ? 'Marcus Staff' : role === 'Administrator' ? 'Root Admin' : role === 'Guest' ? 'Elena Rostova' : 'Sarah Jenkins'}
                           </span>
-                          <span className="eirmis-session-role" style={{ fontSize: '10.5px', color: 'var(--primary)', fontWeight: 700, background: 'var(--primary-subtle)', padding: '2px 7px', borderRadius: 'var(--radius-pill)', flexShrink: 0 }}>
+                          <span className="shrink-0 rounded-full bg-primary-subtle px-2 py-0.5 text-[10.5px] font-bold text-primary">
                             {role}
                           </span>
                         </div>
                       </div>
                     ))}
                     <div className="p-4 border border-border rounded-xl bg-surface">
-                      <a className="eirmis-btn eirmis-btn-primary" style={{ padding: '6px 14px', fontSize: '12px' }} href="javascript:void(0)">
+                      <Button variant="primary" size="xs" className="w-fit">
                         Sign in
-                      </a>
+                      </Button>
                       <p className="mt-2 text-xs text-muted-foreground">Signed-out CTA</p>
                     </div>
                   </div>
@@ -1823,15 +1823,16 @@ export default function Styleguide() {
                       Collapsible sections
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Animated chevron, open state styling, content fade-in. From eirmis.css details.eirmis-collapse.
+                      Animated chevron, open state styling, content fade-in. Native details/summary with Tailwind tokens.
                     </p>
                   </div>
                   <div className="space-y-3">
-                    <details className="eirmis-collapse" open>
-                      <summary className="eirmis-collapse-header">
+                    <details className="group overflow-hidden rounded-lg border border-border bg-surface shadow-sm" open>
+                      <summary className="flex cursor-pointer list-none select-none items-center justify-between gap-4 border-b border-transparent bg-background px-5 py-4 font-heading text-base font-bold text-foreground transition-colors [&::-webkit-details-marker]:hidden group-open:border-border">
                         Event details & venue
+                        <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground transition-transform duration-300 group-open:rotate-180" />
                       </summary>
-                      <div className="eirmis-collapse-content">
+                      <div className="p-5 animate-in fade-in slide-in-from-top-1 duration-300">
                         <p className="text-sm text-muted-foreground">
                           Marina Bay Sands Grand Ballroom, Singapore · Nov 18, 2026 · 6:30 PM SGT
                         </p>
@@ -1844,28 +1845,30 @@ export default function Styleguide() {
                         </div>
                       </div>
                     </details>
-                    <details className="eirmis-collapse">
-                      <summary className="eirmis-collapse-header">
+                    <details className="group overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
+                      <summary className="flex cursor-pointer list-none select-none items-center justify-between gap-4 border-b border-transparent bg-background px-5 py-4 font-heading text-base font-bold text-foreground transition-colors [&::-webkit-details-marker]:hidden group-open:border-border">
                         Registration settings
+                        <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground transition-transform duration-300 group-open:rotate-180" />
                       </summary>
-                      <div className="eirmis-collapse-content">
+                      <div className="p-5 animate-in fade-in slide-in-from-top-1 duration-300">
                         <p className="text-sm text-muted-foreground">
                           Configure RSVP deadline, party size limits, and approval workflow.
                         </p>
                         <div className="mt-3 flex items-center gap-2">
-                          <label className="toggle-switch">
-                            <input type="checkbox" defaultChecked />
-                            <span className="toggle-slider"></span>
+                          <label className="relative inline-flex cursor-pointer items-center">
+                            <input type="checkbox" defaultChecked className="sr-only peer" />
+                            <div className="w-11 h-6 bg-border-hover peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-surface after:border-border-hover after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all after:duration-200 peer-checked:bg-primary shadow-inner"></div>
                           </label>
                           <span className="text-sm text-muted-foreground">Require approval</span>
                         </div>
                       </div>
                     </details>
-                    <details className="eirmis-collapse">
-                      <summary className="eirmis-collapse-header">
+                    <details className="group overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
+                      <summary className="flex cursor-pointer list-none select-none items-center justify-between gap-4 border-b border-transparent bg-background px-5 py-4 font-heading text-base font-bold text-foreground transition-colors [&::-webkit-details-marker]:hidden group-open:border-border">
                         Email notifications
+                        <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground transition-transform duration-300 group-open:rotate-180" />
                       </summary>
-                      <div className="eirmis-collapse-content">
+                      <div className="p-5 animate-in fade-in slide-in-from-top-1 duration-300">
                         <p className="text-sm text-muted-foreground">
                           Customize invitation, reminder, and confirmation email templates.
                         </p>
@@ -2019,7 +2022,7 @@ export default function Styleguide() {
                   <div className="rounded-xl border border-border backdrop-blur-md p-4" style={{ background: 'var(--surface-glass)', backdropFilter: 'blur(16px) saturate(180%)' }}>
                     <div className="flex items-center justify-between gap-4 flex-wrap">
                       <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <button className="eirmis-hamburger p-2 rounded-lg hover:bg-muted" style={{ display: 'flex' }}>
+                        <button type="button" aria-label="Open menu" className="flex p-2 rounded-lg hover:bg-muted">
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <line x1="3" y1="12" x2="21" y2="12" />
                             <line x1="3" y1="6" x2="21" y2="6" />
@@ -2051,14 +2054,14 @@ export default function Styleguide() {
                             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                           </svg>
                         </button>
-                        <div className="eirmis-session-pill" style={{ display: 'flex', alignItems: 'center', gap: '9px', padding: '4px 12px 4px 5px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-pill)', fontSize: '12px', fontWeight: 600, color: 'var(--text-main)', boxShadow: 'var(--shadow-xs)' }}>
-                          <span className="eirmis-session-avatar" style={{ width: '26px', height: '26px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)', color: 'var(--primary-foreground)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10.5px', fontWeight: 700, boxShadow: '0 1px 3px var(--primary-glow)' }}>
+                        <div className="flex items-center gap-2 rounded-full border border-border bg-surface py-1 pr-3 pl-1.5 text-xs font-semibold text-foreground shadow-xs">
+                          <span className="flex size-6.5 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-hover text-[10.5px] font-bold text-primary-foreground shadow-xs">
                             SJ
                           </span>
-                          <span style={{ maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <span className="max-w-[110px] truncate">
                             Sarah Jenkins
                           </span>
-                          <span className="eirmis-session-role" style={{ fontSize: '10.5px', color: 'var(--primary)', fontWeight: 700, background: 'var(--primary-subtle)', padding: '2px 7px', borderRadius: 'var(--radius-pill)' }}>
+                          <span className="rounded-full bg-primary-subtle px-2 py-0.5 text-[10.5px] font-bold text-primary">
                             Organizer
                           </span>
                         </div>
@@ -2825,7 +2828,7 @@ export default function Styleguide() {
                 <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
                     <span className="text-xs font-bold uppercase tracking-wider text-primary">
-                      Custom toggle switch (.toggle-switch)
+                      Custom toggle switch
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
                       44×24px track with 18px thumb and smooth cubic-bezier spring animation. Used for event policies and privacy controls.
@@ -3111,7 +3114,7 @@ export default function Styleguide() {
                 <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
                     <span className="text-xs font-bold uppercase tracking-wider text-primary">
-                      Toast with animated progress bar (.eirmis-toast)
+                      Toast with animated progress bar
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
                       Dark glassmorphic container with semantic circular badge, linear 3.2s progress duration bar, and spring elevation entrance.
@@ -3342,7 +3345,7 @@ export default function Styleguide() {
                 <div className="rounded-2xl border border-border bg-surface p-6 shadow-xs">
                   <div className="mb-4">
                     <span className="text-xs font-bold uppercase tracking-wider text-primary">
-                      User pill &amp; avatar (.user-pill, .eirmis-session-pill)
+                      User pill &amp; avatar
                     </span>
                     <p className="mt-1 text-xs text-muted-foreground">
                       Gradient initials avatar, full name with overflow ellipsis, semantic role tag, and condensed mobile presentation.
