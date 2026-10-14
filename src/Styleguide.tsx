@@ -511,7 +511,6 @@ export default function Styleguide() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <ThemeToggle />
               <Badge variant="outline" className="border-primary-border bg-primary-subtle text-primary font-semibold px-3 py-1">
                 v1.0 · shadcn UI
               </Badge>
@@ -4833,6 +4832,9 @@ export default function Styleguide() {
           </main>
         </div>
       </div>
+
+      {/* Floating theme toggle — always visible, bottom-right */}
+      <ThemeToggle floating />
     </TooltipProvider >
   )
 }
