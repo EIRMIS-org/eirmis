@@ -3324,7 +3324,7 @@ export default function Styleguide() {
                         </tr>
 
                         {/* Normal Row */}
-                        <tr className="hover:bg-muted/70 transition-colors">
+                        <tr className="hover:bg-muted/70 transition-colors even:bg-muted/30">
                           <td className="py-3 px-4 font-semibold text-foreground">Michael Chang</td>
                           <td className="py-3 px-4">
                             <span className="rounded-full bg-error-bg px-2 py-0.5 text-[10px] font-bold text-error">
@@ -3930,7 +3930,7 @@ export default function Styleguide() {
                             { name: 'Arthur Vance', cat: 'Corporate Sponsor', status: 'Pending', statusColor: 'bg-warning-bg text-warning', table: 'Table #4' },
                             { name: 'Elena Rostova', cat: 'General Attendee', status: 'Waitlist', statusColor: 'bg-muted text-foreground', table: 'Unassigned' },
                           ].map((row, i) => (
-                            <tr key={i} className="hover:bg-muted/70 transition-colors">
+                            <tr key={i} className="hover:bg-muted/70 transition-colors even:bg-muted/30">
                               <td className="py-3 px-4 font-semibold text-foreground">{row.name}</td>
                               <td className="py-3 px-4 text-muted-foreground">{row.cat}</td>
                               <td className="py-3 px-4">
@@ -4123,31 +4123,31 @@ export default function Styleguide() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border">
-                        <tr>
+                        <tr className="hover:bg-muted/50 transition-colors even:bg-muted/30">
                           <td className="py-3 px-4 font-semibold text-foreground">Landing / Public Microsite</td>
                           <td className="py-3 px-4 font-mono font-bold text-primary">1240px</td>
                           <td className="py-3 px-4 text-muted-foreground">Fluid container, responsive hero, full-width sections</td>
                           <td className="py-3 px-4 text-muted-foreground">Desktop, Tablet, Mobile (320px+)</td>
                         </tr>
-                        <tr>
+                        <tr className="hover:bg-muted/50 transition-colors even:bg-muted/30">
                           <td className="py-3 px-4 font-semibold text-foreground">Organizer Workspace</td>
                           <td className="py-3 px-4 font-mono font-bold text-primary">1240px</td>
                           <td className="py-3 px-4 text-muted-foreground">Two-column layout (1.65fr 1fr), collapsible sidebar (250→72px)</td>
                           <td className="py-3 px-4 text-muted-foreground">1200px / 900px / 768px / 560px</td>
                         </tr>
-                        <tr>
+                        <tr className="hover:bg-muted/50 transition-colors even:bg-muted/30">
                           <td className="py-3 px-4 font-semibold text-foreground">System Admin Governance</td>
                           <td className="py-3 px-4 font-mono font-bold text-primary">1240px</td>
                           <td className="py-3 px-4 text-muted-foreground">Glanceable 4-chunk KPI strip, audit logs, zero-knowledge boundary</td>
                           <td className="py-3 px-4 text-muted-foreground">1240px desktop down to 768px tablet</td>
                         </tr>
-                        <tr>
+                        <tr className="hover:bg-muted/50 transition-colors even:bg-muted/30">
                           <td className="py-3 px-4 font-semibold text-foreground">Guest Portal (RSVP Flow)</td>
                           <td className="py-3 px-4 font-mono font-bold text-secondary">680px</td>
                           <td className="py-3 px-4 text-muted-foreground">Centered card container, mobile-first RSVP touch responses</td>
                           <td className="py-3 px-4 text-muted-foreground">Optimized for handheld smartphones (375-430px)</td>
                         </tr>
-                        <tr>
+                        <tr className="hover:bg-muted/50 transition-colors even:bg-muted/30">
                           <td className="py-3 px-4 font-semibold text-foreground">Check-in Staff Scanner</td>
                           <td className="py-3 px-4 font-mono font-bold text-secondary">500px</td>
                           <td className="py-3 px-4 text-muted-foreground">Focused camera viewfinder reticle, high-stress door scanning</td>
@@ -4806,7 +4806,7 @@ export default function Styleguide() {
                         ['--error', '#B91C1C', '#F87171', 'Declined / invalid'],
                         ['--surface-glass', 'rgba(255,255,255,.92)', 'rgba(15,23,42,.92)', 'Glassmorphic nav'],
                       ].map(([token, light, dark, usage]) => (
-                        <tr key={token} className="hover:bg-muted/50 transition-colors">
+                        <tr key={token} className="hover:bg-muted/50 transition-colors even:bg-muted/30">
                           <td className="py-2.5 px-4 font-mono font-semibold text-primary">{token}</td>
                           <td className="py-2.5 px-4">
                             <span className="inline-flex items-center gap-1.5">
