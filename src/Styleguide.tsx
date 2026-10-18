@@ -3324,7 +3324,7 @@ export default function Styleguide() {
                         </tr>
 
                         {/* Normal Row */}
-                        <tr className="hover:bg-muted/70 transition-colors">
+                        <tr className="hover:bg-muted/70 transition-colors even:bg-muted/30">
                           <td className="py-3 px-4 font-semibold text-foreground">Michael Chang</td>
                           <td className="py-3 px-4">
                             <span className="rounded-full bg-error-bg px-2 py-0.5 text-[10px] font-bold text-error">
@@ -3930,7 +3930,7 @@ export default function Styleguide() {
                             { name: 'Arthur Vance', cat: 'Corporate Sponsor', status: 'Pending', statusColor: 'bg-warning-bg text-warning', table: 'Table #4' },
                             { name: 'Elena Rostova', cat: 'General Attendee', status: 'Waitlist', statusColor: 'bg-muted text-foreground', table: 'Unassigned' },
                           ].map((row, i) => (
-                            <tr key={i} className="hover:bg-muted/70 transition-colors">
+                            <tr key={i} className="hover:bg-muted/70 transition-colors even:bg-muted/30">
                               <td className="py-3 px-4 font-semibold text-foreground">{row.name}</td>
                               <td className="py-3 px-4 text-muted-foreground">{row.cat}</td>
                               <td className="py-3 px-4">

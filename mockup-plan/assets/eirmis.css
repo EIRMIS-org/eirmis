@@ -773,6 +773,17 @@ details.eirmis-collapse[open] summary.eirmis-collapse-header::after {
     stroke: #ffffff !important;
 }
 
+/* Table Styles & Zebra Striping */
+table tbody tr:nth-child(even) td,
+.table-striped tbody tr:nth-child(even) td {
+    background: var(--bg);
+}
+
+table tbody tr:hover td,
+.table-striped tbody tr:hover td {
+    background: var(--border-subtle);
+}
+
 /* Responsive Rules */
 @media (max-width: 768px) {
     .eirmis-nav-links {
