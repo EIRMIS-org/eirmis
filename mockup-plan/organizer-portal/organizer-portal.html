@@ -1233,6 +1233,10 @@
       border-bottom: none;
     }
 
+    tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
     tr:hover td {
       background: #fafafc;
     }
@@ -1550,7 +1554,9 @@
     }
 
     @keyframes promotionSpin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     /* Toast */
@@ -1691,12 +1697,12 @@
       justify-content: center;
     }
 
-    aside.sidebar-collapsed .account-trigger > div {
+    aside.sidebar-collapsed .account-trigger>div {
       overflow: visible !important;
     }
 
-    aside.sidebar-collapsed .account-trigger > div > div:nth-child(2),
-    aside.sidebar-collapsed .account-trigger > svg {
+    aside.sidebar-collapsed .account-trigger>div>div:nth-child(2),
+    aside.sidebar-collapsed .account-trigger>svg {
       display: none;
     }
 
@@ -6767,7 +6773,8 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
         <button onclick="closeWaitlistPromotionModal()" class="btn btn-secondary waitlist-promotion-cancel">
           Cancel
         </button>
-        <button id="confirm-waitlist-promotion-btn" onclick="confirmWaitlistPromotion()" class="btn btn-teal waitlist-promotion-confirm">
+        <button id="confirm-waitlist-promotion-btn" onclick="confirmWaitlistPromotion()"
+          class="btn btn-teal waitlist-promotion-confirm">
           <span class="promotion-spinner" aria-hidden="true"></span>Confirm Promote
         </button>
       </div>
