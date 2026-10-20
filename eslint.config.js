@@ -18,6 +18,12 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
+    },
   },
   // shadcn/ui generated components intentionally co-export CVA variant helpers
   // (e.g. buttonVariants) alongside React components in the same file.
