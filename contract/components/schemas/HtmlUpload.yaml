@@ -11,6 +11,18 @@ HtmlUploadResponse:
        creates/updates the `invitation_designs` row with `validation_status = pending`.
     3. Queues the asynchronous malware scan (e.g. VirusTotal).
     On structural failure the function returns 422 with this schema's `errors` field.
+  example:
+    design:
+      id: cccccccc-cccc-cccc-cccc-cccccccccccc
+      event_id: 55555555-5555-5555-5555-555555555555
+      design_type: html
+      html_storage_path: designs/55555555-5555-5555-5555-555555555555/invitation.html
+      validation_status: pending
+      validation_notes: null
+      validated_at: null
+      created_at: '2026-11-01T10:00:00+08:00'
+      updated_at: '2026-11-01T10:00:00+08:00'
+    errors: []
   required: [design]
   properties:
     design:
