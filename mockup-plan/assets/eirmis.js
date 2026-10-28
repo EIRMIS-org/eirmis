@@ -183,6 +183,73 @@
         return state.session;
     }
 
+    function csvValue(value) {
+        if (value === null || value === undefined) return '';
+        return value instanceof Date ? value.toISOString() : String(value);
+    }
+
+    function escapeCSVValue(value) {
+        var formattedValue = csvValue(value);
+        return /[",\r\n]/.test(formattedValue)
+            ? '"' + formattedValue.replace(/"/g, '""') + '"'
+            : formattedValue;
+    }
+
+    function downloadCSV(filename, headers, rows) {
+        var csv = [headers].concat(rows).map(function (row) {
+            return row.map(escapeCSVValue).join(',');
+        }).join('\r\n');
+        var blob = new Blob([csv + '\r\n'], { type: 'text/csv;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = /\.csv$/i.test(filename) ? filename : filename + '.csv';
+        link.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function exportEventListCSV() {
+        var headers = ['Event ID', 'Title', 'Slug', 'Status', 'Visibility', 'Venue', 'Starts At', 'Capacity', 'Total RSVPs', 'Checked In'];
+        var checkedIn = state.checkedIn || 0;
+        var rows = state.events.map(function (event) {
+            return [
+                event.id,
+                event.title,
+                event.slug,
+                event.status,
+                event.visibility,
+                event.venue,
+                event.startsAt || [event.date, event.time].filter(Boolean).join(' '),
+                event.capacity,
+                event.rsvp,
+                event.checkedIn === undefined
+                    ? (event.id === 'evt-tech-forward' ? checkedIn : 0)
+                    : event.checkedIn
+            ];
+        });
+        downloadCSV('event-list.csv', headers, rows);
+        toast('Event list CSV downloaded');
+    }
+
+    function exportAttendanceReportCSV() {
+        var headers = ['Attendee ID', 'Full Name', 'Email', 'Is Primary', 'RSVP Status', 'Approval Status', 'Checked In', 'Checked In At', 'Checked In By Staff ID'];
+        var rows = state.guests.map(function (guest) {
+            return [
+                guest.id,
+                guest.name,
+                guest.email,
+                guest.isPrimary === undefined ? true : guest.isPrimary,
+                guest.status,
+                guest.approvalStatus || (guest.status === 'accepted' ? 'approved' : 'pending'),
+                guest.checkedIn === undefined ? false : guest.checkedIn,
+                guest.checkedInAt || '',
+                guest.checkedInByStaffId || ''
+            ];
+        });
+        downloadCSV('attendance-report.csv', headers, rows);
+        toast('Attendance report CSV downloaded');
+    }
+
     /* ---------------------------------------------------------------------------
      * Global Navigation Bar
      * ------------------------------------------------------------------------- */
@@ -312,6 +379,9 @@
         signOut: signOut,
         session: currentSession,
         getState: function () { return state; },
+        downloadCSV: downloadCSV,
+        exportEventListCSV: exportEventListCSV,
+        exportAttendanceReportCSV: exportAttendanceReportCSV,
         /* ---------------------------------------------------------------------------
          * UI/UX-05 Additions: Mobile Nav, Drawer, Table Auto-labeling
          * ------------------------------------------------------------------------- */
