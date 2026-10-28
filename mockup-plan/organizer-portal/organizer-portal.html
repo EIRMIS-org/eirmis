@@ -2248,7 +2248,7 @@
                   Export Guest List (CSV)
                 </button>
                 <button class="dropdown-item" role="menuitem" onclick="
-                      showToast('Exporting attendance report...');
+                      EIRMIS.exportAttendanceReportCSV();
                       closeDropdown('event-settings-dropdown');
                     ">
                   <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -2258,7 +2258,7 @@
                     <line x1="16" y1="13" x2="8" y2="13"></line>
                     <line x1="16" y1="17" x2="8" y2="17"></line>
                   </svg>
-                  Export Attendance Report
+                  Export Attendance Report CSV
                 </button>
                 <hr class="dropdown-divider" />
                 <button class="dropdown-item dropdown-item-danger" role="menuitem" onclick="
@@ -4065,6 +4065,9 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
           </div>
           <button class="btn btn-primary" onclick="switchView('create-wizard')">
             + Create Event
+          </button>
+          <button class="btn btn-secondary" onclick="EIRMIS.exportEventListCSV()">
+            Export Event List CSV
           </button>
         </div>
 
