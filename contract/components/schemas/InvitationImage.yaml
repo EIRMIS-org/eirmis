@@ -4,6 +4,13 @@ InvitationImage:
     One image per row in a gallery-mode invitation design.
     `sort_order` controls the gallery display sequence; the organizer can
     reorder images by updating this column. UNIQUE(event_id, sort_order) is enforced.
+  example:
+    id: dddddddd-dddd-dddd-dddd-dddddddddddd
+    event_id: 55555555-5555-5555-5555-555555555555
+    storage_path: designs/55555555-5555-5555-5555-555555555555/gallery/001.jpg
+    sort_order: 1
+    caption: Welcome to the Annual Gala
+    created_at: '2026-11-02T09:00:00+08:00'
   required: [id, event_id, storage_path, sort_order, created_at]
   properties:
     id:
@@ -36,32 +43,46 @@ InvitationImage:
 InvitationImageCreate:
   type: object
   description: Request body for adding an image to an event's gallery.
+  example:
+    event_id: 55555555-5555-5555-5555-555555555555
+    storage_path: designs/55555555-5555-5555-5555-555555555555/gallery/001.jpg
+    sort_order: 1
+    caption: Welcome to the Annual Gala
   required: [event_id, storage_path, sort_order]
   properties:
     event_id:
       type: string
       format: uuid
+      description: Target event UUID for this gallery image.
       example: 55555555-5555-5555-5555-555555555555
     storage_path:
       type: string
+      description: Supabase Storage path where the uploaded image is stored.
       example: designs/55555555-5555-5555-5555-555555555555/gallery/001.jpg
     sort_order:
       type: integer
       minimum: 0
+      description: Zero- or one-indexed display order in the event lightbox.
       example: 1
     caption:
       type: ['string', 'null']
+      description: Optional display caption or image description.
       example: Welcome to the Annual Gala
 
 InvitationImageUpdate:
   type: object
   description: Fields an organizer may update on an existing gallery image.
+  example:
+    sort_order: 2
+    caption: The venue entrance
   minProperties: 1
   properties:
     sort_order:
       type: integer
       minimum: 0
+      description: Updated position in the display sequence.
       example: 2
     caption:
       type: ['string', 'null']
+      description: Updated image caption text.
       example: The venue entrance
