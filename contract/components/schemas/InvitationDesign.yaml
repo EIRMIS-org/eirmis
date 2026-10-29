@@ -4,6 +4,16 @@ InvitationDesign:
     Creative invitation asset for an event. At most one per event (UNIQUE on `event_id`).
     Either an image gallery or a single validated self-contained HTML file.
     An event with no row in this table shows guests a default system-branded view.
+  example:
+    id: cccccccc-cccc-cccc-cccc-cccccccccccc
+    event_id: 55555555-5555-5555-5555-555555555555
+    design_type: html
+    html_storage_path: 'designs/55555555-5555-5555-5555-555555555555/invitation.html'
+    validation_status: passed
+    validation_notes: null
+    validated_at: '2026-11-01T10:05:00+08:00'
+    created_at: '2026-11-01T10:00:00+08:00'
+    updated_at: '2026-11-01T10:05:00+08:00'
   required: [id, event_id, design_type, created_at, updated_at]
   properties:
     id:
@@ -22,7 +32,7 @@ InvitationDesign:
         Supabase Storage path. Only set for `design_type = html`, and only after
         passing the synchronous structural scan in the `uploadInvitationHtml`
         Edge Function. Storage RLS forbids client writes to this bucket.
-      example: null
+      example: designs/55555555-5555-5555-5555-555555555555/invitation.html
     validation_status:
       oneOf:
         - $ref: './Enums.yaml#/DesignValidationStatus'
@@ -41,7 +51,7 @@ InvitationDesign:
     validated_at:
       type: ['string', 'null']
       format: date-time
-      example: null
+      example: '2026-11-01T10:05:00+08:00'
     created_at:
       type: string
       format: date-time
@@ -57,11 +67,15 @@ InvitationDesignCreate:
     Request body for an organizer creating an invitation design record (images mode).
     For HTML mode, use the `uploadInvitationHtml` Edge Function instead — it
     performs the synchronous structural scan before storing the file.
+  example:
+    event_id: 55555555-5555-5555-5555-555555555555
+    design_type: images
   required: [event_id, design_type]
   properties:
     event_id:
       type: string
       format: uuid
+      description: Target event UUID for this invitation creative design.
       example: 55555555-5555-5555-5555-555555555555
     design_type:
       $ref: './Enums.yaml#/DesignType'

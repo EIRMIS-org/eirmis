@@ -4,6 +4,22 @@ Invitation:
     Per-event, per-guest invitation. Exactly one per `(event_id, guest_id)` pair.
     `party_size` and `checked_in_count` are cached, trigger-maintained counts
     and must not be set directly by clients.
+  example:
+    id: 66666666-6666-6666-6666-666666666666
+    event_id: 55555555-5555-5555-5555-555555555555
+    guest_id: 33333333-3333-3333-3333-333333333333
+    status: accepted
+    max_party_size: 4
+    party_size: 2
+    checked_in_count: 0
+    dietary_preference: Vegetarian
+    special_requests: Wheelchair access needed
+    invited_by: 11111111-1111-1111-1111-111111111111
+    invited_at: '2026-10-01T09:00:00+08:00'
+    responded_at: '2026-10-05T14:30:00+08:00'
+    waitlisted_at: null
+    created_at: '2026-10-01T09:00:00+08:00'
+    updated_at: '2026-10-05T14:30:00+08:00'
   required:
     - id
     - event_id
@@ -72,7 +88,7 @@ Invitation:
       type: ['string', 'null']
       format: date-time
       description: Timestamp when the guest changed status from `pending`.
-      example: null
+      example: '2026-10-05T14:30:00+08:00'
     waitlisted_at:
       type: ['string', 'null']
       format: date-time
@@ -92,28 +108,37 @@ InvitationCreate:
   description: >
     Request body for an organizer creating an invite-only invitation,
     or for the public registration flow creating an accepted invitation.
+  example:
+    event_id: 55555555-5555-5555-5555-555555555555
+    guest_id: 33333333-3333-3333-3333-333333333333
+    max_party_size: 4
+    status: pending
   required: [event_id, guest_id]
   properties:
     event_id:
       type: string
       format: uuid
+      description: Target event UUID to which the guest is being invited.
       example: 55555555-5555-5555-5555-555555555555
     guest_id:
       type: string
       format: uuid
+      description: Target guest UUID from the cross-event directory.
       example: 33333333-3333-3333-3333-333333333333
     max_party_size:
       type: integer
       minimum: 1
-      description: Defaults to `1` if omitted.
+      description: Initial maximum party size allotted to this invitation (defaults to 1 if omitted).
       example: 4
     status:
       $ref: './Enums.yaml#/InvitationStatus'
     dietary_preference:
       type: ['string', 'null']
+      description: Initial dietary requirements for the party.
       example: null
     special_requests:
       type: ['string', 'null']
+      description: Initial accommodations or special requests.
       example: null
 
 InvitationRsvpUpdate:
@@ -122,25 +147,35 @@ InvitationRsvpUpdate:
     Fields a guest may update on their own invitation via PATCH.
     Primarily used for RSVP status changes and logistics fields.
     Blocked by a DB trigger after the event's RSVP deadline.
+  example:
+    status: accepted
+    dietary_preference: Vegetarian
+    special_requests: Wheelchair access needed
   minProperties: 1
   properties:
     status:
       $ref: './Enums.yaml#/InvitationStatus'
     dietary_preference:
       type: ['string', 'null']
+      description: Updated dietary preference for the party.
       example: Vegetarian
     special_requests:
       type: ['string', 'null']
+      description: Updated special accommodation requests.
       example: Wheelchair access needed
 
 InvitationOrganizerUpdate:
   type: object
   description: Fields an organizer may update on an invitation (e.g. adjusting max_party_size).
+  example:
+    max_party_size: 6
+    status: accepted
   minProperties: 1
   properties:
     max_party_size:
       type: integer
       minimum: 1
+      description: Updated party size ceiling for the invitation.
       example: 6
     status:
       $ref: './Enums.yaml#/InvitationStatus'
