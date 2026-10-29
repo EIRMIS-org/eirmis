@@ -1489,7 +1489,7 @@ export interface components {
              */
             created_at: string;
         };
-        /** @description Immutable, append-only log of all audited state-changing actions. Written by Edge Functions under service role. UPDATE and DELETE are denied for all roles at the RLS level — including authenticated clients. Audited actions include: `attendee.approved`, `attendee.rejected`, `attendee.approved_over_capacity`, `headcount_request.approved`, `headcount_request.rejected`, `invitation_design.uploaded`, `invitation_design.validation_failed`, `qr.bulk_sent`, `checkin.attendee_scanned`, `checkin.attendee_rescanned`, `checkin_assignment.granted`, `checkin_assignment.revoked`, `organizer.verified`. */
+        /** @description Immutable, append-only log of all audited state-changing actions. Written by Edge Functions under service role. UPDATE and DELETE are denied for all roles at the RLS level — including authenticated clients. Audited actions include: `attendee.approved`, `attendee.rejected`, `attendee.approved_over_capacity`, `headcount_request.approved`, `headcount_request.rejected`, `invitation_design.uploaded`, `invitation_design.validation_failed`, `qr_bundle_sent`, `checkin.attendee_scanned`, `checkin.attendee_rescanned`, `checkin_assignment.granted`, `checkin_assignment.revoked`, `organizer.verified`. */
         AuditLogEntry: {
             /**
              * Format: uuid
