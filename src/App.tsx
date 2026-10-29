@@ -12,6 +12,16 @@ function App() {
     return <Styleguide />
   }
 
+  if (window.location.pathname.startsWith('/docs')) {
+    return (
+      <iframe
+        src="/contract/generated/docs/index.html"
+        title="EIRMIS OpenAPI Documentation"
+        className="w-full h-screen border-0"
+      />
+    )
+  }
+
   return (
     <>
       <section id="center">
@@ -46,15 +56,15 @@ function App() {
           <p>Your questions, answered</p>
           <ul>
             <li>
-              <a href="https://vite.dev/" target="_blank">
+              <a href="/docs">
                 <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
+                API Contract Docs (/docs)
               </a>
             </li>
             <li>
-              <a href="https://react.dev/" target="_blank">
+              <a href="/styleguide">
                 <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
+                UI Styleguide (/styleguide)
               </a>
             </li>
           </ul>
