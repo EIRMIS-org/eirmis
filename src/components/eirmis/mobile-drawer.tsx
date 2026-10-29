@@ -1,12 +1,7 @@
 import * as React from 'react'
 import { X, LogOut, LogIn, ChevronRight, Layers } from 'lucide-react'
 import { cn } from '@/lib/utils'
-
-export interface PortalItem {
-  id: string
-  label: string
-  href?: string
-}
+import { DEFAULT_PORTALS, type PortalItem } from './portal-constants'
 
 export interface UserSession {
   name: string
@@ -26,14 +21,6 @@ export interface MobileDrawerProps {
   onSignIn?: () => void
   className?: string
 }
-
-export const DEFAULT_PORTALS: PortalItem[] = [
-  { id: 'hub', label: 'Public Hub', href: '#' },
-  { id: 'organizer', label: 'Organizer Portal', href: '#' },
-  { id: 'admin', label: 'Admin Portal', href: '#' },
-  { id: 'guest', label: 'Guest Portal', href: '#' },
-  { id: 'staff', label: 'Staff Scanner', href: '#' },
-]
 
 export function MobileDrawer({
   isOpen,

@@ -1,15 +1,20 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import heroImg from './assets/hero.png'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import './App.css'
-import Styleguide from './Styleguide'
+
+const Styleguide = lazy(() => import('./Styleguide'))
 
 function App() {
   const [count, setCount] = useState(0)
 
   if (window.location.pathname === '/styleguide') {
-    return <Styleguide />
+    return (
+      <Suspense fallback={<p>Loading style guide...</p>}>
+        <Styleguide />
+      </Suspense>
+    )
   }
 
   return (
