@@ -69,3 +69,26 @@ curl -i "http://127.0.0.1:4010/rest/v1/events?select=id,title&limit=2"
 ```
 
 A successful mock request should return an HTTP response with a JSON body. Prism's output is driven by the OpenAPI contract; it is not a query against a real database.
+
+
+## 4. Select a named OpenAPI example
+
+Prism normally returns an example from the operation's response definition when one is available. To select a particular response example, send the HTTP `Prefer` header in this form:
+
+```http
+Prefer: example=<example_name>
+```
+
+The example name must match a key under the response's `examples` map for the specific operation and response status in the OpenAPI contract. Example keys are case-sensitive. A named example defined for a request body is not automatically a response example.
+
+### Example from the EIRMIS contract
+
+The `GET /rest/v1/events` operation in `contract/paths/organizer.yaml` defines the response example `OrganizerEventsList`. Request that example with:
+
+```bash
+curl -i "http://127.0.0.1:4010/rest/v1/events?select=id,title&limit=2" -H "Prefer: example=OrganizerEventsList"
+```
+
+You can inspect other example names directly in `contract/paths/organizer.yaml`, `contract/paths/guest.yaml`, `contract/paths/admin.yaml`, and `contract/paths/functions.yaml`. Look under the operation's `responses` section for a response `content` type and then its `examples` map. Use an example that belongs to the HTTP method, response code, and content type being tested.
+
+If Prism does not select the example you requested, check that the name is spelled exactly as it appears in the contract and that the request is reaching the expected operation and response status. A validation or security response may take precedence over the expected success response.
