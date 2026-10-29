@@ -4,7 +4,8 @@
 #   • CI / lint
 #   • CI / typecheck
 #   • CI / build
-#   • CI / contract-lint   (skipped — not failed — until contract/openapi.yaml exists)
+#   • CI / contract-lint
+#   • CI / contract-check
 #
 # Secrets audit: NO secrets are referenced in this file.
 #   • VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY are public-by-construction
@@ -133,12 +134,9 @@ jobs:
           VITE_STORAGE_BUCKET_DESIGNS: invitation-designs
         run: npm run build
 
-  # ── Contract lint ──────────────────────────────────────────────────────────
-  # Skipped (exit 0) when contract/openapi.yaml does not yet exist so the
-  # pipeline stays green during early development. Once the contract file
-  # lands this step becomes a hard gate automatically — no workflow edit needed.
+  # ── Contract lint & Redoc build ────────────────────────────────────────────
   contract-lint:
-    name: Contract lint
+    name: Contract lint & Redoc build
     runs-on: ubuntu-latest
     needs: install
     steps:
@@ -156,22 +154,14 @@ jobs:
           path: node_modules
           key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
-      - name: Check whether contract file exists
-        id: contract_exists
-        run: |
-          if [ -f "contract/openapi.yaml" ]; then
-            echo "found=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "found=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::contract/openapi.yaml not found — contract-lint skipped."
-          fi
-
       - name: Run Redocly contract lint
-        if: steps.contract_exists.outputs.found == 'true'
         run: npm run contract:lint
 
+      - name: Build static Redoc bundle
+        run: npm run contract:docs
+
   # ── Unit / component tests ─────────────────────────────────────────────────
-  # TODO (M1-xx): Enable once Vitest is configured and tests exist.
+  # TODO (M4): Enable once Vitest is configured and tests exist.
   # test:
   #   name: Unit tests
   #   runs-on: ubuntu-latest
@@ -208,14 +198,27 @@ jobs:
       - name: Start Supabase locally
         run: supabase start
 
-  # ── Contract freshness + PostgREST drift check ────────────────────────────
-  # TODO: Enable in a future branch when contract/openapi.yaml is created.
-  # Once ready, you can configure this to check the local Supabase instance
-  # (which is started in the 'database' step above) against the OpenAPI file.
-  # contract-check:
-  #   name: Contract check (freshness + drift)
-  #   runs-on: ubuntu-latest
-  #   needs: [database, contract-lint]
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - run: npm run contract:check
+  # ── Contract freshness check (M2) + PostgREST drift check (M3) ─────────────
+  contract-check:
+    name: Contract check (freshness)
+    runs-on: ubuntu-latest
+    needs: [install, contract-lint]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Restore node_modules from cache
+        uses: actions/cache/restore@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Check generated client freshness
+        env:
+          SKIP_DRIFT: "true"
+        run: npm run contract:check
