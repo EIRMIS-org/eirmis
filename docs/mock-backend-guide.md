@@ -92,3 +92,58 @@ curl -i "http://127.0.0.1:4010/rest/v1/events?select=id,title&limit=2" -H "Prefe
 You can inspect other example names directly in `contract/paths/organizer.yaml`, `contract/paths/guest.yaml`, `contract/paths/admin.yaml`, and `contract/paths/functions.yaml`. Look under the operation's `responses` section for a response `content` type and then its `examples` map. Use an example that belongs to the HTTP method, response code, and content type being tested.
 
 If Prism does not select the example you requested, check that the name is spelled exactly as it appears in the contract and that the request is reaching the expected operation and response status. A validation or security response may take precedence over the expected success response.
+
+
+## 5. Request dynamic mock data
+
+Dynamic mode asks Prism to generate response values from the schema instead of repeatedly returning the contract's fixed example values. This can help test how the frontend handles different values.
+
+There are two options.
+
+### Option A — Request dynamic output for one call
+
+Keep the normal static mock server running and send:
+
+```bash
+curl -i "http://127.0.0.1:4010/rest/v1/events?select=id,title&limit=2" -H "Prefer: dynamic=true"
+```
+
+### Option B — Start Prism in dynamic mode
+
+Stop the normal Prism process with `Ctrl+C`, then run:
+
+```bash
+npm run contract:mock:dynamic
+```
+
+This starts the same contract on port `4010` with Prism's dynamic-generation flag enabled. Restart `npm run contract:mock` when you want the standard example-driven behavior again.
+
+Dynamic output is generated from the OpenAPI schema, so it depends on the completeness and constraints of that schema. It is synthetic test data, not data from Supabase. For more information, see the [Prism HTTP mocking guide](https://github.com/stoplightio/prism/blob/main/docs/guides/01-mocking.md).
+
+## 6. PostgREST `Prefer` headers
+
+The contract documents PostgREST conventions. These headers are meaningful to PostgREST/Supabase requests and are also useful to understand when testing the API contract.
+
+### Request an exact row count
+
+```http
+Prefer: count=exact
+```
+
+PostgREST reports the total in the response's `Content-Range` header when it supports the requested count. For example, to inspect the documented response header through Prism:
+
+```bash
+curl -i "http://127.0.0.1:4010/rest/v1/events?select=id,title&limit=2" -H "Prefer: count=exact"
+```
+
+Prism may return the static header example from the contract. Do not treat that fixed example as a real count of database rows.
+
+### Return rows after a write
+
+```http
+Prefer: return=representation
+```
+
+On supported PostgREST `POST`/`PATCH` requests, this preference asks the live API to return the affected row or rows in the response body. The default behavior may return no row representation. The request must still satisfy the endpoint's schema and authorization requirements.
+
+You may see these two headers in the OpenAPI definitions because list operations document row counts and write operations document when a row representation is returned. Prism simulates contract responses; it does not commit a real database change.
