@@ -549,8 +549,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Generate and send QR code PDF to a guest
-         * @description Generates a multi-page PDF (one QR code + attendee name per page) for all approved attendees in an invitation's party, and emails it to the guest via Resend. Supports both single-invitation and bulk-event dispatch. `RESEND_API_KEY` is an Edge Function secret — this operation must not be attempted client-side.
+         * Generate and email a QR code PDF for an invitation
+         * @description Generates a multi-page PDF (one QR code + attendee name per page) for all approved attendees in the specified invitation's party, then emails it to the guest via Resend. Returns a success message and the number of emails sent. `RESEND_API_KEY` is an Edge Function secret — this operation must not be attempted client-side.
          */
         post: operations["dispatchQrBundle"];
         delete?: never;
@@ -1573,35 +1573,27 @@ export interface components {
              */
             message?: string | null;
         };
-        /** @description Request body for the `dispatchQrBundle` Edge Function. Can target a single invitation or all confirmed invitations for an event (organizer bulk resend). The function generates a multi-page PDF (one QR code + attendee name per page) and emails it to the guest's address via Resend. `RESEND_API_KEY` is an Edge Function secret — never exposed to the client. */
+        /** @description Request body for the `dispatchQrBundle` Edge Function. The function generates a multi-page PDF (one QR code + attendee name per page) for the specified invitation and emails it to the guest's address via Resend. `RESEND_API_KEY` is an Edge Function secret — never exposed to the client. */
         QrBundleRequest: {
             /**
              * Format: uuid
-             * @description Target a single invitation. Mutually exclusive with `event_id`. If provided, the PDF is sent to that invitation's guest.
+             * @description Invitation whose QR bundle should be emailed.
              * @example 66666666-6666-6666-6666-666666666666
              */
-            invitation_id?: string | null;
-            /**
-             * Format: uuid
-             * @description Target all confirmed invitations for an event (organizer bulk resend). Mutually exclusive with `invitation_id`.
-             * @example null
-             */
-            event_id?: string | null;
+            invitation_id: string;
         };
         /** @description Response from the `dispatchQrBundle` Edge Function. */
         QrBundleResponse: {
             /**
-             * @description Number of QR bundle emails successfully dispatched.
+             * @description Success message confirming the QR bundle was sent.
+             * @example QR bundle sent successfully.
+             */
+            message: string;
+            /**
+             * @description Number of QR bundle emails successfully sent.
              * @example 1
              */
-            dispatched_count: number;
-            /**
-             * @description IDs of the invitations whose QR bundles were sent.
-             * @example [
-             *       "66666666-6666-6666-6666-666666666666"
-             *     ]
-             */
-            invitation_ids?: string[];
+            emails_sent: number;
         };
         /** @description Request body for the `promoteWaitlist` Edge Function (service-role only). Promotes the next `waitlisted` invitation(s) for an event in strict FIFO order (keyed by `waitlisted_at`). Promotion unblocks the invitation for RSVP only; any attendees already submitted remain `pending` and still require organizer review. This operation is privileged and runs atomically — it may not be called from the SPA. */
         WaitlistPromoteRequest: {
@@ -3199,7 +3191,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description QR bundle(s) dispatched. */
+            /** @description QR bundle emailed successfully. */
             200: {
                 headers: {
                     [name: string]: unknown;

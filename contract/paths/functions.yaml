@@ -244,11 +244,11 @@
 /functions/v1/qr-bundle:
   post:
     operationId: dispatchQrBundle
-    summary: Generate and send QR code PDF to a guest
+    summary: Generate and email a QR code PDF for an invitation
     description: >
       Generates a multi-page PDF (one QR code + attendee name per page) for all
-      approved attendees in an invitation's party, and emails it to the guest
-      via Resend. Supports both single-invitation and bulk-event dispatch.
+      approved attendees in the specified invitation's party, then emails it to
+      the guest via Resend. Returns a success message and the number of emails sent.
       `RESEND_API_KEY` is an Edge Function secret — this operation must not be
       attempted client-side.
     tags: [Organizer — QR Codes]
@@ -260,7 +260,7 @@
             $ref: '../components/schemas/QrBundle.yaml#/QrBundleRequest'
     responses:
       '200':
-        description: QR bundle(s) dispatched.
+        description: QR bundle emailed successfully.
         content:
           application/json:
             schema:
