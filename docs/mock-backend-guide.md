@@ -147,3 +147,51 @@ Prefer: return=representation
 On supported PostgREST `POST`/`PATCH` requests, this preference asks the live API to return the affected row or rows in the response body. The default behavior may return no row representation. The request must still satisfy the endpoint's schema and authorization requirements.
 
 You may see these two headers in the OpenAPI definitions because list operations document row counts and write operations document when a row representation is returned. Prism simulates contract responses; it does not commit a real database change.
+
+
+## 7. Configure mock mode or live Supabase mode
+
+The committed environment template is `.env.local.example`. Copy it to `.env.local` and keep `.env.local` out of Git:
+
+```bash
+# macOS / Linux / Git Bash
+cp .env.local.example .env.local
+
+# Windows Command Prompt
+copy .env.local.example .env.local
+```
+
+Vite exposes variables prefixed with `VITE_` in the browser bundle. Never put service-role keys, passwords, or other secrets in these variables. The project's template documents `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SITE_URL`, and `VITE_STORAGE_BUCKET_DESIGNS`.
+
+### Mock-mode settings
+
+The configuration expected by this task for a frontend API client that supports the mock switch is:
+
+```dotenv
+VITE_API_URL=http://127.0.0.1:4010
+VITE_USE_MOCK=true
+```
+
+Start Prism and Vite using the commands in Section 3. The frontend API client should direct contract API requests to `VITE_API_URL` when mock mode is enabled.
+
+### Live Supabase settings
+
+For live Supabase development, configure the values from a dedicated development/staging project—not production unless your team explicitly authorizes that:
+
+```dotenv
+VITE_USE_MOCK=false
+VITE_SUPABASE_URL=https://<project-ref>.supabase.co
+VITE_SUPABASE_ANON_KEY=<publishable-anon-key>
+VITE_SITE_URL=http://localhost:5173
+VITE_STORAGE_BUCKET_DESIGNS=invitation-designs
+```
+
+Use the actual project URL, publishable/anon key, site URL, and bucket name for your environment. The API base URL for direct PostgREST requests is the Supabase project URL, with endpoint paths such as `/rest/v1/events`; Edge Functions use paths such as `/functions/v1/<function-name>`. Keep RLS enabled and use test data in a separate development project. Never use `SUPABASE_SERVICE_ROLE_KEY` in frontend code or a `VITE_` variable.
+
+After changing `.env.local`, stop and restart Vite so it reloads the environment. Keep only one active configuration for the mode you are testing, and do not commit `.env.local`.
+
+### Current repository integration note
+
+Task 01 supplies the OpenAPI contract, examples, generated Redoc documentation, and Prism scripts. In the repository snapshot this guide was authored against, the frontend source does not yet read `VITE_API_URL` or `VITE_USE_MOCK`; `.env.local.example` also does not define those two variables, and the app source does not currently provide an API client that switches between Prism and Supabase. Therefore, adding or editing those variables alone does **not** switch the existing frontend at runtime in this snapshot.
+
+The settings above document the configuration contract requested by Issue #85. For the UI to switch automatically, the frontend/API client must be implemented to read `VITE_USE_MOCK` and choose the mock base URL or the configured Supabase backend accordingly. Until that integration exists, use the `curl` examples in this guide to verify Prism independently and follow the current app's established Supabase configuration for live functionality.
