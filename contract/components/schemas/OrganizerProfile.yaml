@@ -45,6 +45,7 @@ OrganizerProfileUpdate:
   description: Fields an organizer may update on their own profile via PATCH.
   example:
     full_name: Jomari Joseph Barrera
+  additionalProperties: false
   minProperties: 1
   properties:
     full_name:
@@ -59,6 +60,7 @@ OrganizerStatusUpdate:
     The actual column write is scoped by RLS; this schema documents the allowed payload.
   example:
     status: active
+  additionalProperties: false
   required: [status]
   properties:
     status:
