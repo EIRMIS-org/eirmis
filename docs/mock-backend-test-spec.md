@@ -237,16 +237,16 @@ These are local tracking IDs, not newly published GitHub issues. Suggested owner
 | GAP-10 | Mock PostgREST mutation paths use /table/{id}; real PostgREST filtering needs live verification | Backend/contract owners confirm table?id=eq.UUID routing before M3 rerun | Mock success is not live URL compatibility |
 | GAP-11 | Current CI Node 20 is below locked Prism engine >=24.18.0; no Prism CI job | Tooling owner selects compatible runtime, wires smoke job, and captures results | Proposed CI steps remain unexecuted |
 
-## Milestone 5 E2E issue drafts
+## Milestone 5 E2E issues and source drafts
 
-These files are local drafts for publication. No GitHub issue numbers, labels, milestone assignments, or board placements have been created by this document.
+Published October 30, 2026. All four issues were verified on the [EIRMIS project board](https://github.com/orgs/EIRMIS-org/projects/1) with status **Backlog**. Each references #86 and retains its unresolved gaps. Only M1 and M2 milestones are currently available; Milestone 5 is identified by the **[M5 E2E]** title marker and implementation target in each issue body, with formal milestone assignment pending its creation. Local source drafts are retained below.
 
 | Role | Draft | Parent / implementation target | Publication evidence |
 |---|---|---|---|
-| Organizer | [Event lifecycle and attendance](e2e-issue-drafts/organizer.md) | #86 / Milestone 5 Playwright | Pending issue URL and board item |
-| Admin | [Verification and settings](e2e-issue-drafts/admin.md) | #86 / Milestone 5 Playwright | Pending issue URL and board item |
-| Guest | [Registration, RSVP, roster, and pass](e2e-issue-drafts/guest.md) | #86 / Milestone 5 Playwright | Pending issue URL and board item |
-| Check-in Staff | [Assigned scanner and QR rejection](e2e-issue-drafts/check-in-staff.md) | #86 / Milestone 5 Playwright | Pending issue URL and board item |
+| Organizer | [Event lifecycle and attendance](e2e-issue-drafts/organizer.md) | #86 / Milestone 5 Playwright | [#104](https://github.com/EIRMIS-org/eirmis/issues/104) — [EIRMIS / Backlog](https://github.com/orgs/EIRMIS-org/projects/1) |
+| Admin | [Verification and settings](e2e-issue-drafts/admin.md) | #86 / Milestone 5 Playwright | [#105](https://github.com/EIRMIS-org/eirmis/issues/105) — [EIRMIS / Backlog](https://github.com/orgs/EIRMIS-org/projects/1) |
+| Guest | [Registration, RSVP, roster, and pass](e2e-issue-drafts/guest.md) | #86 / Milestone 5 Playwright | [#106](https://github.com/EIRMIS-org/eirmis/issues/106) — [EIRMIS / Backlog](https://github.com/orgs/EIRMIS-org/projects/1) |
+| Check-in Staff | [Assigned scanner and QR rejection](e2e-issue-drafts/check-in-staff.md) | #86 / Milestone 5 Playwright | [#107](https://github.com/EIRMIS-org/eirmis/issues/107) — [EIRMIS / Backlog](https://github.com/orgs/EIRMIS-org/projects/1) |
 
 ## Completion checklist
 
@@ -257,5 +257,6 @@ These files are local drafts for publication. No GitHub issue numbers, labels, m
 - [ ] Resolve required command/body/contract gaps, or obtain an explicit agreed change to affected acceptance criteria.
 - [ ] Execute required `npm run test:mock` and record results.
 - [ ] Execute `SKIP_DRIFT=true npm run contract:check` successfully and record environment/output; do not claim live drift coverage from this command.
-- [ ] Publish at least one issue per role, tag for Milestone 5 using actual project metadata, add to the GitHub Project board, and replace pending publication evidence with links.
+- [x] Publish at least one issue per role, identify the Milestone 5 implementation target, verify all four on the EIRMIS board in Backlog, and record issue links.
+- [ ] Assign the formal M5 milestone when it becomes available.
 - [ ] Review and merge the specification; close #86 only after its agreed acceptance criteria are satisfied.

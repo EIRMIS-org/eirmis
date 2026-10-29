@@ -1,6 +1,6 @@
 # [M5 E2E][Organizer] Publish an event, approve attendees, dispatch QR passes, and review attendance
 
-Local issue draft — not published. Parent: [Task 03 / #86](https://github.com/EIRMIS-org/eirmis/issues/86). Implementation target: Milestone 5, Playwright. Suggested categorization: E2E, QA, Organizer; select existing repository labels when publishing. Add to the EIRMIS project board and record the issue/board links in the [test specification](../mock-backend-test-spec.md).
+Published as [#104](https://github.com/EIRMIS-org/eirmis/issues/104). Parent: [Task 03 / #86](https://github.com/EIRMIS-org/eirmis/issues/86). Verified on the [EIRMIS project board](https://github.com/orgs/EIRMIS-org/projects/1) in Backlog on October 30, 2026. Implementation target: Milestone 5 Playwright E2E; the repository currently has no M5 milestone, so the published issue retains its [M5 E2E] title marker. This local draft is retained as the source; see the [test specification](../mock-backend-test-spec.md) for the publication record.
 
 ## Role(s) Affected
 
@@ -59,6 +59,6 @@ An active Organizer A manages event A only. Organizer B owns a separate event an
 ## Administrative
 
 - Owner / reviewer: unassigned; select during triage.
-- Milestone: Milestone 5 Playwright E2E implementation; actual milestone selection pending publication.
+- Milestone: Milestone 5 Playwright E2E implementation; M5 milestone is not yet available; target is recorded in the issue title and body.
 - Related dependencies: #83; contract/backend features used by the journey.
-- Issue URL / project board item: pending publication.
+- Published issue: [#104](https://github.com/EIRMIS-org/eirmis/issues/104). Project: [EIRMIS](https://github.com/orgs/EIRMIS-org/projects/1), status Backlog.

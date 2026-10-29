@@ -1,6 +1,6 @@
 # [M5 E2E][Admin] Paginate organizer verification, activate/suspend accounts, and update organization settings
 
-Local issue draft — not published. Parent: [Task 03 / #86](https://github.com/EIRMIS-org/eirmis/issues/86). Implementation target: Milestone 5, Playwright. Suggested categorization: E2E, QA, Admin; select existing labels when publishing. Add to the EIRMIS board and record publication links in the [test specification](../mock-backend-test-spec.md).
+Published as [#105](https://github.com/EIRMIS-org/eirmis/issues/105). Parent: [Task 03 / #86](https://github.com/EIRMIS-org/eirmis/issues/86). Verified on the [EIRMIS project board](https://github.com/orgs/EIRMIS-org/projects/1) in Backlog on October 30, 2026. Implementation target: Milestone 5 Playwright E2E; the repository currently has no M5 milestone, so the published issue retains its [M5 E2E] title marker. This local draft is retained as the source; see the [test specification](../mock-backend-test-spec.md) for the publication record.
 
 ## Role(s) Affected
 
@@ -58,6 +58,6 @@ Only Admin may verify organizers and manage organization settings. Admin does no
 ## Administrative
 
 - Owner / reviewer: unassigned; select during triage.
-- Milestone: Milestone 5 Playwright E2E implementation; actual milestone selection pending publication.
+- Milestone: Milestone 5 Playwright E2E implementation; M5 milestone is not yet available; target is recorded in the issue title and body.
 - Dependencies: #83 and contract/backend resolution of settings, queue pagination, and suspension.
-- Issue URL / project board item: pending publication.
+- Published issue: [#105](https://github.com/EIRMIS-org/eirmis/issues/105). Project: [EIRMIS](https://github.com/orgs/EIRMIS-org/projects/1), status Backlog.
