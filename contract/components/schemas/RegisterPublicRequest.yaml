@@ -1,17 +1,26 @@
-type: object
-required: [event_id, email, full_name]
-properties:
-  event_id:
-    type: string
-    format: uuid
-    description: The ID of the open-registration event to register for.
-    example: 55555555-5555-5555-5555-555555555555
-  email:
-    type: string
-    format: email
-    description: Guest's email address.
-    example: newguest@example.com
-  full_name:
-    type: string
-    description: Guest's full name.
-    example: Juan dela Cruz
+RegisterPublicRequest:
+  type: object
+  description: >
+    Request body for public self-registration on an `open_registration` event.
+    Atomically creates/matches the guest record, creates an `accepted` invitation,
+    and dispatches a confirmation email with a magic-link.
+  example:
+    event_id: 55555555-5555-5555-5555-555555555555
+    email: newguest@example.com
+    full_name: Juan dela Cruz
+  required: [event_id, email, full_name]
+  properties:
+    event_id:
+      type: string
+      format: uuid
+      description: The ID of the open-registration event to register for.
+      example: 55555555-5555-5555-5555-555555555555
+    email:
+      type: string
+      format: email
+      description: Guest's email address.
+      example: newguest@example.com
+    full_name:
+      type: string
+      description: Guest's full name.
+      example: Juan dela Cruz

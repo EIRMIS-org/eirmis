@@ -63,6 +63,10 @@ servers:
       project:
         description: Your Supabase project reference (e.g. `abcdefghijklmnop`)
         default: your-project-ref
+  - url: 'http://127.0.0.1:4010'
+    description: Stoplight Prism local mock server
+  - url: 'http://127.0.0.1:54321'
+    description: Supabase local development stack
 
 security:
   - bearerAuth: []
@@ -161,132 +165,35 @@ components:
 
   parameters:
     SelectParam:
-      name: select
-      in: query
-      schema:
-        type: string
-      description: >
-        PostgREST column selection. Comma-separated column names.
-        Use `related_table(col1,col2)` for embedded resource selection.
-      example: id,title,status
-
+      $ref: './components/parameters.yaml#/SelectParam'
     LimitParam:
-      name: limit
-      in: query
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 1000
-      description: Maximum number of rows to return.
-      example: 20
-
+      $ref: './components/parameters.yaml#/LimitParam'
     OffsetParam:
-      name: offset
-      in: query
-      schema:
-        type: integer
-        minimum: 0
-      description: Number of rows to skip before returning results.
-      example: 0
-
+      $ref: './components/parameters.yaml#/OffsetParam'
     OrderParam:
-      name: order
-      in: query
-      schema:
-        type: string
-      description: >
-        PostgREST ordering. Format: `column.direction[.nullsfirst|nullslast]`.
-        Example: `created_at.desc`.
-      example: created_at.desc
-
+      $ref: './components/parameters.yaml#/OrderParam'
     PreferCountParam:
-      name: Prefer
-      in: header
-      schema:
-        type: string
-        enum:
-          - count=exact
-          - count=planned
-          - count=estimated
-      description: >
-        Request a row count alongside the response.
-        `count=exact` returns the precise count in the `Content-Range` header
-        (requires a sequential scan — use sparingly on large tables).
-      example: count=exact
-
+      $ref: './components/parameters.yaml#/PreferCountParam'
     PreferReturnParam:
-      name: Prefer
-      in: header
-      schema:
-        type: string
-        enum:
-          - return=representation
-          - return=minimal
-          - return=headers-only
-      description: >
-        Control whether the mutated row(s) are returned in the response body.
-        `return=representation` returns the full row; `return=minimal` (default)
-        returns no body.
-      example: return=representation
+      $ref: './components/parameters.yaml#/PreferReturnParam'
 
   headers:
     ContentRange:
-      description: >
-        PostgREST pagination header. Format: `{start}-{end}/{total}`.
-        Total is only populated when `Prefer: count=exact` is sent.
-      schema:
-        type: string
-      example: '0-19/143'
+      $ref: './components/headers.yaml#/ContentRange'
 
   responses:
     BadRequest:
-      description: Bad request — invalid query parameters or request body.
-      content:
-        application/json:
-          schema:
-            $ref: './components/schemas/Error.yaml#/Error'
-
+      $ref: './components/responses.yaml#/BadRequest'
     Unauthorized:
-      description: >
-        Unauthorized — no valid JWT provided, or the JWT is expired.
-        The client should redirect to the appropriate login screen.
-      content:
-        application/json:
-          schema:
-            $ref: './components/schemas/Error.yaml#/Error'
-
+      $ref: './components/responses.yaml#/Unauthorized'
     Forbidden:
-      description: >
-        Forbidden — the caller's JWT is valid but RLS denied the operation.
-        An undocumented 403 here is a contract bug.
-      content:
-        application/json:
-          schema:
-            $ref: './components/schemas/Error.yaml#/Error'
-
+      $ref: './components/responses.yaml#/Forbidden'
     NotFound:
-      description: Resource not found or not accessible to the caller.
-      content:
-        application/json:
-          schema:
-            $ref: './components/schemas/Error.yaml#/Error'
-
+      $ref: './components/responses.yaml#/NotFound'
     Conflict:
-      description: Conflict — a unique constraint was violated.
-      content:
-        application/json:
-          schema:
-            $ref: './components/schemas/Error.yaml#/Error'
-
+      $ref: './components/responses.yaml#/Conflict'
     UnprocessableEntity:
-      description: >
-        Unprocessable Entity — the request was syntactically valid but
-        failed a domain-level validation (e.g. HTML structural scan rejected
-        the uploaded file).
-      content:
-        application/json:
-          schema:
-            $ref: './components/schemas/Error.yaml#/Error'
+      $ref: './components/responses.yaml#/UnprocessableEntity'
 
   schemas:
     Error:
@@ -375,6 +282,8 @@ components:
       $ref: './components/schemas/HtmlUpload.yaml#/HtmlUploadResponse'
     ScanCallbackRequest:
       $ref: './components/schemas/ScanCallback.yaml#/ScanCallbackRequest'
+    RegisterPublicRequest:
+      $ref: './components/schemas/RegisterPublicRequest.yaml#/RegisterPublicRequest'
 
 # =============================================================================
 # Paths — aggregated from per-portal path files.

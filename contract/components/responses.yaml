@@ -4,6 +4,11 @@ BadRequest:
     application/json:
       schema:
         $ref: './schemas/Error.yaml#/Error'
+      example:
+        code: PGRST100
+        message: Invalid query parameter or malformed request body
+        details: Failed to parse filter expression in query string
+        hint: Check PostgREST operator syntax (e.g. ?status=eq.published)
 
 Unauthorized:
   description: >
@@ -13,6 +18,11 @@ Unauthorized:
     application/json:
       schema:
         $ref: './schemas/Error.yaml#/Error'
+      example:
+        code: PGRST301
+        message: JWT expired or missing Authorization Bearer token
+        details: No valid Supabase Auth session token was provided
+        hint: Sign in to obtain a valid Bearer JWT
 
 Forbidden:
   description: >
@@ -22,6 +32,11 @@ Forbidden:
     application/json:
       schema:
         $ref: './schemas/Error.yaml#/Error'
+      example:
+        code: '42501'
+        message: new row violates row-level security policy
+        details: Caller role does not have permission for this resource
+        hint: Ensure you are signed in with the required portal role and active status
 
 NotFound:
   description: Resource not found or not accessible to the caller.
@@ -29,6 +44,11 @@ NotFound:
     application/json:
       schema:
         $ref: './schemas/Error.yaml#/Error'
+      example:
+        code: PGRST116
+        message: Resource not found or not accessible to the caller
+        details: The result contains 0 rows
+        hint: Verify the target resource UUID and caller permissions
 
 Conflict:
   description: Conflict — a unique constraint was violated.
@@ -36,13 +56,23 @@ Conflict:
     application/json:
       schema:
         $ref: './schemas/Error.yaml#/Error'
+      example:
+        code: '23505'
+        message: duplicate key value violates unique constraint
+        details: A record with these unique identifiers already exists
+        hint: Use Prefer resolution=merge-duplicates where upsert is supported
 
 UnprocessableEntity:
   description: >
     Unprocessable Entity — the request was syntactically valid but
     failed a domain-level validation (e.g. HTML structural scan rejected
-    the uploaded file).
+    the uploaded file, or RSVP deadline has passed).
   content:
     application/json:
       schema:
         $ref: './schemas/Error.yaml#/Error'
+      example:
+        code: P0001
+        message: Domain validation failed for the submitted request
+        details: The request violated an event business rule (e.g. RSVP deadline passed or capacity exceeded)
+        hint: Check the event RSVP deadline, party size ceiling, or HTML validation rules

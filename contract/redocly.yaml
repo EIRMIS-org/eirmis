@@ -7,6 +7,7 @@ apis:
 
 rules:
   operation-summary: error
+  operation-operationId: error
   operation-operationId-unique: error
   operation-tag-defined: error
-  no-unused-components: warn
+  no-unused-components: error
