@@ -2981,6 +2981,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "id": "22222222-2222-2222-2222-222222222222",
+                     *         "email": "admin@example.com",
+                     *         "full_name": "System Administrator",
+                     *         "created_at": "2026-09-01T08:00:00+08:00"
+                     *       }
+                     *     ]
+                     */
                     "application/json": components["schemas"]["AdminProfile"][];
                 };
             };
@@ -3014,6 +3024,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "id": "33333333-3333-3333-3333-333333333333",
+                     *       "email": "guest@example.com",
+                     *       "full_name": "Maria Santos",
+                     *       "auth_user_id": "33333333-3333-3333-3333-333333333333",
+                     *       "created_at": "2026-09-05T08:00:00+08:00",
+                     *       "updated_at": "2026-09-05T08:00:00+08:00"
+                     *     }
+                     */
                     "application/json": components["schemas"]["Guest"];
                 };
             };
