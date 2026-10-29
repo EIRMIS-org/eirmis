@@ -195,3 +195,36 @@ After changing `.env.local`, stop and restart Vite so it reloads the environment
 Task 01 supplies the OpenAPI contract, examples, generated Redoc documentation, and Prism scripts. In the repository snapshot this guide was authored against, the frontend source does not yet read `VITE_API_URL` or `VITE_USE_MOCK`; `.env.local.example` also does not define those two variables, and the app source does not currently provide an API client that switches between Prism and Supabase. Therefore, adding or editing those variables alone does **not** switch the existing frontend at runtime in this snapshot.
 
 The settings above document the configuration contract requested by Issue #85. For the UI to switch automatically, the frontend/API client must be implemented to read `VITE_USE_MOCK` and choose the mock base URL or the configured Supabase backend accordingly. Until that integration exists, use the `curl` examples in this guide to verify Prism independently and follow the current app's established Supabase configuration for live functionality.
+
+
+## 8. Troubleshooting
+
+| Problem | What to check |
+| --- | --- |
+| `npm run contract:mock` fails | Run `npm install`; check the terminal error. The script uses `npx @stoplight/prism-cli`. Verify the file path `contract/openapi.yaml` exists from the repository root. |
+| Port `4010` is already in use | Stop the other process using that port, or coordinate a different Prism port and update the API base URL consistently. |
+| Vite is not available at port `5173` | Check the Vite terminal. Because the command uses `--strictPort`, it exits instead of choosing another port if `5173` is occupied. |
+| Prism returns `404` | Confirm the URL includes the exact path from the OpenAPI contract, for example `/rest/v1/events`; don't add the Supabase project path or an extra base path. |
+| The requested example is not returned | Check the exact response example key and operation in `contract/paths/*.yaml`; verify the request's method, path, expected status, and `Prefer` header. |
+| Dynamic response looks like fixed data | Verify the request includes `Prefer: dynamic=true`, or restart Prism using `npm run contract:mock:dynamic`. Check that the response schema defines suitable properties. |
+| Frontend does not switch after editing `.env.local` | Restart Vite and verify that the frontend code reads the variable names. In this repository snapshot, the mock/live API client switch is not implemented yet; see the integration note above. |
+| Live Supabase returns `401`/`403` | Check the project URL, publishable/anon key, JWT/session, operation security, and RLS policy. A successful Prism response does not prove live authorization works. |
+
+## 9. Contract maintenance commands
+
+When the OpenAPI contract changes, use the repository scripts to check and regenerate the related artifacts:
+
+```bash
+npm run contract:lint
+npm run contract:gen
+npm run contract:check
+npm run contract:docs
+```
+
+Review the generated diff before committing. The source of truth is the contract files under `contract/`; do not manually edit `contract/generated/schema.d.ts` or `contract/generated/docs/index.html` in place of updating the source contract.
+
+## References
+
+- [EIRMIS OpenAPI source](../contract/openapi.yaml)
+- [Prism HTTP mocking guide](https://github.com/stoplightio/prism/blob/main/docs/guides/01-mocking.md)
+- [Prism CLI guide](https://github.com/stoplightio/prism/blob/main/docs/getting-started/03-cli.md)
