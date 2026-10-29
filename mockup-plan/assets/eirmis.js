@@ -9,6 +9,204 @@
     var STORAGE_KEY = 'eirmis.mockup.v2';
 
     /* ---------------------------------------------------------------------------
+     * EIRMIS.api — Prism bridge (Task 05 / Issue #84)
+     *
+     * API_BASE resolution order:
+     *   1. window.EIRMIS_API_URL  (set per-portal HTML before eirmis.js loads)
+     *   2. 'http://127.0.0.1:4010' (Stoplight Prism default)
+     *
+     * Data sources:
+     *   - 'prism' — live calls against the OpenAPI mock server. On network
+     *     failure each method falls back to the local seed data and surfaces
+     *     a toast, so mockups remain viewable offline.
+     *   - 'local' — original localStorage seed behaviour (default).
+     * ------------------------------------------------------------------------- */
+    var API_BASE = global.EIRMIS_API_URL || 'http://127.0.0.1:4010';
+    var dataSource = 'local';
+
+    var ROLE_TOKENS = {
+        organizer: 'fake-organizer-jwt',
+        admin: 'fake-admin-jwt',
+        guest: 'fake-guest-jwt',
+        checkin: 'fake-checkin-staff-jwt'
+    };
+
+    function apiFetch(method, path, opts) {
+        opts = opts || {};
+        var headers = opts.headers ? Object.assign({}, opts.headers) : {};
+        if (opts.role && ROLE_TOKENS[opts.role]) {
+            headers['Authorization'] = 'Bearer ' + ROLE_TOKENS[opts.role];
+            headers['apikey'] = ROLE_TOKENS[opts.role];
+        }
+        var body;
+        if (opts.body !== undefined) {
+            headers['Content-Type'] = 'application/json';
+            body = JSON.stringify(opts.body);
+        }
+        return fetch(API_BASE + path, { method: method, headers: headers, body: body })
+            .then(function (res) {
+                if (!res.ok) {
+                    return res.json().catch(function () { return null; }).then(function (errBody) {
+                        var message = (errBody && errBody.message) ||
+                            ('Request failed with status ' + res.status);
+                        var error = new Error(message);
+                        error.code = errBody && errBody.code;
+                        error.hint = errBody && errBody.hint;
+                        error.status = res.status;
+                        throw error;
+                    });
+                }
+                if (res.status === 204) return null;
+                var ct = res.headers.get('content-type') || '';
+                return ct.indexOf('application/json') !== -1 ? res.json() : null;
+            });
+    }
+
+    /** Map contract Event rows to the mockup's lightweight event shape. */
+    function mapEvent(row) {
+        return {
+            id: row.id,
+            title: row.title,
+            slug: row.slug,
+            venue: [row.venue_name, row.city].filter(Boolean).join(', '),
+            date: row.starts_at ? new Date(row.starts_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '',
+            time: row.starts_at ? new Date(row.starts_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '',
+            capacity: row.capacity,
+            rsvp: row.party_size || 0,
+            status: row.status,
+            visibility: row.visibility_mode
+        };
+    }
+
+    /** Map contract OrganizerProfile rows to the mockup's organizer shape. */
+    function mapOrganizer(row) {
+        return {
+            id: row.id,
+            name: row.full_name,
+            email: row.email,
+            org: row.full_name,
+            status: row.status,
+            registeredAt: row.created_at ? new Date(row.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''
+        };
+    }
+
+    /** Map contract Invitation rows to the mockup's guest shape. */
+    function mapInvitationToGuest(row, guest) {
+        return {
+            id: row.guest_id,
+            name: guest ? guest.full_name : ('Guest ' + row.guest_id.slice(0, 4)),
+            email: guest ? guest.email : '',
+            eventId: row.event_id,
+            status: row.status,
+            party: row.party_size || 0,
+            maxParty: row.max_party_size
+        };
+    }
+
+    var api = {
+        /** Current API base URL (read-only). */
+        getApiBase: function () { return API_BASE; },
+
+        /** Switch between 'prism' (live mock server) and 'local' (seed data). */
+        setDataSource: function (source) {
+            if (source !== 'prism' && source !== 'local') {
+                toast("Unknown data source '" + source + "' — use 'prism' or 'local'.", 'error');
+                return;
+            }
+            dataSource = source;
+            toast('Data source set to ' + source.toUpperCase() + (source === 'prism' ? ' (' + API_BASE + ')' : ''), 'info');
+        },
+
+        getDataSource: function () { return dataSource; },
+
+        /** GET /rest/v1/events — organizer list or public discovery. */
+        getEvents: function (opts) {
+            opts = opts || {};
+            var path = '/rest/v1/events';
+            if (opts.publicDiscovery) {
+                path += '?visibility_mode=eq.open_registration&status=eq.published';
+                return apiFetch('GET', path).then(function (rows) { return rows.map(mapEvent); });
+            }
+            return apiFetch('GET', path, { role: opts.role || 'organizer' })
+                .then(function (rows) { return rows.map(mapEvent); })
+                .catch(function (err) {
+                    toast('Prism unreachable (' + err.message + ') — using local data.', 'warning');
+                    return state.events;
+                });
+        },
+
+        /** GET /rest/v1/guests — guest directory. */
+        getGuests: function (eventId) {
+            return apiFetch('GET', '/rest/v1/guests', { role: 'organizer' })
+                .catch(function (err) {
+                    toast('Prism unreachable (' + err.message + ') — using local data.', 'warning');
+                    return eventId
+                        ? state.guests.filter(function (g) { return g.eventId === eventId; })
+                        : state.guests;
+                });
+        },
+
+        /** GET /rest/v1/invitations?event_id=eq.{eventId} — invitations joined with guests. */
+        getInvitations: function (eventId) {
+            var self = this;
+            return apiFetch('GET', '/rest/v1/invitations?event_id=eq.' + eventId, { role: 'organizer' })
+                .then(function (rows) {
+                    return self.getGuests(eventId).then(function (guests) {
+                        var byId = {};
+                        (guests || []).forEach(function (g) { byId[g.id] = g; });
+                        return rows.map(function (row) { return mapInvitationToGuest(row, byId[row.guest_id]); });
+                    });
+                })
+                .catch(function (err) {
+                    toast('Prism unreachable (' + err.message + ') — using local data.', 'warning');
+                    return state.guests.filter(function (g) { return g.eventId === eventId; });
+                });
+        },
+
+        /** GET /rest/v1/attendees?invitation_id=eq.{invitationId} — approval queue. */
+        getAttendees: function (invitationId) {
+            return apiFetch('GET', '/rest/v1/attendees?invitation_id=eq.' + invitationId, { role: 'organizer' })
+                .catch(function (err) {
+                    toast('Prism unreachable (' + err.message + ')', 'warning');
+                    return [];
+                });
+        },
+
+        /** GET /rest/v1/organizer_profiles?status=eq.pending — admin verification queue (20/page). */
+        getAdminOrganizers: function (page) {
+            page = page || 0;
+            return apiFetch('GET', '/rest/v1/organizer_profiles?status=eq.pending&limit=20&offset=' + (page * 20), { role: 'admin' })
+                .then(function (rows) { return rows.map(mapOrganizer); })
+                .catch(function (err) {
+                    toast('Prism unreachable (' + err.message + ') — using local data.', 'warning');
+                    return state.organizers.filter(function (o) { return o.status === 'pending'; });
+                });
+        },
+
+        /** PATCH /rest/v1/organizer_profiles?id=eq.{id} — admin activates/suspends an organizer. */
+        updateOrganizerStatus: function (id, status) {
+            return apiFetch('PATCH', '/rest/v1/organizer_profiles?id=eq.' + id, {
+                role: 'admin',
+                body: { status: status },
+                headers: { Prefer: 'return=representation' }
+            }).then(function (row) {
+                // Keep the local store in sync so UI reflects the change offline too.
+                var local = state.organizers.filter(function (o) { return o.id === id; })[0];
+                if (local) { local.status = status; save(); }
+                return row;
+            });
+        },
+
+        /** POST /functions/v1/checkin/scan — QR token check-in. */
+        scanCheckIn: function (token) {
+            return apiFetch('POST', '/functions/v1/checkin/scan', {
+                role: 'checkin',
+                body: { qr_token: token }
+            });
+        }
+    };
+
+    /* ---------------------------------------------------------------------------
      * Default seed data — realistic sample records shared across portals
      * ------------------------------------------------------------------------- */
     var DEFAULT_STATE = {
@@ -288,18 +486,27 @@
      * Public API
      * ------------------------------------------------------------------------- */
     global.EIRMIS = {
+        /* -----------------------------------------------------------------------
+         * EIRMIS.api — Prism bridge (Task 05). See the api object above for
+         * the full method list. Usage:
+         *   EIRMIS.setDataSource('prism');
+         *   EIRMIS.api.getEvents().then(renderEvents);
+         * -------------------------------------------------------------------- */
+        api: api,
+        setDataSource: api.setDataSource,
+        getDataSource: api.getDataSource,
         init: function (opts) {
             opts = opts || {};
             renderNav(opts.portal || 'landing');
             showBootOverlay();
-            
+
             // Auto-initialize mobile drawer from global nav links
-            setTimeout(function() {
+            setTimeout(function () {
                 var navLinksContainer = document.querySelector('.eirmis-nav-links');
                 if (navLinksContainer && typeof EIRMIS.initMobileNav === 'function') {
                     var navHtml = navLinksContainer.innerHTML
-                                      .replace(/class="eirmis-nav-link/g, 'class="nav-btn eirmis-nav-btn')
-                                      .replace(/href="/g, 'style="padding:12px 16px;text-decoration:none;" href="');
+                        .replace(/class="eirmis-nav-link/g, 'class="nav-btn eirmis-nav-btn')
+                        .replace(/href="/g, 'style="padding:12px 16px;text-decoration:none;" href="');
                     var drawerHtml = '<div style="display:flex;flex-direction:column;gap:4px;"><div style="font-family:var(--font-heading);font-weight:700;margin-bottom:8px;padding:0 12px;color:var(--text-muted);font-size:11px;text-transform:uppercase;letter-spacing:0.05em;">Portals</div>' + navHtml + '</div>';
                     EIRMIS.initMobileNav(drawerHtml);
                 }
@@ -316,12 +523,12 @@
          * UI/UX-05 Additions: Mobile Nav, Drawer, Table Auto-labeling
          * ------------------------------------------------------------------------- */
         autoLabelTables: function () {
-            document.querySelectorAll('table:not(.no-card-stack)').forEach(function(table) {
-                var headers = Array.from(table.querySelectorAll('thead th')).map(function(th) {
+            document.querySelectorAll('table:not(.no-card-stack)').forEach(function (table) {
+                var headers = Array.from(table.querySelectorAll('thead th')).map(function (th) {
                     return th.textContent.trim();
                 });
-                table.querySelectorAll('tbody tr').forEach(function(tr) {
-                    Array.from(tr.querySelectorAll('td')).forEach(function(td, idx) {
+                table.querySelectorAll('tbody tr').forEach(function (tr) {
+                    Array.from(tr.querySelectorAll('td')).forEach(function (td, idx) {
                         if (headers[idx]) {
                             td.setAttribute('data-label', headers[idx]);
                         }
@@ -333,7 +540,7 @@
         initMobileNav: function (drawerContentHtml) {
             // Wait for DOM
             if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', function() {
+                document.addEventListener('DOMContentLoaded', function () {
                     EIRMIS.initMobileNav(drawerContentHtml);
                 });
                 return;
@@ -345,7 +552,7 @@
                 var hamburger = document.createElement('button');
                 hamburger.className = 'eirmis-hamburger eirmis-global-nav-hamburger';
                 hamburger.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
-                hamburger.onclick = function() { EIRMIS.openDrawer(); };
+                hamburger.onclick = function () { EIRMIS.openDrawer(); };
                 navInner.insertBefore(hamburger, navInner.firstChild);
             }
 
@@ -354,7 +561,7 @@
                 var backdrop = document.createElement('div');
                 backdrop.id = 'eirmis-drawer-backdrop';
                 backdrop.className = 'eirmis-drawer-backdrop';
-                backdrop.onclick = function() { EIRMIS.closeDrawer(); };
+                backdrop.onclick = function () { EIRMIS.closeDrawer(); };
                 document.body.appendChild(backdrop);
             }
 
@@ -362,16 +569,16 @@
                 var drawer = document.createElement('div');
                 drawer.id = 'eirmis-mobile-drawer';
                 drawer.className = 'eirmis-mobile-drawer';
-                
+
                 var header = document.createElement('div');
                 header.className = 'eirmis-drawer-header';
                 header.innerHTML = '<div style="font-weight:700;font-family:var(--font-heading);font-size:16px;">Menu</div>' +
-                                   '<button class="eirmis-hamburger" style="display:flex;" onclick="EIRMIS.closeDrawer()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>';
-                
+                    '<button class="eirmis-hamburger" style="display:flex;" onclick="EIRMIS.closeDrawer()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>';
+
                 var content = document.createElement('div');
                 content.id = 'eirmis-drawer-content';
                 content.style.padding = '16px';
-                
+
                 if (drawerContentHtml) {
                     content.innerHTML = drawerContentHtml;
                 }
@@ -380,7 +587,7 @@
                 drawer.appendChild(content);
                 document.body.appendChild(drawer);
             }
-            
+
             // Auto-label tables when ready
             EIRMIS.autoLabelTables();
         },
@@ -401,7 +608,7 @@
             document.body.style.overflow = '';
         },
 
-        setDrawerContent: function(html) {
+        setDrawerContent: function (html) {
             var content = document.getElementById('eirmis-drawer-content');
             if (content) content.innerHTML = html;
         },
