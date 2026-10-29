@@ -1,0 +1,2551 @@
+{
+  "info": {
+    "name": "EIRMIS API",
+    "description": "# Event Invitation and RSVP Management Information System (EIRMIS) API\n\nThis Postman Collection is organized by EIRMIS role as defined in the OpenAPI 3.1 specification:\n\n- **Public**: Unauthenticated endpoints (open-registration event discovery, gallery inspection, and public registration).\n- **Organizer**: Event creation, reminder schedules, guest & invitation management, attendee & headcount approvals, invitation design & gallery, staff delegation, QR bundles, and audit logs.\n- **Admin**: Admin profile inspection and organizer verification queue.\n- **Guest**: Profile editing, RSVP response, attendee submissions, and headcount increase requests.\n- **Check-in Staff**: Event detail inspection and day-of QR code scan & attendance recording.\n\n### Environments & Base URLs\n- **Stoplight Prism Mock Server**: `http://127.0.0.1:4010` (run with `npm run contract:mock`)\n- **Supabase Local Dev**: `http://127.0.0.1:54321`\n- **Supabase Cloud**: `https://{{project}}.supabase.co`",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "0.1.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:4010",
+      "type": "string"
+    },
+    {
+      "key": "anonKey",
+      "value": "your-supabase-anon-key",
+      "type": "string"
+    },
+    {
+      "key": "organizerToken",
+      "value": "fake-organizer-jwt",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "fake-admin-jwt",
+      "type": "string"
+    },
+    {
+      "key": "guestToken",
+      "value": "fake-guest-jwt",
+      "type": "string"
+    },
+    {
+      "key": "checkinToken",
+      "value": "fake-checkin-staff-jwt",
+      "type": "string"
+    },
+    {
+      "key": "eventId",
+      "value": "55555555-5555-5555-5555-555555555555",
+      "type": "string"
+    },
+    {
+      "key": "invitationId",
+      "value": "66666666-6666-6666-6666-666666666666",
+      "type": "string"
+    },
+    {
+      "key": "guestId",
+      "value": "33333333-3333-3333-3333-333333333333",
+      "type": "string"
+    },
+    {
+      "key": "attendeeId",
+      "value": "77777777-7777-7777-7777-777777777777",
+      "type": "string"
+    },
+    {
+      "key": "organizerId",
+      "value": "11111111-1111-1111-1111-111111111111",
+      "type": "string"
+    },
+    {
+      "key": "adminId",
+      "value": "22222222-2222-2222-2222-222222222222",
+      "type": "string"
+    },
+    {
+      "key": "assignmentId",
+      "value": "88888888-8888-8888-8888-888888888888",
+      "type": "string"
+    },
+    {
+      "key": "reminderId",
+      "value": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "type": "string"
+    },
+    {
+      "key": "hirId",
+      "value": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      "type": "string"
+    },
+    {
+      "key": "imageId",
+      "value": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Public",
+      "description": "Unauthenticated operations for open-registration discovery, gallery view, and guest self-registration.",
+      "auth": {
+        "type": "noauth"
+      },
+      "item": [
+        {
+          "name": "Discover Published Open-Registration Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rest/v1/events?visibility_mode=eq.open_registration&status=eq.published&select=*",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "v1",
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "visibility_mode",
+                  "value": "eq.open_registration"
+                },
+                {
+                  "key": "status",
+                  "value": "eq.published"
+                },
+                {
+                  "key": "select",
+                  "value": "*"
+                }
+              ]
+            },
+            "description": "Unauthenticated public query to find published events allowing open registration."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.response.to.be.success;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "View Public Event Gallery Images",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rest/v1/invitation_images?event_id=eq.{{eventId}}&order=sort_order.asc&select=*",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "v1",
+                "invitation_images"
+              ],
+              "query": [
+                {
+                  "key": "event_id",
+                  "value": "eq.{{eventId}}"
+                },
+                {
+                  "key": "order",
+                  "value": "sort_order.asc"
+                },
+                {
+                  "key": "select",
+                  "value": "*"
+                }
+              ]
+            },
+            "description": "Unauthenticated public lookup of gallery photos configured for an open-registration event."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.response.to.be.success;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Register for Open-Registration Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"{{eventId}}\",\n  \"email\": \"newguest@example.com\",\n  \"full_name\": \"Juan dela Cruz\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/functions/v1/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "register"
+              ]
+            },
+            "description": "Public self-registration handled by Supabase Edge Function."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Registration successful (201 Created)\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Organizer",
+      "description": "Operations permitted for authenticated Event Organizers.",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{organizerToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "1. Events",
+          "item": [
+            {
+              "name": "List Own Events",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/events?select=*&order=created_at.desc",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "events"
+                  ],
+                  "query": [
+                    {
+                      "key": "select",
+                      "value": "*"
+                    },
+                    {
+                      "key": "order",
+                      "value": "created_at.desc"
+                    }
+                  ]
+                },
+                "description": "Returns all events created by or accessible to the authenticated organizer."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Create Event",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Prefer",
+                    "value": "return=representation",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Annual Gala 2026\",\n  \"slug\": \"annual-gala-2026\",\n  \"description\": \"A celebration of achievements and milestones.\",\n  \"starts_at\": \"2026-12-15T18:00:00+08:00\",\n  \"ends_at\": \"2026-12-15T22:00:00+08:00\",\n  \"event_timezone\": \"Asia/Manila\",\n  \"venue_name\": \"Grand Ballroom\",\n  \"address\": \"123 Rizal Avenue\",\n  \"city\": \"Cebu City\",\n  \"capacity\": 500,\n  \"rsvp_deadline\": \"2026-12-01T23:59:59+08:00\",\n  \"visibility_mode\": \"invite_only\",\n  \"status\": \"draft\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/events",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "events"
+                  ]
+                },
+                "description": "Creates a new event draft for the authenticated organizer."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Event created (201 Created)\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "    var json = pm.response.json();",
+                      "    if (Array.isArray(json) && json[0]?.id) {",
+                      "        pm.collectionVariables.set(\"eventId\", json[0].id);",
+                      "    }",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Get Event by ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/events?id=eq.{{eventId}}&select=*",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "events"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "eq.{{eventId}}"
+                    },
+                    {
+                      "key": "select",
+                      "value": "*"
+                    }
+                  ]
+                },
+                "description": "Reads specific event details."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Update Event",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Prefer",
+                    "value": "return=representation",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Annual Gala 2026 — Updated\",\n  \"capacity\": 600\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/events?id=eq.{{eventId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "events"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "eq.{{eventId}}"
+                    }
+                  ]
+                },
+                "description": "Updates event attributes such as capacity or title."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "2. Reminder Schedules",
+          "item": [
+            {
+              "name": "List Reminder Schedules",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/reminder_schedules?event_id=eq.{{eventId}}&select=*",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "reminder_schedules"
+                  ],
+                  "query": [
+                    {
+                      "key": "event_id",
+                      "value": "eq.{{eventId}}"
+                    },
+                    {
+                      "key": "select",
+                      "value": "*"
+                    }
+                  ]
+                },
+                "description": "Lists all scheduled reminder rules configured for the event."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Create or Upsert Reminder Schedule",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Prefer",
+                    "value": "return=representation",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"event_id\": \"{{eventId}}\",\n  \"days_before_event\": 7,\n  \"send_time_of_day\": \"09:00\",\n  \"enabled\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/reminder_schedules",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "reminder_schedules"
+                  ]
+                },
+                "description": "Creates a reminder schedule (days_before_event, send_time_of_day)."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Reminder schedule created (201 Created)\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "    var json = pm.response.json();",
+                      "    if (Array.isArray(json) && json[0]?.id) {",
+                      "        pm.collectionVariables.set(\"reminderId\", json[0].id);",
+                      "    }",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Delete Reminder Schedule",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/reminder_schedules?id=eq.{{reminderId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "reminder_schedules"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "eq.{{reminderId}}"
+                    }
+                  ]
+                },
+                "description": "Deletes an existing reminder schedule."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 204 No Content\", function () {",
+                      "    pm.response.to.have.status(204);",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "3. Guests & Invitations",
+          "item": [
+            {
+              "name": "List Guests",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/guests?select=*",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "guests"
+                  ],
+                  "query": [
+                    {
+                      "key": "select",
+                      "value": "*"
+                    }
+                  ]
+                },
+                "description": "Lists registered or imported guests."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "List Invitations for Event",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/invitations?event_id=eq.{{eventId}}&select=*",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "invitations"
+                  ],
+                  "query": [
+                    {
+                      "key": "event_id",
+                      "value": "eq.{{eventId}}"
+                    },
+                    {
+                      "key": "select",
+                      "value": "*"
+                    }
+                  ]
+                },
+                "description": "Lists all invitations issued for an event."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Create Invitation",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Prefer",
+                    "value": "return=representation",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"event_id\": \"{{eventId}}\",\n  \"guest_id\": \"{{guestId}}\",\n  \"max_party_size\": 4,\n  \"status\": \"pending\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/invitations",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "invitations"
+                  ]
+                },
+                "description": "Issues an invitation to a guest for the event with a maximum party size."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Invitation created (201 Created)\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "    var json = pm.response.json();",
+                      "    if (Array.isArray(json) && json[0]?.id) {",
+                      "        pm.collectionVariables.set(\"invitationId\", json[0].id);",
+                      "    }",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Update Invitation Max Party Size",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Prefer",
+                    "value": "return=representation",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"max_party_size\": 6\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/invitations?id=eq.{{invitationId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "invitations"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "eq.{{invitationId}}"
+                    }
+                  ]
+                },
+                "description": "Updates maximum allowed party size on an existing invitation."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "4. Approvals (Attendees & Headcount)",
+          "item": [
+            {
+              "name": "List Attendees for Approval",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/attendees?invitation_id=eq.{{invitationId}}&select=*",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "attendees"
+                  ],
+                  "query": [
+                    {
+                      "key": "invitation_id",
+                      "value": "eq.{{invitationId}}"
+                    },
+                    {
+                      "key": "select",
+                      "value": "*"
+                    }
+                  ]
+                },
+                "description": "Lists attendees submitted under an invitation for organizer review."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Decide Attendee (Approve / Reject)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"decision\": \"approve\",\n  \"reason\": null\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/functions/v1/attendees/{{attendeeId}}/decision",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "functions",
+                    "v1",
+                    "attendees",
+                    "{{attendeeId}}",
+                    "decision"
+                  ]
+                },
+                "description": "Edge Function to approve or reject an individual attendee."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "List Headcount Increase Requests",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/headcount_increase_requests?invitation_id=eq.{{invitationId}}&select=*",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "headcount_increase_requests"
+                  ],
+                  "query": [
+                    {
+                      "key": "invitation_id",
+                      "value": "eq.{{invitationId}}"
+                    },
+                    {
+                      "key": "select",
+                      "value": "*"
+                    }
+                  ]
+                },
+                "description": "Lists requests submitted by guests requesting additional heads beyond their initial allowance."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Decide Headcount Increase Request",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"decision\": \"approve\",\n  \"reason\": \"Additional table space arranged\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/functions/v1/headcount-requests/{{hirId}}/decision",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "functions",
+                    "v1",
+                    "headcount-requests",
+                    "{{hirId}}",
+                    "decision"
+                  ]
+                },
+                "description": "Edge Function to approve or reject a headcount increase request."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "5. Invitation Design & Gallery",
+          "item": [
+            {
+              "name": "Get Invitation Design Settings",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/invitation_designs?event_id=eq.{{eventId}}&select=*",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "invitation_designs"
+                  ],
+                  "query": [
+                    {
+                      "key": "event_id",
+                      "value": "eq.{{eventId}}"
+                    },
+                    {
+                      "key": "select",
+                      "value": "*"
+                    }
+                  ]
+                },
+                "description": "Reads the active design configuration for the event (images vs html mode)."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Create Invitation Design (Images Mode)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Prefer",
+                    "value": "return=representation",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"event_id\": \"{{eventId}}\",\n  \"design_type\": \"images\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/invitation_designs",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "invitation_designs"
+                  ]
+                },
+                "description": "Sets or initializes invitation design mode to image gallery."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Upload HTML Invitation File",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "event_id",
+                      "value": "{{eventId}}",
+                      "type": "text"
+                    },
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": [],
+                      "description": "Single self-contained HTML invitation file (<5MB, valid DOCTYPE, no external resources)"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/functions/v1/invitation-html",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "functions",
+                    "v1",
+                    "invitation-html"
+                  ]
+                },
+                "description": "Edge Function to upload and perform automated security & structural scan on self-contained HTML invitation."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "List Gallery Images",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/invitation_images?event_id=eq.{{eventId}}&order=sort_order.asc&select=*",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "invitation_images"
+                  ],
+                  "query": [
+                    {
+                      "key": "event_id",
+                      "value": "eq.{{eventId}}"
+                    },
+                    {
+                      "key": "order",
+                      "value": "sort_order.asc"
+                    },
+                    {
+                      "key": "select",
+                      "value": "*"
+                    }
+                  ]
+                },
+                "description": "Lists all images uploaded to the event design gallery ordered by sort_order."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Add Gallery Image",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Prefer",
+                    "value": "return=representation",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"event_id\": \"{{eventId}}\",\n  \"storage_path\": \"designs/{{eventId}}/gallery/001.jpg\",\n  \"sort_order\": 1,\n  \"caption\": \"Welcome to the Annual Gala\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/invitation_images",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "invitation_images"
+                  ]
+                },
+                "description": "Adds an image reference with storage path, sort order, and caption."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Gallery image created (201 Created)\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "    var json = pm.response.json();",
+                      "    if (Array.isArray(json) && json[0]?.id) {",
+                      "        pm.collectionVariables.set(\"imageId\", json[0].id);",
+                      "    }",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Update Gallery Image",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Prefer",
+                    "value": "return=representation",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"sort_order\": 2,\n  \"caption\": \"The venue entrance\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/invitation_images?id=eq.{{imageId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "invitation_images"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "eq.{{imageId}}"
+                    }
+                  ]
+                },
+                "description": "Updates sort order or caption of a gallery image."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Delete Gallery Image",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/invitation_images?id=eq.{{imageId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "invitation_images"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "eq.{{imageId}}"
+                    }
+                  ]
+                },
+                "description": "Removes a gallery image reference."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 204 No Content\", function () {",
+                      "    pm.response.to.have.status(204);",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "6. Check-in Staff Assignments",
+          "item": [
+            {
+              "name": "List Check-in Staff Assignments",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/checkin_assignments?event_id=eq.{{eventId}}&select=*",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "checkin_assignments"
+                  ],
+                  "query": [
+                    {
+                      "key": "event_id",
+                      "value": "eq.{{eventId}}"
+                    },
+                    {
+                      "key": "select",
+                      "value": "*"
+                    }
+                  ]
+                },
+                "description": "Lists all staff assigned to assist with check-in scanning for the event."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Assign Check-in Staff",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Prefer",
+                    "value": "return=representation",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"event_id\": \"{{eventId}}\",\n  \"staff_email\": \"staff@example.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/checkin_assignments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "checkin_assignments"
+                  ]
+                },
+                "description": "Delegates day-of check-in scanner access to a helper by email."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Staff assigned (201 Created)\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "    var json = pm.response.json();",
+                      "    if (Array.isArray(json) && json[0]?.id) {",
+                      "        pm.collectionVariables.set(\"assignmentId\", json[0].id);",
+                      "    }",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Revoke Check-in Assignment",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Prefer",
+                    "value": "return=representation",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"revoked\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/checkin_assignments?id=eq.{{assignmentId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "checkin_assignments"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "eq.{{assignmentId}}"
+                    }
+                  ]
+                },
+                "description": "Revokes check-in staff access."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Delete Check-in Assignment",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/checkin_assignments?id=eq.{{assignmentId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "checkin_assignments"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "eq.{{assignmentId}}"
+                    }
+                  ]
+                },
+                "description": "Deletes a check-in assignment record."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 204 No Content\", function () {",
+                      "    pm.response.to.have.status(204);",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "7. QR Codes & Waitlist",
+          "item": [
+            {
+              "name": "Dispatch QR Code PDF Bundle",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"invitation_id\": \"{{invitationId}}\",\n  \"event_id\": null\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/functions/v1/qr-bundle",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "functions",
+                    "v1",
+                    "qr-bundle"
+                  ]
+                },
+                "description": "Edge Function to generate and email a PDF with individual attendee QR tokens."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Promote Waitlisted Guest",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"event_id\": \"{{eventId}}\",\n  \"max_promotions\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/functions/v1/waitlist/promote",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "functions",
+                    "v1",
+                    "waitlist",
+                    "promote"
+                  ]
+                },
+                "description": "Edge Function to promote next waitlisted guest(s) in FIFO order."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "8. Logs & Profile",
+          "item": [
+            {
+              "name": "List Email Logs",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/email_logs?event_id=eq.{{eventId}}&select=*",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "email_logs"
+                  ],
+                  "query": [
+                    {
+                      "key": "event_id",
+                      "value": "eq.{{eventId}}"
+                    },
+                    {
+                      "key": "select",
+                      "value": "*"
+                    }
+                  ]
+                },
+                "description": "Lists all transactional emails dispatched for the event."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "List Audit Log Entries",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/audit_log_entries?select=*",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "audit_log_entries"
+                  ],
+                  "query": [
+                    {
+                      "key": "select",
+                      "value": "*"
+                    }
+                  ]
+                },
+                "description": "Lists audit log entries recording critical mutations."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Read Own Organizer Profile",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/organizer_profiles?select=*",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "organizer_profiles"
+                  ],
+                  "query": [
+                    {
+                      "key": "select",
+                      "value": "*"
+                    }
+                  ]
+                },
+                "description": "Reads current organizer user profile record."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            },
+            {
+              "name": "Update Own Organizer Profile",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Prefer",
+                    "value": "return=representation",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"full_name\": \"Jack Jonel Fiel\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/rest/v1/organizer_profiles?id=eq.{{organizerId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rest",
+                    "v1",
+                    "organizer_profiles"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "eq.{{organizerId}}"
+                    }
+                  ]
+                },
+                "description": "Updates organizer display full name."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 2xx\", function () {",
+                      "    pm.response.to.be.success;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "description": "Operations permitted for authenticated System Administrators (organizer verification queue and org administration).",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{adminToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "Read Own Admin Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rest/v1/admin_profiles?select=*",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "v1",
+                "admin_profiles"
+              ],
+              "query": [
+                {
+                  "key": "select",
+                  "value": "*"
+                }
+              ]
+            },
+            "description": "Reads the authenticated administrator profile record."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.response.to.be.success;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "List Organizer Verification Queue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rest/v1/organizer_profiles?status=eq.pending&limit=20&offset=0&select=*",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "v1",
+                "organizer_profiles"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "eq.pending"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                },
+                {
+                  "key": "select",
+                  "value": "*"
+                }
+              ]
+            },
+            "description": "Lists pending organizer accounts awaiting verification by administrator."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.response.to.be.success;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Verify & Activate Organizer Account",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Prefer",
+                "value": "return=representation",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rest/v1/organizer_profiles?id=eq.{{organizerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "v1",
+                "organizer_profiles"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "eq.{{organizerId}}"
+                }
+              ]
+            },
+            "description": "Moves a self-registered organizer account from pending to active status."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.response.to.be.success;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Guest",
+      "description": "Operations permitted for authenticated Guests (RSVP response, attendee management, headcount requests).",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{guestToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "Update Own Guest Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Prefer",
+                "value": "return=representation",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Maria Santos-Cruz\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rest/v1/guests?id=eq.{{guestId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "v1",
+                "guests"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "eq.{{guestId}}"
+                }
+              ]
+            },
+            "description": "Updates authenticated guest profile name."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.response.to.be.success;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "List Own Invitations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rest/v1/invitations?select=*",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "v1",
+                "invitations"
+              ],
+              "query": [
+                {
+                  "key": "select",
+                  "value": "*"
+                }
+              ]
+            },
+            "description": "Lists invitations issued to the authenticated guest."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.response.to.be.success;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Respond to RSVP (Accept / Decline)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Prefer",
+                "value": "return=representation",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"accepted\",\n  \"dietary_preference\": \"Vegetarian\",\n  \"special_requests\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rest/v1/invitations?id=eq.{{invitationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "v1",
+                "invitations"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "eq.{{invitationId}}"
+                }
+              ]
+            },
+            "description": "Submits or updates RSVP status, dietary preferences, and special requests."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.response.to.be.success;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "List Own Attendees",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rest/v1/attendees?invitation_id=eq.{{invitationId}}&select=*",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "v1",
+                "attendees"
+              ],
+              "query": [
+                {
+                  "key": "invitation_id",
+                  "value": "eq.{{invitationId}}"
+                },
+                {
+                  "key": "select",
+                  "value": "*"
+                }
+              ]
+            },
+            "description": "Lists attendees submitted under guest invitation."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.response.to.be.success;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Submit Additional Attendee",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Prefer",
+                "value": "return=representation",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invitation_id\": \"{{invitationId}}\",\n  \"full_name\": \"Jose Santos\",\n  \"email\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rest/v1/attendees",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "v1",
+                "attendees"
+              ]
+            },
+            "description": "Submits a named attendee under the invitation allowance for organizer approval."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Attendee submitted (201 Created)\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    var json = pm.response.json();",
+                  "    if (Array.isArray(json) && json[0]?.id) {",
+                  "        pm.collectionVariables.set(\"attendeeId\", json[0].id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Edit and Resubmit Attendee",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Prefer",
+                "value": "return=representation",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Jose Antonio Santos\",\n  \"email\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rest/v1/attendees?id=eq.{{attendeeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "v1",
+                "attendees"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "eq.{{attendeeId}}"
+                }
+              ]
+            },
+            "description": "Updates details of an attendee (e.g. if rejected with reason)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.response.to.be.success;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "List Own Headcount Increase Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rest/v1/headcount_increase_requests?invitation_id=eq.{{invitationId}}&select=*",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "v1",
+                "headcount_increase_requests"
+              ],
+              "query": [
+                {
+                  "key": "invitation_id",
+                  "value": "eq.{{invitationId}}"
+                },
+                {
+                  "key": "select",
+                  "value": "*"
+                }
+              ]
+            },
+            "description": "Lists headcount increase requests submitted for this invitation."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.response.to.be.success;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Submit Headcount Increase Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Prefer",
+                "value": "return=representation",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invitation_id\": \"{{invitationId}}\",\n  \"requested_additional_heads\": 2,\n  \"note\": \"My two siblings confirmed they can come.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rest/v1/headcount_increase_requests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "v1",
+                "headcount_increase_requests"
+              ]
+            },
+            "description": "Requests an increase in headcount capacity with optional note for the organizer."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Headcount request submitted (201 Created)\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    var json = pm.response.json();",
+                  "    if (Array.isArray(json) && json[0]?.id) {",
+                  "        pm.collectionVariables.set(\"hirId\", json[0].id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Check-in Staff",
+      "description": "Operations permitted for Check-in Staff (scoped event access and day-of QR code scanning).",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{checkinToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "Read Assigned Event Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rest/v1/events?id=eq.{{eventId}}&select=*",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "v1",
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "eq.{{eventId}}"
+                },
+                {
+                  "key": "select",
+                  "value": "*"
+                }
+              ]
+            },
+            "description": "Scoped read allowing check-in staff to view basic event details for their assigned event."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.response.to.be.success;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Scan QR Token and Record Check-in",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"qr_token\": \"eyJhbGciOiJIUzI1NiJ9.attendee-token-payload.signature\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/functions/v1/checkin/scan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "checkin",
+                "scan"
+              ]
+            },
+            "description": "Edge Function to validate signed QR attendee token and record check-in timestamp."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.response.to.be.success;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    }
+  ]
+}

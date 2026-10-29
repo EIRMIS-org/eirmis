@@ -19,6 +19,7 @@
     "contract:mock": "prism mock contract/openapi.yaml -p 4010 --cors",
     "contract:mock:dynamic": "prism mock contract/openapi.yaml -p 4010 --cors -d",
     "contract:test": "tsx scripts/test-prism-endpoints.ts",
+    "contract:postman": "tsx scripts/generate-postman-collection.ts",
     "db:types": "supabase gen types typescript --local > src/lib/supabase/database.types.ts",
     "functions:serve": "supabase functions serve"
   },
