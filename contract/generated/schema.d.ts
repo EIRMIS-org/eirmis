@@ -12,8 +12,14 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List organizer's events
-         * @description Returns the authenticated organizer's non-deleted events. RLS restricts the result set to `organizer_id = auth.uid()`. Use `?status=eq.published` to filter by status.
+         * List events (organizer-owned or public discovery)
+         * @description Dual-mode endpoint — behaviour depends on whether a bearer token is supplied.
+         *
+         *     Authenticated (organizer): Returns the caller's own non-deleted events. RLS restricts the result set to `organizer_id = auth.uid()`. All `status` values are visible. Use `?status=eq.published` or `?status=in.(draft,published)` to narrow by lifecycle state.
+         *
+         *     Unauthenticated (public discovery): No bearer token required. The caller MUST supply both `?visibility_mode=eq.open_registration` and `?status=eq.published` to satisfy the RLS anon-read policy, which only exposes open-registration published events to unauthenticated requests. This is the query used by the `/register/:slug` public registration flow to resolve an event before rendering the sign-up form.
+         *
+         *     In both modes, soft-deleted events (`deleted_at IS NOT NULL`) are hidden by RLS and do not appear in results.
          */
         get: operations["listEvents"];
         put?: never;
@@ -2523,11 +2529,11 @@ export interface operations {
                 order?: components["parameters"]["parameters_OrderParam"];
                 /** @description Filter by event ID (used by Check-in Staff). */
                 id?: string;
-                /** @description Filter by event slug (used by Public Registration). */
+                /** @description Filter by event slug (used by Public Registration). Combine with `visibility_mode=eq.open_registration&status=eq.published` for unauthenticated slug-based lookups on the `/register/:slug` page. */
                 slug?: string;
-                /** @description Filter by visibility mode. */
+                /** @description Filter by visibility mode using PostgREST operator syntax. Public discovery: must be `eq.open_registration` — the RLS anon-read policy only surfaces `open_registration` events to unauthenticated callers. */
                 visibility_mode?: string;
-                /** @description Filter by event status using PostgREST operator syntax (e.g. `eq.published`, `in.(draft,published)`). */
+                /** @description Filter by event status using PostgREST operator syntax (e.g. `eq.published`, `in.(draft,published)`). Public discovery: must be `eq.published` — the RLS anon-read policy only exposes published events to unauthenticated callers. */
                 status?: string;
                 /** @description Filter out soft-deleted events. Defaults to `is.null` via RLS. */
                 deleted_at?: string;
@@ -2544,7 +2550,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description List of events belonging to the authenticated organizer. */
+            /** @description Array of events. For authenticated organizers, contains all non-deleted events owned by the caller. For unauthenticated public discovery (with `visibility_mode=eq.open_registration&status=eq.published`), contains only open-registration published events visible to anonymous users. */
             200: {
                 headers: {
                     "Content-Range": components["headers"]["ContentRange"];

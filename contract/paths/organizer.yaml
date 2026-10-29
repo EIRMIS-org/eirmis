@@ -1,4 +1,4 @@
-﻿# =============================================================================
+# =============================================================================
 # Organizer Portal — PostgREST paths
 #
 # This file defines all paths primarily owned by the Organizer role.
@@ -32,7 +32,7 @@
 
       In both modes, soft-deleted events (`deleted_at IS NOT NULL`) are hidden by
       RLS and do not appear in results.
-    tags: [Organizer - Events, Check-in Staff - Event, Public - Registration]
+    tags: [Organizer — Events, Check-in Staff — Event, Public — Registration]
     security:
       - bearerAuth: []
       - {}
