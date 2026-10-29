@@ -30,3 +30,42 @@ The repository already defines the following scripts in `package.json`:
 | `npm run contract:docs` | Rebuild the generated Redoc HTML at `contract/generated/docs/index.html`. |
 
 The Prism scripts invoke `npx @stoplight/prism-cli`. If Prism is not already available locally, `npx` may download it when the command first runs. In this repository snapshot, Prism CLI is not declared in `devDependencies`, so its version is not pinned by `package-lock.json`; that is a dependency-management improvement the team can consider separately. Keep `package-lock.json` committed to reproduce the dependencies that are declared in the project.
+
+
+## 3. Start the mock server and frontend
+
+Use two terminal windows from the repository root.
+
+### Terminal 1 — Start Prism
+
+```bash
+npm run contract:mock
+```
+
+Prism should listen at `http://127.0.0.1:4010`. Leave this terminal running. The command loads `contract/openapi.yaml`, which references the endpoint definitions and examples in the `contract/` directory.
+
+### Terminal 2 — Start Vite
+
+```bash
+npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
+```
+
+Open the frontend at `http://127.0.0.1:5173`. The `--strictPort` option makes Vite exit with an error if port `5173` is already occupied instead of silently choosing another port.
+
+The API mock and frontend use different ports:
+
+| Service | URL | Port |
+| --- | --- | ---: |
+| Prism mock API | `http://127.0.0.1:4010` | `4010` |
+| Vite frontend | `http://127.0.0.1:5173` | `5173` |
+| Local Supabase stack (if started) | `http://127.0.0.1:54321` | `54321` |
+
+### Quick Prism smoke test
+
+The contract defines `GET /rest/v1/events` as a public event-discovery operation. After Prism starts, run this from Git Bash, macOS, or Linux. In PowerShell, use `curl.exe` instead of `curl` because `curl` may be an alias:
+
+```bash
+curl -i "http://127.0.0.1:4010/rest/v1/events?select=id,title&limit=2"
+```
+
+A successful mock request should return an HTTP response with a JSON body. Prism's output is driven by the OpenAPI contract; it is not a query against a real database.
