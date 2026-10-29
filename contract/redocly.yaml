@@ -9,4 +9,10 @@ rules:
   operation-summary: error
   operation-operationId-unique: error
   operation-tag-defined: error
-  no-unused-components: warn
+  # Components in the root openapi.yaml are consumed via external $ref in
+  # per-portal path files (e.g. ../components/parameters.yaml#/SelectParam).
+  # Redocly's no-unused-components only tracks root-level #/components/ refs,
+  # so these shared definitions appear "unused" despite being the canonical
+  # reusable definitions. Suppressing the rule avoids false positives while
+  # keeping the multi-file layout the project uses.
+  no-unused-components: off
