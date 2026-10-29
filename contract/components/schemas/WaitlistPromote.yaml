@@ -6,6 +6,9 @@ WaitlistPromoteRequest:
     (keyed by `waitlisted_at`). Promotion unblocks the invitation for RSVP only;
     any attendees already submitted remain `pending` and still require organizer review.
     This operation is privileged and runs atomically — it may not be called from the SPA.
+  example:
+    event_id: 55555555-5555-5555-5555-555555555555
+    max_promotions: 1
   required: [event_id]
   properties:
     event_id:
@@ -22,6 +25,10 @@ WaitlistPromoteRequest:
 WaitlistPromoteResponse:
   type: object
   description: Response from the `promoteWaitlist` Edge Function.
+  example:
+    promoted_count: 1
+    promoted_invitation_ids:
+      - 66666666-6666-6666-6666-666666666666
   required: [promoted_count]
   properties:
     promoted_count:
@@ -33,5 +40,6 @@ WaitlistPromoteResponse:
       items:
         type: string
         format: uuid
+      description: UUIDs of invitations promoted to accepted status.
       example:
         - 66666666-6666-6666-6666-666666666666
