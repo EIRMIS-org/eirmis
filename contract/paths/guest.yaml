@@ -13,6 +13,7 @@
     description: >
       A guest may update their own `full_name`. RLS restricts the update
       to `auth_user_id = auth.uid()`.
+      **Role permissions:** Guest (own record only).
     tags: [Guest — Profile]
     parameters:
       - name: id
@@ -28,6 +29,11 @@
         application/json:
           schema:
             $ref: '../components/schemas/Guest.yaml#/GuestUpdate'
+          examples:
+            UpdateGuestName:
+              summary: Guest updates display name
+              value:
+                full_name: Maria Clara Santos
     responses:
       '204':
         description: Updated.
@@ -37,7 +43,19 @@
           application/json:
             schema:
               $ref: '../components/schemas/Guest.yaml#/Guest'
+            examples:
+              UpdatedGuestProfile:
+                summary: Updated guest profile record
+                value:
+                  id: 33333333-3333-3333-3333-333333333333
+                  email: guest@example.com
+                  full_name: Maria Clara Santos
+                  auth_user_id: 33333333-3333-3333-3333-333333333333
+                  created_at: '2026-09-05T08:00:00+08:00'
+                  updated_at: '2026-10-12T15:30:00+08:00'
       '401':
         $ref: '../components/responses.yaml#/Unauthorized'
       '403':
         $ref: '../components/responses.yaml#/Forbidden'
+      '422':
+        $ref: '../components/responses.yaml#/UnprocessableEntity'
