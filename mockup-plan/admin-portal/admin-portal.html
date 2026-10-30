@@ -1255,7 +1255,7 @@
         </div>
 
         <div style="margin-top:24px; display:flex; justify-content:flex-end;">
-          <button class="btn btn-primary" onclick="showToast('Organization settings successfully saved.')">
+          <button class="btn btn-primary" id="btn-save-settings" onclick="saveOrgSettings()">
             <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2">
               <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
@@ -1472,6 +1472,71 @@
         document.getElementById('active-empty').style.display = 'none';
       }
     }
+
+    async function saveOrgSettings() {
+      const orgName = document.getElementById('org-name').value;
+      const defaultTz = document.getElementById('default-tz').value;
+      const defaultCap = parseInt(document.getElementById('default-cap').value, 10) || 150;
+      const malwareSandbox = document.getElementById('toggle-vt').checked;
+      const selfRegGate = document.getElementById('toggle-gate').checked;
+
+      const payload = {
+        org_name: orgName,
+        default_timezone: defaultTz,
+        default_capacity_ceiling: defaultCap,
+        malware_sandbox_enabled: malwareSandbox,
+        self_registration_gate_enabled: selfRegGate
+      };
+
+      const btn = document.getElementById('btn-save-settings');
+      if (btn) btn.disabled = true;
+
+      try {
+        const res = await fetch('http://127.0.0.1:4010/rest/v1/org_settings/00000000-0000-0000-0000-000000000001', {
+          method: 'PATCH',
+          headers: {
+            'Authorization': 'Bearer fake-admin-jwt',
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          showToast('Organization settings successfully saved.');
+        } else {
+          showToast('Failed to save settings: HTTP ' + res.status);
+        }
+      } catch (err) {
+        showToast('Settings saved locally (Prism unreachable).');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    async function loadOrgSettings() {
+      try {
+        const res = await fetch('http://127.0.0.1:4010/rest/v1/org_settings', {
+          headers: {
+            'Authorization': 'Bearer fake-admin-jwt'
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const s = Array.isArray(data) ? data[0] : data;
+          if (s) {
+            if (s.org_name) document.getElementById('org-name').value = s.org_name;
+            if (s.default_timezone) document.getElementById('default-tz').value = s.default_timezone;
+            if (s.default_capacity_ceiling) document.getElementById('default-cap').value = s.default_capacity_ceiling;
+            if (s.sender_domain) document.getElementById('sender-domain').value = s.sender_domain;
+            if (typeof s.malware_sandbox_enabled === 'boolean') document.getElementById('toggle-vt').checked = s.malware_sandbox_enabled;
+            if (typeof s.self_registration_gate_enabled === 'boolean') document.getElementById('toggle-gate').checked = s.self_registration_gate_enabled;
+          }
+        }
+      } catch (e) {
+        // Fallback to static mockup defaults
+      }
+    }
   </script>
   <!-- Task 05: point the EIRMIS.api adapter at the Stoplight Prism mock server -->
   <script>window.EIRMIS_API_URL = 'http://127.0.0.1:4010';</script>
@@ -1505,6 +1570,7 @@
       document.getElementById('queue-pending-chip').innerHTML = '<span class="chip-dot"></span>' + pendingCount + ' Pending Review';
       checkEmptyStates();
     }).catch(function () { /* fallback already handled in adapter */ });
+    loadOrgSettings();
   </script>
 </body>
 

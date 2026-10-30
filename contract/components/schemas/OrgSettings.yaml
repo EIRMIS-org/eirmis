@@ -1,0 +1,105 @@
+OrgSettings:
+  type: object
+  description: >
+    Singleton record containing organization-wide settings, default values,
+    and security policies managed by System Administrators.
+  example:
+    id: 00000000-0000-0000-0000-000000000001
+    org_name: EIRMIS Enterprise Cloud Platform
+    default_timezone: Asia/Manila
+    default_capacity_ceiling: 150
+    sender_domain: invites.eirmis.org
+    malware_sandbox_enabled: true
+    self_registration_gate_enabled: true
+    created_at: '2026-09-01T08:00:00+08:00'
+    updated_at: '2026-09-10T12:30:00+08:00'
+  required:
+    - id
+    - org_name
+    - default_timezone
+    - default_capacity_ceiling
+    - sender_domain
+    - malware_sandbox_enabled
+    - self_registration_gate_enabled
+    - created_at
+    - updated_at
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Fixed singleton identifier.
+      example: 00000000-0000-0000-0000-000000000001
+    org_name:
+      type: string
+      description: Organization or system instance display name.
+      example: EIRMIS Enterprise Cloud Platform
+    default_timezone:
+      type: string
+      description: Default IANA timezone for newly created events.
+      example: Asia/Manila
+    default_capacity_ceiling:
+      type: integer
+      minimum: 1
+      description: Default capacity limit for newly created events.
+      example: 150
+    sender_domain:
+      type: string
+      description: Verified domain used as sender address for transactional invitations and notices.
+      example: invites.eirmis.org
+    malware_sandbox_enabled:
+      type: boolean
+      description: Whether custom HTML invitation templates require a clean malware scan before serving.
+      example: true
+    self_registration_gate_enabled:
+      type: boolean
+      description: Whether new organizers must be manually approved by an admin before creating events.
+      example: true
+    created_at:
+      type: string
+      format: date-time
+      description: Record creation timestamp.
+      example: '2026-09-01T08:00:00+08:00'
+    updated_at:
+      type: string
+      format: date-time
+      description: Last update timestamp.
+      example: '2026-09-10T12:30:00+08:00'
+
+OrgSettingsUpdate:
+  type: object
+  description: Fields an administrator may update on the organization settings singleton.
+  example:
+    org_name: EIRMIS Enterprise Cloud Platform
+    default_timezone: Asia/Manila
+    default_capacity_ceiling: 150
+    malware_sandbox_enabled: true
+    self_registration_gate_enabled: true
+  minProperties: 1
+  additionalProperties: false
+  properties:
+    org_name:
+      type: string
+      description: Organization or system instance display name.
+      example: EIRMIS Enterprise Cloud Platform
+    default_timezone:
+      type: string
+      description: Default IANA timezone for newly created events.
+      example: Asia/Manila
+    default_capacity_ceiling:
+      type: integer
+      minimum: 1
+      description: Default capacity limit for newly created events.
+      example: 150
+    sender_domain:
+      type: string
+      description: Verified domain used as sender address for transactional invitations and notices.
+      example: invites.eirmis.org
+    malware_sandbox_enabled:
+      type: boolean
+      description: Whether custom HTML invitation templates require a clean malware scan before serving.
+      example: true
+    self_registration_gate_enabled:
+      type: boolean
+      description: Whether new organizers must be manually approved by an admin before creating events.
+      example: true
+
