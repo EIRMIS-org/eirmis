@@ -308,10 +308,6 @@ paths:
   # ---------- Admin portal ----------
   /rest/v1/admin_profiles:
     $ref: './paths/admin.yaml#/~1rest~1v1~1admin_profiles'
-  /rest/v1/org_settings:
-    $ref: './paths/admin.yaml#/~1rest~1v1~1org_settings'
-  /rest/v1/org_settings/{id}:
-    $ref: './paths/admin.yaml#/~1rest~1v1~1org_settings~1{id}'
 
   # ---------- Guest portal ----------
   /rest/v1/guests/{id}:

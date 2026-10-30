@@ -386,10 +386,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Read own organizer profile
-         * @description Returns the authenticated organizer's own profile row.
+         * List organizer profiles for verification
+         * @description Returns a paginated organizer verification queue for administrators.
          */
-        get: operations["getOrganizerProfile"];
+        get: operations["adminListOrganizers"];
         put?: never;
         post?: never;
         delete?: never;
@@ -412,10 +412,10 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Update organizer profile
-         * @description For organizers: update own `full_name`. For admins: update `status` (pending → active verification). RLS restricts each role to what they may change.
+         * Update organizer verification status
+         * @description Updates an organizer status and records an administrator audit entry.
          */
-        patch: operations["updateOrganizerProfile"];
+        patch: operations["adminUpdateOrganizerStatus"];
         trace?: never;
     };
     "/rest/v1/admin_profiles": {
@@ -436,46 +436,6 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
-        trace?: never;
-    };
-    "/rest/v1/org_settings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read organization settings
-         * @description Returns the organization-wide settings singleton. Restricted to system administrators by RLS.
-         */
-        get: operations["getOrgSettings"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/rest/v1/org_settings/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update organization settings
-         * @description Updates one or more fields on the organization settings singleton. Restricted to system administrators by RLS.
-         */
-        patch: operations["updateOrgSettings"];
         trace?: never;
     };
     "/rest/v1/guests/{id}": {
@@ -2524,6 +2484,15 @@ export interface components {
                 "application/json": components["schemas"]["Error"];
             };
         };
+        /** @description Resource not found or not accessible to the caller. */
+        NotFound: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
         /** @description Bad request — invalid query parameters or request body. */
         BadRequest: {
             headers: {
@@ -3571,7 +3540,7 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
         };
     };
-    getOrganizerProfile: {
+    adminListOrganizers: {
         parameters: {
             query?: {
                 /**
@@ -3579,19 +3548,37 @@ export interface operations {
                  * @example id,title,status
                  */
                 select?: components["parameters"]["SelectParam"];
-                /** @description Filter by status (used by Admin). */
-                status?: string;
+                /**
+                 * @description Maximum number of rows to return.
+                 * @example 20
+                 */
+                limit?: components["parameters"]["LimitParam"];
+                /**
+                 * @description Number of rows to skip before returning results.
+                 * @example 0
+                 */
+                offset?: components["parameters"]["OffsetParam"];
+                /** @description Filter to the authenticated organizer's profile when used outside the admin queue. */
                 id?: string;
+                /** @description Filter by organizer status. */
+                status?: string;
             };
-            header?: never;
+            header?: {
+                /**
+                 * @description Request a row count. `count=exact` returns the precise count in the `Content-Range` response header.
+                 * @example count=exact
+                 */
+                Prefer?: components["parameters"]["PreferCountParam"];
+            };
             path?: never;
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Organizer profile. */
+            /** @description Paginated organizer profiles. */
             200: {
                 headers: {
+                    "Content-Range": components["headers"]["ContentRange"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -3599,9 +3586,10 @@ export interface operations {
                 };
             };
             401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
-    updateOrganizerProfile: {
+    adminUpdateOrganizerStatus: {
         parameters: {
             query?: never;
             header?: {
@@ -3622,7 +3610,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Updated profile (when `Prefer: return=representation`). */
+            /** @description Updated organizer profile. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -3640,6 +3628,7 @@ export interface operations {
             };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
         };
     };
     getAdminProfile: {
@@ -3678,90 +3667,6 @@ export interface operations {
                 };
             };
             401: components["responses"]["Unauthorized"];
-        };
-    };
-    getOrgSettings: {
-        parameters: {
-            query?: {
-                /**
-                 * @description PostgREST column selection. Comma-separated column names. Use `related_table(col1,col2)` for embedded resource selection.
-                 * @example id,title,status
-                 */
-                select?: components["parameters"]["SelectParam"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Organization settings singleton array. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example [
-                     *       {
-                     *         "id": "00000000-0000-0000-0000-000000000001",
-                     *         "org_name": "EIRMIS Enterprise Cloud Platform",
-                     *         "default_timezone": "Asia/Manila",
-                     *         "default_capacity_ceiling": 150,
-                     *         "sender_domain": "invites.eirmis.org",
-                     *         "malware_sandbox_enabled": true,
-                     *         "self_registration_gate_enabled": true,
-                     *         "created_at": "2026-09-01T08:00:00+08:00",
-                     *         "updated_at": "2026-09-10T12:30:00+08:00"
-                     *       }
-                     *     ]
-                     */
-                    "application/json": components["schemas"]["OrgSettings"][];
-                };
-            };
-            401: components["responses"]["responses_Unauthorized"];
-            403: components["responses"]["responses_Forbidden"];
-        };
-    };
-    updateOrgSettings: {
-        parameters: {
-            query?: never;
-            header?: {
-                /**
-                 * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
-                 * @example return=representation
-                 */
-                Prefer?: components["parameters"]["parameters_PreferReturnParam"];
-            };
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["OrgSettingsUpdate"];
-            };
-        };
-        responses: {
-            /** @description Updated settings record (when `Prefer: return=representation`). */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OrgSettings"];
-                };
-            };
-            /** @description Settings updated successfully. */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            401: components["responses"]["responses_Unauthorized"];
-            403: components["responses"]["responses_Forbidden"];
         };
     };
     updateGuestProfile: {
