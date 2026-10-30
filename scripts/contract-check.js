@@ -43,11 +43,17 @@ if (!existsSync(GENERATED_PATH)) {
   process.exit(1);
 }
 
-// Generate fresh output to stdout
+// Generate fresh output to stdout. Invoke the Node entry point directly so
+// Windows paths containing spaces are passed as one argument.
 const freshResult = spawnSync(
-  'npx',
-  ['openapi-typescript', CONTRACT_PATH, '--output', '-'],
-  { cwd: ROOT, encoding: 'utf8', shell: true }
+  process.execPath,
+  [
+    join(ROOT, 'node_modules', 'openapi-typescript', 'bin', 'cli.js'),
+    CONTRACT_PATH,
+    '--output',
+    '-',
+  ],
+  { cwd: ROOT, encoding: 'utf8', shell: false }
 );
 
 if (freshResult.status !== 0) {
@@ -55,9 +61,14 @@ if (freshResult.status !== 0) {
   process.exit(1);
 }
 
-const freshHash = createHash('sha256').update(freshResult.stdout).digest('hex');
+const normalizeLineEndings = content => content.replace(/\r\n/g, '\n');
+const freshHash = createHash('sha256')
+  .update(normalizeLineEndings(freshResult.stdout))
+  .digest('hex');
 const committedContent = readFileSync(GENERATED_PATH, 'utf8');
-const committedHash = createHash('sha256').update(committedContent).digest('hex');
+const committedHash = createHash('sha256')
+  .update(normalizeLineEndings(committedContent))
+  .digest('hex');
 
 if (freshHash !== committedHash) {
   console.error(
