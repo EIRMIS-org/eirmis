@@ -780,6 +780,112 @@ export interface components {
             created_at: string;
         };
         /**
+         * @description Singleton record containing organization-wide settings, default values, and security policies managed by System Administrators.
+         * @example {
+         *       "id": "00000000-0000-0000-0000-000000000001",
+         *       "org_name": "EIRMIS Enterprise Cloud Platform",
+         *       "default_timezone": "Asia/Manila",
+         *       "default_capacity_ceiling": 150,
+         *       "sender_domain": "invites.eirmis.org",
+         *       "malware_sandbox_enabled": true,
+         *       "self_registration_gate_enabled": true,
+         *       "created_at": "2026-09-01T08:00:00+08:00",
+         *       "updated_at": "2026-09-10T12:30:00+08:00"
+         *     }
+         */
+        OrgSettings: {
+            /**
+             * Format: uuid
+             * @description Fixed singleton identifier.
+             * @example 00000000-0000-0000-0000-000000000001
+             */
+            id: string;
+            /**
+             * @description Organization or system instance display name.
+             * @example EIRMIS Enterprise Cloud Platform
+             */
+            org_name: string;
+            /**
+             * @description Default IANA timezone for newly created events.
+             * @example Asia/Manila
+             */
+            default_timezone: string;
+            /**
+             * @description Default capacity limit for newly created events.
+             * @example 150
+             */
+            default_capacity_ceiling: number;
+            /**
+             * @description Verified domain used as sender address for transactional invitations and notices.
+             * @example invites.eirmis.org
+             */
+            sender_domain: string;
+            /**
+             * @description Whether custom HTML invitation templates require a clean malware scan before serving.
+             * @example true
+             */
+            malware_sandbox_enabled: boolean;
+            /**
+             * @description Whether new organizers must be manually approved by an admin before creating events.
+             * @example true
+             */
+            self_registration_gate_enabled: boolean;
+            /**
+             * Format: date-time
+             * @description Record creation timestamp.
+             * @example 2026-09-01T08:00:00+08:00
+             */
+            created_at: string;
+            /**
+             * Format: date-time
+             * @description Last update timestamp.
+             * @example 2026-09-10T12:30:00+08:00
+             */
+            updated_at: string;
+        };
+        /**
+         * @description Fields an administrator may update on the organization settings singleton.
+         * @example {
+         *       "org_name": "EIRMIS Enterprise Cloud Platform",
+         *       "default_timezone": "Asia/Manila",
+         *       "default_capacity_ceiling": 150,
+         *       "malware_sandbox_enabled": true,
+         *       "self_registration_gate_enabled": true
+         *     }
+         */
+        OrgSettingsUpdate: {
+            /**
+             * @description Organization or system instance display name.
+             * @example EIRMIS Enterprise Cloud Platform
+             */
+            org_name?: string;
+            /**
+             * @description Default IANA timezone for newly created events.
+             * @example Asia/Manila
+             */
+            default_timezone?: string;
+            /**
+             * @description Default capacity limit for newly created events.
+             * @example 150
+             */
+            default_capacity_ceiling?: number;
+            /**
+             * @description Verified domain used as sender address for transactional invitations and notices.
+             * @example invites.eirmis.org
+             */
+            sender_domain?: string;
+            /**
+             * @description Whether custom HTML invitation templates require a clean malware scan before serving.
+             * @example true
+             */
+            malware_sandbox_enabled?: boolean;
+            /**
+             * @description Whether new organizers must be manually approved by an admin before creating events.
+             * @example true
+             */
+            self_registration_gate_enabled?: boolean;
+        };
+        /**
          * @description An organizer-owned event. Central entity of EIRMIS; all guest and invitation data hangs off an event.
          * @example {
          *       "id": "55555555-5555-5555-5555-555555555555",

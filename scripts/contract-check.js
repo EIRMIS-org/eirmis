@@ -43,8 +43,6 @@ if (!existsSync(GENERATED_PATH)) {
   process.exit(1);
 }
 
-// Generate fresh output to stdout. Invoke the Node entry point directly so
-// Windows paths containing spaces are passed as one argument.
 const freshResult = spawnSync(
   process.execPath,
   [
