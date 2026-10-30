@@ -1233,6 +1233,22 @@
 
       updateRsvpLock();
       showToast('RSVP preferences saved successfully.');
+
+      // Wire to Stoplight Prism via EIRMIS.api
+      if (window.EIRMIS && window.EIRMIS.api && typeof window.EIRMIS.api.updateInvitationRsvp === 'function') {
+        const payload = {
+          status: currentRsvp,
+          dietary_preference: dietary !== 'None' ? dietary : null,
+          special_requests: special !== 'None' ? special : null
+        };
+        window.EIRMIS.api.updateInvitationRsvp('66666666-6666-6666-6666-666666666666', payload)
+          .then(function (res) {
+            console.log('[GuestPortal] RSVP updated in Prism:', res);
+          })
+          .catch(function (err) {
+            console.warn('[GuestPortal] Prism update failed, local state retained:', err);
+          });
+      }
     }
 
     function editRsvpPreferences() {
@@ -1271,6 +1287,22 @@
       document.getElementById('att-name-input').value = '';
       document.getElementById('att-email-input').value = '';
       showToast('Attendee ' + name + ' submitted for review.');
+
+      // Wire to Stoplight Prism via EIRMIS.api
+      if (window.EIRMIS && window.EIRMIS.api && typeof window.EIRMIS.api.createAttendee === 'function') {
+        const payload = {
+          invitation_id: '66666666-6666-6666-6666-666666666666',
+          full_name: name,
+          email: email !== 'No email provided' ? email : null
+        };
+        window.EIRMIS.api.createAttendee(payload)
+          .then(function (res) {
+            console.log('[GuestPortal] Attendee created in Prism:', res);
+          })
+          .catch(function (err) {
+            console.warn('[GuestPortal] Prism create attendee failed, local state retained:', err);
+          });
+      }
     }
 
     function removeAttendee(btn, name) {
@@ -1329,6 +1361,24 @@
       document.getElementById('btn-submit-headcount').disabled = true;
       document.getElementById('btn-submit-headcount').innerText = 'Request Pending Review';
       showToast('Headcount request submitted to organizer.');
+
+      // Wire to Stoplight Prism via EIRMIS.api
+      if (window.EIRMIS && window.EIRMIS.api && typeof window.EIRMIS.api.createHeadcountRequest === 'function') {
+        const requestedAdditional = parseInt(document.getElementById('req-heads-num').value, 10) || 1;
+        const note = document.getElementById('req-heads-note').value.trim() || null;
+        const payload = {
+          invitation_id: '66666666-6666-6666-6666-666666666666',
+          requested_additional_heads: requestedAdditional,
+          note: note
+        };
+        window.EIRMIS.api.createHeadcountRequest(payload)
+          .then(function (res) {
+            console.log('[GuestPortal] Headcount request created in Prism:', res);
+          })
+          .catch(function (err) {
+            console.warn('[GuestPortal] Prism headcount request failed, local state retained:', err);
+          });
+      }
     }
 
     function simulatePdfDownload() {
@@ -1399,6 +1449,22 @@
     // Task 05: enable live Prism data for EIRMIS.api calls (falls back to the
     // local seed automatically when Prism is unreachable).
     EIRMIS.setDataSource('prism');
+    // Initialize guest invitation data from Prism if available
+    if (EIRMIS.api && typeof EIRMIS.api.getGuestInvitations === 'function') {
+      EIRMIS.api.getGuestInvitations('33333333-3333-3333-3333-333333333333')
+        .then(function (invitations) {
+          if (invitations && invitations.length > 0) {
+            var inv = invitations[0];
+            if (inv.max_party_size) maxPartySize = inv.max_party_size;
+            if (typeof inv.party_size === 'number') currentPartyCount = inv.party_size;
+            updateRosterState();
+            console.log('[GuestPortal] Initialized with Prism invitation data:', inv);
+          }
+        })
+        .catch(function (err) {
+          console.warn('[GuestPortal] Could not load Prism invitations, running on local defaults:', err);
+        });
+    }
   </script>
 </body>
 
