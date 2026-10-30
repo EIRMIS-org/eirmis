@@ -363,6 +363,135 @@
       gap: 12px;
     }
 
+    .notification-bell-wrap {
+      position: relative;
+    }
+
+    .notification-count {
+      position: absolute;
+      top: -3px;
+      right: -4px;
+      min-width: 17px;
+      height: 17px;
+      padding: 0 4px;
+      border: 2px solid #ffffff;
+      border-radius: 999px;
+      background: #dc2626;
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 13px;
+      text-align: center;
+    }
+
+    .notification-count[hidden] {
+      display: none;
+    }
+
+    .notification-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      background: rgba(15, 23, 42, 0.32);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.22s ease, visibility 0.22s ease;
+    }
+
+    .notification-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .notification-drawer {
+      position: fixed;
+      inset: 0 0 0 auto;
+      z-index: 81;
+      display: flex;
+      flex-direction: column;
+      width: min(390px, 100vw);
+      background: #ffffff;
+      border: 0;
+      backdrop-filter: none;
+      box-shadow: var(--shadow-float);
+      transform: translateX(100%);
+      visibility: hidden;
+      transition: transform 0.28s var(--ease-spring), visibility 0s linear 0.28s;
+    }
+
+    .notification-drawer.open {
+      transform: translateX(0);
+      visibility: visible;
+      transition-delay: 0s;
+    }
+
+    .notification-drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .notification-drawer-header h2 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .notification-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 12px;
+    }
+
+    .notification-link {
+      display: block;
+      margin: 4px 0;
+      padding: 13px 12px;
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      text-decoration: none;
+      transition: background 0.15s ease;
+    }
+
+    .notification-link:hover,
+    .notification-link:focus-visible {
+      background: #f1f5f9;
+      outline: none;
+    }
+
+    .notification-link.unread {
+      background: #eff6ff;
+    }
+
+    .notification-link-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .notification-unread-dot {
+      width: 7px;
+      height: 7px;
+      flex: 0 0 7px;
+      border-radius: 50%;
+      background: #dc2626;
+    }
+
+    .notification-link-meta {
+      margin: 5px 0 0 15px;
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .notification-empty {
+      padding: 24px 12px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
     .icon-btn {
       background: transparent;
       border: none;
@@ -1838,7 +1967,7 @@
           <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
         </svg>
         Notifications
-        <span class="nav-badge" id="nav-notifications-badge">3</span>
+        <span class="nav-badge" id="nav-notifications-badge" hidden>0</span>
       </button>
 
 
@@ -2126,6 +2255,17 @@
       </div>
 
       <div class="topbar-right">
+        <div class="notification-bell-wrap">
+          <button class="icon-btn" id="notification-bell" type="button" aria-label="Open notifications"
+            aria-expanded="false" aria-controls="notification-drawer">
+            <svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M10 21h4"></path>
+            </svg>
+            <span class="notification-count" id="notification-count" aria-live="polite" hidden>0</span>
+          </button>
+        </div>
         <button class="icon-btn" title="Help/Support" aria-label="Help/Support">
           <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             stroke-width="2">
@@ -5221,6 +5361,25 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
     </div>
   </main>
 
+  <div class="notification-backdrop" id="notification-backdrop"></div>
+  <div class="notification-drawer" id="notification-drawer" role="dialog" aria-modal="true"
+    aria-labelledby="notification-drawer-title" aria-hidden="true">
+    <div class="notification-drawer-header">
+      <h2 id="notification-drawer-title">Notifications</h2>
+      <button class="btn btn-secondary btn-sm" id="mark-notifications-read" type="button">Mark all read</button>
+      <button class="icon-btn" id="close-notification-drawer" type="button" aria-label="Close notifications">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <nav class="notification-list" id="notification-list" aria-label="Email notifications">
+      <p class="notification-empty">Loading notifications…</p>
+    </nav>
+  </div>
+
   <!-- ── APPROVE ATTENDEE CONFIRMATION MODAL ── -->
   <div id="approve-attendee-modal" class="modal-overlay" role="dialog" aria-modal="true"
     aria-labelledby="approve-attendee-modal-title">
@@ -6886,6 +7045,187 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
       </div>
     </div>
   </div>
+  <script>
+    (() => {
+      const emailLogsUrl =
+        'http://127.0.0.1:4010/rest/v1/email_logs?recipient_email=eq.organizer@example.com';
+      const readStorageKey = 'eirmis.organizer.read-email-notifications';
+      const readNotificationIds = (() => {
+        try {
+          const storedIds = JSON.parse(localStorage.getItem(readStorageKey) || '[]');
+          if (Array.isArray(storedIds)) {
+            return new Set(storedIds.filter((id) => typeof id === 'string'));
+          }
+          console.warn('Stored notification read state is invalid.');
+        } catch (error) {
+          console.warn('Could not load notification read state:', error);
+        }
+        return new Set();
+      })();
+      let notifications = [];
+
+      const drawer = document.getElementById('notification-drawer');
+      const backdrop = document.getElementById('notification-backdrop');
+      const bell = document.getElementById('notification-bell');
+      const countBadge = document.getElementById('notification-count');
+      const sidebarBadge = document.getElementById('nav-notifications-badge');
+      const notificationList = document.getElementById('notification-list');
+
+      function saveReadNotificationIds() {
+        try {
+          localStorage.setItem(readStorageKey, JSON.stringify([...readNotificationIds]));
+        } catch (error) {
+          console.warn('Could not save notification read state:', error);
+        }
+      }
+
+      function unreadCount() {
+        return notifications.filter((notification) =>
+          !readNotificationIds.has(notification.id)
+        ).length;
+      }
+
+      function updateNotificationBadges() {
+        const count = unreadCount();
+        countBadge.textContent = count > 99 ? '99+' : String(count);
+        countBadge.hidden = count === 0;
+        countBadge.setAttribute('aria-label', `${count} unread notifications`);
+        bell.setAttribute('aria-label', `Open notifications, ${count} unread`);
+
+        sidebarBadge.textContent = count > 99 ? '99+' : String(count);
+        sidebarBadge.hidden = count === 0;
+      }
+
+      function notificationTitle(type) {
+        return (type || 'Email notification')
+          .replaceAll('_', ' ')
+          .replace(/\b\w/g, (letter) => letter.toUpperCase());
+      }
+
+      function notificationDate(createdAt) {
+        const date = new Date(createdAt);
+        if (Number.isNaN(date.getTime())) return 'Date unavailable';
+        return date.toLocaleString();
+      }
+
+      function renderNotifications() {
+        notificationList.replaceChildren();
+
+        if (notifications.length === 0) {
+          const emptyMessage = document.createElement('p');
+          emptyMessage.className = 'notification-empty';
+          emptyMessage.textContent = 'No email notifications found.';
+          notificationList.append(emptyMessage);
+          updateNotificationBadges();
+          return;
+        }
+
+        notifications.forEach((notification) => {
+          const isUnread = !readNotificationIds.has(notification.id);
+          const link = document.createElement('a');
+          link.className = `notification-link${isUnread ? ' unread' : ''}`;
+          link.href = '#view-emaillog';
+
+          const title = document.createElement('span');
+          title.className = 'notification-link-title';
+          if (isUnread) {
+            const unreadDot = document.createElement('span');
+            unreadDot.className = 'notification-unread-dot';
+            unreadDot.setAttribute('aria-label', 'Unread');
+            title.append(unreadDot);
+          }
+          title.append(document.createTextNode(notificationTitle(notification.type)));
+
+          const details = document.createElement('span');
+          details.className = 'notification-link-meta';
+          details.textContent = `${notification.status || 'Email'} · ${notificationDate(notification.created_at)}`;
+          link.append(title, details);
+
+          link.addEventListener('click', (event) => {
+            event.preventDefault();
+            readNotificationIds.add(notification.id);
+            saveReadNotificationIds();
+            renderNotifications();
+            closeNotificationDrawer();
+            switchView('emaillog');
+          });
+          notificationList.append(link);
+        });
+
+        updateNotificationBadges();
+      }
+
+      function openNotificationDrawer() {
+        drawer.classList.add('open');
+        backdrop.classList.add('open');
+        drawer.setAttribute('aria-hidden', 'false');
+        bell.setAttribute('aria-expanded', 'true');
+        document.getElementById('close-notification-drawer').focus();
+      }
+
+      function closeNotificationDrawer() {
+        const wasOpen = drawer.classList.contains('open');
+        drawer.classList.remove('open');
+        backdrop.classList.remove('open');
+        drawer.setAttribute('aria-hidden', 'true');
+        bell.setAttribute('aria-expanded', 'false');
+        if (wasOpen) bell.focus();
+      }
+
+      bell.addEventListener('click', openNotificationDrawer);
+      document.getElementById('close-notification-drawer')
+        .addEventListener('click', closeNotificationDrawer);
+      backdrop.addEventListener('click', closeNotificationDrawer);
+      document.getElementById('mark-notifications-read').addEventListener('click', () => {
+        notifications.forEach((notification) => readNotificationIds.add(notification.id));
+        saveReadNotificationIds();
+        renderNotifications();
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && drawer.classList.contains('open')) {
+          closeNotificationDrawer();
+        }
+      });
+
+      async function loadNotifications() {
+        try {
+          const response = await fetch(emailLogsUrl, {
+            headers: {
+              Authorization: 'Bearer fake-organizer-jwt',
+              apikey: 'fake-organizer-jwt',
+            },
+          });
+          if (!response.ok) {
+            throw new Error(`Email log request failed with HTTP ${response.status}.`);
+          }
+
+          const data = await response.json();
+          if (!Array.isArray(data)) {
+            throw new Error('Email log response was not a list.');
+          }
+
+          notifications = data
+            .filter((item) =>
+              item &&
+              typeof item.id === 'string' &&
+              typeof item.recipient_email === 'string' &&
+              item.recipient_email.toLowerCase() === 'organizer@example.com'
+            )
+            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+          renderNotifications();
+        } catch (error) {
+          console.error('Could not load email notifications:', error);
+          notificationList.replaceChildren();
+          const errorMessage = document.createElement('p');
+          errorMessage.className = 'notification-empty';
+          errorMessage.textContent = 'Notifications could not be loaded. Check that Prism is running.';
+          notificationList.append(errorMessage);
+        }
+      }
+
+      loadNotifications();
+    })();
+  </script>
 </body>
 
 </html>
