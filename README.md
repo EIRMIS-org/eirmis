@@ -48,7 +48,7 @@ EIRMIS centralizes event creation, guest list management, invitation delivery, R
 | Role | Name | GitHub Username |
 |---|---|---|
 | Team Leader | Fiel, Jack Jonel D. | `@BigDrems` |
-| Member | Caballes, Ervin James Lenzo | `@username` |
+| Member | Caballes, Ervin James Lenzo | `@caballeservinjames889-maker` |
 | Member | Cerna, Ronald A. | `@Rcerna24` |
 | Member | Cormanes, Jo Mari Jess Y. | `@Cormz12-26` |
 | Member | Delima, Kyla Gayle | `@bluebirbb` |

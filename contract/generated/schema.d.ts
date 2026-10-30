@@ -2295,6 +2295,50 @@ export interface components {
          */
         InvitationStatus: "pending" | "accepted" | "declined" | "tentative" | "waitlisted";
         /**
+         * @example {
+         *       "id": "66666666-6666-6666-6666-666666666666",
+         *       "event_id": "55555555-5555-5555-5555-555555555555",
+         *       "guest_id": "33333333-3333-3333-3333-333333333333",
+         *       "status": "accepted",
+         *       "max_party_size": 4,
+         *       "party_size": 2,
+         *       "checked_in_count": 0,
+         *       "dietary_preference": "Vegetarian",
+         *       "special_requests": "Wheelchair access needed",
+         *       "invited_by": "11111111-1111-1111-1111-111111111111",
+         *       "invited_at": "2026-10-01T09:00:00+08:00",
+         *       "responded_at": "2026-10-05T14:30:00+08:00",
+         *       "waitlisted_at": null,
+         *       "created_at": "2026-10-01T09:00:00+08:00",
+         *       "updated_at": "2026-10-05T14:30:00+08:00",
+         *       "events": {
+         *         "id": "55555555-5555-5555-5555-555555555555",
+         *         "organizer_id": "11111111-1111-1111-1111-111111111111",
+         *         "title": "Annual Gala 2026",
+         *         "slug": "annual-gala-2026",
+         *         "description": "A celebration of achievements and milestones.",
+         *         "cover_image_url": "https://example.supabase.co/storage/v1/object/public/covers/gala-2026.jpg",
+         *         "starts_at": "2026-12-15T18:00:00+08:00",
+         *         "ends_at": "2026-12-15T22:00:00+08:00",
+         *         "event_timezone": "Asia/Manila",
+         *         "venue_name": "Grand Ballroom",
+         *         "address": "123 Rizal Avenue",
+         *         "city": "Cebu City",
+         *         "location_url": "https://maps.google.com/?q=grand+ballroom",
+         *         "capacity": 500,
+         *         "rsvp_deadline": "2026-12-01T23:59:59+08:00",
+         *         "visibility_mode": "open_registration",
+         *         "status": "published",
+         *         "deleted_at": null,
+         *         "created_at": "2026-09-01T08:00:00+08:00",
+         *         "updated_at": "2026-11-15T10:00:00+08:00"
+         *       }
+         *     }
+         */
+        InvitationWithEvent: components["schemas"]["Invitation"] & {
+            events?: components["schemas"]["Event"];
+        };
+        /**
          * @description `pending`  — submitted by guest; awaiting organizer review. `approved` — organizer approved; counted toward party_size and issued a qr_token. `rejected` — organizer rejected; can be edited and resubmitted by guest.
          * @enum {string}
          */
@@ -2796,6 +2840,8 @@ export interface operations {
                  */
                 order?: components["parameters"]["parameters_OrderParam"];
                 event_id?: string;
+                /** @description Filter invitations by guest UUID. */
+                guest_id?: string;
                 status?: string;
             };
             header?: {
@@ -2817,7 +2863,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Invitation"][];
+                    "application/json": (components["schemas"]["Invitation"] | components["schemas"]["InvitationWithEvent"])[];
                 };
             };
             401: components["responses"]["responses_Unauthorized"];

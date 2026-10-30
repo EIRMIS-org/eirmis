@@ -116,6 +116,47 @@ create trigger trg_invitations_updated_at
   before update on invitations
   for each row execute function set_updated_at();
 
+-- ---------------------------------------------------------------------------
+-- RSVP Deadline Check Trigger
+-- Prevents guests from updating their invitation status or logistics after
+-- the event's RSVP deadline has passed. Organizers and service role may still update.
+-- ---------------------------------------------------------------------------
+create or replace function fn_invitations_rsvp_deadline_check()
+returns trigger
+language plpgsql
+as $
+declare
+  v_deadline timestamptz;
+  v_is_guest boolean;
+begin
+  select rsvp_deadline into v_deadline
+  from events
+  where id = new.event_id;
+
+  -- Determine if updater is the guest
+  select exists (
+    select 1 from guests g
+    where g.id = new.guest_id
+      and g.auth_user_id = auth.uid()
+  ) into v_is_guest;
+
+  if v_is_guest and v_deadline is not null and now() > v_deadline then
+    raise exception 'RSVP deadline has passed. No further changes are permitted.'
+      using errcode = 'P0001',
+            hint    = 'The RSVP deadline for this event has passed.';
+  end if;
+
+  return new;
+end;
+$;
+
+create trigger trg_invitations_rsvp_deadline_check
+  before update on invitations
+  for each row execute function fn_invitations_rsvp_deadline_check();
+
+comment on function fn_invitations_rsvp_deadline_check() is
+  'Blocks guest updates to invitations after the event RSVP deadline has passed.';
+
 -- Indexes
 create index idx_invitations_event_id_status on invitations (event_id, status);  -- approval queue, capacity queries (D16)
 create index idx_invitations_guest_id        on invitations (guest_id);           -- guest dashboard

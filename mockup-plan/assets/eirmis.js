@@ -203,6 +203,51 @@
                 role: 'checkin',
                 body: { qr_token: token }
             });
+        },
+
+        /** GET /rest/v1/invitations?guest_id=eq.{guestId}&select=*,events(*) — guest invitations with event details. */
+        getGuestInvitations: function (guestId) {
+            guestId = guestId || '33333333-3333-3333-3333-333333333333';
+            return apiFetch('GET', '/rest/v1/invitations?guest_id=eq.' + guestId + '&select=*,events(*)', { role: 'guest' })
+                .catch(function (err) {
+                    toast('Prism unreachable (' + err.message + ') — using local data.', 'warning');
+                    return null;
+                });
+        },
+
+        /** PATCH /rest/v1/invitations/{id} — update RSVP status, dietary_preference, special_requests. */
+        updateInvitationRsvp: function (invitationId, payload) {
+            invitationId = invitationId || '66666666-6666-6666-6666-666666666666';
+            return apiFetch('PATCH', '/rest/v1/invitations/eq.' + invitationId, {
+                role: 'guest',
+                body: payload,
+                headers: { Prefer: 'return=representation' }
+            }).then(function (res) {
+                var row = Array.isArray(res) ? res[0] : res;
+                return row;
+            });
+        },
+
+        /** POST /rest/v1/attendees — submit roster attendee up to max_party_size. */
+        createAttendee: function (payload) {
+            return apiFetch('POST', '/rest/v1/attendees', {
+                role: 'guest',
+                body: payload,
+                headers: { Prefer: 'return=representation' }
+            }).then(function (res) {
+                return Array.isArray(res) ? res[0] : res;
+            });
+        },
+
+        /** POST /rest/v1/headcount_increase_requests — submit headcount request. */
+        createHeadcountRequest: function (payload) {
+            return apiFetch('POST', '/rest/v1/headcount_increase_requests', {
+                role: 'guest',
+                body: payload,
+                headers: { Prefer: 'return=representation' }
+            }).then(function (res) {
+                return Array.isArray(res) ? res[0] : res;
+            });
         }
     };
 
