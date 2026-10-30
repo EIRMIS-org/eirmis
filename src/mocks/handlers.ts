@@ -168,6 +168,21 @@ const exampleOrganizerProfile: OrganizerProfile = {
     updated_at: '2026-09-10T12:30:00+08:00',
 };
 
+const organizerProfiles: OrganizerProfile[] = Array.from(
+    { length: 21 },
+    (_, index) => {
+        if (index === 0) return { ...exampleOrganizerProfile };
+        const suffix = String(index).padStart(2, '0');
+        return {
+            ...exampleOrganizerProfile,
+            id: `11111111-1111-1111-1111-1111111111${suffix}`,
+            email: `organizer${suffix}@example.com`,
+            full_name: `Organizer ${suffix}`,
+            created_at: `2026-09-${String(index + 1).padStart(2, '0')}T08:00:00+08:00`,
+        };
+    },
+);
+
 const exampleAdminProfile: AdminProfile = {
     id: UUID.ADMIN,
     email: 'admin@example.com',
@@ -242,12 +257,20 @@ const exampleAuditEntry: AuditLogEntry = {
     created_at: '2026-12-10T08:05:00+08:00',
 };
 
+const exampleAuditEntries: AuditLogEntry[] = [exampleAuditEntry];
+
 // ─── Handler helpers ──────────────────────────────────────────────────────────
 
 /** Wraps a JSON list response with a PostgREST-style Content-Range header. */
-function jsonList<T>(items: T[], total = items.length): HttpResponse<unknown> {
+function jsonList<T>(
+    items: T[],
+    total = items.length,
+    start = 0,
+): HttpResponse<unknown> {
     return HttpResponse.json(items, {
-        headers: { 'Content-Range': `0-${Math.max(total - 1, 0)}/${total}` },
+        headers: {
+            'Content-Range': `${start}-${Math.max(start + items.length - 1, start)}/${total}`,
+        },
     });
 }
 
@@ -465,23 +488,71 @@ export const handlers = [
         return jsonList(filterByEq(request, [exampleEmailLog], 'event_id'));
     }),
 
-    http.get('*/rest/v1/audit_log_entries', () => jsonList([exampleAuditEntry])),
+    http.get('*/rest/v1/audit_log_entries', ({ request }) => {
+        if (!hasAuth(request)) return unauthorized();
+        return jsonList(exampleAuditEntries);
+    }),
 
     // ═══ PostgREST: organizer_profiles ═══
     http.get('*/rest/v1/organizer_profiles', ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
         const url = new URL(request.url);
+        const id = url.searchParams.get('id');
         const status = url.searchParams.get('status');
-        const profiles = status
-            ? [{ ...exampleOrganizerProfile, status: status.replace('eq.', '') }]
-            : [exampleOrganizerProfile];
-        return jsonList(profiles as OrganizerProfile[]);
+        const filteredProfiles = organizerProfiles.filter((profile) => {
+            const matchesId = !id || id === `eq.${profile.id}`;
+            const matchesStatus = !status || status === `eq.${profile.status}`;
+            return matchesId && matchesStatus;
+        });
+        const limit = Number(url.searchParams.get('limit') ?? filteredProfiles.length);
+        const offset = Number(url.searchParams.get('offset') ?? 0);
+        const profiles = filteredProfiles.slice(offset, offset + limit);
+        return jsonList(profiles, filteredProfiles.length, offset);
     }),
 
-    http.patch('*/rest/v1/organizer_profiles', async ({ request }) => {
+    http.patch('*/rest/v1/organizer_profiles/:id', async ({ request, params }) => {
         if (!hasAuth(request)) return unauthorized();
+        const id = String(params.id);
         const body = (await request.json()) as Partial<OrganizerProfile>;
-        return HttpResponse.json({ ...exampleOrganizerProfile, ...body });
+        const profile = organizerProfiles.find((item) => item.id === id);
+        if (!profile || (!body.status && !body.full_name)) {
+            return HttpResponse.json(
+                errorBody('PGRST116', 'Organizer profile not found or status is missing'),
+                { status: 404 },
+            );
+        }
+
+        if (body.full_name && !body.status) {
+            profile.full_name = body.full_name;
+            profile.updated_at = new Date().toISOString();
+            return HttpResponse.json(profile);
+        }
+
+        if (!body.status || !['pending', 'active'].includes(body.status)) {
+            return HttpResponse.json(
+                errorBody('PGRST102', 'Invalid organizer status'),
+                { status: 400 },
+            );
+        }
+
+        const previousStatus = profile.status;
+        profile.status = body.status;
+        profile.updated_at = new Date().toISOString();
+        const auditEntry: AuditLogEntry = {
+            ...exampleAuditEntry,
+            id: crypto.randomUUID(),
+            actor_type: 'system',
+            actor_id: null,
+            action: 'organizer.status_updated',
+            entity_type: 'organizer_profile',
+            entity_id: profile.id,
+            old_value: { status: previousStatus },
+            new_value: { status: profile.status },
+            reason: 'Administrator verification decision',
+            created_at: profile.updated_at,
+        };
+        exampleAuditEntries.push(auditEntry);
+        return HttpResponse.json(profile);
     }),
 
     // ═══ PostgREST: admin_profiles ═══

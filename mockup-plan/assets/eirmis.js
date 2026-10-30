@@ -58,7 +58,13 @@
                 }
                 if (res.status === 204) return null;
                 var ct = res.headers.get('content-type') || '';
-                return ct.indexOf('application/json') !== -1 ? res.json() : null;
+                if (ct.indexOf('application/json') === -1) return null;
+                return res.json().then(function (payload) {
+                    if (Array.isArray(payload)) {
+                        payload.contentRange = res.headers.get('content-range');
+                    }
+                    return payload;
+                });
             });
     }
 
@@ -175,17 +181,21 @@
         /** GET /rest/v1/organizer_profiles?status=eq.pending — admin verification queue (20/page). */
         getAdminOrganizers: function (page) {
             page = page || 0;
-            return apiFetch('GET', '/rest/v1/organizer_profiles?status=eq.pending&limit=20&offset=' + (page * 20), { role: 'admin' })
-                .then(function (rows) { return rows.map(mapOrganizer); })
+            return apiFetch('GET', '/rest/v1/organizer_profiles?status=eq.pending&limit=20&offset=' + (page * 20), { role: 'admin', headers: { Prefer: 'count=exact' } })
+                .then(function (rows) {
+                    var organizers = rows.map(mapOrganizer);
+                    organizers.contentRange = rows.contentRange;
+                    return organizers;
+                })
                 .catch(function (err) {
                     toast('Prism unreachable (' + err.message + ') — using local data.', 'warning');
                     return state.organizers.filter(function (o) { return o.status === 'pending'; });
                 });
         },
 
-        /** PATCH /rest/v1/organizer_profiles?id=eq.{id} — admin activates/suspends an organizer. */
+        /** PATCH /rest/v1/organizer_profiles/{id} — admin updates organizer status. */
         updateOrganizerStatus: function (id, status) {
-            return apiFetch('PATCH', '/rest/v1/organizer_profiles?id=eq.' + id, {
+            return apiFetch('PATCH', '/rest/v1/organizer_profiles/' + id, {
                 role: 'admin',
                 body: { status: status },
                 headers: { Prefer: 'return=representation' }

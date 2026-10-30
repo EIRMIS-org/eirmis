@@ -36,73 +36,91 @@
       '401':
         $ref: '../components/responses.yaml#/Unauthorized'
 
-/rest/v1/org_settings:
+/rest/v1/organizer_profiles:
   get:
-    operationId: getOrgSettings
-    summary: Read organization settings
-    description: >
-      Returns the organization-wide settings singleton.
-      Restricted to system administrators by RLS.
-    tags: [Admin — Settings]
+    operationId: adminListOrganizers
+    summary: List organizer profiles for verification
+    description: Returns a paginated organizer verification queue for administrators.
+    tags: [Admin — Organizer Verification]
     parameters:
       - $ref: '../components/parameters.yaml#/SelectParam'
+      - $ref: '../components/parameters.yaml#/LimitParam'
+      - $ref: '../components/parameters.yaml#/OffsetParam'
+      - $ref: '../components/parameters.yaml#/PreferCountParam'
+      - name: id
+        in: query
+        schema:
+          type: string
+          example: eq.11111111-1111-1111-1111-111111111111
+        description: Filter to the authenticated organizer's profile when used outside the admin queue.
+      - name: status
+        in: query
+        schema:
+          type: string
+          example: eq.pending
+        description: Filter by organizer status.
     responses:
       '200':
-        description: Organization settings singleton array.
+        description: Paginated organizer profiles.
+        headers:
+          Content-Range:
+            $ref: '../components/headers.yaml#/ContentRange'
         content:
           application/json:
             schema:
               type: array
               items:
-                $ref: '../components/schemas/OrgSettings.yaml#/OrgSettings'
-              maxItems: 1
-            example:
-              - id: 00000000-0000-0000-0000-000000000001
-                org_name: EIRMIS Enterprise Cloud Platform
-                default_timezone: Asia/Manila
-                default_capacity_ceiling: 150
-                sender_domain: invites.eirmis.org
-                malware_sandbox_enabled: true
-                self_registration_gate_enabled: true
-                created_at: '2026-09-01T08:00:00+08:00'
-                updated_at: '2026-09-10T12:30:00+08:00'
+                $ref: '../components/schemas/OrganizerProfile.yaml#/OrganizerProfile'
+            examples:
+              pending:
+                summary: Pending organizers
+                value:
+                  - id: 11111111-1111-1111-1111-111111111111
+                    email: organizer@example.com
+                    full_name: Jomari Barrera
+                    status: pending
+                    created_at: '2026-09-01T08:00:00+08:00'
+                    updated_at: '2026-09-10T12:30:00+08:00'
       '401':
         $ref: '../components/responses.yaml#/Unauthorized'
       '403':
         $ref: '../components/responses.yaml#/Forbidden'
 
-/rest/v1/org_settings/{id}:
+/rest/v1/organizer_profiles/{id}:
   patch:
-    operationId: updateOrgSettings
-    summary: Update organization settings
-    description: >
-      Updates one or more fields on the organization settings singleton.
-      Restricted to system administrators by RLS.
-    tags: [Admin — Settings]
+    operationId: adminUpdateOrganizerStatus
+    summary: Update organizer verification status
+    description: Updates an organizer status and records an administrator audit entry.
+    tags: [Admin — Organizer Verification]
     parameters:
       - name: id
         in: path
         required: true
         schema:
           type: string
-          example: 00000000-0000-0000-0000-000000000001
+          format: uuid
+          example: 11111111-1111-1111-1111-111111111111
       - $ref: '../components/parameters.yaml#/PreferReturnParam'
     requestBody:
       required: true
       content:
         application/json:
           schema:
-            $ref: '../components/schemas/OrgSettings.yaml#/OrgSettingsUpdate'
+            oneOf:
+              - $ref: '../components/schemas/OrganizerProfile.yaml#/OrganizerProfileUpdate'
+              - $ref: '../components/schemas/OrganizerProfile.yaml#/OrganizerStatusUpdate'
     responses:
-      '204':
-        description: Settings updated successfully.
       '200':
-        description: "Updated settings record (when `Prefer: return=representation`)."
+        description: Updated organizer profile.
         content:
           application/json:
             schema:
-              $ref: '../components/schemas/OrgSettings.yaml#/OrgSettings'
+              $ref: '../components/schemas/OrganizerProfile.yaml#/OrganizerProfile'
+      '204':
+        description: Updated.
       '401':
         $ref: '../components/responses.yaml#/Unauthorized'
       '403':
         $ref: '../components/responses.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'

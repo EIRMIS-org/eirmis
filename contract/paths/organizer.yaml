@@ -1067,52 +1067,68 @@
 
 /rest/v1/organizer_profiles:
   get:
-    operationId: getOrganizerProfile
-    summary: Read own organizer profile
-    description: Returns the authenticated organizer's own profile row.
-    tags: [Organizer — Profile, Admin — Organizer Verification]
+    operationId: adminListOrganizers
+    summary: List organizer profiles for verification
+    description: Returns a paginated organizer verification queue for administrators.
+    tags: [Admin — Organizer Verification]
     parameters:
       - $ref: '../components/parameters.yaml#/SelectParam'
-      - name: status
-        in: query
-        schema:
-          type: string
-          example: eq.pending
-        description: Filter by status (used by Admin).
+      - $ref: '../components/parameters.yaml#/LimitParam'
+      - $ref: '../components/parameters.yaml#/OffsetParam'
+      - $ref: '../components/parameters.yaml#/PreferCountParam'
       - name: id
         in: query
         schema:
           type: string
           example: eq.11111111-1111-1111-1111-111111111111
+        description: Filter to the authenticated organizer's profile when used outside the admin queue.
+      - name: status
+        in: query
+        schema:
+          type: string
+          example: eq.pending
+        description: Filter by organizer status.
     responses:
       '200':
-        description: Organizer profile.
+        description: Paginated organizer profiles.
+        headers:
+          Content-Range:
+            $ref: '../components/headers.yaml#/ContentRange'
         content:
           application/json:
             schema:
               type: array
               items:
                 $ref: '../components/schemas/OrganizerProfile.yaml#/OrganizerProfile'
-              maxItems: 1
+            examples:
+              pending:
+                summary: Pending organizers
+                value:
+                  - id: 11111111-1111-1111-1111-111111111111
+                    email: organizer@example.com
+                    full_name: Jomari Barrera
+                    status: pending
+                    created_at: '2026-09-01T08:00:00+08:00'
+                    updated_at: '2026-09-10T12:30:00+08:00'
       '401':
         $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
 
 /rest/v1/organizer_profiles/{id}:
   patch:
-    operationId: updateOrganizerProfile
-    summary: Update organizer profile
-    description: >
-      For organizers: update own `full_name`.
-      For admins: update `status` (pending → active verification).
-      RLS restricts each role to what they may change.
-    tags: [Organizer — Profile]
+    operationId: adminUpdateOrganizerStatus
+    summary: Update organizer verification status
+    description: Updates an organizer status and records an administrator audit entry.
+    tags: [Admin — Organizer Verification]
     parameters:
       - name: id
         in: path
         required: true
         schema:
           type: string
-          example: eq.11111111-1111-1111-1111-111111111111
+          format: uuid
+          example: 11111111-1111-1111-1111-111111111111
       - $ref: '../components/parameters.yaml#/PreferReturnParam'
     requestBody:
       required: true
@@ -1123,15 +1139,17 @@
               - $ref: '../components/schemas/OrganizerProfile.yaml#/OrganizerProfileUpdate'
               - $ref: '../components/schemas/OrganizerProfile.yaml#/OrganizerStatusUpdate'
     responses:
-      '204':
-        description: Updated.
       '200':
-        description: "Updated profile (when `Prefer: return=representation`)."
+        description: Updated organizer profile.
         content:
           application/json:
             schema:
               $ref: '../components/schemas/OrganizerProfile.yaml#/OrganizerProfile'
+      '204':
+        description: Updated.
       '401':
         $ref: '../components/responses.yaml#/Unauthorized'
       '403':
         $ref: '../components/responses.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'

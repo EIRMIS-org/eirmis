@@ -55,10 +55,12 @@ AuditLogEntry:
       example: 77777777-7777-7777-7777-777777777777
     old_value:
       type: ['object', 'null']
+      additionalProperties: true
       description: State of the entity before the action (nullable).
       example: null
     new_value:
       type: ['object', 'null']
+      additionalProperties: true
       description: State of the entity after the action (nullable).
       example: null
     reason:

@@ -774,6 +774,19 @@
       opacity: 1;
     }
 
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      margin: -12px 0 24px;
+    }
+
+    .pagination-controls button:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
+
     .toast-icon {
       color: #34D399;
       display: flex;
@@ -1055,6 +1068,15 @@
               pending review</div>
             <div style="font-size:12.5px; color:var(--text-muted);">You're all caught up!</div>
           </div>
+          <div class="pagination-controls" aria-label="Organizer queue pagination">
+            <button class="btn btn-secondary btn-sm" id="organizer-prev" onclick="loadOrganizerPage(organizerPage - 1)" disabled>
+              Previous
+            </button>
+            <span id="organizer-page" style="font-size:12px; color:var(--text-muted);">Page 1 of 1</span>
+            <button class="btn btn-secondary btn-sm" id="organizer-next" onclick="loadOrganizerPage(organizerPage + 1)" disabled>
+              Next
+            </button>
+          </div>
 
           <!-- Active Section -->
           <h3
@@ -1333,6 +1355,9 @@
     let activeRowId = null;
     let pendingCount = 2;
     let activeCount = 24;
+    let organizerPage = 0;
+    let organizerTotal = 0;
+    const organizerPageSize = 20;
 
     function switchTab(tabId) {
       document.querySelectorAll('.view-pane').forEach(el => el.classList.remove('active'));
@@ -1387,7 +1412,7 @@
         if (row) {
           if (window.EIRMIS && EIRMIS.getDataSource() === 'prism') {
             // Task 05: persist the status change to the Prism mock server
-            // (PATCH /rest/v1/organizer_profiles?id=eq.{uuid}) before
+            // (PATCH /rest/v1/organizer_profiles/{id}) before
             // updating the UI; surface an error toast if the call fails.
             const organizerId = activeRowId.replace('org-row-', '');
             EIRMIS.api.updateOrganizerStatus(organizerId, 'active')
@@ -1436,7 +1461,47 @@
     // onclick so the quotes don't break HTML attribute parsing).
     function retryAdminLoad() {
       toggleMockState('loading');
-      setTimeout(() => toggleMockState('loaded'), 1500);
+      setTimeout(() => {
+        toggleMockState('loaded');
+        loadOrganizerPage(organizerPage);
+      }, 1500);
+    }
+
+    function updateOrganizerPagination() {
+      const pageCount = Math.max(1, Math.ceil(organizerTotal / organizerPageSize));
+      document.getElementById('organizer-page').innerText = 'Page ' + (organizerPage + 1) + ' of ' + pageCount;
+      document.getElementById('organizer-prev').disabled = organizerPage === 0;
+      document.getElementById('organizer-next').disabled = organizerPage >= pageCount - 1;
+    }
+
+    function loadOrganizerPage(page) {
+      if (!window.EIRMIS || EIRMIS.getDataSource() !== 'prism') return;
+      const nextPage = Math.max(0, page);
+      EIRMIS.api.getAdminOrganizers(nextPage).then(function (organizers) {
+        const range = (organizers.contentRange || '').match(/^\d+-\d+\/(\d+)$/);
+        organizerTotal = range ? Number(range[1]) : organizers.length;
+        organizerPage = nextPage;
+        const tbody = document.getElementById('pending-tbody');
+        if (!tbody) return;
+        tbody.innerHTML = organizers.map(function (o) {
+          const rowId = 'org-row-' + o.id;
+          return '<tr id="' + rowId + '">' +
+            '<td><div style="font-weight:700; color:var(--text-main);">' + o.name + '</div>' +
+            '<div style="font-size:11px; color:var(--text-muted);">Organization: ' + (o.org || '—') + '</div></td>' +
+            '<td><span style="font-family:monospace; font-size:12px;">' + o.email + '</span></td>' +
+            '<td>' + (o.registeredAt || '—') + '</td>' +
+            '<td><span class="chip chip-amber"><span class="chip-dot"></span>' + o.status + '</span></td>' +
+            '<td style="text-align:right;"><button class="btn btn-primary btn-sm" onclick="promptActivateOrganizer(\'' + rowId + '\', \'' + o.name + '\', \'' + o.email + '\', \'' + (o.org || '') + '\')">' +
+            '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Activate</button></td></tr>';
+        }).join('');
+        pendingCount = organizerTotal;
+        document.getElementById('kpi-pending').innerText = pendingCount;
+        document.getElementById('queue-pending-chip').innerHTML = '<span class="chip-dot"></span>' + pendingCount + ' Pending Review';
+        updateOrganizerPagination();
+        checkEmptyStates();
+      }).catch(function (err) {
+        showToast('Unable to load organizer page: ' + ((err && err.message) || 'unknown error'));
+      });
     }
 
     function checkEmptyStates() {
@@ -1546,9 +1611,8 @@
     if (!EIRMIS.session()) {
       EIRMIS.signIn('Administrator', 'Root Admin', 'admin@eirmis.internal');
     }
-    // Task 05: load the organizer verification queue from Prism (falls back to
-    // local seed data automatically when Prism is unreachable).
     EIRMIS.setDataSource('prism');
+    loadOrganizerPage(0);
     EIRMIS.api.getAdminOrganizers(0).then(function (organizers) {
       if (!Array.isArray(organizers) || !organizers.length) return;
       const tbody = document.getElementById('pending-tbody');
