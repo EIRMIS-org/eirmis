@@ -1064,12 +1064,16 @@
     description: >
       For organizers: returns email logs for the specified event (filter by `event_id`).
       For guests: returns logs for their own invitation (filter by `invitation_id`).
+      Request `order=created_at.desc&limit=50` for the latest 50 messages by queue
+      time, not delivery-update time. The named examples are static M2 fixtures;
+      Prism does not implement database filtering or delivery transitions.
     tags: [Organizer — Email History]
     parameters:
       - $ref: '../components/parameters.yaml#/SelectParam'
       - $ref: '../components/parameters.yaml#/LimitParam'
       - $ref: '../components/parameters.yaml#/OffsetParam'
       - $ref: '../components/parameters.yaml#/OrderParam'
+      - $ref: '../components/parameters.yaml#/LogFeedPreferParam'
       - name: event_id
         in: query
         schema:
@@ -1092,6 +1096,63 @@
               type: array
               items:
                 $ref: '../components/schemas/EmailLog.yaml#/EmailLog'
+            examples:
+              EmailLogFeed:
+                summary: Latest messages first, including delivery outcomes
+                value:
+                  - id: eeeeeeee-eeee-4eee-8eee-000000000005
+                    event_id: 55555555-5555-5555-5555-555555555555
+                    invitation_id: 66666666-6666-6666-6666-666666666666
+                    attendee_id: null
+                    recipient_email: bounced@example.com
+                    type: invitation_sent
+                    provider_message_id: resend_msg_bounced
+                    status: bounced
+                    sent_at: '2026-10-30T09:20:05+08:00'
+                    created_at: '2026-10-30T09:20:00+08:00'
+                  - id: eeeeeeee-eeee-4eee-8eee-000000000004
+                    event_id: 55555555-5555-5555-5555-555555555555
+                    invitation_id: 66666666-6666-6666-6666-666666666666
+                    attendee_id: 77777777-7777-7777-7777-777777777777
+                    recipient_email: guest@example.com
+                    type: qr_codes_issued
+                    provider_message_id: resend_msg_delivered
+                    status: delivered
+                    sent_at: '2026-10-30T09:15:05+08:00'
+                    created_at: '2026-10-30T09:15:00+08:00'
+                  - id: eeeeeeee-eeee-4eee-8eee-000000000003
+                    event_id: 55555555-5555-5555-5555-555555555555
+                    invitation_id: 66666666-6666-6666-6666-666666666666
+                    attendee_id: null
+                    recipient_email: guest@example.com
+                    type: rsvp_confirmation
+                    provider_message_id: resend_msg_sent
+                    status: sent
+                    sent_at: '2026-10-30T09:10:05+08:00'
+                    created_at: '2026-10-30T09:10:00+08:00'
+                  - id: eeeeeeee-eeee-4eee-8eee-000000000002
+                    event_id: 55555555-5555-5555-5555-555555555555
+                    invitation_id: 66666666-6666-6666-6666-666666666666
+                    attendee_id: null
+                    recipient_email: failed@example.com
+                    type: reminder
+                    provider_message_id: null
+                    status: failed
+                    sent_at: null
+                    created_at: '2026-10-30T09:05:00+08:00'
+                  - id: eeeeeeee-eeee-4eee-8eee-000000000001
+                    event_id: 55555555-5555-5555-5555-555555555555
+                    invitation_id: 66666666-6666-6666-6666-666666666666
+                    attendee_id: null
+                    recipient_email: queued@example.com
+                    type: reminder
+                    provider_message_id: null
+                    status: queued
+                    sent_at: null
+                    created_at: '2026-10-30T09:00:00+08:00'
+              EmptyEmailLogFeed:
+                summary: No visible messages for the selected scope
+                value: []
       '401':
         $ref: '../components/responses.yaml#/Unauthorized'
 
@@ -1102,12 +1163,18 @@
     description: >
       Returns audit log entries for entities belonging to the organizer's events.
       Filter by `entity_type` and `entity_id` for a specific record's history.
+      Request `order=created_at.desc&limit=50` for the latest 50 actions.
+      The M2 fixture includes verification of the caller's own organizer profile
+      by an admin; it does not grant access to other organizers' verification
+      records. M3 must align the database actor enum and own-profile SELECT policy
+      with this contract. Prism fixtures do not demonstrate live RLS enforcement.
     tags: [Organizer — Audit]
     parameters:
       - $ref: '../components/parameters.yaml#/SelectParam'
       - $ref: '../components/parameters.yaml#/LimitParam'
       - $ref: '../components/parameters.yaml#/OffsetParam'
       - $ref: '../components/parameters.yaml#/OrderParam'
+      - $ref: '../components/parameters.yaml#/LogFeedPreferParam'
       - name: entity_type
         in: query
         schema:
@@ -1130,6 +1197,53 @@
               type: array
               items:
                 $ref: '../components/schemas/AuditLogEntry.yaml#/AuditLogEntry'
+            examples:
+              AuditLogFeed:
+                summary: Scoped audit history, newest action first
+                value:
+                  - id: ffffffff-ffff-4fff-8fff-000000000004
+                    actor_type: check_in_staff
+                    actor_id: 88888888-8888-8888-8888-888888888888
+                    action: checkin.attendee_scanned
+                    entity_type: attendee
+                    entity_id: 77777777-7777-7777-7777-777777777777
+                    old_value: { checked_in: false }
+                    new_value: { checked_in: true }
+                    reason: null
+                    created_at: '2026-10-30T18:05:00+08:00'
+                  - id: ffffffff-ffff-4fff-8fff-000000000003
+                    actor_type: organizer
+                    actor_id: 11111111-1111-1111-1111-111111111111
+                    action: attendee.approved_over_capacity
+                    entity_type: attendee
+                    entity_id: 77777777-7777-4777-8777-000000000002
+                    old_value: { status: pending }
+                    new_value: { status: approved, over_capacity: true }
+                    reason: Additional seating confirmed by the venue
+                    created_at: '2026-10-30T10:15:00+08:00'
+                  - id: ffffffff-ffff-4fff-8fff-000000000002
+                    actor_type: organizer
+                    actor_id: 11111111-1111-1111-1111-111111111111
+                    action: attendee.approved
+                    entity_type: attendee
+                    entity_id: 77777777-7777-7777-7777-777777777777
+                    old_value: { status: pending }
+                    new_value: { status: approved }
+                    reason: Verified RSVP and party roster
+                    created_at: '2026-10-30T10:00:00+08:00'
+                  - id: ffffffff-ffff-4fff-8fff-000000000001
+                    actor_type: admin
+                    actor_id: 22222222-2222-2222-2222-222222222222
+                    action: organizer.verified
+                    entity_type: organizer_profile
+                    entity_id: 11111111-1111-1111-1111-111111111111
+                    old_value: { status: pending }
+                    new_value: { status: active }
+                    reason: Organizer verification completed
+                    created_at: '2026-10-30T08:00:00+08:00'
+              EmptyAuditLogFeed:
+                summary: No visible audit entries for the selected scope
+                value: []
       '401':
         $ref: '../components/responses.yaml#/Unauthorized'
 

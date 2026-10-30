@@ -50,6 +50,18 @@ PreferCountParam:
     `Content-Range` response header.
   example: count=exact
 
+LogFeedPreferParam:
+  name: Prefer
+  in: header
+  schema:
+    type: string
+  description: >
+    Comma-separated preferences for log feed reads. PostgREST supports
+    `count=exact`, `count=planned`, or `count=estimated` for Content-Range totals.
+    Prism additionally accepts `example=<response-example-name>` for deterministic
+    mock selection; this does not imply live filtering or pagination behavior.
+  example: count=exact
+
 PreferReturnParam:
   name: Prefer
   in: header
