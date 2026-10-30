@@ -215,6 +215,17 @@
             });
         },
 
+        /** POST /functions/v1/waitlist/promote — FIFO waitlist promotion. */
+        promoteWaitlist: function (eventId, maxPromotions) {
+            return apiFetch('POST', '/functions/v1/waitlist/promote', {
+                role: 'organizer',
+                body: {
+                    event_id: eventId,
+                    max_promotions: maxPromotions || 1
+                }
+            });
+        },
+
         /** GET /rest/v1/invitations?guest_id=eq.{guestId}&select=*,events(*) — guest invitations with event details. */
         getGuestInvitations: function (guestId) {
             guestId = guestId || '33333333-3333-3333-3333-333333333333';

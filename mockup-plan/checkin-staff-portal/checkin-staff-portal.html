@@ -1207,6 +1207,15 @@
           if (res.result === 'accepted') {
             checkedInCount++;
             document.getElementById('staff-checkedin-num').innerText = checkedInCount;
+            if (window.BroadcastChannel) {
+              const channel = new BroadcastChannel('broadcast.attendance.55555555-5555-5555-5555-555555555555');
+              channel.postMessage({
+                attendee_name: name,
+                scanned_at: res.checked_in_at || new Date().toISOString(),
+                checked_in_by: currentActor()
+              });
+              channel.close();
+            }
           }
           showToast(name + (res.result === 'already_checked_in' ? ' already checked in.' : ' checked in successfully.'));
           logAuditEvent(name, currentActor(), 'Scanned', res.result === 'already_checked_in' ? 'Duplicate Blocked' : 'Success', res.result === 'accepted');
