@@ -124,7 +124,7 @@ create trigger trg_invitations_updated_at
 create or replace function fn_invitations_rsvp_deadline_check()
 returns trigger
 language plpgsql
-as $
+as $$
 declare
   v_deadline timestamptz;
   v_is_guest boolean;
@@ -148,7 +148,7 @@ begin
 
   return new;
 end;
-$;
+$$;
 
 create trigger trg_invitations_rsvp_deadline_check
   before update on invitations

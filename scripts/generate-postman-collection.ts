@@ -78,7 +78,7 @@ function buildItem(def: RequestDefinition) {
     }
   }
 
-  let requestBody: any = undefined;
+  let requestBody: Record<string, unknown> | undefined = undefined;
 
   if (def.isFormData) {
     requestBody = {
