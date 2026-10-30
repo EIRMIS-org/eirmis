@@ -6326,8 +6326,8 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
       confirmBtn.disabled = true;
       confirmBtn.innerHTML = '<span class="promotion-spinner" aria-hidden="true"></span>Promoting...';
 
-      // Mockup-only processing state; no backend/API call is made.
-      setTimeout(() => {
+      const eventId = "55555555-5555-5555-5555-555555555555";
+      EIRMIS.api.promoteWaitlist(eventId, 1).then(() => {
         const targetRow = document.getElementById(pendingWaitlistPromotion.rowId);
         const targetName = pendingWaitlistPromotion.name;
 
@@ -6355,7 +6355,15 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
         confirmBtn.innerHTML = '<span class="promotion-spinner" aria-hidden="true"></span>Confirm Promote';
         pendingWaitlistPromotion = null;
         showToast(targetName + " promoted off the waitlist. Invitation unblocked.");
-      }, 650);
+      }).catch((error) => {
+        modal.classList.remove("processing");
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = '<span class="promotion-spinner" aria-hidden="true"></span>Confirm Promote';
+        if (errorEl) {
+          errorEl.querySelector("span").textContent = error.message || "The promotion could not be completed.";
+          errorEl.classList.add("visible");
+        }
+      });
     }
 
     /* Email Log Filter */
@@ -6466,6 +6474,24 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
     // Task 05: enable live Prism data for EIRMIS.api calls (falls back to the
     // local seed automatically when Prism is unreachable).
     EIRMIS.setDataSource('prism');
+    (function initAttendanceFeed() {
+      if (!window.BroadcastChannel) return;
+      const channel = new BroadcastChannel("broadcast.attendance.55555555-5555-5555-5555-555555555555");
+      channel.onmessage = function (message) {
+        const payload = message.data || {};
+        const attendeeName = payload.attendee_name;
+        if (!attendeeName) return;
+        const rows = document.getElementById("attendance-feed-rows");
+        if (!rows) return;
+        const row = document.createElement("tr");
+        const scannedAt = payload.scanned_at ? new Date(payload.scanned_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Now";
+        row.innerHTML = '<td><strong>' + attendeeName + '</strong><span class="chip chip-blue" style="font-size:10px">Live</span></td>' +
+          '<td><span class="chip chip-green">Checked In</span></td><td>' + scannedAt + '</td><td>Check-in Staff</td>';
+        rows.prepend(row);
+        const count = document.getElementById("dash-checked-in-count");
+        if (count) count.textContent = String(Number(count.textContent || 0) + 1);
+      };
+    })();
     function openImportModal() {
       const modal = document.getElementById("import-csv-modal");
       if (modal) modal.classList.add("active");
