@@ -142,6 +142,7 @@ VITE_STORAGE_BUCKET_DESIGNS=        # bucket name for invitation gallery images 
 Every secret is an **Edge Function secret**, never an app variable — with no application server, there is no server-side app environment to hide one in:
 ```bash
 supabase secrets set RESEND_API_KEY=...
+supabase secrets set RESEND_FROM_EMAIL="EIRMIS <tickets@your-verified-domain.com>"
 supabase secrets set VIRUSTOTAL_API_KEY=...
 ```
 `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are injected into Edge Functions by the platform automatically — do not add them to `.env.local`. Google OAuth client ID/secret and the Resend SMTP credentials are configured in the Supabase Auth provider dashboard, not as app-level environment variables at all.
@@ -389,7 +390,7 @@ Scheduled reminders (e.g. T-7-day, T-1-day before the event) are configured per 
 
 ### Audit & Integrity
 
-All state-changing actions are logged to `AuditLogEntry`, including: `attendee.approved`, `attendee.rejected`, `attendee.approved_over_capacity`, `headcount_request.approved`, `headcount_request.rejected`, `invitation_design.uploaded`, `invitation_design.validation_failed`, `qr.bulk_sent`, `checkin.attendee_scanned`, `checkin_assignment.granted`, `checkin_assignment.revoked`, `organizer.verified`. The audit log is append-only/immutable at the DB level.
+All state-changing actions are logged to `AuditLogEntry`, including: `attendee.approved`, `attendee.rejected`, `attendee.approved_over_capacity`, `headcount_request.approved`, `headcount_request.rejected`, `invitation_design.uploaded`, `invitation_design.validation_failed`, `qr_bundle_sent`, `checkin.attendee_scanned`, `checkin_assignment.granted`, `checkin_assignment.revoked`, `organizer.verified`. The audit log is append-only/immutable at the DB level.
 
 ## 7. Data Model Reference
 
