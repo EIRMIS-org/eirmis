@@ -452,7 +452,7 @@ const testCases: TestCase[] = [
     description:    'Organizer: update own profile (full_name)',
     role:           'Organizer',
     method:         'PATCH',
-    path:           `/rest/v1/organizer_profiles/eq.${UUID.ORGANIZER}`,
+    path:           `/rest/v1/organizer_profiles/${UUID.ORGANIZER}`,
     headers:        H.orgRepr,
     body:           { full_name: 'Jack Jonel Fiel' },
     expectedStatus: 200,
@@ -495,7 +495,7 @@ const testCases: TestCase[] = [
     method:         'POST',
     path:           '/functions/v1/qr-bundle',
     headers:        H.organizer,
-    body:           { invitation_id: UUID.INVITATION, event_id: null },
+    body:           { invitation_id: UUID.INVITATION },
     expectedStatus: 200,
   },
   {
@@ -532,7 +532,7 @@ const testCases: TestCase[] = [
     description:    'Admin: activate an organizer account (status → active)',
     role:           'Admin',
     method:         'PATCH',
-    path:           `/rest/v1/organizer_profiles/eq.${UUID.ORGANIZER}`,
+    path:           `/rest/v1/organizer_profiles/${UUID.ORGANIZER}`,
     headers:        { ...H.admin, Prefer: 'return=representation' },
     body:           { status: 'active' },
     expectedStatus: 200,
@@ -865,8 +865,8 @@ async function runPrismTests(): Promise<void> {
       continue;
     }
 
-    let gotStatus: number | string = 'ERR';
-    let resultSymbol = '❌ FAIL';
+    let gotStatus: number | string;
+    let resultSymbol: string;
 
     try {
       const isFormData = typeof FormData !== 'undefined' && tc.body instanceof FormData;
