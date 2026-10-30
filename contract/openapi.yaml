@@ -294,9 +294,9 @@ paths:
   /rest/v1/audit_log_entries:
     $ref: './paths/organizer.yaml#/~1rest~1v1~1audit_log_entries'
   /rest/v1/organizer_profiles:
-    $ref: './paths/organizer.yaml#/~1rest~1v1~1organizer_profiles'
+    $ref: './paths/admin.yaml#/~1rest~1v1~1organizer_profiles'
   /rest/v1/organizer_profiles/{id}:
-    $ref: './paths/organizer.yaml#/~1rest~1v1~1organizer_profiles~1{id}'
+    $ref: './paths/admin.yaml#/~1rest~1v1~1organizer_profiles~1{id}'
 
   # ---------- Admin portal ----------
   /rest/v1/admin_profiles:

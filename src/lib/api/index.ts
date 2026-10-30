@@ -519,18 +519,17 @@ export function listAuditLogEntries(): Promise<
 
 /** GET /rest/v1/organizer_profiles — read own organizer profile. */
 export function getOrganizerProfile(): Promise<
-    ListOk<operations['getOrganizerProfile']>
+    ListOk<operations['adminListOrganizers']>
 > {
     return request('GET', '/rest/v1/organizer_profiles');
 }
 
-/** PATCH /rest/v1/organizer_profiles?id=eq.{id} — update own profile (organizer). */
+/** PATCH /rest/v1/organizer_profiles/{id} — update own profile (organizer). */
 export function updateOrganizerProfile(
     id: string,
     body: components['schemas']['OrganizerProfileUpdate'],
-): Promise<Ok<operations['updateOrganizerProfile']>> {
-    return request('PATCH', '/rest/v1/organizer_profiles', {
-        query: { id: `eq.${id}` },
+): Promise<Ok<operations['adminUpdateOrganizerStatus']>> {
+    return request('PATCH', `/rest/v1/organizer_profiles/${id}`, {
         body,
         headers: { Prefer: 'return=representation' },
     });
@@ -603,7 +602,7 @@ export function getAdminProfile(): Promise<
 export function getAdminOrganizers(
     page = 0,
     status = 'eq.pending',
-): Promise<ListOk<operations['getOrganizerProfile']>> {
+): Promise<ListOk<operations['adminListOrganizers']>> {
     return request('GET', '/rest/v1/organizer_profiles', {
         role: 'admin',
         query: { status, limit: 20, offset: page * 20 },
@@ -611,16 +610,15 @@ export function getAdminOrganizers(
 }
 
 /**
- * PATCH /rest/v1/organizer_profiles?id=eq.{id} — admin activates/suspends an
+ * PATCH /rest/v1/organizer_profiles/{id} — admin activates/suspends an
  * organizer account (status → active | suspended).
  */
 export function updateOrganizerStatus(
     id: string,
     status: components['schemas']['OrganizerStatus'],
-): Promise<Ok<operations['updateOrganizerProfile']>> {
-    return request('PATCH', '/rest/v1/organizer_profiles', {
+): Promise<Ok<operations['adminUpdateOrganizerStatus']>> {
+    return request('PATCH', `/rest/v1/organizer_profiles/${id}`, {
         role: 'admin',
-        query: { id: `eq.${id}` },
         body: { status } satisfies OrganizerStatusUpdate,
         headers: { Prefer: 'return=representation' },
     });

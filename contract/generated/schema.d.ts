@@ -386,10 +386,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Read own organizer profile
-         * @description Returns the authenticated organizer's own profile row.
+         * List organizer profiles for verification
+         * @description Returns a paginated organizer verification queue for administrators.
          */
-        get: operations["getOrganizerProfile"];
+        get: operations["adminListOrganizers"];
         put?: never;
         post?: never;
         delete?: never;
@@ -412,10 +412,10 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Update organizer profile
-         * @description For organizers: update own `full_name`. For admins: update `status` (pending → active verification). RLS restricts each role to what they may change.
+         * Update organizer verification status
+         * @description Updates an organizer status and records an administrator audit entry.
          */
-        patch: operations["updateOrganizerProfile"];
+        patch: operations["adminUpdateOrganizerStatus"];
         trace?: never;
     };
     "/rest/v1/admin_profiles": {
@@ -2046,12 +2046,16 @@ export interface components {
              * @description State of the entity before the action (nullable).
              * @example null
              */
-            old_value?: Record<string, never> | null;
+            old_value?: {
+                [key: string]: unknown;
+            } | null;
             /**
              * @description State of the entity after the action (nullable).
              * @example null
              */
-            new_value?: Record<string, never> | null;
+            new_value?: {
+                [key: string]: unknown;
+            } | null;
             /**
              * @description Organizer's optional override/decision note.
              * @example null
@@ -2371,6 +2375,15 @@ export interface components {
         };
         /** @description Forbidden — the caller's JWT is valid but RLS denied the operation. An undocumented 403 here is a contract bug. */
         Forbidden: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Resource not found or not accessible to the caller. */
+        NotFound: {
             headers: {
                 [name: string]: unknown;
             };
@@ -3425,7 +3438,7 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
         };
     };
-    getOrganizerProfile: {
+    adminListOrganizers: {
         parameters: {
             query?: {
                 /**
@@ -3433,19 +3446,37 @@ export interface operations {
                  * @example id,title,status
                  */
                 select?: components["parameters"]["SelectParam"];
-                /** @description Filter by status (used by Admin). */
-                status?: string;
+                /**
+                 * @description Maximum number of rows to return.
+                 * @example 20
+                 */
+                limit?: components["parameters"]["LimitParam"];
+                /**
+                 * @description Number of rows to skip before returning results.
+                 * @example 0
+                 */
+                offset?: components["parameters"]["OffsetParam"];
+                /** @description Filter to the authenticated organizer's profile when used outside the admin queue. */
                 id?: string;
+                /** @description Filter by organizer status. */
+                status?: string;
             };
-            header?: never;
+            header?: {
+                /**
+                 * @description Request a row count. `count=exact` returns the precise count in the `Content-Range` response header.
+                 * @example count=exact
+                 */
+                Prefer?: components["parameters"]["PreferCountParam"];
+            };
             path?: never;
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Organizer profile. */
+            /** @description Paginated organizer profiles. */
             200: {
                 headers: {
+                    "Content-Range": components["headers"]["ContentRange"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -3453,9 +3484,10 @@ export interface operations {
                 };
             };
             401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
-    updateOrganizerProfile: {
+    adminUpdateOrganizerStatus: {
         parameters: {
             query?: never;
             header?: {
@@ -3476,7 +3508,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Updated profile (when `Prefer: return=representation`). */
+            /** @description Updated organizer profile. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -3494,6 +3526,7 @@ export interface operations {
             };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
         };
     };
     getAdminProfile: {
