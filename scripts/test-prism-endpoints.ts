@@ -17,6 +17,8 @@
  *   PRISM_URL=http://127.0.0.1:4010 npm run contract:test
  */
 
+import assert from 'node:assert/strict';
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type Role =
@@ -52,6 +54,8 @@ interface TestCase {
   body?: unknown;
   /** Expected HTTP status code from Prism. */
   expectedStatus: number;
+  /** Optional response assertions beyond the status code (Task 14 feed fixtures). */
+  validateResponse?: (response: Response) => Promise<void>;
   /**
    * When true the test is registered but NOT executed.
    * Used for x-internal operations that are service-role only and
@@ -117,6 +121,84 @@ function createHtmlUploadFormData(): FormData {
     'invitation.html'
   );
   return fd;
+}
+
+// These assertions exercise selected M2 fixtures, not live sorting, RLS, or delivery.
+async function validateLogFeed(response: Response, kind: 'email' | 'audit', empty = false): Promise<void> {
+  assert.match(response.headers.get('content-type') ?? '', /application\/json/i);
+  const body: unknown = await response.json();
+  assert.ok(Array.isArray(body), 'Log feed must be an array');
+  assert.equal(body.length, empty ? 0 : kind === 'email' ? 5 : 4, 'Selected feed example row count');
+  if (empty) return;
+
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const identifiers = new Set<string>();
+  const values = new Set<string>();
+  let previousTime = Infinity;
+  for (const value of body) {
+    assert.ok(value && typeof value === 'object' && !Array.isArray(value), 'Log row must be an object');
+    const row = value as Record<string, unknown>;
+    assert.equal(typeof row.id, 'string');
+    assert.match(row.id as string, uuidPattern);
+    assert.ok(!identifiers.has(row.id as string), 'Duplicate log row ID');
+    identifiers.add(row.id as string);
+    assert.equal(typeof row.created_at, 'string');
+    const createdTime = Date.parse(row.created_at as string);
+    assert.ok(Number.isFinite(createdTime), 'created_at must be a valid timestamp');
+    assert.ok(createdTime <= previousTime, 'Feed must be ordered by created_at descending');
+    previousTime = createdTime;
+
+    if (kind === 'email') {
+      assert.equal(row.event_id, UUID.EVENT, 'Email fixture must belong to the selected event');
+      assert.equal(row.invitation_id, UUID.INVITATION);
+      assert.equal(typeof row.recipient_email, 'string');
+      assert.match(row.recipient_email as string, /^[^@\s]+@[^@\s]+\.[^@\s]+$/);
+      assert.equal(typeof row.type, 'string');
+      assert.ok(['queued', 'sent', 'delivered', 'bounced', 'failed'].includes(row.status as string));
+      assert.ok(row.provider_message_id === null || typeof row.provider_message_id === 'string');
+      assert.ok(row.attendee_id === null || (typeof row.attendee_id === 'string' && uuidPattern.test(row.attendee_id)));
+      if (['sent', 'delivered', 'bounced'].includes(row.status as string)) {
+        assert.equal(typeof row.sent_at, 'string');
+        assert.ok(Number.isFinite(Date.parse(row.sent_at as string)));
+        assert.ok(Date.parse(row.sent_at as string) >= createdTime, 'Dispatch cannot precede queue time');
+        assert.equal(typeof row.provider_message_id, 'string');
+      } else {
+        assert.equal(row.sent_at, null, 'Unsent example must have null sent_at');
+      }
+      values.add(row.status as string);
+    } else {
+      assert.equal(typeof row.action, 'string');
+      assert.equal(typeof row.entity_type, 'string');
+      assert.equal(typeof row.entity_id, 'string');
+      assert.match(row.entity_id as string, uuidPattern);
+      assert.equal(typeof row.actor_id, 'string');
+      assert.match(row.actor_id as string, uuidPattern);
+      for (const field of ['old_value', 'new_value']) {
+        assert.ok(row[field] && typeof row[field] === 'object' && !Array.isArray(row[field]), `${field} must describe the state change`);
+      }
+      assert.ok(row.reason === null || typeof row.reason === 'string');
+      if (row.action === 'organizer.verified') {
+        assert.equal(row.actor_type, 'admin');
+        assert.equal(row.actor_id, UUID.ADMIN);
+        assert.equal(row.entity_type, 'organizer_profile');
+        assert.equal(row.entity_id, UUID.ORGANIZER, 'Verification example must be scoped to the caller profile');
+      } else if (row.action === 'checkin.attendee_scanned') {
+        assert.equal(row.actor_type, 'check_in_staff');
+        assert.equal(row.actor_id, UUID.ASSIGNMENT);
+      } else {
+        assert.equal(row.actor_type, 'organizer');
+        assert.equal(row.actor_id, UUID.ORGANIZER);
+      }
+      if (row.action === 'attendee.approved_over_capacity') {
+        assert.ok(typeof row.reason === 'string' && row.reason.length > 0, 'Capacity override needs a reason');
+      }
+      values.add(row.action as string);
+    }
+  }
+  const expected = kind === 'email'
+    ? ['queued', 'sent', 'delivered', 'bounced', 'failed']
+    : ['attendee.approved', 'attendee.approved_over_capacity', 'checkin.attendee_scanned', 'organizer.verified'];
+  assert.deepEqual([...values].sort(), expected.sort(), 'Selected example must cover every required outcome');
 }
 
 const testCases: TestCase[] = [
@@ -420,20 +502,40 @@ const testCases: TestCase[] = [
   // ══════════════════════════════════════════════════════════════════════════
 
   {
-    description:    'Organizer: list email logs for an event',
+    description:    'Organizer: chronological email feed with delivery outcomes',
     role:           'Organizer',
     method:         'GET',
-    path:           `/rest/v1/email_logs?event_id=eq.${UUID.EVENT}`,
-    headers:        H.organizer,
+    path:           `/rest/v1/email_logs?event_id=eq.${UUID.EVENT}&order=created_at.desc&limit=50`,
+    headers:        { ...H.organizer, Prefer: 'example=EmailLogFeed' },
     expectedStatus: 200,
+    validateResponse: response => validateLogFeed(response, 'email'),
   },
   {
-    description:    'Organizer: list audit log entries for an event',
+    description:    'Organizer: chronological audit feed with scoped actors',
     role:           'Organizer',
     method:         'GET',
-    path:           '/rest/v1/audit_log_entries',
-    headers:        H.organizer,
+    path:           '/rest/v1/audit_log_entries?order=created_at.desc&limit=50',
+    headers:        { ...H.organizer, Prefer: 'example=AuditLogFeed' },
     expectedStatus: 200,
+    validateResponse: response => validateLogFeed(response, 'audit'),
+  },
+  {
+    description:    'Organizer: empty email feed example',
+    role:           'Organizer',
+    method:         'GET',
+    path:           `/rest/v1/email_logs?event_id=eq.${UUID.EVENT}&order=created_at.desc&limit=50`,
+    headers:        { ...H.organizer, Prefer: 'example=EmptyEmailLogFeed' },
+    expectedStatus: 200,
+    validateResponse: response => validateLogFeed(response, 'email', true),
+  },
+  {
+    description:    'Organizer: empty audit feed example',
+    role:           'Organizer',
+    method:         'GET',
+    path:           '/rest/v1/audit_log_entries?order=created_at.desc&limit=50',
+    headers:        { ...H.organizer, Prefer: 'example=EmptyAuditLogFeed' },
+    expectedStatus: 200,
+    validateResponse: response => validateLogFeed(response, 'audit', true),
   },
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -867,6 +969,7 @@ async function runPrismTests(): Promise<void> {
 
     let gotStatus: number | string;
     let resultSymbol: string;
+    let failureDetail = '';
 
     try {
       const isFormData = typeof FormData !== 'undefined' && tc.body instanceof FormData;
@@ -881,6 +984,7 @@ async function runPrismTests(): Promise<void> {
       gotStatus = response.status;
 
       if (response.status === tc.expectedStatus) {
+        await tc.validateResponse?.(response);
         passed++;
         resultSymbol = '✅ PASS';
       } else {
@@ -890,6 +994,7 @@ async function runPrismTests(): Promise<void> {
     } catch (err: unknown) {
       failed++;
       const message = err instanceof Error ? err.message : String(err);
+      failureDetail = message;
       gotStatus = message.length > COL.GOT ? message.slice(0, COL.GOT - 1) + '…' : message;
       resultSymbol = '❌ ERR ';
     }
@@ -910,6 +1015,7 @@ async function runPrismTests(): Promise<void> {
       resultSymbol +
       descLabel
     );
+    if (failureDetail) console.error(`   ${failureDetail}`);
   }
 
   console.log('\n' + divider('═'));

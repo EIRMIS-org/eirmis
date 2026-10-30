@@ -347,7 +347,7 @@ export interface paths {
         };
         /**
          * List email logs
-         * @description For organizers: returns email logs for the specified event (filter by `event_id`). For guests: returns logs for their own invitation (filter by `invitation_id`).
+         * @description For organizers: returns email logs for the specified event (filter by `event_id`). For guests: returns logs for their own invitation (filter by `invitation_id`). Request `order=created_at.desc&limit=50` for the latest 50 messages by queue time, not delivery-update time. The named examples are static M2 fixtures; Prism does not implement database filtering or delivery transitions.
          */
         get: operations["listEmailLogs"];
         put?: never;
@@ -367,7 +367,7 @@ export interface paths {
         };
         /**
          * List audit log entries for an event
-         * @description Returns audit log entries for entities belonging to the organizer's events. Filter by `entity_type` and `entity_id` for a specific record's history.
+         * @description Returns audit log entries for entities belonging to the organizer's events. Filter by `entity_type` and `entity_id` for a specific record's history. Request `order=created_at.desc&limit=50` for the latest 50 actions. The M2 fixture includes verification of the caller's own organizer profile by an admin; it does not grant access to other organizers' verification records. M3 must align the database actor enum and own-profile SELECT policy with this contract. Prism fixtures do not demonstrate live RLS enforcement.
          */
         get: operations["listAuditLogEntries"];
         put?: never;
@@ -2074,7 +2074,7 @@ export interface components {
             status: components["schemas"]["CheckinAssignmentStatus"];
         };
         /**
-         * @description Record of every transactional email dispatched through Resend. Written by Edge Functions under service role only — no client INSERT. Rows are write-once: no UPDATE or DELETE is permitted.
+         * @description Record of every transactional email dispatched through Resend. Written by Edge Functions under service role only — no client INSERT. Clients have read-only access. Trusted server-side dispatch and delivery handling may update the status and provider metadata of the same message. A feed row represents one email, not a separate row for each status transition. The created_at value remains the original queue time; sent_at is null until dispatch. Delivered and bounced are M2 contract targets whose live provider callbacks and database enum support are deferred to M3.
          * @example {
          *       "id": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
          *       "event_id": "55555555-5555-5555-5555-555555555555",
@@ -2130,7 +2130,7 @@ export interface components {
             status: components["schemas"]["EmailLogStatus"];
             /**
              * Format: date-time
-             * @description Set when `status` transitions to `sent`.
+             * @description Dispatch timestamp; retained for delivered/bounced outcomes and null before dispatch.
              * @example null
              */
             sent_at?: string | null;
@@ -2168,7 +2168,7 @@ export interface components {
             actor_type: components["schemas"]["AuditActorType"];
             /**
              * Format: uuid
-             * @description FK semantics: `organizer_profiles.id`, `guests.id`, or `checkin_assignments.id` depending on `actor_type`. `null` when `actor_type = system`.
+             * @description FK semantics: `organizer_profiles.id`, `admin_profiles.id`, `guests.id`, or `checkin_assignments.id` depending on `actor_type`. `null` when `actor_type = system`.
              * @example 11111111-1111-1111-1111-111111111111
              */
             actor_id?: string | null;
@@ -2511,15 +2511,15 @@ export interface components {
          */
         CheckinAssignmentStatus: "invited" | "active" | "revoked";
         /**
-         * @description `queued` — record created; not yet dispatched. `sent`   — successfully accepted by Resend. `failed` — delivery attempt failed; see provider_message_id for details.
+         * @description `queued` — record created; not yet dispatched. `sent`   — successfully accepted by Resend. `delivered` — delivery confirmed by the provider. `bounced` — rejected by the receiving mail server after dispatch. `failed` — delivery attempt failed; see provider_message_id for details.
          * @enum {string}
          */
-        EmailLogStatus: "queued" | "sent" | "failed";
+        EmailLogStatus: "queued" | "sent" | "delivered" | "bounced" | "failed";
         /**
-         * @description `organizer`      — action by an OrganizerProfile (actor_id = organizer_profiles.id). `guest`          — action by a Guest (actor_id = guests.id). `check_in_staff` — action by a CheckInAssignment holder (actor_id = checkin_assignments.id). `system`         — action by a scheduled job or automated process (actor_id = null).
+         * @description `organizer`      — action by an OrganizerProfile (actor_id = organizer_profiles.id). `admin`          — action by an AdminProfile (actor_id = admin_profiles.id). `guest`          — action by a Guest (actor_id = guests.id). `check_in_staff` — action by a CheckInAssignment holder (actor_id = checkin_assignments.id). `system`         — action by a scheduled job or automated process (actor_id = null).
          * @enum {string}
          */
-        AuditActorType: "organizer" | "guest" | "check_in_staff" | "system";
+        AuditActorType: "organizer" | "admin" | "guest" | "check_in_staff" | "system";
         /**
          * @description `pending` — newly self-registered; awaiting admin verification. `active`  — verified; may create and manage events.
          * @enum {string}
@@ -2622,6 +2622,11 @@ export interface components {
          * @example return=representation
          */
         PreferReturnParam: "return=representation" | "return=minimal" | "return=headers-only";
+        /**
+         * @description Comma-separated preferences for log feed reads. PostgREST supports `count=exact`, `count=planned`, or `count=estimated` for Content-Range totals. Prism additionally accepts `example=<response-example-name>` for deterministic mock selection; this does not imply live filtering or pagination behavior.
+         * @example count=exact
+         */
+        LogFeedPreferParam: string;
     };
     requestBodies: never;
     headers: {
@@ -3566,7 +3571,13 @@ export interface operations {
                 event_id?: string;
                 invitation_id?: string;
             };
-            header?: never;
+            header?: {
+                /**
+                 * @description Comma-separated preferences for log feed reads. PostgREST supports `count=exact`, `count=planned`, or `count=estimated` for Content-Range totals. Prism additionally accepts `example=<response-example-name>` for deterministic mock selection; this does not imply live filtering or pagination behavior.
+                 * @example count=exact
+                 */
+                Prefer?: components["parameters"]["LogFeedPreferParam"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -3611,7 +3622,13 @@ export interface operations {
                 entity_type?: string;
                 entity_id?: string;
             };
-            header?: never;
+            header?: {
+                /**
+                 * @description Comma-separated preferences for log feed reads. PostgREST supports `count=exact`, `count=planned`, or `count=estimated` for Content-Range totals. Prism additionally accepts `example=<response-example-name>` for deterministic mock selection; this does not imply live filtering or pagination behavior.
+                 * @example count=exact
+                 */
+                Prefer?: components["parameters"]["LogFeedPreferParam"];
+            };
             path?: never;
             cookie?: never;
         };

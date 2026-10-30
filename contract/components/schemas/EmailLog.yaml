@@ -3,7 +3,12 @@ EmailLog:
   description: >
     Record of every transactional email dispatched through Resend.
     Written by Edge Functions under service role only — no client INSERT.
-    Rows are write-once: no UPDATE or DELETE is permitted.
+    Clients have read-only access. Trusted server-side dispatch and delivery
+    handling may update the status and provider metadata of the same message.
+    A feed row represents one email, not a separate row for each status transition.
+    The created_at value remains the original queue time; sent_at is null until
+    dispatch. Delivered and bounced are M2 contract targets whose live provider
+    callbacks and database enum support are deferred to M3.
   example:
     id: eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee
     event_id: 55555555-5555-5555-5555-555555555555
@@ -60,7 +65,7 @@ EmailLog:
     sent_at:
       type: ['string', 'null']
       format: date-time
-      description: Set when `status` transitions to `sent`.
+      description: Dispatch timestamp; retained for delivered/bounced outcomes and null before dispatch.
       example: null
     created_at:
       type: string

@@ -73,17 +73,20 @@ CheckinAssignmentStatus:
 
 EmailLogStatus:
   type: string
-  enum: [queued, sent, failed]
+  enum: [queued, sent, delivered, bounced, failed]
   description: >
     `queued` — record created; not yet dispatched.
     `sent`   — successfully accepted by Resend.
+    `delivered` — delivery confirmed by the provider.
+    `bounced` — rejected by the receiving mail server after dispatch.
     `failed` — delivery attempt failed; see provider_message_id for details.
 
 AuditActorType:
   type: string
-  enum: [organizer, guest, check_in_staff, system]
+  enum: [organizer, admin, guest, check_in_staff, system]
   description: >
     `organizer`      — action by an OrganizerProfile (actor_id = organizer_profiles.id).
+    `admin`          — action by an AdminProfile (actor_id = admin_profiles.id).
     `guest`          — action by a Guest (actor_id = guests.id).
     `check_in_staff` — action by a CheckInAssignment holder (actor_id = checkin_assignments.id).
     `system`         — action by a scheduled job or automated process (actor_id = null).

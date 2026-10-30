@@ -36,7 +36,7 @@ AuditLogEntry:
       type: ['string', 'null']
       format: uuid
       description: >
-        FK semantics: `organizer_profiles.id`, `guests.id`, or
+        FK semantics: `organizer_profiles.id`, `admin_profiles.id`, `guests.id`, or
         `checkin_assignments.id` depending on `actor_type`.
         `null` when `actor_type = system`.
       example: 11111111-1111-1111-1111-111111111111
