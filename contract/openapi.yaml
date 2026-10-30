@@ -98,6 +98,8 @@ tags:
     description: Admin profile read.
   - name: 'Admin — Organizer Verification'
     description: Organizer verification queue (pending → active).
+  - name: 'Admin — Settings'
+    description: Organization settings and security defaults.
   - name: 'Guest — Profile'
     description: Guest profile read and update.
   - name: 'Guest — Attendees'
@@ -134,6 +136,7 @@ x-tagGroups:
     tags:
       - 'Admin — Profile'
       - 'Admin — Organizer Verification'
+      - 'Admin — Settings'
   - name: Guest
     tags:
       - 'Guest — Profile'
@@ -301,6 +304,10 @@ components:
       $ref: './components/schemas/OrganizerProfile.yaml#/OrganizerStatusUpdate'
     AdminProfile:
       $ref: './components/schemas/AdminProfile.yaml#/AdminProfile'
+    OrgSettings:
+      $ref: './components/schemas/OrgSettings.yaml#/OrgSettings'
+    OrgSettingsUpdate:
+      $ref: './components/schemas/OrgSettings.yaml#/OrgSettingsUpdate'
     Event:
       $ref: './components/schemas/Event.yaml#/Event'
     EventCreate:
@@ -430,6 +437,10 @@ paths:
   # ---------- Admin portal ----------
   /rest/v1/admin_profiles:
     $ref: './paths/admin.yaml#/~1rest~1v1~1admin_profiles'
+  /rest/v1/org_settings:
+    $ref: './paths/admin.yaml#/~1rest~1v1~1org_settings'
+  /rest/v1/org_settings/{id}:
+    $ref: './paths/admin.yaml#/~1rest~1v1~1org_settings~1{id}'
 
   # ---------- Guest portal ----------
   /rest/v1/guests/{id}:

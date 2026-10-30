@@ -77,6 +77,7 @@ const UUID = {
   HIR:          'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
   DESIGN:       'cccccccc-cccc-cccc-cccc-cccccccccccc',
   IMAGE:        'dddddddd-dddd-dddd-dddd-dddddddddddd',
+  SETTINGS:     '00000000-0000-0000-0000-000000000001',
 } as const;
 
 // ─── Fake role tokens ─────────────────────────────────────────────────────────
@@ -536,6 +537,29 @@ const testCases: TestCase[] = [
     body:           { status: 'active' },
     expectedStatus: 200,
   },
+  {
+    description:    'Admin: read organization settings singleton',
+    role:           'Admin',
+    method:         'GET',
+    path:           '/rest/v1/org_settings',
+    headers:        H.admin,
+    expectedStatus: 200,
+  },
+  {
+    description:    'Admin: update organization settings (PATCH)',
+    role:           'Admin',
+    method:         'PATCH',
+    path:           `/rest/v1/org_settings/${UUID.SETTINGS}`,
+    headers:        { ...H.admin, Prefer: 'return=representation' },
+    body:           {
+      org_name: 'EIRMIS Enterprise Cloud Platform',
+      default_timezone: 'Asia/Manila',
+      default_capacity_ceiling: 150,
+      malware_sandbox_enabled: true,
+      self_registration_gate_enabled: true,
+    },
+    expectedStatus: 200,
+  },
 
   // ══════════════════════════════════════════════════════════════════════════
   // 15 — GUEST
@@ -684,6 +708,14 @@ const testCases: TestCase[] = [
     role:           'No Auth (401)',
     method:         'GET',
     path:           '/rest/v1/admin_profiles',
+    headers:        H.noAuth,
+    expectedStatus: 401,
+  },
+  {
+    description:    'Error 401: no auth header → read organization settings',
+    role:           'No Auth (401)',
+    method:         'GET',
+    path:           '/rest/v1/org_settings',
     headers:        H.noAuth,
     expectedStatus: 401,
   },
