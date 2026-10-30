@@ -11,11 +11,27 @@
 /rest/v1/events:
   get:
     operationId: listEvents
-    summary: List organizer's events
+    summary: List events (organizer-owned or public discovery)
     description: >
-      Returns the authenticated organizer's non-deleted events.
-      RLS restricts the result set to `organizer_id = auth.uid()`.
-      Use `?status=eq.published` to filter by status.
+      Dual-mode endpoint — behaviour depends on whether a bearer token is supplied.
+
+
+      Authenticated (organizer): Returns the caller's own non-deleted events.
+      RLS restricts the result set to `organizer_id = auth.uid()`. All `status`
+      values are visible. Use `?status=eq.published` or `?status=in.(draft,published)`
+      to narrow by lifecycle state.
+
+
+      Unauthenticated (public discovery): No bearer token required. The caller
+      MUST supply both `?visibility_mode=eq.open_registration` and
+      `?status=eq.published` to satisfy the RLS anon-read policy, which only
+      exposes open-registration published events to unauthenticated requests. This
+      is the query used by the `/register/:slug` public registration flow to resolve
+      an event before rendering the sign-up form.
+
+
+      In both modes, soft-deleted events (`deleted_at IS NOT NULL`) are hidden by
+      RLS and do not appear in results.
     tags: [Organizer — Events, Check-in Staff — Event, Public — Registration]
     security:
       - bearerAuth: []
@@ -37,19 +53,30 @@
         schema:
           type: string
           example: eq.annual-gala-2026
-        description: Filter by event slug (used by Public Registration).
+        description: >
+          Filter by event slug (used by Public Registration). Combine with
+          `visibility_mode=eq.open_registration&status=eq.published` for
+          unauthenticated slug-based lookups on the `/register/:slug` page.
       - name: visibility_mode
         in: query
         schema:
           type: string
           example: eq.open_registration
-        description: Filter by visibility mode.
+        description: >
+          Filter by visibility mode using PostgREST operator syntax.
+          Public discovery: must be `eq.open_registration` — the RLS
+          anon-read policy only surfaces `open_registration` events to
+          unauthenticated callers.
       - name: status
         in: query
         schema:
           type: string
           example: eq.published
-        description: Filter by event status using PostgREST operator syntax (e.g. `eq.published`, `in.(draft,published)`).
+        description: >
+          Filter by event status using PostgREST operator syntax
+          (e.g. `eq.published`, `in.(draft,published)`).
+          Public discovery: must be `eq.published` — the RLS anon-read
+          policy only exposes published events to unauthenticated callers.
       - name: deleted_at
         in: query
         schema:
@@ -58,7 +85,11 @@
         description: Filter out soft-deleted events. Defaults to `is.null` via RLS.
     responses:
       '200':
-        description: List of events belonging to the authenticated organizer.
+        description: >
+          Array of events. For authenticated organizers, contains all non-deleted
+          events owned by the caller. For unauthenticated public discovery
+          (with `visibility_mode=eq.open_registration&status=eq.published`),
+          contains only open-registration published events visible to anonymous users.
         headers:
           Content-Range:
             $ref: '../components/headers.yaml#/ContentRange'
@@ -68,6 +99,78 @@
               type: array
               items:
                 $ref: '../components/schemas/Event.yaml#/Event'
+            examples:
+              OrganizerEventList:
+                summary: Authenticated organizer — mixed-status event list
+                value:
+                  - id: 55555555-5555-5555-5555-555555555555
+                    organizer_id: 11111111-1111-1111-1111-111111111111
+                    title: Annual Gala 2026
+                    slug: annual-gala-2026
+                    description: A celebration of achievements and milestones.
+                    cover_image_url: 'https://example.supabase.co/storage/v1/object/public/covers/gala-2026.jpg'
+                    starts_at: '2026-12-15T18:00:00+08:00'
+                    ends_at: '2026-12-15T22:00:00+08:00'
+                    event_timezone: Asia/Manila
+                    venue_name: Grand Ballroom
+                    address: 123 Rizal Avenue
+                    city: Cebu City
+                    location_url: 'https://maps.google.com/?q=grand+ballroom+cebu'
+                    capacity: 500
+                    rsvp_deadline: '2026-12-01T23:59:59+08:00'
+                    visibility_mode: invite_only
+                    status: published
+                    deleted_at: null
+                    created_at: '2026-09-01T08:00:00+08:00'
+                    updated_at: '2026-11-15T10:00:00+08:00'
+                  - id: 44444444-4444-4444-4444-444444444444
+                    organizer_id: 11111111-1111-1111-1111-111111111111
+                    title: Tech Summit Open Day
+                    slug: tech-summit-open-day-2026
+                    description: null
+                    cover_image_url: null
+                    starts_at: '2026-11-20T09:00:00+08:00'
+                    ends_at: '2026-11-20T17:00:00+08:00'
+                    event_timezone: Asia/Manila
+                    venue_name: null
+                    address: null
+                    city: null
+                    location_url: null
+                    capacity: 200
+                    rsvp_deadline: '2026-11-10T23:59:59+08:00'
+                    visibility_mode: open_registration
+                    status: draft
+                    deleted_at: null
+                    created_at: '2026-10-05T09:30:00+08:00'
+                    updated_at: '2026-10-05T09:30:00+08:00'
+              PublicEventDiscovery:
+                summary: Unauthenticated public discovery — open_registration + published
+                description: >
+                  Response to GET /rest/v1/events?visibility_mode=eq.open_registration&status=eq.published
+                  (no Authorization header). RLS anon-read policy surfaces only
+                  open-registration published events. Callers on the /register/:slug
+                  page typically narrow further with &slug=eq.<slug>.
+                value:
+                  - id: 66666666-6666-6666-6666-666666666666
+                    organizer_id: 22222222-2222-2222-2222-222222222222
+                    title: Community Wellness Fair 2026
+                    slug: community-wellness-fair-2026
+                    description: A free public health and wellness fair open to all residents.
+                    cover_image_url: 'https://example.supabase.co/storage/v1/object/public/covers/wellness-fair-2026.jpg'
+                    starts_at: '2026-11-08T08:00:00+08:00'
+                    ends_at: '2026-11-08T17:00:00+08:00'
+                    event_timezone: Asia/Manila
+                    venue_name: Cebu City Sports Complex
+                    address: Osmena Blvd
+                    city: Cebu City
+                    location_url: 'https://maps.google.com/?q=cebu+city+sports+complex'
+                    capacity: 1000
+                    rsvp_deadline: '2026-11-05T23:59:59+08:00'
+                    visibility_mode: open_registration
+                    status: published
+                    deleted_at: null
+                    created_at: '2026-09-20T10:00:00+08:00'
+                    updated_at: '2026-10-28T16:45:00+08:00'
       '401':
         $ref: '../components/responses.yaml#/Unauthorized'
 

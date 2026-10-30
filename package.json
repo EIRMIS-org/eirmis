@@ -12,11 +12,14 @@
     "test": "vitest",
     "test:e2e": "playwright test",
     "check:seed": "node scripts/check-seed-pii.js",
-    "contract:lint": "redocly lint contract/openapi.yaml --config contract/redocly.yaml",
-    "contract:gen": "openapi-typescript contract/openapi.yaml -o contract/generated/schema.d.ts",
+    "contract:lint": "npx @redocly/cli lint contract/openapi.yaml --config contract/redocly.yaml",
+    "contract:gen": "npx openapi-typescript contract/openapi.yaml -o contract/generated/schema.d.ts",
     "contract:check": "node scripts/contract-check.js",
     "contract:docs": "redocly build-docs contract/openapi.yaml --config contract/redocly.yaml -o contract/generated/docs/index.html",
-    "contract:mock": "npx @stoplight/prism-cli mock contract/openapi.yaml",
+    "contract:mock": "prism mock contract/openapi.yaml -p 4010 --cors",
+    "contract:mock:dynamic": "prism mock contract/openapi.yaml -p 4010 --cors -d",
+    "contract:test": "tsx scripts/test-prism-endpoints.ts",
+    "contract:postman": "tsx scripts/generate-postman-collection.ts",
     "db:types": "supabase gen types typescript --local > src/lib/supabase/database.types.ts",
     "functions:serve": "supabase functions serve"
   },
@@ -40,6 +43,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@redocly/cli": "^2.53.2",
+    "@stoplight/prism-cli": "^5.16.0",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
@@ -48,9 +52,16 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.4",
     "globals": "^17.11.0",
+    "msw": "^3.0.3",
     "openapi-typescript": "^7.13.0",
+    "tsx": "^4.23.15",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.67.0",
     "vite": "^8.2.2"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

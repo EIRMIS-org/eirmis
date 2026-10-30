@@ -6456,11 +6456,16 @@ Annual celebration honoring emerging leaders in autonomous systems and enterpris
       handleMobileLayout();
     });
   </script>
+  <!-- Task 05: point the EIRMIS.api adapter at the Stoplight Prism mock server -->
+  <script>window.EIRMIS_API_URL = 'http://127.0.0.1:4010';</script>
   <script src="../assets/eirmis.js"></script>
   <script>
     // Organizer Portal has its own navigation system (sidebar + topbar).
     // Do NOT call EIRMIS.init() here — it would inject a duplicate global nav bar.
     // Auto-seed organizer session for any shared components that need it.
+    // Task 05: enable live Prism data for EIRMIS.api calls (falls back to the
+    // local seed automatically when Prism is unreachable).
+    EIRMIS.setDataSource('prism');
     function openImportModal() {
       const modal = document.getElementById("import-csv-modal");
       if (modal) modal.classList.add("active");

@@ -63,6 +63,8 @@ servers:
       project:
         description: Your Supabase project reference (e.g. `abcdefghijklmnop`)
         default: your-project-ref
+  - url: 'http://127.0.0.1:4010'
+    description: Stoplight Prism local mock server
 
 security:
   - bearerAuth: []

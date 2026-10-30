@@ -4,6 +4,17 @@ EmailLog:
     Record of every transactional email dispatched through Resend.
     Written by Edge Functions under service role only — no client INSERT.
     Rows are write-once: no UPDATE or DELETE is permitted.
+  example:
+    id: eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee
+    event_id: 55555555-5555-5555-5555-555555555555
+    invitation_id: 66666666-6666-6666-6666-666666666666
+    attendee_id: null
+    recipient_email: guest@example.com
+    type: rsvp_confirmation
+    provider_message_id: resend_msg_123456789
+    status: sent
+    sent_at: '2026-12-01T09:15:30+08:00'
+    created_at: '2026-12-01T09:15:00+08:00'
   required: [id, recipient_email, type, status, created_at]
   properties:
     id:
