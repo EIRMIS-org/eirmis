@@ -1364,12 +1364,12 @@
 
       // Wire to Stoplight Prism via EIRMIS.api
       if (window.EIRMIS && window.EIRMIS.api && typeof window.EIRMIS.api.createHeadcountRequest === 'function') {
-        const requestedAdditional = parseInt(document.getElementById('requested-heads').value, 10) || 1;
-        const note = document.getElementById('headcount-note').value.trim() || null;
+        const requestedAdditional = parseInt(document.getElementById('req-heads-num').value, 10) || 1;
+        const note = document.getElementById('req-heads-note').value.trim() || null;
         const payload = {
           invitation_id: '66666666-6666-6666-6666-666666666666',
-          requested_additional: requestedAdditional,
-          request_reason: note
+          requested_additional_heads: requestedAdditional,
+          note: note
         };
         window.EIRMIS.api.createHeadcountRequest(payload)
           .then(function (res) {
