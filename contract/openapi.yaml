@@ -328,6 +328,8 @@ paths:
     $ref: './paths/functions.yaml#/~1functions~1v1~1html-scan-callback'
   /functions/v1/attendees/{id}/decision:
     $ref: './paths/functions.yaml#/~1functions~1v1~1attendees~1{id}~1decision'
+  /functions/v1/submit-headcount-request:
+    $ref: './paths/functions.yaml#/~1functions~1v1~1submit-headcount-request'
   /functions/v1/headcount-requests/{id}/decision:
     $ref: './paths/functions.yaml#/~1functions~1v1~1headcount-requests~1{id}~1decision'
   /functions/v1/qr-bundle:

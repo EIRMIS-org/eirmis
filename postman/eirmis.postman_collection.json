@@ -2326,11 +2326,6 @@
             "method": "POST",
             "header": [
               {
-                "key": "Prefer",
-                "value": "return=representation",
-                "type": "text"
-              },
-              {
                 "key": "Content-Type",
                 "value": "application/json",
                 "type": "text"
@@ -2346,17 +2341,17 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/rest/v1/headcount_increase_requests",
+              "raw": "{{baseUrl}}/functions/v1/submit-headcount-request",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "rest",
+                "functions",
                 "v1",
-                "headcount_increase_requests"
+                "submit-headcount-request"
               ]
             },
-            "description": "Requests an increase in headcount capacity with optional note for the organizer."
+            "description": "Submits a headcount request and emails the organizer through Resend."
           },
           "event": [
             {
@@ -2367,8 +2362,8 @@
                   "pm.test(\"Headcount request submitted (201 Created)\", function () {",
                   "    pm.response.to.have.status(201);",
                   "    var json = pm.response.json();",
-                  "    if (Array.isArray(json) && json[0]?.id) {",
-                  "        pm.collectionVariables.set(\"hirId\", json[0].id);",
+                  "    if (json.id) {",
+                  "        pm.collectionVariables.set(\"hirId\", json.id);",
                   "    }",
                   "});"
                 ]

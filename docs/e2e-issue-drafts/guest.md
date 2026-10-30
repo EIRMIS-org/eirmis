@@ -27,7 +27,7 @@ A guest can read/update only their own invitation, profile, RSVP, and attendee r
 | 1a | Follow a valid invitation magic link | Auth session belongs to intended guest; only their invitation is shown; Auth behavior is live integration, outside Prism's HTTP contract |
 | 1b | In a separate scenario, open public registration and submit details | Eligible event lookup 200; POST /functions/v1/register returns 201; intended registration/auth handoff occurs without exposing private events |
 | 2 | Accept RSVP and submit roster up to max_party_size | Invitation PATCH 200/204; attendee POST 201; guest sees their saved roster after reload |
-| 3 | Request additional headcount | POST /rest/v1/headcount_increase_requests returns 201 and request appears pending |
+| 3 | Request additional headcount | POST /functions/v1/submit-headcount-request returns 201, request appears pending, and organizer receives an email |
 | 4 | Organizer approves request and attendee(s) in separate context | Decision functions return 200; allowance changes by agreed amount; approval state persists |
 | 5 | Guest views issued QR pass | Pass belongs to approved attendee/event, renders after reload, and matches issued token; agree pass UI/data source during implementation |
 

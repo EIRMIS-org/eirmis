@@ -260,14 +260,11 @@
             });
         },
 
-        /** POST /rest/v1/headcount_increase_requests — submit headcount request. */
+        /** POST /functions/v1/submit-headcount-request — submit request and notify organizer. */
         createHeadcountRequest: function (payload) {
-            return apiFetch('POST', '/rest/v1/headcount_increase_requests', {
+            return apiFetch('POST', '/functions/v1/submit-headcount-request', {
                 role: 'guest',
-                body: payload,
-                headers: { Prefer: 'return=representation' }
-            }).then(function (res) {
-                return Array.isArray(res) ? res[0] : res;
+                body: payload
             });
         }
     };

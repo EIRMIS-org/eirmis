@@ -50,7 +50,7 @@ The failure column lists only responses currently declared by the contract. It d
 | `submitAttendee` | `POST /rest/v1/attendees` | — | — | 201 | — | — | 401, 403 | User/public contract |
 | `updateAttendee` | `PATCH /rest/v1/attendees/{id}` | — | — | 200/204 | — | — | 401, 403 | User/public contract |
 | `listHeadcountRequests` | `GET /rest/v1/headcount_increase_requests` | 200 | — | 200 | — | — | 401 | User/public contract |
-| `submitHeadcountRequest` | `POST /rest/v1/headcount_increase_requests` | — | — | 201 | — | — | 401, 409 | User/public contract |
+| `submitHeadcountRequest` | `POST /functions/v1/submit-headcount-request` | — | — | 201 | — | — | 401, 403, 409, 500, 502 | Edge Function |
 | `getInvitationDesign` | `GET /rest/v1/invitation_designs` | 200 | — | — | — | — | 401 | User/public contract |
 | `createInvitationDesign` | `POST /rest/v1/invitation_designs` | 201 | — | — | — | — | 401, 409 | User/public contract |
 | `listInvitationImages` | `GET /rest/v1/invitation_images` | 200 | — | — | — | 200 | 401 | User/public contract |
