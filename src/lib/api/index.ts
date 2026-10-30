@@ -398,13 +398,12 @@ export function listHeadcountRequests(
     return request('GET', '/rest/v1/headcount_increase_requests', { query });
 }
 
-/** POST /rest/v1/headcount_increase_requests — submit a headcount request (guest). */
+/** POST /functions/v1/submit-headcount-request — submit a headcount request (guest). */
 export function submitHeadcountRequest(
     body: components['schemas']['HeadcountIncreaseRequestCreate'],
 ): Promise<Ok<operations['submitHeadcountRequest']>> {
-    return request('POST', '/rest/v1/headcount_increase_requests', {
+    return request('POST', '/functions/v1/submit-headcount-request', {
         body,
-        headers: { Prefer: 'return=representation' },
     });
 }
 

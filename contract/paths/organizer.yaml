@@ -762,38 +762,6 @@
       '401':
         $ref: '../components/responses.yaml#/Unauthorized'
 
-  post:
-    operationId: submitHeadcountRequest
-    summary: Submit a headcount increase request
-    description: >
-      A guest submits a request to raise their `max_party_size`. The invitation must
-      be `accepted` and at capacity. The partial unique index blocks a second pending
-      request from the same invitation.
-    tags: [Guest — Headcount]
-    parameters:
-      - $ref: '../components/parameters.yaml#/PreferReturnParam'
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../components/schemas/HeadcountIncreaseRequest.yaml#/HeadcountIncreaseRequestCreate'
-    responses:
-      '201':
-        description: Request submitted; status is `pending`.
-        content:
-          application/json:
-            schema:
-              $ref: '../components/schemas/HeadcountIncreaseRequest.yaml#/HeadcountIncreaseRequest'
-      '401':
-        $ref: '../components/responses.yaml#/Unauthorized'
-      '409':
-        description: Conflict — a pending request already exists for this invitation.
-        content:
-          application/json:
-            schema:
-              $ref: '../components/schemas/Error.yaml#/Error'
-
 /rest/v1/invitation_designs:
   get:
     operationId: getInvitationDesign

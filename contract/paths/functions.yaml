@@ -241,6 +241,52 @@
             schema:
               $ref: '../components/schemas/Error.yaml#/Error'
 
+/functions/v1/submit-headcount-request:
+  post:
+    operationId: submitHeadcountRequest
+    summary: Submit a headcount increase request
+    description: >
+      A guest submits a request to raise their `max_party_size`. The invitation
+      must be accepted. The function inserts the request, records a queued
+      `headcount_request_submitted` email log, and sends a notification to the
+      event organizer through Resend.
+    tags: [Guest — Headcount]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/HeadcountIncreaseRequest.yaml#/HeadcountIncreaseRequestCreate'
+    responses:
+      '201':
+        description: Request submitted and organizer notification sent.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/HeadcountIncreaseRequest.yaml#/HeadcountIncreaseRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '409':
+        description: Conflict — a pending request already exists for this invitation.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Error.yaml#/Error'
+      '500':
+        description: Request was saved, but email logging failed.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Error.yaml#/Error'
+      '502':
+        description: Request was saved, but the organizer notification could not be sent or logged.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Error.yaml#/Error'
+
 /functions/v1/qr-bundle:
   post:
     operationId: dispatchQrBundle

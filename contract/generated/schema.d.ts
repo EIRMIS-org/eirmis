@@ -216,11 +216,7 @@ export interface paths {
          */
         get: operations["listHeadcountRequests"];
         put?: never;
-        /**
-         * Submit a headcount increase request
-         * @description A guest submits a request to raise their `max_party_size`. The invitation must be `accepted` and at capacity. The partial unique index blocks a second pending request from the same invitation.
-         */
-        post: operations["submitHeadcountRequest"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -519,6 +515,26 @@ export interface paths {
          * @description Approve or reject an individual attendee submission. This must go through the Edge Function because it atomically: performs the capacity soft-check, issues the signed `qr_token` on approval, writes the audit entry, and triggers the batched notification email when the invitation's pending queue newly clears to zero. A capacity-over-limit approval proceeds (soft check) and is audited as an override.
          */
         post: operations["decideAttendee"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/functions/v1/submit-headcount-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit a headcount increase request
+         * @description A guest submits a request to raise their `max_party_size`. The invitation must be accepted. The function inserts the request, records a queued `headcount_request_submitted` email log, and sends a notification to the event organizer through Resend.
+         */
+        post: operations["submitHeadcountRequest"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2037,12 +2053,12 @@ export interface components {
          * @description Record of every transactional email dispatched through Resend. Written by Edge Functions under service role only — no client INSERT. Rows are write-once: no UPDATE or DELETE is permitted.
          * @example {
          *       "id": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
-         *       "event_id": "55555555-5555-5555-5555-555555555555",
-         *       "invitation_id": "66666666-6666-6666-6666-666666666666",
+         *       "event_id": null,
+         *       "invitation_id": null,
          *       "attendee_id": null,
-         *       "recipient_email": "guest@example.com",
-         *       "type": "rsvp_confirmation",
-         *       "provider_message_id": "resend_msg_123456789",
+         *       "recipient_email": "organizer@example.com",
+         *       "type": "organizer_account_verified",
+         *       "provider_message_id": "resend_msg_org_verified_123456789",
          *       "status": "sent",
          *       "sent_at": "2026-12-01T09:15:30+08:00",
          *       "created_at": "2026-12-01T09:15:00+08:00"
@@ -2078,10 +2094,11 @@ export interface components {
              */
             recipient_email: string;
             /**
-             * @description Email type identifier (freeform — no enum, so new types can be added without a migration). Known types: `invitation_sent`, `rsvp_confirmation`, `waitlist_promoted`, `reminder`, `invitation_nudge`, `attendee_status_update`, `headcount_request_submitted`, `headcount_request_decided`, `qr_codes_issued`, `invitation_design_validation_failed`, `organizer_account_verified`.
-             * @example rsvp_confirmation
+             * @description Email type identifier. New values can be added without a database migration because the underlying column is freeform text.
+             * @example organizer_account_verified
+             * @enum {string}
              */
-            type: string;
+            type: "invitation_sent" | "rsvp_confirmation" | "waitlist_promoted" | "reminder" | "invitation_nudge" | "attendee_status_update" | "headcount_request_submitted" | "headcount_request_decided" | "qr_codes_issued" | "invitation_design_validation_failed" | "organizer_account_verified";
             /**
              * @description Resend's message ID, useful for delivery troubleshooting.
              * @example null
@@ -3160,46 +3177,6 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
         };
     };
-    submitHeadcountRequest: {
-        parameters: {
-            query?: never;
-            header?: {
-                /**
-                 * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
-                 * @example return=representation
-                 */
-                Prefer?: components["parameters"]["PreferReturnParam"];
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["HeadcountIncreaseRequestCreate"];
-            };
-        };
-        responses: {
-            /** @description Request submitted; status is `pending`. */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HeadcountIncreaseRequest"];
-                };
-            };
-            401: components["responses"]["Unauthorized"];
-            /** @description Conflict — a pending request already exists for this invitation. */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
     getInvitationDesign: {
         parameters: {
             query: {
@@ -3878,6 +3855,59 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             /** @description Attendee not found or not accessible. */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    submitHeadcountRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HeadcountIncreaseRequestCreate"];
+            };
+        };
+        responses: {
+            /** @description Request submitted and organizer notification sent. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HeadcountIncreaseRequest"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            /** @description Conflict — a pending request already exists for this invitation. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Request was saved, but email logging failed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Request was saved, but the organizer notification could not be sent or logged. */
+            502: {
                 headers: {
                     [name: string]: unknown;
                 };

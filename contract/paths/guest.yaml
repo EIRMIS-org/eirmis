@@ -10,8 +10,8 @@
 #          (operationId: updateInvitation, guest updates status, dietary_preference, special_requests)
 #   - POST /rest/v1/attendees
 #          (operationId: submitAttendee, guest adds party members up to max_party_size)
-#   - POST /rest/v1/headcount_increase_requests
-#          (operationId: submitHeadcountRequest, guest requests additional heads when at capacity)
+#   - POST /functions/v1/submit-headcount-request
+#          (operationId: submitHeadcountRequest, inserts request and emails organizer)
 # =============================================================================
 
 /rest/v1/guests/{id}:

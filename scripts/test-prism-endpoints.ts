@@ -633,8 +633,8 @@ const testCases: TestCase[] = [
     description:    'Guest: submit a headcount increase request',
     role:           'Guest',
     method:         'POST',
-    path:           '/rest/v1/headcount_increase_requests',
-    headers:        H.guestRepr,
+    path:           '/functions/v1/submit-headcount-request',
+    headers:        H.guest,
     body:           {
       invitation_id:              UUID.INVITATION,
       requested_additional_heads: 2,

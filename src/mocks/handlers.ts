@@ -406,7 +406,8 @@ export const handlers = [
         return jsonList(filterByEq(request, [exampleHir], 'invitation_id'));
     }),
 
-    http.post('*/rest/v1/headcount_increase_requests', async ({ request }) => {
+    // ═══ Edge Function: submit headcount request and notify organizer ═══
+    http.post('*/functions/v1/submit-headcount-request', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
         const body = (await request.json()) as Partial<HeadcountIncreaseRequest>;
         return HttpResponse.json(

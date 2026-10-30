@@ -658,10 +658,9 @@ const guestRequests: RequestDefinition[] = [
   },
   {
     name: 'Submit Headcount Increase Request',
-    description: 'Requests an increase in headcount capacity with optional note for the organizer.',
+    description: 'Submits a headcount request and emails the organizer through Resend.',
     method: 'POST',
-    url: '{{baseUrl}}/rest/v1/headcount_increase_requests',
-    headers: { Prefer: 'return=representation' },
+    url: '{{baseUrl}}/functions/v1/submit-headcount-request',
     body: {
       invitation_id: '{{invitationId}}',
       requested_additional_heads: 2,
@@ -671,8 +670,8 @@ const guestRequests: RequestDefinition[] = [
       'pm.test("Headcount request submitted (201 Created)", function () {',
       '    pm.response.to.have.status(201);',
       '    var json = pm.response.json();',
-      '    if (Array.isArray(json) && json[0]?.id) {',
-      '        pm.collectionVariables.set("hirId", json[0].id);',
+      '    if (json.id) {',
+      '        pm.collectionVariables.set("hirId", json.id);',
       '    }',
       '});',
     ],
