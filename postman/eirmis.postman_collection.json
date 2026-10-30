@@ -1805,20 +1805,15 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/rest/v1/organizer_profiles?id=eq.{{organizerId}}",
+                  "raw": "{{baseUrl}}/rest/v1/organizer_profiles/{{organizerId}}",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "rest",
                     "v1",
-                    "organizer_profiles"
-                  ],
-                  "query": [
-                    {
-                      "key": "id",
-                      "value": "eq.{{organizerId}}"
-                    }
+                    "organizer_profiles",
+                    "{{organizerId}}"
                   ]
                 },
                 "description": "Updates organizer display full name."
@@ -1972,20 +1967,15 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/rest/v1/organizer_profiles?id=eq.{{organizerId}}",
+              "raw": "{{baseUrl}}/rest/v1/organizer_profiles/{{organizerId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "rest",
                 "v1",
-                "organizer_profiles"
-              ],
-              "query": [
-                {
-                  "key": "id",
-                  "value": "eq.{{organizerId}}"
-                }
+                "organizer_profiles",
+                "{{organizerId}}"
               ]
             },
             "description": "Moves a self-registered organizer account from pending to active status."

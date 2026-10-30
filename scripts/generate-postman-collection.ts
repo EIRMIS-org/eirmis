@@ -548,7 +548,7 @@ const organizerSubfolders = [
         name: 'Update Own Organizer Profile',
         description: 'Updates organizer display full name.',
         method: 'PATCH' as const,
-        url: '{{baseUrl}}/rest/v1/organizer_profiles?id=eq.{{organizerId}}',
+        url: '{{baseUrl}}/rest/v1/organizer_profiles/{{organizerId}}',
         headers: { Prefer: 'return=representation' },
         body: {
           full_name: 'Jack Jonel Fiel',
@@ -575,7 +575,7 @@ const adminRequests: RequestDefinition[] = [
     name: 'Verify & Activate Organizer Account',
     description: 'Moves a self-registered organizer account from pending to active status.',
     method: 'PATCH',
-    url: '{{baseUrl}}/rest/v1/organizer_profiles?id=eq.{{organizerId}}',
+    url: '{{baseUrl}}/rest/v1/organizer_profiles/{{organizerId}}',
     headers: { Prefer: 'return=representation' },
     body: {
       status: 'active',
