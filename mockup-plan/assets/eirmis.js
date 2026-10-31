@@ -202,8 +202,9 @@
         var blob = new Blob([csv + '\r\n'], { type: 'text/csv;charset=utf-8' });
         var url = URL.createObjectURL(blob);
         var link = document.createElement('a');
+        var stamp = new Date().toISOString().slice(0, 10);
         link.href = url;
-        link.download = /\.csv$/i.test(filename) ? filename : filename + '.csv';
+        link.download = filename.replace(/\.csv$/i, '') + '-' + stamp + '.csv';
         link.click();
         URL.revokeObjectURL(url);
     }
