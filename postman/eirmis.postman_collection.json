@@ -1098,7 +1098,9 @@
                     {
                       "key": "file",
                       "type": "file",
-                      "src": [],
+                      "src": [
+                        "C:\\Project\\eirmis\\postman\\sample-invitation.html"
+                      ],
                       "description": "Single self-contained HTML invitation file (<5MB, valid DOCTYPE, no external resources)"
                     }
                   ]

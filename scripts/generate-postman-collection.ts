@@ -92,7 +92,7 @@ function buildItem(def: RequestDefinition) {
         {
           key: 'file',
           type: 'file',
-          src: [],
+          src: [path.resolve(process.cwd(), 'postman', 'sample-invitation.html')],
           description: 'Single self-contained HTML invitation file (<5MB, valid DOCTYPE, no external resources)',
         },
       ],
