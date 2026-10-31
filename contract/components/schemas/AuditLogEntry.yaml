@@ -7,10 +7,23 @@ AuditLogEntry:
     Audited actions include: `attendee.approved`, `attendee.rejected`,
     `attendee.approved_over_capacity`, `headcount_request.approved`,
     `headcount_request.rejected`, `invitation_design.uploaded`,
-    `invitation_design.validation_failed`, `qr.bulk_sent`,
+    `invitation_design.validation_failed`, `qr_bundle_sent`, `qr.bulk_sent`,
     `checkin.attendee_scanned`, `checkin.attendee_rescanned`,
     `checkin_assignment.granted`, `checkin_assignment.revoked`,
     `organizer.verified`.
+  example:
+    id: ffffffff-ffff-ffff-ffff-ffffffffffff
+    actor_type: organizer
+    actor_id: 11111111-1111-1111-1111-111111111111
+    action: attendee.approved
+    entity_type: attendee
+    entity_id: 77777777-7777-7777-7777-777777777777
+    old_value:
+      status: pending
+    new_value:
+      status: approved
+    reason: Verified team member
+    created_at: '2026-12-10T08:05:00+08:00'
   required: [id, actor_type, action, entity_type, entity_id, created_at]
   properties:
     id:
@@ -23,7 +36,7 @@ AuditLogEntry:
       type: ['string', 'null']
       format: uuid
       description: >
-        FK semantics: `organizer_profiles.id`, `guests.id`, or
+        FK semantics: `organizer_profiles.id`, `admin_profiles.id`, `guests.id`, or
         `checkin_assignments.id` depending on `actor_type`.
         `null` when `actor_type = system`.
       example: 11111111-1111-1111-1111-111111111111
@@ -42,10 +55,12 @@ AuditLogEntry:
       example: 77777777-7777-7777-7777-777777777777
     old_value:
       type: ['object', 'null']
+      additionalProperties: true
       description: State of the entity before the action (nullable).
       example: null
     new_value:
       type: ['object', 'null']
+      additionalProperties: true
       description: State of the entity after the action (nullable).
       example: null
     reason:

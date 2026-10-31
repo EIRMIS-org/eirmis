@@ -122,7 +122,7 @@ create policy "email_logs: guest reads own invitation logs"
 --   attendee.approved                  attendee.rejected
 --   attendee.approved_over_capacity    headcount_request.approved
 --   headcount_request.rejected         invitation_design.uploaded
---   invitation_design.validation_failed qr.bulk_sent
+--   invitation_design.validation_failed qr_bundle_sent
 --   checkin.attendee_scanned           checkin.attendee_rescanned   (D1: soft re-entry)
 --   checkin_assignment.granted         checkin_assignment.revoked
 --   organizer.verified

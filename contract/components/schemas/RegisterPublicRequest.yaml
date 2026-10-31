@@ -1,4 +1,9 @@
 type: object
+description: Request payload for public self-registration to an open event.
+example:
+  event_id: 55555555-5555-5555-5555-555555555555
+  email: newguest@example.com
+  full_name: Juan dela Cruz
 required: [event_id, email, full_name]
 properties:
   event_id:

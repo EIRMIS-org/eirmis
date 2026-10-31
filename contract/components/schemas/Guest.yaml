@@ -5,6 +5,13 @@ Guest:
     before the person ever logs in — created by an organizer building an
     invite-only list, or by public self-registration. `auth_user_id` is
     populated lazily on first magic-link login. Guest rows are never hard-deleted.
+  example:
+    id: 33333333-3333-3333-3333-333333333333
+    email: guest@example.com
+    full_name: Maria Santos
+    auth_user_id: 33333333-3333-3333-3333-333333333333
+    created_at: '2026-09-05T08:00:00+08:00'
+    updated_at: '2026-09-05T08:00:00+08:00'
   required: [id, email, full_name, created_at, updated_at]
   properties:
     id:
@@ -20,6 +27,7 @@ Guest:
       example: guest@example.com
     full_name:
       type: string
+      description: Full name of the guest for badges, roster displays, and communications.
       example: Maria Santos
     auth_user_id:
       type: ['string', 'null']
@@ -31,20 +39,25 @@ Guest:
     created_at:
       type: string
       format: date-time
+      description: Timestamp when the guest record was first inserted into the directory.
       example: '2026-09-05T08:00:00+08:00'
     updated_at:
       type: string
       format: date-time
+      description: Timestamp when the guest profile was last updated.
       example: '2026-09-05T08:00:00+08:00'
 
 GuestUpdate:
   type: object
   description: Fields a guest may update on their own profile.
+  example:
+    full_name: Maria Santos-Cruz
   minProperties: 1
   properties:
     full_name:
       type: string
-      example: Maria Santos
+      description: Updated full name for the guest profile.
+      example: Maria Santos-Cruz
 
 GuestCreate:
   type: object
@@ -52,12 +65,17 @@ GuestCreate:
     Request body to create a guest record (used during public open-registration).
     On conflict with an existing `email`, the caller should use
     `Prefer: resolution=merge-duplicates` to upsert and match the existing record.
+  example:
+    email: newguest@example.com
+    full_name: Juan dela Cruz
   required: [email, full_name]
   properties:
     email:
       type: string
       format: email
+      description: Canonical contact email for the new guest.
       example: newguest@example.com
     full_name:
       type: string
+      description: Full name of the new guest.
       example: Juan dela Cruz

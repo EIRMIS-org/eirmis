@@ -699,22 +699,34 @@
         </div>
 
         <p style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">
-          Confirm your attendance for <strong>Tech Forward Annual Gala 2026</strong>. Accepting reserves capacity and unlocks your party roster.
+          Confirm your attendance for <strong>Tech Forward Annual Gala 2026</strong>. Accepting reserves capacity and
+          unlocks your party roster.
         </p>
 
         <div class="rsvp-selector-group">
           <div class="rsvp-option-btn" id="opt-accept" onclick="setRsvp('accepted')">
-            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
             <strong>Accept</strong>
             <span style="font-size:11px; opacity:0.8;">Attending</span>
           </div>
           <div class="rsvp-option-btn" id="opt-tentative" onclick="setRsvp('tentative')">
-            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 14 14"></polyline>
+            </svg>
             <strong>Tentative</strong>
             <span style="font-size:11px; opacity:0.8;">Uncertain</span>
           </div>
           <div class="rsvp-option-btn" id="opt-decline" onclick="setRsvp('declined')">
-            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
             <strong>Decline</strong>
             <span style="font-size:11px; opacity:0.8;">Can't Attend</span>
           </div>
@@ -728,15 +740,18 @@
 
           <div class="form-group">
             <label class="form-label" for="special-reqs">Special Requests or Accessibility Needs (Optional)</label>
-            <textarea id="special-reqs" class="form-control" rows="2" placeholder="e.g., Please seat near front stage..."></textarea>
+            <textarea id="special-reqs" class="form-control" rows="2"
+              placeholder="e.g., Please seat near front stage..."></textarea>
           </div>
         </div>
 
-        <div id="rsvp-error-msg" style="display:none; color:var(--error); font-size:12.5px; margin-top:10px; margin-bottom:10px; padding:8px; background:var(--error-bg); border-radius:var(--radius-sm);">
+        <div id="rsvp-error-msg"
+          style="display:none; color:var(--error); font-size:12.5px; margin-top:10px; margin-bottom:10px; padding:8px; background:var(--error-bg); border-radius:var(--radius-sm);">
           Failed to save RSVP. Please try again.
         </div>
 
-        <button id="btn-save-rsvp" class="btn btn-primary" style="width:100%; display:none; margin-top: 10px;" onclick="saveRsvpPreferences()">
+        <button id="btn-save-rsvp" class="btn btn-primary" style="width:100%; display:none; margin-top: 10px;"
+          onclick="saveRsvpPreferences()">
           Save RSVP & Continue →
         </button>
       </div>
@@ -747,20 +762,25 @@
           <h2 class="card-title">Invitation Response</h2>
           <span class="chip chip-green" id="confirmed-status-chip">accepted</span>
         </div>
-        
-        <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin-bottom:16px;">
+
+        <div
+          style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin-bottom:16px;">
           <div style="margin-bottom:12px;">
-            <span style="font-size:12px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">RSVP Status</span>
-            <div id="confirmed-status-text" style="font-size:14px; font-weight:700; color:var(--text-main); margin-top:2px;">Attending</div>
+            <span style="font-size:12px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">RSVP
+              Status</span>
+            <div id="confirmed-status-text"
+              style="font-size:14px; font-weight:700; color:var(--text-main); margin-top:2px;">Attending</div>
           </div>
-          
+
           <div id="confirmed-dietary-box" style="margin-bottom:12px;">
-            <span style="font-size:12px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Dietary Preferences</span>
+            <span style="font-size:12px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Dietary
+              Preferences</span>
             <div id="confirmed-dietary-text" style="font-size:14px; color:var(--text-main); margin-top:2px;">None</div>
           </div>
-          
+
           <div id="confirmed-special-box">
-            <span style="font-size:12px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Special Requests</span>
+            <span style="font-size:12px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Special
+              Requests</span>
             <div id="confirmed-special-text" style="font-size:14px; color:var(--text-main); margin-top:2px;">None</div>
           </div>
         </div>
@@ -768,8 +788,9 @@
         <button class="btn btn-secondary" style="width:100%;" onclick="editRsvpPreferences()">
           Edit Preferences
         </button>
-        
-        <button class="btn btn-primary" style="width:100%; margin-top:10px;" id="btn-continue-roster" onclick="switchView('attendees')">
+
+        <button class="btn btn-primary" style="width:100%; margin-top:10px;" id="btn-continue-roster"
+          onclick="switchView('attendees')">
           Manage Party Roster →
         </button>
       </div>
@@ -777,18 +798,23 @@
       <!-- Map Component Card -->
       <div class="card" id="guest-map-card">
         <h3 class="card-title" style="font-size:15px; margin-bottom: 12px;">Event Location</h3>
-        
+
         <!-- Simulation Controls -->
         <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
-          <button class="btn btn-secondary btn-sm" onclick="simulateMap('guest-map-container', 'loading')">Simulate Loading</button>
-          <button class="btn btn-secondary btn-sm" onclick="simulateMap('guest-map-container', 'success')">Map Success</button>
-          <button class="btn btn-secondary btn-sm" onclick="simulateMap('guest-map-container', 'error')">Map API Error</button>
+          <button class="btn btn-secondary btn-sm" onclick="simulateMap('guest-map-container', 'loading')">Simulate
+            Loading</button>
+          <button class="btn btn-secondary btn-sm" onclick="simulateMap('guest-map-container', 'success')">Map
+            Success</button>
+          <button class="btn btn-secondary btn-sm" onclick="simulateMap('guest-map-container', 'error')">Map API
+            Error</button>
         </div>
 
         <!-- Map Container -->
-        <div id="guest-map-container" style="border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; position:relative; width:100%; height:200px; background:#E2E8F0; display:flex; align-items:center; justify-content:center;">
+        <div id="guest-map-container"
+          style="border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; position:relative; width:100%; height:200px; background:#E2E8F0; display:flex; align-items:center; justify-content:center;">
           <!-- Default State (Success) -->
-          <img src="https://placehold.co/600x400/4F46E5/FFFFFF?text=Map+API+Placeholder" alt="Map Location" style="width:100%; height:100%; object-fit:cover; filter:grayscale(0.2);">
+          <img src="https://placehold.co/600x400/4F46E5/FFFFFF?text=Map+API+Placeholder" alt="Map Location"
+            style="width:100%; height:100%; object-fit:cover; filter:grayscale(0.2);">
         </div>
       </div>
 
@@ -1122,7 +1148,7 @@
 
     function setRsvp(choice) {
       document.querySelectorAll('.rsvp-option-btn').forEach(b => b.className = 'rsvp-option-btn');
-      
+
       const displayChip = document.getElementById('rsvp-display-chip');
       if (choice === 'accepted') {
         document.getElementById('opt-accept').className = 'rsvp-option-btn selected-accept';
@@ -1137,12 +1163,12 @@
         displayChip.className = 'chip chip-red';
         displayChip.innerText = 'declined';
       }
-      
+
       currentRsvp = choice;
-      
+
       const fieldsContainer = document.getElementById('rsvp-additional-fields');
       const saveBtn = document.getElementById('btn-save-rsvp');
-      
+
       if (choice === 'accepted') {
         fieldsContainer.style.display = 'block';
         saveBtn.innerText = 'Save RSVP & Continue →';
@@ -1150,7 +1176,7 @@
         fieldsContainer.style.display = 'none';
         saveBtn.innerText = 'Save RSVP →';
       }
-      
+
       saveBtn.style.display = 'block';
       document.getElementById('rsvp-error-msg').style.display = 'none';
     }
@@ -1168,13 +1194,13 @@
 
     function saveRsvpPreferences() {
       if (currentRsvp === 'pending') return;
-      
+
       const dietary = document.getElementById('dietary-input').value.trim() || 'None';
       const special = document.getElementById('special-reqs').value.trim() || 'None';
 
       const confirmedChip = document.getElementById('confirmed-status-chip');
       const confirmedText = document.getElementById('confirmed-status-text');
-      
+
       if (currentRsvp === 'accepted') {
         confirmedChip.className = 'chip chip-green';
         confirmedChip.innerText = 'accepted';
@@ -1188,10 +1214,10 @@
         confirmedChip.innerText = 'declined';
         confirmedText.innerText = 'Declined';
       }
-      
+
       document.getElementById('confirmed-dietary-text').innerText = dietary;
       document.getElementById('confirmed-special-text').innerText = special;
-      
+
       if (currentRsvp === 'accepted') {
         document.getElementById('confirmed-dietary-box').style.display = 'block';
         document.getElementById('confirmed-special-box').style.display = 'block';
@@ -1207,15 +1233,31 @@
 
       updateRsvpLock();
       showToast('RSVP preferences saved successfully.');
+
+      // Wire to Stoplight Prism via EIRMIS.api
+      if (window.EIRMIS && window.EIRMIS.api && typeof window.EIRMIS.api.updateInvitationRsvp === 'function') {
+        const payload = {
+          status: currentRsvp,
+          dietary_preference: dietary !== 'None' ? dietary : null,
+          special_requests: special !== 'None' ? special : null
+        };
+        window.EIRMIS.api.updateInvitationRsvp('66666666-6666-6666-6666-666666666666', payload)
+          .then(function (res) {
+            console.log('[GuestPortal] RSVP updated in Prism:', res);
+          })
+          .catch(function (err) {
+            console.warn('[GuestPortal] Prism update failed, local state retained:', err);
+          });
+      }
     }
-    
+
     function editRsvpPreferences() {
       document.getElementById('rsvp-confirmed-container').style.display = 'none';
       document.getElementById('rsvp-form-container').style.display = 'block';
     }
-    
+
     function simulateRsvpError() {
-       document.getElementById('rsvp-error-msg').style.display = 'block';
+      document.getElementById('rsvp-error-msg').style.display = 'block';
     }
 
     function handleAddAttendee(e) {
@@ -1245,6 +1287,22 @@
       document.getElementById('att-name-input').value = '';
       document.getElementById('att-email-input').value = '';
       showToast('Attendee ' + name + ' submitted for review.');
+
+      // Wire to Stoplight Prism via EIRMIS.api
+      if (window.EIRMIS && window.EIRMIS.api && typeof window.EIRMIS.api.createAttendee === 'function') {
+        const payload = {
+          invitation_id: '66666666-6666-6666-6666-666666666666',
+          full_name: name,
+          email: email !== 'No email provided' ? email : null
+        };
+        window.EIRMIS.api.createAttendee(payload)
+          .then(function (res) {
+            console.log('[GuestPortal] Attendee created in Prism:', res);
+          })
+          .catch(function (err) {
+            console.warn('[GuestPortal] Prism create attendee failed, local state retained:', err);
+          });
+      }
     }
 
     function removeAttendee(btn, name) {
@@ -1303,6 +1361,24 @@
       document.getElementById('btn-submit-headcount').disabled = true;
       document.getElementById('btn-submit-headcount').innerText = 'Request Pending Review';
       showToast('Headcount request submitted to organizer.');
+
+      // Wire to Stoplight Prism via EIRMIS.api
+      if (window.EIRMIS && window.EIRMIS.api && typeof window.EIRMIS.api.createHeadcountRequest === 'function') {
+        const requestedAdditional = parseInt(document.getElementById('req-heads-num').value, 10) || 1;
+        const note = document.getElementById('req-heads-note').value.trim() || null;
+        const payload = {
+          invitation_id: '66666666-6666-6666-6666-666666666666',
+          requested_additional_heads: requestedAdditional,
+          note: note
+        };
+        window.EIRMIS.api.createHeadcountRequest(payload)
+          .then(function (res) {
+            console.log('[GuestPortal] Headcount request created in Prism:', res);
+          })
+          .catch(function (err) {
+            console.warn('[GuestPortal] Prism headcount request failed, local state retained:', err);
+          });
+      }
     }
 
     function simulatePdfDownload() {
@@ -1341,7 +1417,7 @@
     function simulateMap(containerId, state) {
       const container = document.getElementById(containerId);
       if (!container) return;
-      
+
       if (state === 'loading') {
         container.innerHTML = `<div style="width:100%; height:100%; background:linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:13px;">Loading Map...</div>`;
       } else if (state === 'error') {
@@ -1354,7 +1430,7 @@
         container.innerHTML = `<img src="https://placehold.co/600x400/4F46E5/FFFFFF?text=Map+API+Placeholder" alt="Map Location" style="width:100%; height:100%; object-fit:cover; filter:grayscale(0.2);">`;
       }
     }
-    
+
     if (!document.getElementById('map-style')) {
       const style = document.createElement('style');
       style.id = 'map-style';
@@ -1362,11 +1438,32 @@
       document.head.appendChild(style);
     }
   </script>
+  <!-- Task 05: point the EIRMIS.api adapter at the Stoplight Prism mock server -->
+  <script>window.EIRMIS_API_URL = 'http://127.0.0.1:4010';</script>
   <script src="../assets/eirmis.js"></script>
   <script>
     EIRMIS.init({ portal: 'guest' });
     if (!EIRMIS.session()) {
       EIRMIS.signIn('Guest', 'Elena Rostova', 'elena.rostova@example.com');
+    }
+    // Task 05: enable live Prism data for EIRMIS.api calls (falls back to the
+    // local seed automatically when Prism is unreachable).
+    EIRMIS.setDataSource('prism');
+    // Initialize guest invitation data from Prism if available
+    if (EIRMIS.api && typeof EIRMIS.api.getGuestInvitations === 'function') {
+      EIRMIS.api.getGuestInvitations('33333333-3333-3333-3333-333333333333')
+        .then(function (invitations) {
+          if (invitations && invitations.length > 0) {
+            var inv = invitations[0];
+            if (inv.max_party_size) maxPartySize = inv.max_party_size;
+            if (typeof inv.party_size === 'number') currentPartyCount = inv.party_size;
+            updateRosterState();
+            console.log('[GuestPortal] Initialized with Prism invitation data:', inv);
+          }
+        })
+        .catch(function (err) {
+          console.warn('[GuestPortal] Could not load Prism invitations, running on local defaults:', err);
+        });
     }
   </script>
 </body>
