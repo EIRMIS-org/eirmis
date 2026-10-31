@@ -5,6 +5,8 @@ ScanCheckInRequest:
     The function verifies the `qr_token` signature, checks that the caller has
     an `active` `CheckInAssignment` for the token's event, and records the check-in.
     A client-side check-in write would be forgeable — this must go through the function.
+  example:
+    qr_token: eyJhbGciOiJIUzI1NiJ9.attendee-token-payload.signature
   required: [qr_token]
   properties:
     qr_token:
@@ -20,11 +22,32 @@ ScanCheckInResponse:
     - `already_checked_in` — attendee was previously checked in (re-scan/re-entry).
       The organizer UI should surface this distinctly from an error.
     - `invalid_token`    — the token is malformed, expired, or not found.
+  example:
+    result: accepted
+    attendee:
+      id: 77777777-7777-7777-7777-777777777777
+      invitation_id: 66666666-6666-6666-6666-666666666666
+      full_name: Maria Santos
+      email: maria.santos@example.com
+      is_primary: true
+      status: approved
+      submitted_at: '2026-10-05T14:00:00+08:00'
+      reviewed_by: 11111111-1111-1111-1111-111111111111
+      reviewed_at: '2026-10-06T09:00:00+08:00'
+      review_reason: Primary guest approved
+      qr_token: eyJhbGciOiJIUzI1NiJ9.attendee-token-payload.signature
+      checked_in: true
+      checked_in_at: '2026-12-15T18:07:00+08:00'
+      checked_in_by: 44444444-4444-4444-4444-444444444444
+      is_walk_in: false
+    checked_in_at: '2026-12-15T18:07:00+08:00'
+    message: null
   required: [result, attendee]
   properties:
     result:
       type: string
       enum: [accepted, already_checked_in, invalid_token]
+      description: Check-in processing result status.
       example: accepted
     attendee:
       $ref: './Attendee.yaml#/Attendee'

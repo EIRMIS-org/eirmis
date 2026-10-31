@@ -4,6 +4,13 @@ OrganizerProfile:
     Base identity for an Event Organizer. Linked 1:1 to `auth.users.id`.
     Created automatically on first Google Sign-In; starts `pending` until a
     System Administrator moves it to `active`.
+  example:
+    id: 11111111-1111-1111-1111-111111111111
+    email: organizer@example.com
+    full_name: Jomari Barrera
+    status: active
+    created_at: '2026-09-01T08:00:00+08:00'
+    updated_at: '2026-09-10T12:30:00+08:00'
   required: [id, email, full_name, status, created_at, updated_at]
   properties:
     id:
@@ -25,19 +32,25 @@ OrganizerProfile:
     created_at:
       type: string
       format: date-time
+      description: Account creation timestamp.
       example: '2026-09-01T08:00:00+08:00'
     updated_at:
       type: string
       format: date-time
+      description: Timestamp of last organizer profile update.
       example: '2026-09-10T12:30:00+08:00'
 
 OrganizerProfileUpdate:
   type: object
   description: Fields an organizer may update on their own profile via PATCH.
+  example:
+    full_name: Jomari Joseph Barrera
+  additionalProperties: false
   minProperties: 1
   properties:
     full_name:
       type: string
+      description: Updated full name of the organizer.
       example: Jomari Joseph Barrera
 
 OrganizerStatusUpdate:
@@ -45,6 +58,9 @@ OrganizerStatusUpdate:
   description: >
     Fields an admin may update on an organizer profile — restricted to `status` only.
     The actual column write is scoped by RLS; this schema documents the allowed payload.
+  example:
+    status: active
+  additionalProperties: false
   required: [status]
   properties:
     status:

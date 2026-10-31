@@ -2,8 +2,16 @@
 # Guest Portal — PostgREST paths
 #
 # Paths exclusive to, or primarily used by, the Guest role.
-# Shared paths (attendees, invitations) are documented in organizer.yaml
-# with operations tagged by their actual audience.
+#
+# Shared paths documented in organizer.yaml with Guest operations:
+#   - GET  /rest/v1/invitations?guest_id=eq.{guestId}&select=*,events(*)
+#          (operationId: listInvitations, guest lists own invitations with event details)
+#   - PATCH /rest/v1/invitations/{id}
+#          (operationId: updateInvitation, guest updates status, dietary_preference, special_requests)
+#   - POST /rest/v1/attendees
+#          (operationId: submitAttendee, guest adds party members up to max_party_size)
+#   - POST /functions/v1/submit-headcount-request
+#          (operationId: submitHeadcountRequest, inserts request and emails organizer)
 # =============================================================================
 
 /rest/v1/guests/{id}:
@@ -37,6 +45,13 @@
           application/json:
             schema:
               $ref: '../components/schemas/Guest.yaml#/Guest'
+            example:
+              id: 33333333-3333-3333-3333-333333333333
+              email: guest@example.com
+              full_name: Maria Santos
+              auth_user_id: 33333333-3333-3333-3333-333333333333
+              created_at: '2026-09-05T08:00:00+08:00'
+              updated_at: '2026-09-05T08:00:00+08:00'
       '401':
         $ref: '../components/responses.yaml#/Unauthorized'
       '403':

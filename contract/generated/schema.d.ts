@@ -12,8 +12,14 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List organizer's events
-         * @description Returns the authenticated organizer's non-deleted events. RLS restricts the result set to `organizer_id = auth.uid()`. Use `?status=eq.published` to filter by status.
+         * List events (organizer-owned or public discovery)
+         * @description Dual-mode endpoint — behaviour depends on whether a bearer token is supplied.
+         *
+         *     Authenticated (organizer): Returns the caller's own non-deleted events. RLS restricts the result set to `organizer_id = auth.uid()`. All `status` values are visible. Use `?status=eq.published` or `?status=in.(draft,published)` to narrow by lifecycle state.
+         *
+         *     Unauthenticated (public discovery): No bearer token required. The caller MUST supply both `?visibility_mode=eq.open_registration` and `?status=eq.published` to satisfy the RLS anon-read policy, which only exposes open-registration published events to unauthenticated requests. This is the query used by the `/register/:slug` public registration flow to resolve an event before rendering the sign-up form.
+         *
+         *     In both modes, soft-deleted events (`deleted_at IS NOT NULL`) are hidden by RLS and do not appear in results.
          */
         get: operations["listEvents"];
         put?: never;
@@ -210,11 +216,7 @@ export interface paths {
          */
         get: operations["listHeadcountRequests"];
         put?: never;
-        /**
-         * Submit a headcount increase request
-         * @description A guest submits a request to raise their `max_party_size`. The invitation must be `accepted` and at capacity. The partial unique index blocks a second pending request from the same invitation.
-         */
-        post: operations["submitHeadcountRequest"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -341,7 +343,7 @@ export interface paths {
         };
         /**
          * List email logs
-         * @description For organizers: returns email logs for the specified event (filter by `event_id`). For guests: returns logs for their own invitation (filter by `invitation_id`).
+         * @description For organizers: returns email logs for the specified event (filter by `event_id`). For guests: returns logs for their own invitation (filter by `invitation_id`). Request `order=created_at.desc&limit=50` for the latest 50 messages by queue time, not delivery-update time. The named examples are static M2 fixtures; Prism does not implement database filtering or delivery transitions.
          */
         get: operations["listEmailLogs"];
         put?: never;
@@ -361,7 +363,7 @@ export interface paths {
         };
         /**
          * List audit log entries for an event
-         * @description Returns audit log entries for entities belonging to the organizer's events. Filter by `entity_type` and `entity_id` for a specific record's history.
+         * @description Returns audit log entries for entities belonging to the organizer's events. Filter by `entity_type` and `entity_id` for a specific record's history. Request `order=created_at.desc&limit=50` for the latest 50 actions. The M2 fixture includes verification of the caller's own organizer profile by an admin; it does not grant access to other organizers' verification records. M3 must align the database actor enum and own-profile SELECT policy with this contract. Prism fixtures do not demonstrate live RLS enforcement.
          */
         get: operations["listAuditLogEntries"];
         put?: never;
@@ -380,10 +382,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Read own organizer profile
-         * @description Returns the authenticated organizer's own profile row.
+         * List organizer profiles for verification
+         * @description Returns a paginated organizer verification queue for administrators.
          */
-        get: operations["getOrganizerProfile"];
+        get: operations["adminListOrganizers"];
         put?: never;
         post?: never;
         delete?: never;
@@ -406,10 +408,10 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Update organizer profile
-         * @description For organizers: update own `full_name`. For admins: update `status` (pending → active verification). RLS restricts each role to what they may change.
+         * Update organizer verification status
+         * @description Updates an organizer status and records an administrator audit entry.
          */
-        patch: operations["updateOrganizerProfile"];
+        patch: operations["adminUpdateOrganizerStatus"];
         trace?: never;
     };
     "/rest/v1/admin_profiles": {
@@ -430,6 +432,46 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/rest/v1/org_settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read organization settings
+         * @description Returns the organization-wide settings singleton. Restricted to system administrators by RLS.
+         */
+        get: operations["getOrgSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/rest/v1/org_settings/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update organization settings
+         * @description Updates one or more fields on the organization settings singleton. Restricted to system administrators by RLS.
+         */
+        patch: operations["updateOrgSettings"];
         trace?: never;
     };
     "/rest/v1/guests/{id}": {
@@ -519,6 +561,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/functions/v1/submit-headcount-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit a headcount increase request
+         * @description A guest submits a request to raise their `max_party_size`. The invitation must be accepted. The function inserts the request, records a queued `headcount_request_submitted` email log, and sends a notification to the event organizer through Resend.
+         */
+        post: operations["submitHeadcountRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/functions/v1/headcount-requests/{id}/decision": {
         parameters: {
             query?: never;
@@ -549,8 +611,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Generate and send QR code PDF to a guest
-         * @description Generates a multi-page PDF (one QR code + attendee name per page) for all approved attendees in an invitation's party, and emails it to the guest via Resend. Supports both single-invitation and bulk-event dispatch. `RESEND_API_KEY` is an Edge Function secret — this operation must not be attempted client-side.
+         * Generate and send QR code PDFs to guests
+         * @description Generates a multi-page PDF (one QR code + attendee name per page) for all approved attendees in an invitation's party, then emails it to the guest via Resend. Supports both single-invitation and bulk-event dispatch. `RESEND_API_KEY` is an Edge Function secret — this operation must not be attempted client-side.
          */
         post: operations["dispatchQrBundle"];
         delete?: never;
@@ -643,7 +705,15 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** @description Standard error shape returned by both PostgREST and Edge Functions. Edge Functions must return this exact shape and status codes so the generated client has a single error path regardless of which surface answered. */
+        /**
+         * @description Standard error shape returned by both PostgREST and Edge Functions. Edge Functions must return this exact shape and status codes so the generated client has a single error path regardless of which surface answered.
+         * @example {
+         *       "code": "PGRST116",
+         *       "message": "The result contains 0 rows",
+         *       "details": null,
+         *       "hint": null
+         *     }
+         */
         Error: {
             /**
              * @description PostgREST/PostgreSQL error code (e.g. `42501` for RLS denied, `P0001` for a domain raise exception) or an Edge Function error identifier.
@@ -666,7 +736,17 @@ export interface components {
              */
             hint?: string | null;
         };
-        /** @description Base identity for an Event Organizer. Linked 1:1 to `auth.users.id`. Created automatically on first Google Sign-In; starts `pending` until a System Administrator moves it to `active`. */
+        /**
+         * @description Base identity for an Event Organizer. Linked 1:1 to `auth.users.id`. Created automatically on first Google Sign-In; starts `pending` until a System Administrator moves it to `active`.
+         * @example {
+         *       "id": "11111111-1111-1111-1111-111111111111",
+         *       "email": "organizer@example.com",
+         *       "full_name": "Jomari Barrera",
+         *       "status": "active",
+         *       "created_at": "2026-09-01T08:00:00+08:00",
+         *       "updated_at": "2026-09-10T12:30:00+08:00"
+         *     }
+         */
         OrganizerProfile: {
             /**
              * Format: uuid
@@ -688,25 +768,48 @@ export interface components {
             status: components["schemas"]["OrganizerStatus"];
             /**
              * Format: date-time
+             * @description Account creation timestamp.
              * @example 2026-09-01T08:00:00+08:00
              */
             created_at: string;
             /**
              * Format: date-time
+             * @description Timestamp of last organizer profile update.
              * @example 2026-09-10T12:30:00+08:00
              */
             updated_at: string;
         };
-        /** @description Fields an organizer may update on their own profile via PATCH. */
+        /**
+         * @description Fields an organizer may update on their own profile via PATCH.
+         * @example {
+         *       "full_name": "Jomari Joseph Barrera"
+         *     }
+         */
         OrganizerProfileUpdate: {
-            /** @example Jomari Joseph Barrera */
+            /**
+             * @description Updated full name of the organizer.
+             * @example Jomari Joseph Barrera
+             */
             full_name?: string;
         };
-        /** @description Fields an admin may update on an organizer profile — restricted to `status` only. The actual column write is scoped by RLS; this schema documents the allowed payload. */
+        /**
+         * @description Fields an admin may update on an organizer profile — restricted to `status` only. The actual column write is scoped by RLS; this schema documents the allowed payload.
+         * @example {
+         *       "status": "active"
+         *     }
+         */
         OrganizerStatusUpdate: {
             status: components["schemas"]["OrganizerStatus"];
         };
-        /** @description Base identity for a System Administrator. Linked 1:1 to `auth.users.id`. Provisioned directly — not self-registered. Admins manage organizer verification and org-wide settings only; they have no access to any event's guest list, RSVP content, or attendee data. */
+        /**
+         * @description Base identity for a System Administrator. Linked 1:1 to `auth.users.id`. Provisioned directly — not self-registered. Admins manage organizer verification and org-wide settings only; they have no access to any event's guest list, RSVP content, or attendee data.
+         * @example {
+         *       "id": "22222222-2222-2222-2222-222222222222",
+         *       "email": "admin@example.com",
+         *       "full_name": "System Administrator",
+         *       "created_at": "2026-09-01T08:00:00+08:00"
+         *     }
+         */
         AdminProfile: {
             /**
              * Format: uuid
@@ -716,10 +819,14 @@ export interface components {
             id: string;
             /**
              * Format: email
+             * @description Administrator contact email address.
              * @example admin@example.com
              */
             email: string;
-            /** @example System Administrator */
+            /**
+             * @description Full name or system designation of the administrator.
+             * @example System Administrator
+             */
             full_name: string;
             /**
              * Format: date-time
@@ -728,7 +835,137 @@ export interface components {
              */
             created_at: string;
         };
-        /** @description An organizer-owned event. Central entity of EIRMIS; all guest and invitation data hangs off an event. */
+        /**
+         * @description Singleton record containing organization-wide settings, default values, and security policies managed by System Administrators.
+         * @example {
+         *       "id": "00000000-0000-0000-0000-000000000001",
+         *       "org_name": "EIRMIS Enterprise Cloud Platform",
+         *       "default_timezone": "Asia/Manila",
+         *       "default_capacity_ceiling": 150,
+         *       "sender_domain": "invites.eirmis.org",
+         *       "malware_sandbox_enabled": true,
+         *       "self_registration_gate_enabled": true,
+         *       "created_at": "2026-09-01T08:00:00+08:00",
+         *       "updated_at": "2026-09-10T12:30:00+08:00"
+         *     }
+         */
+        OrgSettings: {
+            /**
+             * Format: uuid
+             * @description Fixed singleton identifier.
+             * @example 00000000-0000-0000-0000-000000000001
+             */
+            id: string;
+            /**
+             * @description Organization or system instance display name.
+             * @example EIRMIS Enterprise Cloud Platform
+             */
+            org_name: string;
+            /**
+             * @description Default IANA timezone for newly created events.
+             * @example Asia/Manila
+             */
+            default_timezone: string;
+            /**
+             * @description Default capacity limit for newly created events.
+             * @example 150
+             */
+            default_capacity_ceiling: number;
+            /**
+             * @description Verified domain used as sender address for transactional invitations and notices.
+             * @example invites.eirmis.org
+             */
+            sender_domain: string;
+            /**
+             * @description Whether custom HTML invitation templates require a clean malware scan before serving.
+             * @example true
+             */
+            malware_sandbox_enabled: boolean;
+            /**
+             * @description Whether new organizers must be manually approved by an admin before creating events.
+             * @example true
+             */
+            self_registration_gate_enabled: boolean;
+            /**
+             * Format: date-time
+             * @description Record creation timestamp.
+             * @example 2026-09-01T08:00:00+08:00
+             */
+            created_at: string;
+            /**
+             * Format: date-time
+             * @description Last update timestamp.
+             * @example 2026-09-10T12:30:00+08:00
+             */
+            updated_at: string;
+        };
+        /**
+         * @description Fields an administrator may update on the organization settings singleton.
+         * @example {
+         *       "org_name": "EIRMIS Enterprise Cloud Platform",
+         *       "default_timezone": "Asia/Manila",
+         *       "default_capacity_ceiling": 150,
+         *       "malware_sandbox_enabled": true,
+         *       "self_registration_gate_enabled": true
+         *     }
+         */
+        OrgSettingsUpdate: {
+            /**
+             * @description Organization or system instance display name.
+             * @example EIRMIS Enterprise Cloud Platform
+             */
+            org_name?: string;
+            /**
+             * @description Default IANA timezone for newly created events.
+             * @example Asia/Manila
+             */
+            default_timezone?: string;
+            /**
+             * @description Default capacity limit for newly created events.
+             * @example 150
+             */
+            default_capacity_ceiling?: number;
+            /**
+             * @description Verified domain used as sender address for transactional invitations and notices.
+             * @example invites.eirmis.org
+             */
+            sender_domain?: string;
+            /**
+             * @description Whether custom HTML invitation templates require a clean malware scan before serving.
+             * @example true
+             */
+            malware_sandbox_enabled?: boolean;
+            /**
+             * @description Whether new organizers must be manually approved by an admin before creating events.
+             * @example true
+             */
+            self_registration_gate_enabled?: boolean;
+        };
+        /**
+         * @description An organizer-owned event. Central entity of EIRMIS; all guest and invitation data hangs off an event.
+         * @example {
+         *       "id": "55555555-5555-5555-5555-555555555555",
+         *       "organizer_id": "11111111-1111-1111-1111-111111111111",
+         *       "title": "Annual Gala 2026",
+         *       "slug": "annual-gala-2026",
+         *       "description": "A celebration of achievements and milestones.",
+         *       "cover_image_url": "https://example.supabase.co/storage/v1/object/public/covers/gala-2026.jpg",
+         *       "starts_at": "2026-12-15T18:00:00+08:00",
+         *       "ends_at": "2026-12-15T22:00:00+08:00",
+         *       "event_timezone": "Asia/Manila",
+         *       "venue_name": "Grand Ballroom",
+         *       "address": "123 Rizal Avenue",
+         *       "city": "Cebu City",
+         *       "location_url": "https://maps.google.com/?q=grand+ballroom",
+         *       "capacity": 500,
+         *       "rsvp_deadline": "2026-12-01T23:59:59+08:00",
+         *       "visibility_mode": "open_registration",
+         *       "status": "published",
+         *       "deleted_at": null,
+         *       "created_at": "2026-09-01T08:00:00+08:00",
+         *       "updated_at": "2026-11-15T10:00:00+08:00"
+         *     }
+         */
         Event: {
             /**
              * Format: uuid
@@ -812,68 +1049,189 @@ export interface components {
              */
             updated_at: string;
         };
-        /** @description Request body for creating a new event. */
+        /**
+         * @description Request body for creating a new event.
+         * @example {
+         *       "title": "Annual Gala 2026",
+         *       "slug": "annual-gala-2026",
+         *       "description": "A celebration of achievements and milestones.",
+         *       "cover_image_url": null,
+         *       "starts_at": "2026-12-15T18:00:00+08:00",
+         *       "ends_at": "2026-12-15T22:00:00+08:00",
+         *       "event_timezone": "Asia/Manila",
+         *       "venue_name": "Grand Ballroom",
+         *       "address": "123 Rizal Avenue",
+         *       "city": "Cebu City",
+         *       "location_url": null,
+         *       "capacity": 500,
+         *       "rsvp_deadline": "2026-12-01T23:59:59+08:00",
+         *       "visibility_mode": "open_registration",
+         *       "status": "draft"
+         *     }
+         */
         EventCreate: {
-            /** @example Annual Gala 2026 */
+            /**
+             * @description Event name displayed on public forms and guest invitations.
+             * @example Annual Gala 2026
+             */
             title: string;
-            /** @example annual-gala-2026 */
+            /**
+             * @description URL-safe unique slug for public registration `/register/:slug`.
+             * @example annual-gala-2026
+             */
             slug: string;
-            /** @example A celebration of achievements and milestones. */
+            /**
+             * @description Detailed event description or overview for attendees.
+             * @example A celebration of achievements and milestones.
+             */
             description?: string | null;
-            /** @example null */
+            /**
+             * @description Optional hosted banner or cover image URL.
+             * @example null
+             */
             cover_image_url?: string | null;
             /**
              * Format: date-time
+             * @description Scheduled event start timestamp with timezone offset.
              * @example 2026-12-15T18:00:00+08:00
              */
             starts_at: string;
             /**
              * Format: date-time
+             * @description Scheduled event conclusion timestamp; must be after starts_at.
              * @example 2026-12-15T22:00:00+08:00
              */
             ends_at: string;
-            /** @example Asia/Manila */
+            /**
+             * @description Canonical IANA timezone identifier (e.g. Asia/Manila).
+             * @example Asia/Manila
+             */
             event_timezone: string;
-            /** @example Grand Ballroom */
+            /**
+             * @description Name of the facility, hotel, or building.
+             * @example Grand Ballroom
+             */
             venue_name?: string | null;
-            /** @example 123 Rizal Avenue */
+            /**
+             * @description Street address or physical location line.
+             * @example 123 Rizal Avenue
+             */
             address?: string | null;
-            /** @example Cebu City */
+            /**
+             * @description Municipality or city of the venue.
+             * @example Cebu City
+             */
             city?: string | null;
-            /** @example null */
+            /**
+             * @description Optional Google Maps or navigation link.
+             * @example null
+             */
             location_url?: string | null;
-            /** @example 500 */
+            /**
+             * @description Maximum total attendees permitted for the event.
+             * @example 500
+             */
             capacity: number;
             /**
              * Format: date-time
+             * @description Cutoff timestamp after which guest RSVPs cannot be submitted or changed.
              * @example 2026-12-01T23:59:59+08:00
              */
             rsvp_deadline: string;
             visibility_mode: components["schemas"]["EventVisibility"];
             status?: components["schemas"]["EventStatus"];
         };
-        /** @description Fields an organizer may update on their own event via PATCH. At least one property must be present. */
+        /**
+         * @description Fields an organizer may update on their own event via PATCH. At least one property must be present.
+         * @example {
+         *       "title": "Annual Gala 2026 - Updated",
+         *       "capacity": 600,
+         *       "venue_name": "Grand Ballroom A & B"
+         *     }
+         */
         EventUpdate: {
+            /**
+             * @description Updated title for the event.
+             * @example Annual Gala 2026 - Updated
+             */
             title?: string;
+            /**
+             * @description Updated unique registration slug.
+             * @example annual-gala-2026-updated
+             */
             slug?: string;
+            /**
+             * @description Updated event description.
+             * @example Updated details for the annual celebration.
+             */
             description?: string | null;
+            /**
+             * @description Updated cover image URL.
+             * @example https://example.supabase.co/storage/v1/object/public/covers/gala-updated.jpg
+             */
             cover_image_url?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Updated event start timestamp.
+             * @example 2026-12-15T18:30:00+08:00
+             */
             starts_at?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Updated event conclusion timestamp.
+             * @example 2026-12-15T22:30:00+08:00
+             */
             ends_at?: string;
+            /**
+             * @description Updated IANA timezone.
+             * @example Asia/Manila
+             */
             event_timezone?: string;
+            /**
+             * @description Updated venue name.
+             * @example Grand Ballroom A & B
+             */
             venue_name?: string | null;
+            /**
+             * @description Updated street address.
+             * @example 125 Rizal Avenue
+             */
             address?: string | null;
+            /**
+             * @description Updated city name.
+             * @example Cebu City
+             */
             city?: string | null;
+            /**
+             * @description Updated navigation link.
+             * @example https://maps.google.com/?q=grand+ballroom+cebu
+             */
             location_url?: string | null;
+            /**
+             * @description Updated capacity limit.
+             * @example 600
+             */
             capacity?: number;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Updated RSVP cutoff timestamp.
+             * @example 2026-12-05T23:59:59+08:00
+             */
             rsvp_deadline?: string;
             visibility_mode?: components["schemas"]["EventVisibility"];
             status?: components["schemas"]["EventStatus"];
         };
-        /** @description A configured scheduled-reminder offset for an event. Consumed by the `sendReminders` Edge Function on its `pg_cron` schedule. A single event cannot have two schedules for the same `days_before_event` offset. */
+        /**
+         * @description A configured scheduled-reminder offset for an event. Consumed by the `sendReminders` Edge Function on its `pg_cron` schedule. A single event cannot have two schedules for the same `days_before_event` offset.
+         * @example {
+         *       "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+         *       "event_id": "55555555-5555-5555-5555-555555555555",
+         *       "days_before_event": 7,
+         *       "send_time_of_day": "09:00",
+         *       "enabled": true,
+         *       "last_sent_at": null
+         *     }
+         */
         ReminderSchedule: {
             /**
              * Format: uuid
@@ -907,27 +1265,49 @@ export interface components {
              */
             last_sent_at?: string | null;
         };
-        /** @description Request body to create or replace a reminder schedule for an event. Because UNIQUE(event_id, days_before_event) is enforced, the organizer can safely POST with `Prefer: resolution=merge-duplicates` to upsert. */
+        /**
+         * @description Request body to create or replace a reminder schedule for an event. Because UNIQUE(event_id, days_before_event) is enforced, the organizer can safely POST with `Prefer: resolution=merge-duplicates` to upsert.
+         * @example {
+         *       "event_id": "55555555-5555-5555-5555-555555555555",
+         *       "days_before_event": 7,
+         *       "send_time_of_day": "09:00",
+         *       "enabled": true
+         *     }
+         */
         ReminderScheduleUpsert: {
             /**
              * Format: uuid
+             * @description Target event UUID for the reminder schedule.
              * @example 55555555-5555-5555-5555-555555555555
              */
             event_id: string;
-            /** @example 7 */
+            /**
+             * @description Days offset before event start timestamp.
+             * @example 7
+             */
             days_before_event: number;
             /**
-             * @description Defaults to `09:00` if omitted.
+             * @description Defaults to `09:00` if omitted. Local 24-hour time string (HH:MM).
              * @example 09:00
              */
             send_time_of_day?: string;
             /**
-             * @description Defaults to `true` if omitted.
+             * @description Defaults to `true` if omitted. Set to false to disable this scheduled reminder.
              * @example true
              */
             enabled?: boolean;
         };
-        /** @description Cross-event guest directory row, deduplicated by email. A row may exist before the person ever logs in — created by an organizer building an invite-only list, or by public self-registration. `auth_user_id` is populated lazily on first magic-link login. Guest rows are never hard-deleted. */
+        /**
+         * @description Cross-event guest directory row, deduplicated by email. A row may exist before the person ever logs in — created by an organizer building an invite-only list, or by public self-registration. `auth_user_id` is populated lazily on first magic-link login. Guest rows are never hard-deleted.
+         * @example {
+         *       "id": "33333333-3333-3333-3333-333333333333",
+         *       "email": "guest@example.com",
+         *       "full_name": "Maria Santos",
+         *       "auth_user_id": "33333333-3333-3333-3333-333333333333",
+         *       "created_at": "2026-09-05T08:00:00+08:00",
+         *       "updated_at": "2026-09-05T08:00:00+08:00"
+         *     }
+         */
         Guest: {
             /**
              * Format: uuid
@@ -940,7 +1320,10 @@ export interface components {
              * @example guest@example.com
              */
             email: string;
-            /** @example Maria Santos */
+            /**
+             * @description Full name of the guest for badges, roster displays, and communications.
+             * @example Maria Santos
+             */
             full_name: string;
             /**
              * Format: uuid
@@ -950,31 +1333,70 @@ export interface components {
             auth_user_id?: string | null;
             /**
              * Format: date-time
+             * @description Timestamp when the guest record was first inserted into the directory.
              * @example 2026-09-05T08:00:00+08:00
              */
             created_at: string;
             /**
              * Format: date-time
+             * @description Timestamp when the guest profile was last updated.
              * @example 2026-09-05T08:00:00+08:00
              */
             updated_at: string;
         };
-        /** @description Request body to create a guest record (used during public open-registration). On conflict with an existing `email`, the caller should use `Prefer: resolution=merge-duplicates` to upsert and match the existing record. */
+        /**
+         * @description Request body to create a guest record (used during public open-registration). On conflict with an existing `email`, the caller should use `Prefer: resolution=merge-duplicates` to upsert and match the existing record.
+         * @example {
+         *       "email": "newguest@example.com",
+         *       "full_name": "Juan dela Cruz"
+         *     }
+         */
         GuestCreate: {
             /**
              * Format: email
+             * @description Canonical contact email for the new guest.
              * @example newguest@example.com
              */
             email: string;
-            /** @example Juan dela Cruz */
+            /**
+             * @description Full name of the new guest.
+             * @example Juan dela Cruz
+             */
             full_name: string;
         };
-        /** @description Fields a guest may update on their own profile. */
+        /**
+         * @description Fields a guest may update on their own profile.
+         * @example {
+         *       "full_name": "Maria Santos-Cruz"
+         *     }
+         */
         GuestUpdate: {
-            /** @example Maria Santos */
+            /**
+             * @description Updated full name for the guest profile.
+             * @example Maria Santos-Cruz
+             */
             full_name?: string;
         };
-        /** @description Per-event, per-guest invitation. Exactly one per `(event_id, guest_id)` pair. `party_size` and `checked_in_count` are cached, trigger-maintained counts and must not be set directly by clients. */
+        /**
+         * @description Per-event, per-guest invitation. Exactly one per `(event_id, guest_id)` pair. `party_size` and `checked_in_count` are cached, trigger-maintained counts and must not be set directly by clients.
+         * @example {
+         *       "id": "66666666-6666-6666-6666-666666666666",
+         *       "event_id": "55555555-5555-5555-5555-555555555555",
+         *       "guest_id": "33333333-3333-3333-3333-333333333333",
+         *       "status": "accepted",
+         *       "max_party_size": 4,
+         *       "party_size": 2,
+         *       "checked_in_count": 0,
+         *       "dietary_preference": "Vegetarian",
+         *       "special_requests": "Wheelchair access needed",
+         *       "invited_by": "11111111-1111-1111-1111-111111111111",
+         *       "invited_at": "2026-10-01T09:00:00+08:00",
+         *       "responded_at": "2026-10-05T14:30:00+08:00",
+         *       "waitlisted_at": null,
+         *       "created_at": "2026-10-01T09:00:00+08:00",
+         *       "updated_at": "2026-10-05T14:30:00+08:00"
+         *     }
+         */
         Invitation: {
             /**
              * Format: uuid
@@ -1032,7 +1454,7 @@ export interface components {
             /**
              * Format: date-time
              * @description Timestamp when the guest changed status from `pending`.
-             * @example null
+             * @example 2026-10-05T14:30:00+08:00
              */
             responded_at?: string | null;
             /**
@@ -1052,44 +1474,101 @@ export interface components {
              */
             updated_at: string;
         };
-        /** @description Request body for an organizer creating an invite-only invitation, or for the public registration flow creating an accepted invitation. */
+        /**
+         * @description Request body for an organizer creating an invite-only invitation, or for the public registration flow creating an accepted invitation.
+         * @example {
+         *       "event_id": "55555555-5555-5555-5555-555555555555",
+         *       "guest_id": "33333333-3333-3333-3333-333333333333",
+         *       "max_party_size": 4,
+         *       "status": "pending"
+         *     }
+         */
         InvitationCreate: {
             /**
              * Format: uuid
+             * @description Target event UUID to which the guest is being invited.
              * @example 55555555-5555-5555-5555-555555555555
              */
             event_id: string;
             /**
              * Format: uuid
+             * @description Target guest UUID from the cross-event directory.
              * @example 33333333-3333-3333-3333-333333333333
              */
             guest_id: string;
             /**
-             * @description Defaults to `1` if omitted.
+             * @description Initial maximum party size allotted to this invitation (defaults to 1 if omitted).
              * @example 4
              */
             max_party_size?: number;
             status?: components["schemas"]["InvitationStatus"];
-            /** @example null */
+            /**
+             * @description Initial dietary requirements for the party.
+             * @example null
+             */
             dietary_preference?: string | null;
-            /** @example null */
+            /**
+             * @description Initial accommodations or special requests.
+             * @example null
+             */
             special_requests?: string | null;
         };
-        /** @description Fields a guest may update on their own invitation via PATCH. Primarily used for RSVP status changes and logistics fields. Blocked by a DB trigger after the event's RSVP deadline. */
+        /**
+         * @description Fields a guest may update on their own invitation via PATCH. Primarily used for RSVP status changes and logistics fields. Blocked by a DB trigger after the event's RSVP deadline.
+         * @example {
+         *       "status": "accepted",
+         *       "dietary_preference": "Vegetarian",
+         *       "special_requests": "Wheelchair access needed"
+         *     }
+         */
         InvitationRsvpUpdate: {
             status?: components["schemas"]["InvitationStatus"];
-            /** @example Vegetarian */
+            /**
+             * @description Updated dietary preference for the party.
+             * @example Vegetarian
+             */
             dietary_preference?: string | null;
-            /** @example Wheelchair access needed */
+            /**
+             * @description Updated special accommodation requests.
+             * @example Wheelchair access needed
+             */
             special_requests?: string | null;
         };
-        /** @description Fields an organizer may update on an invitation (e.g. adjusting max_party_size). */
+        /**
+         * @description Fields an organizer may update on an invitation (e.g. adjusting max_party_size).
+         * @example {
+         *       "max_party_size": 6,
+         *       "status": "accepted"
+         *     }
+         */
         InvitationOrganizerUpdate: {
-            /** @example 6 */
+            /**
+             * @description Updated party size ceiling for the invitation.
+             * @example 6
+             */
             max_party_size?: number;
             status?: components["schemas"]["InvitationStatus"];
         };
-        /** @description One row per person in an invitation's party — the invited guest themselves plus any additional members they submit. The primary attendee (`is_primary = true`) is auto-created when the invitation is accepted. */
+        /**
+         * @description One row per person in an invitation's party — the invited guest themselves plus any additional members they submit. The primary attendee (`is_primary = true`) is auto-created when the invitation is accepted.
+         * @example {
+         *       "id": "77777777-7777-7777-7777-777777777777",
+         *       "invitation_id": "66666666-6666-6666-6666-666666666666",
+         *       "full_name": "Maria Santos",
+         *       "email": "maria.santos@example.com",
+         *       "is_primary": true,
+         *       "status": "approved",
+         *       "submitted_at": "2026-10-05T14:00:00+08:00",
+         *       "reviewed_by": "11111111-1111-1111-1111-111111111111",
+         *       "reviewed_at": "2026-10-06T09:00:00+08:00",
+         *       "review_reason": "Primary guest approved",
+         *       "qr_token": "signed-qr-token-sample",
+         *       "checked_in": false,
+         *       "checked_in_at": null,
+         *       "checked_in_by": null,
+         *       "is_walk_in": false
+         *     }
+         */
         Attendee: {
             /**
              * Format: uuid
@@ -1162,39 +1641,94 @@ export interface components {
              */
             is_walk_in: boolean;
         };
-        /** @description Request body for a guest submitting an additional (non-primary) attendee for their accepted invitation. */
+        /**
+         * @description Request body for a guest submitting an additional (non-primary) attendee for their accepted invitation.
+         * @example {
+         *       "invitation_id": "66666666-6666-6666-6666-666666666666",
+         *       "full_name": "Jose Santos",
+         *       "email": "jose.santos@example.com"
+         *     }
+         */
         AttendeeCreate: {
             /**
              * Format: uuid
+             * @description UUID of the accepted invitation this attendee belongs to.
              * @example 66666666-6666-6666-6666-666666666666
              */
             invitation_id: string;
-            /** @example Jose Santos */
+            /**
+             * @description Full name of the attendee to be printed on badge and check-in roster.
+             * @example Jose Santos
+             */
             full_name: string;
-            /** @example null */
+            /**
+             * @description Optional contact email for this attendee (receives QR code and notifications).
+             * @example jose.santos@example.com
+             */
             email?: string | null;
         };
-        /** @description Fields a guest may update on a rejected (non-primary) attendee to resubmit it. Resubmission sets the attendee back to `pending`. */
+        /**
+         * @description Fields a guest may update on a rejected (non-primary) attendee to resubmit it. Resubmission sets the attendee back to `pending`.
+         * @example {
+         *       "full_name": "Jose Antonio Santos",
+         *       "email": "jose@example.com"
+         *     }
+         */
         AttendeeUpdate: {
-            /** @example Jose Antonio Santos */
+            /**
+             * @description Updated full name of the attendee.
+             * @example Jose Antonio Santos
+             */
             full_name?: string;
-            /** @example jose@example.com */
+            /**
+             * @description Updated optional email address for the attendee.
+             * @example jose@example.com
+             */
             email?: string | null;
         };
-        /** @description Request body for the `decideAttendee` Edge Function. Approve or reject an individual attendee. Approved attendees receive a signed `qr_token`. Approval performs a capacity soft-check and records an audit entry. A capacity-over-limit approval is audited as an override. */
+        /**
+         * @description Request body for the `decideAttendee` Edge Function. Approve or reject an individual attendee. Approved attendees receive a signed `qr_token`. Approval performs a capacity soft-check and records an audit entry. A capacity-over-limit approval is audited as an override.
+         * @example {
+         *       "decision": "approve",
+         *       "reason": "Verified team member"
+         *     }
+         */
         AttendeeDecisionRequest: {
             /**
+             * @description Organizer's decision to approve or reject this attendee registration.
              * @example approve
              * @enum {string}
              */
             decision: "approve" | "reject";
             /**
              * @description Organizer's optional note on the decision, stored in the audit log.
-             * @example null
+             * @example Verified team member
              */
             reason?: string | null;
         };
-        /** @description Response from the `decideAttendee` Edge Function. Includes the updated attendee state. If the decision pushed the event over capacity, `capacity_warning` is `true` and the organizer's audited override is recorded. */
+        /**
+         * @description Response from the `decideAttendee` Edge Function. Includes the updated attendee state. If the decision pushed the event over capacity, `capacity_warning` is `true` and the organizer's audited override is recorded.
+         * @example {
+         *       "attendee": {
+         *         "id": "77777777-7777-7777-7777-777777777777",
+         *         "invitation_id": "66666666-6666-6666-6666-666666666666",
+         *         "full_name": "Maria Santos",
+         *         "email": "maria.santos@example.com",
+         *         "is_primary": true,
+         *         "status": "approved",
+         *         "submitted_at": "2026-10-05T14:00:00+08:00",
+         *         "reviewed_by": "11111111-1111-1111-1111-111111111111",
+         *         "reviewed_at": "2026-10-06T09:00:00+08:00",
+         *         "review_reason": "Primary guest approved",
+         *         "qr_token": "signed-qr-token-sample",
+         *         "checked_in": false,
+         *         "checked_in_at": null,
+         *         "checked_in_by": null,
+         *         "is_walk_in": false
+         *       },
+         *       "capacity_warning": false
+         *     }
+         */
         AttendeeDecisionResponse: {
             attendee: components["schemas"]["Attendee"];
             /**
@@ -1203,7 +1737,20 @@ export interface components {
              */
             capacity_warning: boolean;
         };
-        /** @description A guest's request to raise their invitation's `max_party_size`. At most one `pending` request per invitation at a time (enforced by a partial unique index). v1: approve-in-full or reject only — no partial approval. */
+        /**
+         * @description A guest's request to raise their invitation's `max_party_size`. At most one `pending` request per invitation at a time (enforced by a partial unique index). v1: approve-in-full or reject only — no partial approval.
+         * @example {
+         *       "id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+         *       "invitation_id": "66666666-6666-6666-6666-666666666666",
+         *       "requested_additional_heads": 2,
+         *       "status": "pending",
+         *       "note": "My two siblings confirmed they can come.",
+         *       "requested_at": "2026-11-01T10:00:00+08:00",
+         *       "reviewed_by": null,
+         *       "reviewed_at": null,
+         *       "review_reason": null
+         *     }
+         */
         HeadcountIncreaseRequest: {
             /**
              * Format: uuid
@@ -1248,32 +1795,66 @@ export interface components {
              */
             review_reason?: string | null;
         };
-        /** @description Request body for a guest submitting a headcount increase request. The guest's invitation must be `accepted` and at `max_party_size`. The partial unique index blocks a second pending request. */
+        /**
+         * @description Request body for a guest submitting a headcount increase request. The guest's invitation must be `accepted` and at `max_party_size`. The partial unique index blocks a second pending request.
+         * @example {
+         *       "invitation_id": "66666666-6666-6666-6666-666666666666",
+         *       "requested_additional_heads": 2,
+         *       "note": "My two siblings confirmed they can come."
+         *     }
+         */
         HeadcountIncreaseRequestCreate: {
             /**
              * Format: uuid
+             * @description The accepted invitation UUID requesting additional capacity.
              * @example 66666666-6666-6666-6666-666666666666
              */
             invitation_id: string;
-            /** @example 2 */
+            /**
+             * @description Number of additional slots requested beyond current max_party_size.
+             * @example 2
+             */
             requested_additional_heads: number;
-            /** @example My two siblings confirmed they can come. */
+            /**
+             * @description Optional explanatory note from the guest to the organizer.
+             * @example My two siblings confirmed they can come.
+             */
             note?: string | null;
         };
-        /** @description Request body for the `decideHeadcountRequest` Edge Function. Approve (raises `max_party_size` by `requested_additional_heads`) or reject. */
+        /**
+         * @description Request body for the `decideHeadcountRequest` Edge Function. Approve (raises `max_party_size` by `requested_additional_heads`) or reject.
+         * @example {
+         *       "decision": "approve",
+         *       "reason": "Additional table space arranged"
+         *     }
+         */
         HeadcountDecisionRequest: {
             /**
+             * @description Decision to approve or reject the additional headcount request.
              * @example approve
              * @enum {string}
              */
             decision: "approve" | "reject";
             /**
              * @description Organizer's optional note on the decision.
-             * @example null
+             * @example Additional table space arranged
              */
             reason?: string | null;
         };
-        /** @description Creative invitation asset for an event. At most one per event (UNIQUE on `event_id`). Either an image gallery or a single validated self-contained HTML file. An event with no row in this table shows guests a default system-branded view. */
+        /**
+         * @description Creative invitation asset for an event. At most one per event (UNIQUE on `event_id`). Either an image gallery or a single validated self-contained HTML file. An event with no row in this table shows guests a default system-branded view.
+         * @example {
+         *       "id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+         *       "event_id": "55555555-5555-5555-5555-555555555555",
+         *       "design_type": "html",
+         *       "html_storage_path": "designs/55555555-5555-5555-5555-555555555555/invitation.html",
+         *       "validation_status": "passed",
+         *       "validation_notes": null,
+         *       "validated_at": "2026-11-01T10:05:00+08:00",
+         *       "created_at": "2026-11-01T10:00:00+08:00",
+         *       "updated_at": "2026-11-01T10:05:00+08:00"
+         *     }
+         */
         InvitationDesign: {
             /**
              * Format: uuid
@@ -1288,7 +1869,7 @@ export interface components {
             design_type: components["schemas"]["DesignType"];
             /**
              * @description Supabase Storage path. Only set for `design_type = html`, and only after passing the synchronous structural scan in the `uploadInvitationHtml` Edge Function. Storage RLS forbids client writes to this bucket.
-             * @example null
+             * @example designs/55555555-5555-5555-5555-555555555555/invitation.html
              */
             html_storage_path?: string | null;
             /** @description Only meaningful for `html` designs. `pending` — malware scan queued, not yet resolved. `passed`  — both scans cleared; file may be served to guests. `failed`  — one or both scans failed; never served to guests. */
@@ -1300,7 +1881,7 @@ export interface components {
             validation_notes?: string | null;
             /**
              * Format: date-time
-             * @example null
+             * @example 2026-11-01T10:05:00+08:00
              */
             validated_at?: string | null;
             /**
@@ -1314,16 +1895,33 @@ export interface components {
              */
             updated_at: string;
         };
-        /** @description Request body for an organizer creating an invitation design record (images mode). For HTML mode, use the `uploadInvitationHtml` Edge Function instead — it performs the synchronous structural scan before storing the file. */
+        /**
+         * @description Request body for an organizer creating an invitation design record (images mode). For HTML mode, use the `uploadInvitationHtml` Edge Function instead — it performs the synchronous structural scan before storing the file.
+         * @example {
+         *       "event_id": "55555555-5555-5555-5555-555555555555",
+         *       "design_type": "images"
+         *     }
+         */
         InvitationDesignCreate: {
             /**
              * Format: uuid
+             * @description Target event UUID for this invitation creative design.
              * @example 55555555-5555-5555-5555-555555555555
              */
             event_id: string;
             design_type: components["schemas"]["DesignType"];
         };
-        /** @description One image per row in a gallery-mode invitation design. `sort_order` controls the gallery display sequence; the organizer can reorder images by updating this column. UNIQUE(event_id, sort_order) is enforced. */
+        /**
+         * @description One image per row in a gallery-mode invitation design. `sort_order` controls the gallery display sequence; the organizer can reorder images by updating this column. UNIQUE(event_id, sort_order) is enforced.
+         * @example {
+         *       "id": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+         *       "event_id": "55555555-5555-5555-5555-555555555555",
+         *       "storage_path": "designs/55555555-5555-5555-5555-555555555555/gallery/001.jpg",
+         *       "sort_order": 1,
+         *       "caption": "Welcome to the Annual Gala",
+         *       "created_at": "2026-11-02T09:00:00+08:00"
+         *     }
+         */
         InvitationImage: {
             /**
              * Format: uuid
@@ -1356,28 +1954,70 @@ export interface components {
              */
             created_at: string;
         };
-        /** @description Request body for adding an image to an event's gallery. */
+        /**
+         * @description Request body for adding an image to an event's gallery.
+         * @example {
+         *       "event_id": "55555555-5555-5555-5555-555555555555",
+         *       "storage_path": "designs/55555555-5555-5555-5555-555555555555/gallery/001.jpg",
+         *       "sort_order": 1,
+         *       "caption": "Welcome to the Annual Gala"
+         *     }
+         */
         InvitationImageCreate: {
             /**
              * Format: uuid
+             * @description Target event UUID for this gallery image.
              * @example 55555555-5555-5555-5555-555555555555
              */
             event_id: string;
-            /** @example designs/55555555-5555-5555-5555-555555555555/gallery/001.jpg */
+            /**
+             * @description Supabase Storage path where the uploaded image is stored.
+             * @example designs/55555555-5555-5555-5555-555555555555/gallery/001.jpg
+             */
             storage_path: string;
-            /** @example 1 */
+            /**
+             * @description Zero- or one-indexed display order in the event lightbox.
+             * @example 1
+             */
             sort_order: number;
-            /** @example Welcome to the Annual Gala */
+            /**
+             * @description Optional display caption or image description.
+             * @example Welcome to the Annual Gala
+             */
             caption?: string | null;
         };
-        /** @description Fields an organizer may update on an existing gallery image. */
+        /**
+         * @description Fields an organizer may update on an existing gallery image.
+         * @example {
+         *       "sort_order": 2,
+         *       "caption": "The venue entrance"
+         *     }
+         */
         InvitationImageUpdate: {
-            /** @example 2 */
+            /**
+             * @description Updated position in the display sequence.
+             * @example 2
+             */
             sort_order?: number;
-            /** @example The venue entrance */
+            /**
+             * @description Updated image caption text.
+             * @example The venue entrance
+             */
             caption?: string | null;
         };
-        /** @description A per-event delegation of check-in access to a named staff member. Access is tightly constrained: the staff member may only scan/search attendees for the single assigned event while `status = active`. Revoking the assignment immediately blocks further check-in. */
+        /**
+         * @description A per-event delegation of check-in access to a named staff member. Access is tightly constrained: the staff member may only scan/search attendees for the single assigned event while `status = active`. Revoking the assignment immediately blocks further check-in.
+         * @example {
+         *       "id": "88888888-8888-8888-8888-888888888888",
+         *       "event_id": "55555555-5555-5555-5555-555555555555",
+         *       "staff_email": "staff@example.com",
+         *       "auth_user_id": "44444444-4444-4444-4444-444444444444",
+         *       "invited_by": "11111111-1111-1111-1111-111111111111",
+         *       "status": "active",
+         *       "created_at": "2026-12-10T08:00:00+08:00",
+         *       "updated_at": "2026-12-10T08:00:00+08:00"
+         *     }
+         */
         CheckInAssignment: {
             /**
              * Format: uuid
@@ -1419,24 +2059,51 @@ export interface components {
              */
             updated_at: string;
         };
-        /** @description Request body for an organizer adding a check-in staff member to an event. */
+        /**
+         * @description Request body for an organizer adding a check-in staff member to an event.
+         * @example {
+         *       "event_id": "55555555-5555-5555-5555-555555555555",
+         *       "staff_email": "staff@example.com"
+         *     }
+         */
         CheckInAssignmentCreate: {
             /**
              * Format: uuid
+             * @description Target event UUID for which check-in access is granted.
              * @example 55555555-5555-5555-5555-555555555555
              */
             event_id: string;
             /**
              * Format: email
+             * @description Email address of the designated staff member.
              * @example staff@example.com
              */
             staff_email: string;
         };
-        /** @description Fields an organizer may update on a check-in assignment. Currently only `status` to revoke access (`status = revoked`). */
+        /**
+         * @description Fields an organizer may update on a check-in assignment. Currently only `status` to revoke access (`status = revoked`).
+         * @example {
+         *       "status": "revoked"
+         *     }
+         */
         CheckInAssignmentUpdate: {
             status: components["schemas"]["CheckinAssignmentStatus"];
         };
-        /** @description Record of every transactional email dispatched through Resend. Written by Edge Functions under service role only — no client INSERT. Rows are write-once: no UPDATE or DELETE is permitted. */
+        /**
+         * @description Record of every transactional email dispatched through Resend. Written by Edge Functions under service role only — no client INSERT. Clients have read-only access. Trusted server-side dispatch and delivery handling may update the status and provider metadata of the same message. A feed row represents one email, not a separate row for each status transition. The created_at value remains the original queue time; sent_at is null until dispatch. Delivered and bounced are M2 contract targets whose live provider callbacks and database enum support are deferred to M3.
+         * @example {
+         *       "id": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+         *       "event_id": null,
+         *       "invitation_id": null,
+         *       "attendee_id": null,
+         *       "recipient_email": "organizer@example.com",
+         *       "type": "organizer_account_verified",
+         *       "provider_message_id": "resend_msg_org_verified_123456789",
+         *       "status": "sent",
+         *       "sent_at": "2026-12-01T09:15:30+08:00",
+         *       "created_at": "2026-12-01T09:15:00+08:00"
+         *     }
+         */
         EmailLog: {
             /**
              * Format: uuid
@@ -1467,10 +2134,11 @@ export interface components {
              */
             recipient_email: string;
             /**
-             * @description Email type identifier (freeform — no enum, so new types can be added without a migration). Known types: `invitation_sent`, `rsvp_confirmation`, `waitlist_promoted`, `reminder`, `invitation_nudge`, `attendee_status_update`, `headcount_request_submitted`, `headcount_request_decided`, `qr_codes_issued`, `invitation_design_validation_failed`, `organizer_account_verified`.
-             * @example rsvp_confirmation
+             * @description Email type identifier. New values can be added without a database migration because the underlying column is freeform text.
+             * @example organizer_account_verified
+             * @enum {string}
              */
-            type: string;
+            type: "invitation_sent" | "rsvp_confirmation" | "waitlist_promoted" | "reminder" | "invitation_nudge" | "attendee_status_update" | "headcount_request_submitted" | "headcount_request_decided" | "qr_codes_issued" | "invitation_design_validation_failed" | "organizer_account_verified";
             /**
              * @description Resend's message ID, useful for delivery troubleshooting.
              * @example null
@@ -1479,7 +2147,7 @@ export interface components {
             status: components["schemas"]["EmailLogStatus"];
             /**
              * Format: date-time
-             * @description Set when `status` transitions to `sent`.
+             * @description Dispatch timestamp; retained for delivered/bounced outcomes and null before dispatch.
              * @example null
              */
             sent_at?: string | null;
@@ -1489,7 +2157,25 @@ export interface components {
              */
             created_at: string;
         };
-        /** @description Immutable, append-only log of all audited state-changing actions. Written by Edge Functions under service role. UPDATE and DELETE are denied for all roles at the RLS level — including authenticated clients. Audited actions include: `attendee.approved`, `attendee.rejected`, `attendee.approved_over_capacity`, `headcount_request.approved`, `headcount_request.rejected`, `invitation_design.uploaded`, `invitation_design.validation_failed`, `qr.bulk_sent`, `checkin.attendee_scanned`, `checkin.attendee_rescanned`, `checkin_assignment.granted`, `checkin_assignment.revoked`, `organizer.verified`. */
+        /**
+         * @description Immutable, append-only log of all audited state-changing actions. Written by Edge Functions under service role. UPDATE and DELETE are denied for all roles at the RLS level — including authenticated clients. Audited actions include: `attendee.approved`, `attendee.rejected`, `attendee.approved_over_capacity`, `headcount_request.approved`, `headcount_request.rejected`, `invitation_design.uploaded`, `invitation_design.validation_failed`, `qr_bundle_sent`, `qr.bulk_sent`, `checkin.attendee_scanned`, `checkin.attendee_rescanned`, `checkin_assignment.granted`, `checkin_assignment.revoked`, `organizer.verified`.
+         * @example {
+         *       "id": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+         *       "actor_type": "organizer",
+         *       "actor_id": "11111111-1111-1111-1111-111111111111",
+         *       "action": "attendee.approved",
+         *       "entity_type": "attendee",
+         *       "entity_id": "77777777-7777-7777-7777-777777777777",
+         *       "old_value": {
+         *         "status": "pending"
+         *       },
+         *       "new_value": {
+         *         "status": "approved"
+         *       },
+         *       "reason": "Verified team member",
+         *       "created_at": "2026-12-10T08:05:00+08:00"
+         *     }
+         */
         AuditLogEntry: {
             /**
              * Format: uuid
@@ -1499,7 +2185,7 @@ export interface components {
             actor_type: components["schemas"]["AuditActorType"];
             /**
              * Format: uuid
-             * @description FK semantics: `organizer_profiles.id`, `guests.id`, or `checkin_assignments.id` depending on `actor_type`. `null` when `actor_type = system`.
+             * @description FK semantics: `organizer_profiles.id`, `admin_profiles.id`, `guests.id`, or `checkin_assignments.id` depending on `actor_type`. `null` when `actor_type = system`.
              * @example 11111111-1111-1111-1111-111111111111
              */
             actor_id?: string | null;
@@ -1523,12 +2209,16 @@ export interface components {
              * @description State of the entity before the action (nullable).
              * @example null
              */
-            old_value?: Record<string, never> | null;
+            old_value?: {
+                [key: string]: unknown;
+            } | null;
             /**
              * @description State of the entity after the action (nullable).
              * @example null
              */
-            new_value?: Record<string, never> | null;
+            new_value?: {
+                [key: string]: unknown;
+            } | null;
             /**
              * @description Organizer's optional override/decision note.
              * @example null
@@ -1541,7 +2231,12 @@ export interface components {
              */
             created_at: string;
         };
-        /** @description Request body for the `scanCheckIn` Edge Function. The function verifies the `qr_token` signature, checks that the caller has an `active` `CheckInAssignment` for the token's event, and records the check-in. A client-side check-in write would be forgeable — this must go through the function. */
+        /**
+         * @description Request body for the `scanCheckIn` Edge Function. The function verifies the `qr_token` signature, checks that the caller has an `active` `CheckInAssignment` for the token's event, and records the check-in. A client-side check-in write would be forgeable — this must go through the function.
+         * @example {
+         *       "qr_token": "eyJhbGciOiJIUzI1NiJ9.attendee-token-payload.signature"
+         *     }
+         */
         ScanCheckInRequest: {
             /**
              * @description The signed QR token scanned from the attendee's QR code.
@@ -1553,9 +2248,32 @@ export interface components {
          * @description Response from the `scanCheckIn` Edge Function. Discriminated by `result`: - `accepted`         — first-time successful check-in. - `already_checked_in` — attendee was previously checked in (re-scan/re-entry).
          *       The organizer UI should surface this distinctly from an error.
          *     - `invalid_token`    — the token is malformed, expired, or not found.
+         * @example {
+         *       "result": "accepted",
+         *       "attendee": {
+         *         "id": "77777777-7777-7777-7777-777777777777",
+         *         "invitation_id": "66666666-6666-6666-6666-666666666666",
+         *         "full_name": "Maria Santos",
+         *         "email": "maria.santos@example.com",
+         *         "is_primary": true,
+         *         "status": "approved",
+         *         "submitted_at": "2026-10-05T14:00:00+08:00",
+         *         "reviewed_by": "11111111-1111-1111-1111-111111111111",
+         *         "reviewed_at": "2026-10-06T09:00:00+08:00",
+         *         "review_reason": "Primary guest approved",
+         *         "qr_token": "eyJhbGciOiJIUzI1NiJ9.attendee-token-payload.signature",
+         *         "checked_in": true,
+         *         "checked_in_at": "2026-12-15T18:07:00+08:00",
+         *         "checked_in_by": "44444444-4444-4444-4444-444444444444",
+         *         "is_walk_in": false
+         *       },
+         *       "checked_in_at": "2026-12-15T18:07:00+08:00",
+         *       "message": null
+         *     }
          */
         ScanCheckInResponse: {
             /**
+             * @description Check-in processing result status.
              * @example accepted
              * @enum {string}
              */
@@ -1573,37 +2291,54 @@ export interface components {
              */
             message?: string | null;
         };
-        /** @description Request body for the `dispatchQrBundle` Edge Function. Can target a single invitation or all confirmed invitations for an event (organizer bulk resend). The function generates a multi-page PDF (one QR code + attendee name per page) and emails it to the guest's address via Resend. `RESEND_API_KEY` is an Edge Function secret — never exposed to the client. */
+        /** @description Request body for the `dispatchQrBundle` Edge Function. Provide exactly one of `invitation_id` to send a bundle for one invitation, or `event_id` to send bundles for all confirmed invitations at an event. Each PDF contains one QR code and attendee name per page and is emailed via Resend. `RESEND_API_KEY` is an Edge Function secret — never exposed to the client. */
         QrBundleRequest: {
             /**
              * Format: uuid
-             * @description Target a single invitation. Mutually exclusive with `event_id`. If provided, the PDF is sent to that invitation's guest.
+             * @description Target a single invitation.
              * @example 66666666-6666-6666-6666-666666666666
              */
-            invitation_id?: string | null;
+            invitation_id?: string;
             /**
              * Format: uuid
-             * @description Target all confirmed invitations for an event (organizer bulk resend). Mutually exclusive with `invitation_id`.
-             * @example null
+             * @description Target all confirmed invitations for an event.
+             * @example 55555555-5555-5555-5555-555555555555
              */
-            event_id?: string | null;
-        };
+            event_id?: string;
+        } & (unknown | unknown);
         /** @description Response from the `dispatchQrBundle` Edge Function. */
         QrBundleResponse: {
+            /**
+             * @description Success message confirming the QR bundle was sent.
+             * @example QR bundle sent successfully.
+             */
+            message: string;
+            /**
+             * @description Number of QR bundle emails successfully sent.
+             * @example 1
+             */
+            emails_sent: number;
+        } | {
             /**
              * @description Number of QR bundle emails successfully dispatched.
              * @example 1
              */
             dispatched_count: number;
             /**
-             * @description IDs of the invitations whose QR bundles were sent.
+             * @description IDs of invitations whose QR bundles were sent.
              * @example [
              *       "66666666-6666-6666-6666-666666666666"
              *     ]
              */
             invitation_ids?: string[];
         };
-        /** @description Request body for the `promoteWaitlist` Edge Function (service-role only). Promotes the next `waitlisted` invitation(s) for an event in strict FIFO order (keyed by `waitlisted_at`). Promotion unblocks the invitation for RSVP only; any attendees already submitted remain `pending` and still require organizer review. This operation is privileged and runs atomically — it may not be called from the SPA. */
+        /**
+         * @description Request body for the `promoteWaitlist` Edge Function (service-role only). Promotes the next `waitlisted` invitation(s) for an event in strict FIFO order (keyed by `waitlisted_at`). Promotion unblocks the invitation for RSVP only; any attendees already submitted remain `pending` and still require organizer review. This operation is privileged and runs atomically — it may not be called from the SPA.
+         * @example {
+         *       "event_id": "55555555-5555-5555-5555-555555555555",
+         *       "max_promotions": 1
+         *     }
+         */
         WaitlistPromoteRequest: {
             /**
              * Format: uuid
@@ -1617,7 +2352,15 @@ export interface components {
              */
             max_promotions?: number;
         };
-        /** @description Response from the `promoteWaitlist` Edge Function. */
+        /**
+         * @description Response from the `promoteWaitlist` Edge Function.
+         * @example {
+         *       "promoted_count": 1,
+         *       "promoted_invitation_ids": [
+         *         "66666666-6666-6666-6666-666666666666"
+         *       ]
+         *     }
+         */
         WaitlistPromoteResponse: {
             /**
              * @description Number of invitations promoted from `waitlisted` to `accepted`.
@@ -1625,6 +2368,7 @@ export interface components {
              */
             promoted_count: number;
             /**
+             * @description UUIDs of invitations promoted to accepted status.
              * @example [
              *       "66666666-6666-6666-6666-666666666666"
              *     ]
@@ -1639,6 +2383,20 @@ export interface components {
          *     2. If the structural scan passes, stores the file in Supabase Storage and
          *        creates/updates the `invitation_designs` row with `validation_status = pending`.
          *     3. Queues the asynchronous malware scan (e.g. VirusTotal). On structural failure the function returns 422 with this schema's `errors` field.
+         * @example {
+         *       "design": {
+         *         "id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+         *         "event_id": "55555555-5555-5555-5555-555555555555",
+         *         "design_type": "html",
+         *         "html_storage_path": "designs/55555555-5555-5555-5555-555555555555/invitation.html",
+         *         "validation_status": "pending",
+         *         "validation_notes": null,
+         *         "validated_at": null,
+         *         "created_at": "2026-11-01T10:00:00+08:00",
+         *         "updated_at": "2026-11-01T10:00:00+08:00"
+         *       },
+         *       "errors": []
+         *     }
          */
         HtmlUploadResponse: {
             design: components["schemas"]["InvitationDesign"];
@@ -1659,7 +2417,14 @@ export interface components {
                 detail: string;
             }[];
         };
-        /** @description Request body received by the `handleScanCallback` Edge Function from the third-party file-scanning service (e.g. VirusTotal webhook). This operation is service-role only — it is NOT reachable from the SPA. The function verifies the callback signature, looks up the associated `invitation_designs` row, and flips `validation_status` to `passed` or `failed`. On `failed`, it sets `validation_notes` and sends an `invitation_design_validation_failed` email to the organizer. */
+        /**
+         * @description Request body received by the `handleScanCallback` Edge Function from the third-party file-scanning service (e.g. VirusTotal webhook). This operation is service-role only — it is NOT reachable from the SPA. The function verifies the callback signature, looks up the associated `invitation_designs` row, and flips `validation_status` to `passed` or `failed`. On `failed`, it sets `validation_notes` and sends an `invitation_design_validation_failed` email to the organizer.
+         * @example {
+         *       "scan_id": "scan-job-abc123",
+         *       "result": "clean",
+         *       "notes": null
+         *     }
+         */
         ScanCallbackRequest: {
             /**
              * @description The scan job identifier returned by the third-party scanning service.
@@ -1694,6 +2459,50 @@ export interface components {
          */
         InvitationStatus: "pending" | "accepted" | "declined" | "tentative" | "waitlisted";
         /**
+         * @example {
+         *       "id": "66666666-6666-6666-6666-666666666666",
+         *       "event_id": "55555555-5555-5555-5555-555555555555",
+         *       "guest_id": "33333333-3333-3333-3333-333333333333",
+         *       "status": "accepted",
+         *       "max_party_size": 4,
+         *       "party_size": 2,
+         *       "checked_in_count": 0,
+         *       "dietary_preference": "Vegetarian",
+         *       "special_requests": "Wheelchair access needed",
+         *       "invited_by": "11111111-1111-1111-1111-111111111111",
+         *       "invited_at": "2026-10-01T09:00:00+08:00",
+         *       "responded_at": "2026-10-05T14:30:00+08:00",
+         *       "waitlisted_at": null,
+         *       "created_at": "2026-10-01T09:00:00+08:00",
+         *       "updated_at": "2026-10-05T14:30:00+08:00",
+         *       "events": {
+         *         "id": "55555555-5555-5555-5555-555555555555",
+         *         "organizer_id": "11111111-1111-1111-1111-111111111111",
+         *         "title": "Annual Gala 2026",
+         *         "slug": "annual-gala-2026",
+         *         "description": "A celebration of achievements and milestones.",
+         *         "cover_image_url": "https://example.supabase.co/storage/v1/object/public/covers/gala-2026.jpg",
+         *         "starts_at": "2026-12-15T18:00:00+08:00",
+         *         "ends_at": "2026-12-15T22:00:00+08:00",
+         *         "event_timezone": "Asia/Manila",
+         *         "venue_name": "Grand Ballroom",
+         *         "address": "123 Rizal Avenue",
+         *         "city": "Cebu City",
+         *         "location_url": "https://maps.google.com/?q=grand+ballroom",
+         *         "capacity": 500,
+         *         "rsvp_deadline": "2026-12-01T23:59:59+08:00",
+         *         "visibility_mode": "open_registration",
+         *         "status": "published",
+         *         "deleted_at": null,
+         *         "created_at": "2026-09-01T08:00:00+08:00",
+         *         "updated_at": "2026-11-15T10:00:00+08:00"
+         *       }
+         *     }
+         */
+        InvitationWithEvent: components["schemas"]["Invitation"] & {
+            events?: components["schemas"]["Event"];
+        };
+        /**
          * @description `pending`  — submitted by guest; awaiting organizer review. `approved` — organizer approved; counted toward party_size and issued a qr_token. `rejected` — organizer rejected; can be edited and resubmitted by guest.
          * @enum {string}
          */
@@ -1719,20 +2528,28 @@ export interface components {
          */
         CheckinAssignmentStatus: "invited" | "active" | "revoked";
         /**
-         * @description `queued` — record created; not yet dispatched. `sent`   — successfully accepted by Resend. `failed` — delivery attempt failed; see provider_message_id for details.
+         * @description `queued` — record created; not yet dispatched. `sent`   — successfully accepted by Resend. `delivered` — delivery confirmed by the provider. `bounced` — rejected by the receiving mail server after dispatch. `failed` — delivery attempt failed; see provider_message_id for details.
          * @enum {string}
          */
-        EmailLogStatus: "queued" | "sent" | "failed";
+        EmailLogStatus: "queued" | "sent" | "delivered" | "bounced" | "failed";
         /**
-         * @description `organizer`      — action by an OrganizerProfile (actor_id = organizer_profiles.id). `guest`          — action by a Guest (actor_id = guests.id). `check_in_staff` — action by a CheckInAssignment holder (actor_id = checkin_assignments.id). `system`         — action by a scheduled job or automated process (actor_id = null).
+         * @description `organizer`      — action by an OrganizerProfile (actor_id = organizer_profiles.id). `admin`          — action by an AdminProfile (actor_id = admin_profiles.id). `guest`          — action by a Guest (actor_id = guests.id). `check_in_staff` — action by a CheckInAssignment holder (actor_id = checkin_assignments.id). `system`         — action by a scheduled job or automated process (actor_id = null).
          * @enum {string}
          */
-        AuditActorType: "organizer" | "guest" | "check_in_staff" | "system";
+        AuditActorType: "organizer" | "admin" | "guest" | "check_in_staff" | "system";
         /**
          * @description `pending` — newly self-registered; awaiting admin verification. `active`  — verified; may create and manage events.
          * @enum {string}
          */
         OrganizerStatus: "pending" | "active";
+        /**
+         * @description Request payload for public self-registration to an open event.
+         * @example {
+         *       "event_id": "55555555-5555-5555-5555-555555555555",
+         *       "email": "newguest@example.com",
+         *       "full_name": "Juan dela Cruz"
+         *     }
+         */
         RegisterPublicRequest: {
             /**
              * Format: uuid
@@ -1754,15 +2571,6 @@ export interface components {
         };
     };
     responses: {
-        /** @description Bad request — invalid query parameters or request body. */
-        BadRequest: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["Error"];
-            };
-        };
         /** @description Unauthorized — no valid JWT provided, or the JWT is expired. The client should redirect to the appropriate login screen. */
         Unauthorized: {
             headers: {
@@ -1790,44 +2598,8 @@ export interface components {
                 "application/json": components["schemas"]["Error"];
             };
         };
-        /** @description Conflict — a unique constraint was violated. */
-        Conflict: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["Error"];
-            };
-        };
-        /** @description Unprocessable Entity — the request was syntactically valid but failed a domain-level validation (e.g. HTML structural scan rejected the uploaded file). */
-        UnprocessableEntity: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["Error"];
-            };
-        };
-        /** @description Unauthorized — no valid JWT provided, or the JWT is expired. The client should redirect to the appropriate login screen. */
-        responses_Unauthorized: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["Error"];
-            };
-        };
-        /** @description Forbidden — the caller's JWT is valid but RLS denied the operation. An undocumented 403 here is a contract bug. */
-        responses_Forbidden: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["Error"];
-            };
-        };
         /** @description Bad request — invalid query parameters or request body. */
-        responses_BadRequest: {
+        BadRequest: {
             headers: {
                 [name: string]: unknown;
             };
@@ -1853,35 +2625,25 @@ export interface components {
          */
         OffsetParam: number;
         /**
-         * @description PostgREST ordering. Format: `column.direction[.nullsfirst|nullslast]`. Example: `created_at.desc`.
+         * @description PostgREST ordering. Format: `column.direction[.nullsfirst|nullslast]`.
          * @example created_at.desc
          */
         OrderParam: string;
         /**
-         * @description Request a row count alongside the response. `count=exact` returns the precise count in the `Content-Range` header (requires a sequential scan — use sparingly on large tables).
+         * @description Request a row count. `count=exact` returns the precise count in the `Content-Range` response header.
          * @example count=exact
          */
         PreferCountParam: "count=exact" | "count=planned" | "count=estimated";
         /**
-         * @description Control whether the mutated row(s) are returned in the response body. `return=representation` returns the full row; `return=minimal` (default) returns no body.
+         * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
          * @example return=representation
          */
         PreferReturnParam: "return=representation" | "return=minimal" | "return=headers-only";
         /**
-         * @description PostgREST ordering. Format: `column.direction[.nullsfirst|nullslast]`.
-         * @example created_at.desc
-         */
-        parameters_OrderParam: string;
-        /**
-         * @description Request a row count. `count=exact` returns the precise count in the `Content-Range` response header.
+         * @description Comma-separated preferences for log feed reads. PostgREST supports `count=exact`, `count=planned`, or `count=estimated` for Content-Range totals. Prism additionally accepts `example=<response-example-name>` for deterministic mock selection; this does not imply live filtering or pagination behavior.
          * @example count=exact
          */
-        parameters_PreferCountParam: "count=exact" | "count=planned" | "count=estimated";
-        /**
-         * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
-         * @example return=representation
-         */
-        parameters_PreferReturnParam: "return=representation" | "return=minimal" | "return=headers-only";
+        LogFeedPreferParam: string;
     };
     requestBodies: never;
     headers: {
@@ -1917,14 +2679,14 @@ export interface operations {
                  * @description PostgREST ordering. Format: `column.direction[.nullsfirst|nullslast]`.
                  * @example created_at.desc
                  */
-                order?: components["parameters"]["parameters_OrderParam"];
+                order?: components["parameters"]["OrderParam"];
                 /** @description Filter by event ID (used by Check-in Staff). */
                 id?: string;
-                /** @description Filter by event slug (used by Public Registration). */
+                /** @description Filter by event slug (used by Public Registration). Combine with `visibility_mode=eq.open_registration&status=eq.published` for unauthenticated slug-based lookups on the `/register/:slug` page. */
                 slug?: string;
-                /** @description Filter by visibility mode. */
+                /** @description Filter by visibility mode using PostgREST operator syntax. Public discovery: must be `eq.open_registration` — the RLS anon-read policy only surfaces `open_registration` events to unauthenticated callers. */
                 visibility_mode?: string;
-                /** @description Filter by event status using PostgREST operator syntax (e.g. `eq.published`, `in.(draft,published)`). */
+                /** @description Filter by event status using PostgREST operator syntax (e.g. `eq.published`, `in.(draft,published)`). Public discovery: must be `eq.published` — the RLS anon-read policy only exposes published events to unauthenticated callers. */
                 status?: string;
                 /** @description Filter out soft-deleted events. Defaults to `is.null` via RLS. */
                 deleted_at?: string;
@@ -1934,14 +2696,14 @@ export interface operations {
                  * @description Request a row count. `count=exact` returns the precise count in the `Content-Range` response header.
                  * @example count=exact
                  */
-                Prefer?: components["parameters"]["parameters_PreferCountParam"];
+                Prefer?: components["parameters"]["PreferCountParam"];
             };
             path?: never;
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description List of events belonging to the authenticated organizer. */
+            /** @description Array of events. For authenticated organizers, contains all non-deleted events owned by the caller. For unauthenticated public discovery (with `visibility_mode=eq.open_registration&status=eq.published`), contains only open-registration published events visible to anonymous users. */
             200: {
                 headers: {
                     "Content-Range": components["headers"]["ContentRange"];
@@ -1951,7 +2713,7 @@ export interface operations {
                     "application/json": components["schemas"]["Event"][];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     createEvent: {
@@ -1962,7 +2724,7 @@ export interface operations {
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
                  * @example return=representation
                  */
-                Prefer?: components["parameters"]["parameters_PreferReturnParam"];
+                Prefer?: components["parameters"]["PreferReturnParam"];
             };
             path?: never;
             cookie?: never;
@@ -1982,8 +2744,8 @@ export interface operations {
                     "application/json": components["schemas"]["Event"];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
-            403: components["responses"]["responses_Forbidden"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             /** @description Conflict — slug already exists. */
             409: {
                 headers: {
@@ -2003,7 +2765,7 @@ export interface operations {
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
                  * @example return=representation
                  */
-                Prefer?: components["parameters"]["parameters_PreferReturnParam"];
+                Prefer?: components["parameters"]["PreferReturnParam"];
             };
             path: {
                 /** @description PostgREST filter — pass the UUID directly; the `eq.` prefix is handled by the generated client. */
@@ -2033,8 +2795,8 @@ export interface operations {
                 };
                 content?: never;
             };
-            401: components["responses"]["responses_Unauthorized"];
-            403: components["responses"]["responses_Forbidden"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     listReminderSchedules: {
@@ -2062,7 +2824,7 @@ export interface operations {
                     "application/json": components["schemas"]["ReminderSchedule"][];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     upsertReminderSchedule: {
@@ -2073,7 +2835,7 @@ export interface operations {
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
                  * @example return=representation
                  */
-                Prefer?: components["parameters"]["parameters_PreferReturnParam"];
+                Prefer?: components["parameters"]["PreferReturnParam"];
             };
             path?: never;
             cookie?: never;
@@ -2093,7 +2855,7 @@ export interface operations {
                     "application/json": components["schemas"]["ReminderSchedule"];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     deleteReminderSchedule: {
@@ -2114,7 +2876,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     listGuests: {
@@ -2143,7 +2905,7 @@ export interface operations {
                  * @description Request a row count. `count=exact` returns the precise count in the `Content-Range` response header.
                  * @example count=exact
                  */
-                Prefer?: components["parameters"]["parameters_PreferCountParam"];
+                Prefer?: components["parameters"]["PreferCountParam"];
             };
             path?: never;
             cookie?: never;
@@ -2160,7 +2922,7 @@ export interface operations {
                     "application/json": components["schemas"]["Guest"][];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     listInvitations: {
@@ -2185,8 +2947,10 @@ export interface operations {
                  * @description PostgREST ordering. Format: `column.direction[.nullsfirst|nullslast]`.
                  * @example created_at.desc
                  */
-                order?: components["parameters"]["parameters_OrderParam"];
+                order?: components["parameters"]["OrderParam"];
                 event_id?: string;
+                /** @description Filter invitations by guest UUID. */
+                guest_id?: string;
                 status?: string;
             };
             header?: {
@@ -2194,7 +2958,7 @@ export interface operations {
                  * @description Request a row count. `count=exact` returns the precise count in the `Content-Range` response header.
                  * @example count=exact
                  */
-                Prefer?: components["parameters"]["parameters_PreferCountParam"];
+                Prefer?: components["parameters"]["PreferCountParam"];
             };
             path?: never;
             cookie?: never;
@@ -2208,10 +2972,10 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Invitation"][];
+                    "application/json": (components["schemas"]["Invitation"] | components["schemas"]["InvitationWithEvent"])[];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     createInvitation: {
@@ -2222,7 +2986,7 @@ export interface operations {
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
                  * @example return=representation
                  */
-                Prefer?: components["parameters"]["parameters_PreferReturnParam"];
+                Prefer?: components["parameters"]["PreferReturnParam"];
             };
             path?: never;
             cookie?: never;
@@ -2242,7 +3006,7 @@ export interface operations {
                     "application/json": components["schemas"]["Invitation"];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
             /** @description Conflict — this guest already has an invitation for this event. */
             409: {
                 headers: {
@@ -2262,7 +3026,7 @@ export interface operations {
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
                  * @example return=representation
                  */
-                Prefer?: components["parameters"]["parameters_PreferReturnParam"];
+                Prefer?: components["parameters"]["PreferReturnParam"];
             };
             path: {
                 id: string;
@@ -2291,8 +3055,8 @@ export interface operations {
                 };
                 content?: never;
             };
-            401: components["responses"]["responses_Unauthorized"];
-            403: components["responses"]["responses_Forbidden"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     listAttendees: {
@@ -2317,7 +3081,7 @@ export interface operations {
                  * @description PostgREST ordering. Format: `column.direction[.nullsfirst|nullslast]`.
                  * @example created_at.desc
                  */
-                order?: components["parameters"]["parameters_OrderParam"];
+                order?: components["parameters"]["OrderParam"];
                 invitation_id?: string;
                 status?: string;
             };
@@ -2326,7 +3090,7 @@ export interface operations {
                  * @description Request a row count. `count=exact` returns the precise count in the `Content-Range` response header.
                  * @example count=exact
                  */
-                Prefer?: components["parameters"]["parameters_PreferCountParam"];
+                Prefer?: components["parameters"]["PreferCountParam"];
             };
             path?: never;
             cookie?: never;
@@ -2343,7 +3107,7 @@ export interface operations {
                     "application/json": components["schemas"]["Attendee"][];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     submitAttendee: {
@@ -2354,7 +3118,7 @@ export interface operations {
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
                  * @example return=representation
                  */
-                Prefer?: components["parameters"]["parameters_PreferReturnParam"];
+                Prefer?: components["parameters"]["PreferReturnParam"];
             };
             path?: never;
             cookie?: never;
@@ -2374,8 +3138,8 @@ export interface operations {
                     "application/json": components["schemas"]["Attendee"];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
-            403: components["responses"]["responses_Forbidden"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     updateAttendee: {
@@ -2386,7 +3150,7 @@ export interface operations {
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
                  * @example return=representation
                  */
-                Prefer?: components["parameters"]["parameters_PreferReturnParam"];
+                Prefer?: components["parameters"]["PreferReturnParam"];
             };
             path: {
                 id: string;
@@ -2415,8 +3179,8 @@ export interface operations {
                 };
                 content?: never;
             };
-            401: components["responses"]["responses_Unauthorized"];
-            403: components["responses"]["responses_Forbidden"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     listHeadcountRequests: {
@@ -2455,47 +3219,7 @@ export interface operations {
                     "application/json": components["schemas"]["HeadcountIncreaseRequest"][];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
-        };
-    };
-    submitHeadcountRequest: {
-        parameters: {
-            query?: never;
-            header?: {
-                /**
-                 * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
-                 * @example return=representation
-                 */
-                Prefer?: components["parameters"]["parameters_PreferReturnParam"];
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["HeadcountIncreaseRequestCreate"];
-            };
-        };
-        responses: {
-            /** @description Request submitted; status is `pending`. */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HeadcountIncreaseRequest"];
-                };
-            };
-            401: components["responses"]["responses_Unauthorized"];
-            /** @description Conflict — a pending request already exists for this invitation. */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
         };
     };
     getInvitationDesign: {
@@ -2523,7 +3247,7 @@ export interface operations {
                     "application/json": components["schemas"]["InvitationDesign"][];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     createInvitationDesign: {
@@ -2534,7 +3258,7 @@ export interface operations {
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
                  * @example return=representation
                  */
-                Prefer?: components["parameters"]["parameters_PreferReturnParam"];
+                Prefer?: components["parameters"]["PreferReturnParam"];
             };
             path?: never;
             cookie?: never;
@@ -2554,7 +3278,7 @@ export interface operations {
                     "application/json": components["schemas"]["InvitationDesign"];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
             /** @description An invitation design already exists for this event. */
             409: {
                 headers: {
@@ -2592,7 +3316,7 @@ export interface operations {
                     "application/json": components["schemas"]["InvitationImage"][];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     addInvitationImage: {
@@ -2603,7 +3327,7 @@ export interface operations {
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
                  * @example return=representation
                  */
-                Prefer?: components["parameters"]["parameters_PreferReturnParam"];
+                Prefer?: components["parameters"]["PreferReturnParam"];
             };
             path?: never;
             cookie?: never;
@@ -2623,7 +3347,7 @@ export interface operations {
                     "application/json": components["schemas"]["InvitationImage"];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     deleteInvitationImage: {
@@ -2644,7 +3368,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     updateInvitationImage: {
@@ -2655,7 +3379,7 @@ export interface operations {
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
                  * @example return=representation
                  */
-                Prefer?: components["parameters"]["parameters_PreferReturnParam"];
+                Prefer?: components["parameters"]["PreferReturnParam"];
             };
             path: {
                 id: string;
@@ -2675,7 +3399,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     listCheckInAssignments: {
@@ -2703,7 +3427,7 @@ export interface operations {
                     "application/json": components["schemas"]["CheckInAssignment"][];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     createCheckInAssignment: {
@@ -2714,7 +3438,7 @@ export interface operations {
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
                  * @example return=representation
                  */
-                Prefer?: components["parameters"]["parameters_PreferReturnParam"];
+                Prefer?: components["parameters"]["PreferReturnParam"];
             };
             path?: never;
             cookie?: never;
@@ -2734,7 +3458,7 @@ export interface operations {
                     "application/json": components["schemas"]["CheckInAssignment"];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
             /** @description This email already has an assignment for this event. */
             409: {
                 headers: {
@@ -2764,7 +3488,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     updateCheckInAssignment: {
@@ -2775,7 +3499,7 @@ export interface operations {
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
                  * @example return=representation
                  */
-                Prefer?: components["parameters"]["parameters_PreferReturnParam"];
+                Prefer?: components["parameters"]["PreferReturnParam"];
             };
             path: {
                 id: string;
@@ -2795,7 +3519,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     listEmailLogs: {
@@ -2820,11 +3544,17 @@ export interface operations {
                  * @description PostgREST ordering. Format: `column.direction[.nullsfirst|nullslast]`.
                  * @example created_at.desc
                  */
-                order?: components["parameters"]["parameters_OrderParam"];
+                order?: components["parameters"]["OrderParam"];
                 event_id?: string;
                 invitation_id?: string;
             };
-            header?: never;
+            header?: {
+                /**
+                 * @description Comma-separated preferences for log feed reads. PostgREST supports `count=exact`, `count=planned`, or `count=estimated` for Content-Range totals. Prism additionally accepts `example=<response-example-name>` for deterministic mock selection; this does not imply live filtering or pagination behavior.
+                 * @example count=exact
+                 */
+                Prefer?: components["parameters"]["LogFeedPreferParam"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -2840,7 +3570,7 @@ export interface operations {
                     "application/json": components["schemas"]["EmailLog"][];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     listAuditLogEntries: {
@@ -2865,11 +3595,17 @@ export interface operations {
                  * @description PostgREST ordering. Format: `column.direction[.nullsfirst|nullslast]`.
                  * @example created_at.desc
                  */
-                order?: components["parameters"]["parameters_OrderParam"];
+                order?: components["parameters"]["OrderParam"];
                 entity_type?: string;
                 entity_id?: string;
             };
-            header?: never;
+            header?: {
+                /**
+                 * @description Comma-separated preferences for log feed reads. PostgREST supports `count=exact`, `count=planned`, or `count=estimated` for Content-Range totals. Prism additionally accepts `example=<response-example-name>` for deterministic mock selection; this does not imply live filtering or pagination behavior.
+                 * @example count=exact
+                 */
+                Prefer?: components["parameters"]["LogFeedPreferParam"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -2885,10 +3621,10 @@ export interface operations {
                     "application/json": components["schemas"]["AuditLogEntry"][];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
         };
     };
-    getOrganizerProfile: {
+    adminListOrganizers: {
         parameters: {
             query?: {
                 /**
@@ -2896,29 +3632,48 @@ export interface operations {
                  * @example id,title,status
                  */
                 select?: components["parameters"]["SelectParam"];
-                /** @description Filter by status (used by Admin). */
-                status?: string;
+                /**
+                 * @description Maximum number of rows to return.
+                 * @example 20
+                 */
+                limit?: components["parameters"]["LimitParam"];
+                /**
+                 * @description Number of rows to skip before returning results.
+                 * @example 0
+                 */
+                offset?: components["parameters"]["OffsetParam"];
+                /** @description Filter to the authenticated organizer's profile when used outside the admin queue. */
                 id?: string;
+                /** @description Filter by organizer status. */
+                status?: string;
             };
-            header?: never;
+            header?: {
+                /**
+                 * @description Request a row count. `count=exact` returns the precise count in the `Content-Range` response header.
+                 * @example count=exact
+                 */
+                Prefer?: components["parameters"]["PreferCountParam"];
+            };
             path?: never;
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Organizer profile. */
+            /** @description Paginated organizer profiles. */
             200: {
                 headers: {
+                    "Content-Range": components["headers"]["ContentRange"];
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": components["schemas"]["OrganizerProfile"][];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
-    updateOrganizerProfile: {
+    adminUpdateOrganizerStatus: {
         parameters: {
             query?: never;
             header?: {
@@ -2926,7 +3681,7 @@ export interface operations {
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
                  * @example return=representation
                  */
-                Prefer?: components["parameters"]["parameters_PreferReturnParam"];
+                Prefer?: components["parameters"]["PreferReturnParam"];
             };
             path: {
                 id: string;
@@ -2939,7 +3694,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Updated profile (when `Prefer: return=representation`). */
+            /** @description Updated organizer profile. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -2955,8 +3710,9 @@ export interface operations {
                 };
                 content?: never;
             };
-            401: components["responses"]["responses_Unauthorized"];
-            403: components["responses"]["responses_Forbidden"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
         };
     };
     getAdminProfile: {
@@ -2981,10 +3737,104 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "id": "22222222-2222-2222-2222-222222222222",
+                     *         "email": "admin@example.com",
+                     *         "full_name": "System Administrator",
+                     *         "created_at": "2026-09-01T08:00:00+08:00"
+                     *       }
+                     *     ]
+                     */
                     "application/json": components["schemas"]["AdminProfile"][];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    getOrgSettings: {
+        parameters: {
+            query?: {
+                /**
+                 * @description PostgREST column selection. Comma-separated column names. Use `related_table(col1,col2)` for embedded resource selection.
+                 * @example id,title,status
+                 */
+                select?: components["parameters"]["SelectParam"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Organization settings singleton array. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "id": "00000000-0000-0000-0000-000000000001",
+                     *         "org_name": "EIRMIS Enterprise Cloud Platform",
+                     *         "default_timezone": "Asia/Manila",
+                     *         "default_capacity_ceiling": 150,
+                     *         "sender_domain": "invites.eirmis.org",
+                     *         "malware_sandbox_enabled": true,
+                     *         "self_registration_gate_enabled": true,
+                     *         "created_at": "2026-09-01T08:00:00+08:00",
+                     *         "updated_at": "2026-09-10T12:30:00+08:00"
+                     *       }
+                     *     ]
+                     */
+                    "application/json": components["schemas"]["OrgSettings"][];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    updateOrgSettings: {
+        parameters: {
+            query?: never;
+            header?: {
+                /**
+                 * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
+                 * @example return=representation
+                 */
+                Prefer?: components["parameters"]["PreferReturnParam"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrgSettingsUpdate"];
+            };
+        };
+        responses: {
+            /** @description Updated settings record (when Prefer: return=representation). */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrgSettings"];
+                };
+            };
+            /** @description Settings updated successfully. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     updateGuestProfile: {
@@ -2995,7 +3845,7 @@ export interface operations {
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
                  * @example return=representation
                  */
-                Prefer?: components["parameters"]["parameters_PreferReturnParam"];
+                Prefer?: components["parameters"]["PreferReturnParam"];
             };
             path: {
                 id: string;
@@ -3014,6 +3864,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "id": "33333333-3333-3333-3333-333333333333",
+                     *       "email": "guest@example.com",
+                     *       "full_name": "Maria Santos",
+                     *       "auth_user_id": "33333333-3333-3333-3333-333333333333",
+                     *       "created_at": "2026-09-05T08:00:00+08:00",
+                     *       "updated_at": "2026-09-05T08:00:00+08:00"
+                     *     }
+                     */
                     "application/json": components["schemas"]["Guest"];
                 };
             };
@@ -3024,8 +3884,8 @@ export interface operations {
                 };
                 content?: never;
             };
-            401: components["responses"]["responses_Unauthorized"];
-            403: components["responses"]["responses_Forbidden"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     uploadInvitationHtml: {
@@ -3062,8 +3922,8 @@ export interface operations {
                     "application/json": components["schemas"]["HtmlUploadResponse"];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
-            403: components["responses"]["responses_Forbidden"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             /** @description Structural scan failed — the file contains prohibited external references. */
             422: {
                 headers: {
@@ -3100,8 +3960,8 @@ export interface operations {
                     };
                 };
             };
-            400: components["responses"]["responses_BadRequest"];
-            401: components["responses"]["responses_Unauthorized"];
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     decideAttendee: {
@@ -3132,10 +3992,63 @@ export interface operations {
                     "application/json": components["schemas"]["AttendeeDecisionResponse"];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
-            403: components["responses"]["responses_Forbidden"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             /** @description Attendee not found or not accessible. */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    submitHeadcountRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HeadcountIncreaseRequestCreate"];
+            };
+        };
+        responses: {
+            /** @description Request submitted and organizer notification sent. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HeadcountIncreaseRequest"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            /** @description Conflict — a pending request already exists for this invitation. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Request was saved, but email logging failed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Request was saved, but the organizer notification could not be sent or logged. */
+            502: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3173,8 +4086,8 @@ export interface operations {
                     "application/json": components["schemas"]["HeadcountIncreaseRequest"];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
-            403: components["responses"]["responses_Forbidden"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             /** @description Request not found or not accessible. */
             404: {
                 headers: {
@@ -3199,7 +4112,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description QR bundle(s) dispatched. */
+            /** @description QR bundle(s) dispatched successfully. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -3208,8 +4121,8 @@ export interface operations {
                     "application/json": components["schemas"]["QrBundleResponse"];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
-            403: components["responses"]["responses_Forbidden"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     scanCheckIn: {
@@ -3234,8 +4147,8 @@ export interface operations {
                     "application/json": components["schemas"]["ScanCheckInResponse"];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
-            403: components["responses"]["responses_Forbidden"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     sendReminders: {
@@ -3266,7 +4179,7 @@ export interface operations {
                     };
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     promoteWaitlist: {
@@ -3291,8 +4204,8 @@ export interface operations {
                     "application/json": components["schemas"]["WaitlistPromoteResponse"];
                 };
             };
-            401: components["responses"]["responses_Unauthorized"];
-            403: components["responses"]["responses_Forbidden"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     registerPublicGuest: {
@@ -3317,7 +4230,7 @@ export interface operations {
                     "application/json": components["schemas"]["Invitation"];
                 };
             };
-            400: components["responses"]["responses_BadRequest"];
+            400: components["responses"]["BadRequest"];
             /** @description Conflict — guest already registered for this event. */
             409: {
                 headers: {

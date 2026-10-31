@@ -3,10 +3,9 @@ import { Menu, LogOut, LogIn, Layers } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   MobileDrawer,
-  type PortalItem,
   type UserSession,
-  DEFAULT_PORTALS,
 } from './mobile-drawer'
+import { DEFAULT_PORTALS, type PortalItem } from './portal-constants'
 
 export interface GlobalNavProps {
   activePortal?: string
