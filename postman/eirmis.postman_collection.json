@@ -1536,7 +1536,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"invitation_id\": \"{{invitationId}}\",\n  \"event_id\": null\n}",
+                  "raw": "{\n  \"invitation_id\": \"{{invitationId}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
