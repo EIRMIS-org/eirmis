@@ -34,10 +34,10 @@ export function downloadCSV(
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
 
+  const stamp = new Date().toISOString().slice(0,10);
+
   link.href = url;
-  link.download = filename.toLowerCase().endsWith(".csv")
-    ? filename
-    : `${filename}.csv`;
+  link.download = `${filename.replace(/\.csv$/i, "")}-${stamp}.csv`;
   link.click();
   URL.revokeObjectURL(url);
 }
