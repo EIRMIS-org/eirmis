@@ -232,9 +232,11 @@
         toast('Event list CSV downloaded');
     }
 
-    function exportAttendanceReportCSV() {
+    function exportAttendanceReportCSV(eventId) {
         var headers = ['Attendee ID', 'Full Name', 'Email', 'Is Primary', 'RSVP Status', 'Approval Status', 'Checked In', 'Checked In At', 'Checked In By Staff ID'];
-        var rows = state.guests.map(function (guest) {
+        var rows = state.guests
+            .filter(function (guest) { return guest.eventId === eventId; })
+            .map(function (guest) {
             return [
                 guest.id,
                 guest.name,
