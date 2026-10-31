@@ -494,7 +494,7 @@ const testCases: TestCase[] = [
     method:         'POST',
     path:           '/functions/v1/qr-bundle',
     headers:        H.organizer,
-    body:           { invitation_id: UUID.INVITATION, event_id: null },
+    body:           { invitation_id: UUID.INVITATION },
     expectedStatus: 200,
   },
   {

@@ -508,7 +508,6 @@ const organizerSubfolders = [
         url: '{{baseUrl}}/functions/v1/qr-bundle',
         body: {
           invitation_id: '{{invitationId}}',
-          event_id: null,
         },
       },
       {
