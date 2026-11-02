@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Order** | Starts immediately after task 01 — runs parallel to Lanes A and B |
-| **Owner** | Dev 4 |
+| **Owner** | Gian (start) → Cerna (handoff, then builds task 10) |
 | **Lane** | C (Forms) — 01 → 11, parallel with Lanes A and B |
 | **Branch** | `feat/m4-w1-forms-schemas` |
 
@@ -64,7 +64,7 @@ src/lib/forms/
 2. Write the six schema files with `satisfies z.ZodType<...>` drift guards.
 3. Implement `field-error.ts` (Zod issues + contract 422 → RHF errors).
 4. Type-check pass: intentionally break one schema field and confirm the build fails (prove the drift guard works), then revert.
-5. Post the schema inventory + export names on the task board; hand off to task 10 (Dev 4's own next task) and notify 07/08 owners.
+5. Post the schema inventory + export names on the task board; hand off to Cerna for task 10 and notify Jian (07) and Genesis (08).
 
 ## Files touched
 

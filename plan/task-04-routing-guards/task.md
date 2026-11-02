@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Order** | 4th — after task 03; final Lane A task |
-| **Owner** | Lead (Andrei) |
+| **Owner** | Andrei (Lead) + Jack |
 | **Lane** | A (Infra) — final sequential task: 03 → 04, then Lane D opens |
 | **Branch** | `feat/m4-w1-routing-guards` |
 

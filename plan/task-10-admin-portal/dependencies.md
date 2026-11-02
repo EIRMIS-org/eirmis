@@ -10,7 +10,7 @@
 
 (01–03 transitively.)
 
-**Owner sequencing note:** Dev 4 builds task 11 first, then this task. The queue-first ordering inside this task means Dev 4 can start the queue while the settings schema lands.
+**Owner sequencing note:** Cerna builds task 11 first, then this task. The queue-first ordering inside this task means Cerna can start the queue while the settings schema lands.
 
 ## Blocks
 

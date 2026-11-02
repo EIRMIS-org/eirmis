@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Order** | After 04 + 05 — least-blocked portal |
-| **Owner** | Dev 3 (after handing task 11 to Dev 4) |
+| **Owner** | Gian + Pete (Gian after handing task 11 to Cerna) |
 | **Lane** | D (Portals) — parallel with 07, 08, 10 |
 | **Branch** | `feat/m4-w1-checkin-portal` |
 

@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Order** | 3rd — after task 02 |
-| **Owner** | Lead (Andrei) |
+| **Owner** | Andrei (Lead) + Jack |
 | **Lane** | A (Infra) — sequential: 02 → 03 → 04 |
 | **Branch** | `feat/m4-w1-session-context` |
 

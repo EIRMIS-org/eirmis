@@ -7,7 +7,7 @@
 | [04 Routing & Guards](../task-04-routing-guards/task.md) | `/staff/**` route slots + `checkin` guard |
 | [05 Query Layer](../task-05-query-layer/task.md) | `useScanCheckIn`, `useAssignedEvent` |
 
-**Not blocked by task 11** — the walk-in form is a single flat form that can use inline RHF. This makes task 09 the **least-blocked portal**: it can start the moment 04 + 05 land, as soon as Dev 3 finishes the task 11 handoff.
+**Not blocked by task 11** — the walk-in form is a single flat form that can use inline RHF. This makes task 09 the **least-blocked portal**: it can start the moment 04 + 05 land, as soon as Gian finishes the task 11 handoff to Cerna.
 
 (01–03 transitively.)
 

@@ -22,24 +22,24 @@ Each task lives in its own folder with three files:
 
 ## 2. Team & task index
 
-**Frontend team:** Jian Villasotes · Genesis AR S. Oreiro · Gian Suico · Cerna Ronald · Jebron Ortula · Martin Ybas · Pete Piangco · Edgar Jay-ar Alkuino Rodriguez · **Andrei Kahano (Lead)**
+**Frontend team:** Jian Villasotes · Genesis AR S. Oreiro · Gian Suico · Cerna Ronald · Jack Jonel Fiel · Jebron Ortula · Martin Ybas · Pete Piangco · Edgar Jay-ar Alkuino Rodriguez · **Andrei Kahano (Lead)**
 
 | # | Task folder | Order | Owner | Lane |
 |---|---|---|---|---|
-| 01 | [`task-01-dependencies-setup/`](task-01-dependencies-setup/task.md) | 1st — root | Lead | A+B+C (root) |
-| 02 | [`task-02-app-shell-providers/`](task-02-app-shell-providers/task.md) | 2nd | Lead | A |
-| 03 | [`task-03-session-context/`](task-03-session-context/task.md) | 3rd | Lead | A |
-| 04 | [`task-04-routing-guards/`](task-04-routing-guards/task.md) | 4th | Lead | A |
-| 05 | [`task-05-query-layer/`](task-05-query-layer/task.md) | after 01, parallel with A | Dev 2 | B |
-| 06 | [`task-06-landing-auth/`](task-06-landing-auth/task.md) | after 04 + 05 | Dev 1 | D |
-| 07 | [`task-07-organizer-portal/`](task-07-organizer-portal/task.md) | after 04 + 05 (+11 for forms) | Dev 1 | D |
-| 08 | [`task-08-guest-portal/`](task-08-guest-portal/task.md) | after 04 + 05 (+11 for forms) | Dev 2 | D |
-| 09 | [`task-09-checkin-staff-portal/`](task-09-checkin-staff-portal/task.md) | after 04 + 05 | Dev 3 | D |
-| 10 | [`task-10-admin-portal/`](task-10-admin-portal/task.md) | after 04 + 05 (+11 for settings) | Dev 4 | D |
-| 11 | [`task-11-forms-schemas/`](task-11-forms-schemas/task.md) | after 01, parallel with A and B | Dev 4 | C |
+| 01 | [`task-01-dependencies-setup/`](task-01-dependencies-setup/task.md) | 1st — root | **Andrei** (Lead) + **Jack** | A+B+C (root) |
+| 02 | [`task-02-app-shell-providers/`](task-02-app-shell-providers/task.md) | 2nd | **Andrei** + **Jack** | A |
+| 03 | [`task-03-session-context/`](task-03-session-context/task.md) | 3rd | **Andrei** + **Jack** | A |
+| 04 | [`task-04-routing-guards/`](task-04-routing-guards/task.md) | 4th | **Andrei** + **Jack** | A |
+| 05 | [`task-05-query-layer/`](task-05-query-layer/task.md) | after 01, parallel with A | **Genesis** | B |
+| 06 | [`task-06-landing-auth/`](task-06-landing-auth/task.md) | after 04 + 05 | **Jian** | D |
+| 07 | [`task-07-organizer-portal/`](task-07-organizer-portal/task.md) | after 04 + 05 (+11 for forms) | **Jian** + **Jebron** | D |
+| 08 | [`task-08-guest-portal/`](task-08-guest-portal/task.md) | after 04 + 05 (+11 for forms) | **Genesis** + **Martin** | D |
+| 09 | [`task-09-checkin-staff-portal/`](task-09-checkin-staff-portal/task.md) | after 04 + 05 | **Gian** + **Pete** | D |
+| 10 | [`task-10-admin-portal/`](task-10-admin-portal/task.md) | after 04 + 05 (+11 for settings) | **Cerna** + **Edgar** | D |
+| 11 | [`task-11-forms-schemas/`](task-11-forms-schemas/task.md) | after 01, parallel with A and B | **Gian** → **Cerna** | C |
 | 12 | [`task-12-checkpoint-validation/`](task-12-checkpoint-validation/task.md) | final — after 06–10 | Whole team | Gate |
 
-> Owner labels (Dev 1–4) are placeholders — exact name-to-task assignment happens on the issue board after M2 approval. Remaining team members pick up Week 2 workstreams (tests, a11y, all-states) or pair on portals.
+> **Pairing model:** every dev has a Week 1 task. Large workstreams are split into pairs — Lane A (Andrei + Jack), organizer (Jian + Jebron), guest (Genesis + Martin), staff (Gian + Pete), admin (Cerna + Edgar). Pairs split the screens within their portal and review each other's work. Final issue assignment happens on the GitHub board after M2 approval.
 
 ---
 

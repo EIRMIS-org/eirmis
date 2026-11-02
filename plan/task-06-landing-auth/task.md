@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Order** | Starts as soon as 04 + 05 land — lightest Lane D task |
-| **Owner** | Dev 1 |
+| **Owner** | Jian |
 | **Lane** | D (Portals) — parallel with 07–10 |
 | **Branch** | `feat/m4-w1-landing-auth` |
 

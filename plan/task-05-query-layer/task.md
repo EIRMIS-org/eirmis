@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Order** | Starts immediately after task 01 — runs parallel to Lane A |
-| **Owner** | Dev 2 |
+| **Owner** | Genesis |
 | **Lane** | B (Data) — 01 → 05, parallel with 02–04 |
 | **Branch** | `feat/m4-w1-query-layer` |
 
