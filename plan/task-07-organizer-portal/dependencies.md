@@ -36,4 +36,4 @@
 |---|---|---|
 | `router.tsx` | Low | Any new route (e.g. waitlist) goes through the task board to the 04 owner |
 | `src/features/organizer/**` | None | Exclusive to this task |
-| MSW shared-store semantics | **Coordination risk with 08/09** | Agree on the store's invitation/attendee status transitions on Wednesday morning before any of the three portals build against it |
+| MSW shared-store semantics | **Coordination risk with 08/09** | Agree on the store's invitation/attendee status transitions at kickoff, before any of the three portals build against it |

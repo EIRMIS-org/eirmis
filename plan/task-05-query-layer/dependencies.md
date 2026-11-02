@@ -28,7 +28,7 @@
 | [04 Routing & Guards](../task-04-routing-guards/task.md) | Routing vs data — disjoint trees |
 | [11 Forms & Schemas](../task-11-forms-schemas/task.md) | Schemas vs hooks — disjoint; both consume contract types read-only |
 
-**Lane D start condition = 04 ✅ AND 05 ✅.** Both land Tuesday; portals start Wednesday morning.
+**Lane D start condition = 04 ✅ AND 05 ✅.** Portals start the moment both land.
 
 ## Contract operations consumed
 

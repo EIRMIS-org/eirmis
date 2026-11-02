@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Day** | Tue Nov 3 – Wed Nov 4 midday (Dev 4 builds it, then hands off to task 10) |
+| **Order** | Starts immediately after task 01 — runs parallel to Lanes A and B |
 | **Owner** | Dev 4 |
 | **Lane** | C (Forms) — 01 → 11, parallel with Lanes A and B |
 | **Branch** | `feat/m4-w1-forms-schemas` |

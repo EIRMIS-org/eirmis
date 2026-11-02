@@ -10,7 +10,7 @@
 
 (01–03 transitively.)
 
-**Owner sequencing note:** Dev 4 builds task 11 first (Tue–mid-Wed), then this task. The queue-first ordering inside this task means Dev 4 can start the queue while the settings schema lands.
+**Owner sequencing note:** Dev 4 builds task 11 first, then this task. The queue-first ordering inside this task means Dev 4 can start the queue while the settings schema lands.
 
 ## Blocks
 
@@ -36,4 +36,4 @@
 |---|---|---|
 | `src/features/admin/**` | None | Exclusive to this task |
 | [`settings-section.tsx`](../../src/components/eirmis/settings-section.tsx) | Low | Only this task consumes it |
-| MSW store semantics | Coordination risk with 07 | Wednesday-morning agreement |
+| MSW store semantics | Coordination risk with 07 | Kickoff agreement before any portal builds against the store |

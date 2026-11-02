@@ -1,8 +1,8 @@
-# Task 12 — Friday Checkpoint Validation
+# Task 12 — End-of-Week Checkpoint Validation
 
 | Field | Value |
 |---|---|
-| **Day** | Fri Nov 6 |
+| **Order** | Final — after all portal tasks (06–10) |
 | **Owner** | Whole team (lead facilitates; each dev validates their portal) |
 | **Lane** | Gate — blocked by ALL of 06, 07, 08, 09, 10 |
 | **Branch** | Validation happens on the integrated week branch |
@@ -11,7 +11,7 @@
 
 ## Scope
 
-Run the Friday checkpoint defined in the milestone plan: **core flows work on the mock for every role.** This is the week's exit gate — its result decides what Week 2 absorbs as spillover.
+Run the end-of-week checkpoint defined in the milestone plan: **core flows work on the mock for every role.** This is the week's exit gate — its result decides what Week 2 absorbs as spillover.
 
 ## The main-flow walkthrough (the gate itself)
 
@@ -45,9 +45,9 @@ Each portal owner verifies their screens render the four basic states (loading s
 - [ ] `npm run build` green
 - [ ] No contract file modified during the week (`git diff origin/chore/open-api-contract-mockup-enhancement -- contract/` is empty); mismatches are filed as issues, not patched
 
-## Spillover triage (end of Friday)
+## Spillover triage (end of the week)
 
-Anything failing or unfinished is triaged into Week 2 (Nov 9–12), which already owns: all-states exhaustive coverage, unit + component tests, a11y. The triage rule: **main-flow blockers get fixed Monday morning; everything else joins the Week 2 backlog.**
+Anything failing or unfinished is triaged into Week 2, which already owns: all-states exhaustive coverage, unit + component tests, a11y. The triage rule: **main-flow blockers get fixed first; everything else joins the Week 2 backlog.**
 
 ## Outputs
 

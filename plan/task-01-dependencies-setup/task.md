@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| **Day** | Mon Nov 2 (first thing — ~30 min) |
-| **Owner** | Lead (you) |
+| **Order** | 1st — root task, before anything else (~30 min) |
+| **Owner** | Lead (Andrei) |
 | **Lane** | Root of all lanes — nothing else starts until this is merged |
 | **Branch** | `feat/m4-w1-deps` (or direct to the week branch if the team works trunk-based) |
 

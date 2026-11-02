@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| **Day** | Mon Nov 2 (after task 02) |
-| **Owner** | Lead (you) |
+| **Order** | 3rd — after task 02 |
+| **Owner** | Lead (Andrei) |
 | **Lane** | A (Infra) — sequential: 02 → 03 → 04 |
 | **Branch** | `feat/m4-w1-session-context` |
 

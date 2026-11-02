@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Day** | Tue Nov 3 (starts immediately after task 01 — runs parallel to Lane A) |
+| **Order** | Starts immediately after task 01 — runs parallel to Lane A |
 | **Owner** | Dev 2 |
 | **Lane** | B (Data) — 01 → 05, parallel with 02–04 |
 | **Branch** | `feat/m4-w1-query-layer` |

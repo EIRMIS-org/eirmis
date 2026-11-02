@@ -20,7 +20,7 @@
 
 | Task | Why it is safe |
 |---|---|
-| [07 Organizer Portal](../task-07-organizer-portal/task.md) | Disjoint folders. **Behavioral coupling:** organizer approvals raise this portal's `max_party_size` and flip invitation status — coordinate MSW store semantics Wednesday morning (agreed in task 07's dependencies file). |
+| [07 Organizer Portal](../task-07-organizer-portal/task.md) | Disjoint folders. **Behavioral coupling:** organizer approvals raise this portal's `max_party_size` and flip invitation status — coordinate MSW store semantics at kickoff (agreed in task 07's dependencies file). |
 | [09 Check-in Staff Portal](../task-09-checkin-staff-portal/task.md) | Disjoint folders; staff scans must mark the guest's QR pass as used |
 | [10 Admin Portal](../task-10-admin-portal/task.md) | Disjoint folders |
 
@@ -34,4 +34,4 @@
 |---|---|---|
 | `src/features/guest/**` | None | Exclusive to this task |
 | [`rsvp-selector.tsx`](../../src/components/eirmis/rsvp-selector.tsx), [`wallet-pass.tsx`](../../src/components/eirmis/wallet-pass.tsx) | Low | Only this task consumes them this week |
-| MSW store semantics | Coordination risk with 07/09 | Same Wednesday-morning agreement as task 07 |
+| MSW store semantics | Coordination risk with 07/09 | Same kickoff agreement as task 07 |

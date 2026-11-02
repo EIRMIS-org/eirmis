@@ -16,12 +16,12 @@
 
 | Item | Why |
 |---|---|
-| Week 2 plan (Nov 9–12) | Week 2 is scoped from this checkpoint's spillover list, not from assumptions |
+| Week 2 plan | Week 2 is scoped from this checkpoint's spillover list, not from assumptions |
 | M4 CI job (unit + component tests) | Only wired once the checkpoint confirms the component inventory is stable |
 
 ## Parallel with
 
-Nothing — this is the week's synchronization point. All Lane D work merges before Friday's walkthrough.
+Nothing — this is the week's synchronization point. All Lane D work merges before the walkthrough.
 
 ## Contract operations consumed
 
@@ -31,4 +31,4 @@ All of the Week-1 subset across portals, exercised end-to-end through the UI:
 
 ## Shared-file conflicts
 
-None — validation only. Any fix required mid-walkthrough fails the gate and becomes a Monday-morning task.
+None — validation only. Any fix required mid-walkthrough fails the gate and becomes a first-priority fix task.

@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| **Day** | Wed–Thu Nov 4–5 |
-| **Owner** | Dev 4 (starts on task 11, hands it off mid-Wednesday, then builds this) |
+| **Order** | After 04 + 05 (settings form also needs 11) |
+| **Owner** | Dev 4 (builds task 11 first, then this) |
 | **Lane** | D (Portals) — parallel with 07, 08, 09 |
 | **Branch** | `feat/m4-w1-admin-portal` |
 

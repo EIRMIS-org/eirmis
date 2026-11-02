@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Day** | Wed–Thu Nov 4–5 |
+| **Order** | After 04 + 05 (form screens also need 11) |
 | **Owner** | Dev 2 (after finishing task 05) |
 | **Lane** | D (Portals) — parallel with 07, 09, 10 |
 | **Branch** | `feat/m4-w1-guest-portal` |

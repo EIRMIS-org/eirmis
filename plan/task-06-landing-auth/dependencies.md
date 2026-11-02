@@ -22,7 +22,7 @@
 |---|---|
 | [07–10 Portals](../README.md) | Disjoint feature folders (`src/features/landing/` vs portal folders). Only shared file is `global-nav.tsx` (session pill) — see conflicts below. |
 
-**Lightest Lane D task** — no dependency on task 11 (forms), since the one form it has (public registration) can use inline RHF. Start it Tuesday afternoon if 04 + 05 land on time.
+**Lightest Lane D task** — no dependency on task 11 (forms), since the one form it has (public registration) can use inline RHF. Start it as soon as 04 + 05 land.
 
 ## Contract operations consumed
 
@@ -36,5 +36,5 @@
 
 | File | Conflict risk | Mitigation |
 |---|---|---|
-| [`global-nav.tsx`](../../src/components/eirmis/global-nav.tsx) | **Medium-High** — task 06 adds the session pill; portal tasks may want nav tweaks | Task 06 owns the session-pill change and lands it **first** (Tuesday). Portal tasks treat the nav as read-only afterward; changes go through the task board. |
+| [`global-nav.tsx`](../../src/components/eirmis/global-nav.tsx) | **Medium-High** — task 06 adds the session pill; portal tasks may want nav tweaks | Task 06 owns the session-pill change and lands it **first**. Portal tasks treat the nav as read-only afterward; changes go through the task board. |
 | `src/pages/landing/` | None | Exclusive to this task |

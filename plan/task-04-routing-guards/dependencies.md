@@ -23,7 +23,7 @@
 
 | Task | Why it is safe |
 |---|---|
-| [05 Query Layer](../task-05-query-layer/task.md) | 05 writes hooks; 04 writes routing. Zero file overlap. They finish around the same time (Tue), and Lane D starts when **both** land. |
+| [05 Query Layer](../task-05-query-layer/task.md) | 05 writes hooks; 04 writes routing. Zero file overlap. Lane D starts when **both** land. |
 | [11 Forms & Schemas](../task-11-forms-schemas/task.md) | Pure schemas; no overlap. |
 
 ## Contract operations consumed

@@ -1,8 +1,10 @@
-# EIRMIS M4 Frontend — Week 1 Plan (Nov 2–6, 2026)
+# EIRMIS M4 Frontend — Week 1 Plan
 
-> **Scope:** Week 1 of Milestone 4 (Frontend on mock) only — from kickoff through the **Friday Nov 6 checkpoint**.
+> **Scope:** Week 1 of Milestone 4 (Frontend on mock) only — from kickoff through the **end-of-week checkpoint**.
 > **Checkpoint gate:** the main flow — *event → invite → RSVP → approve → QR → check-in* — works end-to-end on MSW for every role.
-> Week 2 (Nov 9–12: all-states coverage, tests, a11y) is planned separately after this checkpoint.
+> Week 2 (all-states coverage, tests, a11y) is planned separately after this checkpoint.
+
+> ⚠️ **Scheduling note:** This plan is **dependency-ordered, not date-bound**. Day assignments will be made on the GitHub issue board once the M2 submission (currently under review) is approved and the contract is final. Until then, treat the order and dependencies below as the source of truth.
 
 ---
 
@@ -12,30 +14,32 @@ Each task lives in its own folder with three files:
 
 | File | What it contains |
 |---|---|
-| `task.md` | Scope, owner, day, files to create/modify, step-by-step work breakdown |
+| `task.md` | Scope, owner, order, files to create/modify, step-by-step work breakdown |
 | `dependencies.md` | **Blocked-by / blocks / parallel-with** analysis, contract operations consumed, shared-file conflict warnings |
 | `acceptance-criteria.md` | Done-when checklist the assignee (or reviewer) verifies before closing the task |
 
 ---
 
-## 2. Task index
+## 2. Team & task index
 
-| # | Task folder | Day | Owner | Lane |
+**Frontend team:** Jian Villasotes · Genesis AR S. Oreiro · Gian Suico · Cerna Ronald · Jebron Ortula · Martin Ybas · Pete Piangco · Edgar Jay-ar Alkuino Rodriguez · **Andrei Kahano (Lead)**
+
+| # | Task folder | Order | Owner | Lane |
 |---|---|---|---|---|
-| 01 | [`task-01-dependencies-setup/`](task-01-dependencies-setup/task.md) | Mon Nov 2 | Lead (you) | A+B+C (root) |
-| 02 | [`task-02-app-shell-providers/`](task-02-app-shell-providers/task.md) | Mon Nov 2 | Lead | A |
-| 03 | [`task-03-session-context/`](task-03-session-context/task.md) | Mon Nov 2 | Lead | A |
-| 04 | [`task-04-routing-guards/`](task-04-routing-guards/task.md) | Mon–Tue Nov 2–3 | Lead | A |
-| 05 | [`task-05-query-layer/`](task-05-query-layer/task.md) | Tue Nov 3 | Dev 2 | B |
-| 06 | [`task-06-landing-auth/`](task-06-landing-auth/task.md) | Tue Nov 3 | Dev 1 | D |
-| 07 | [`task-07-organizer-portal/`](task-07-organizer-portal/task.md) | Wed–Thu Nov 4–5 | Dev 1 | D |
-| 08 | [`task-08-guest-portal/`](task-08-guest-portal/task.md) | Wed–Thu Nov 4–5 | Dev 2 | D |
-| 09 | [`task-09-checkin-staff-portal/`](task-09-checkin-staff-portal/task.md) | Wed–Thu Nov 4–5 | Dev 3 | D |
-| 10 | [`task-10-admin-portal/`](task-10-admin-portal/task.md) | Wed–Thu Nov 4–5 | Dev 4 | D |
-| 11 | [`task-11-forms-schemas/`](task-11-forms-schemas/task.md) | Tue–Wed Nov 3–4 | Dev 3 (early) → Dev 4 | C |
-| 12 | [`task-12-checkpoint-validation/`](task-12-checkpoint-validation/task.md) | Fri Nov 6 | Whole team | Gate |
+| 01 | [`task-01-dependencies-setup/`](task-01-dependencies-setup/task.md) | 1st — root | Lead | A+B+C (root) |
+| 02 | [`task-02-app-shell-providers/`](task-02-app-shell-providers/task.md) | 2nd | Lead | A |
+| 03 | [`task-03-session-context/`](task-03-session-context/task.md) | 3rd | Lead | A |
+| 04 | [`task-04-routing-guards/`](task-04-routing-guards/task.md) | 4th | Lead | A |
+| 05 | [`task-05-query-layer/`](task-05-query-layer/task.md) | after 01, parallel with A | Dev 2 | B |
+| 06 | [`task-06-landing-auth/`](task-06-landing-auth/task.md) | after 04 + 05 | Dev 1 | D |
+| 07 | [`task-07-organizer-portal/`](task-07-organizer-portal/task.md) | after 04 + 05 (+11 for forms) | Dev 1 | D |
+| 08 | [`task-08-guest-portal/`](task-08-guest-portal/task.md) | after 04 + 05 (+11 for forms) | Dev 2 | D |
+| 09 | [`task-09-checkin-staff-portal/`](task-09-checkin-staff-portal/task.md) | after 04 + 05 | Dev 3 | D |
+| 10 | [`task-10-admin-portal/`](task-10-admin-portal/task.md) | after 04 + 05 (+11 for settings) | Dev 4 | D |
+| 11 | [`task-11-forms-schemas/`](task-11-forms-schemas/task.md) | after 01, parallel with A and B | Dev 4 | C |
+| 12 | [`task-12-checkpoint-validation/`](task-12-checkpoint-validation/task.md) | final — after 06–10 | Whole team | Gate |
 
-> **Holiday note:** Nov 1–2 may be non-working (per the revised milestone plan). If Mon Nov 2 is a holiday, tasks 01–04 compress into Tuesday morning — they are sized for a half-day, not a full day.
+> Owner labels (Dev 1–4) are placeholders — exact name-to-task assignment happens on the issue board after M2 approval. Remaining team members pick up Week 2 workstreams (tests, a11y, all-states) or pair on portals.
 
 ---
 
@@ -96,10 +100,10 @@ graph LR
 
 | Rule | Detail |
 |---|---|
-| **01 is the single root** | Nothing starts until deps are installed. It is a 30-minute task — do it first thing Monday. |
+| **01 is the single root** | Nothing starts until deps are installed. It is a 30-minute task — do it first. |
 | **05 and 11 run parallel to 02–04** | The query layer and Zod schemas are pure TypeScript with no router/session dependency. Assign them to a different person than the lead doing 02–04. |
 | **06–10 are fully parallel with each other** | One person per portal. Each portal slice touches only its own `src/features/<portal>/` folder. |
-| **06 has the lightest dependency set** | Needs only 04 + 05 (no forms). Start it Tuesday if 04 and 05 land early. |
+| **06 has the lightest dependency set** | Needs only 04 + 05 (no forms). Start it as soon as 04 and 05 land. |
 | **07 and 08 need 11** | Their core screens are form-heavy (create-event wizard, RSVP roster). They may *start* (list views) before 11 lands, but form screens wait. |
 | **09 needs only 04 + 05** | The scan flow is a single mutation + result state machine — no forms task dependency. |
 | **10 needs 11 for org settings** | The settings form waits for 11; the verification queue (list + status mutation) does not. |

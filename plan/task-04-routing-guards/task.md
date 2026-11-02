@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| **Day** | Mon Nov 2 – Tue Nov 3 (spills into Tuesday morning) |
-| **Owner** | Lead (you) |
+| **Order** | 4th — after task 03; final Lane A task |
+| **Owner** | Lead (Andrei) |
 | **Lane** | A (Infra) — final sequential task: 03 → 04, then Lane D opens |
 | **Branch** | `feat/m4-w1-routing-guards` |
 

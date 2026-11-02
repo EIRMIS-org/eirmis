@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| **Day** | Mon Nov 2 (after task 01) |
-| **Owner** | Lead (you) |
+| **Order** | 2nd — after task 01 |
+| **Owner** | Lead (Andrei) |
 | **Lane** | A (Infra) — sequential: 01 → 02 → 03 → 04 |
 | **Branch** | `feat/m4-w1-app-shell` |
 
