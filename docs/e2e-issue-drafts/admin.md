@@ -26,7 +26,7 @@ Only Admin may verify organizers and manage organization settings. Admin does no
 |---|---|---|
 | 1 | Sign in as Admin and open pending verification | Own profile 200; pending organizer queue visible without unrelated private event data |
 | 2 | Read first page at limit=20, offset=0, then second page at offset=20 | 20 distinct rows followed by remaining fixture rows, no duplicates or omissions; blocked by GAP-06 response maxItems=1 and missing explicit pagination parameters |
-| 3 | Activate one pending organizer | PATCH /rest/v1/organizer_profiles/{id} returns declared 200/204; status persists and item leaves pending queue; activated organizer gains agreed access |
+| 3 | Activate one pending organizer | PATCH /rest/v1/organizer_profiles?id=eq.{id} returns declared 200/204; status persists and item leaves pending queue; activated organizer gains agreed access |
 | 4 | Suspend an active organizer | Suspension persists and removes agreed access; blocked because OrganizerStatus currently contains only pending and active (GAP-06) |
 | 5 | Update organization settings and reload | Agreed fields persist and remain admin-only; blocked because org_settings operations/schema are absent (GAP-06) |
 

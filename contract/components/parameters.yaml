@@ -75,3 +75,17 @@ PreferReturnParam:
     Control whether mutated row(s) are returned in the response body.
     `return=representation` returns the full row.
   example: return=representation
+
+IdFilterParam:
+  name: id
+  in: query
+  required: true
+  schema:
+    type: string
+    pattern: '^eq\.[0-9a-fA-F-]{36}$'
+  description: >
+    PostgREST row filter selecting the single row to mutate, in the form
+    `eq.<uuid>`. PostgREST does not route `/<table>/{id}`; rows are always
+    targeted by a query filter. Required so a PATCH/DELETE can never run
+    unfiltered against the whole table.
+  example: eq.55555555-5555-5555-5555-555555555555

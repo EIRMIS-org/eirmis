@@ -268,54 +268,36 @@ paths:
   # ---------- Organizer portal ----------
   /rest/v1/events:
     $ref: './paths/organizer.yaml#/~1rest~1v1~1events'
-  /rest/v1/events/{id}:
-    $ref: './paths/organizer.yaml#/~1rest~1v1~1events~1{id}'
   /rest/v1/reminder_schedules:
     $ref: './paths/organizer.yaml#/~1rest~1v1~1reminder_schedules'
-  /rest/v1/reminder_schedules/{id}:
-    $ref: './paths/organizer.yaml#/~1rest~1v1~1reminder_schedules~1{id}'
   /rest/v1/guests:
     $ref: './paths/organizer.yaml#/~1rest~1v1~1guests'
   /rest/v1/invitations:
     $ref: './paths/organizer.yaml#/~1rest~1v1~1invitations'
-  /rest/v1/invitations/{id}:
-    $ref: './paths/organizer.yaml#/~1rest~1v1~1invitations~1{id}'
   /rest/v1/attendees:
     $ref: './paths/organizer.yaml#/~1rest~1v1~1attendees'
-  /rest/v1/attendees/{id}:
-    $ref: './paths/organizer.yaml#/~1rest~1v1~1attendees~1{id}'
   /rest/v1/headcount_increase_requests:
     $ref: './paths/organizer.yaml#/~1rest~1v1~1headcount_increase_requests'
   /rest/v1/invitation_designs:
     $ref: './paths/organizer.yaml#/~1rest~1v1~1invitation_designs'
   /rest/v1/invitation_images:
     $ref: './paths/organizer.yaml#/~1rest~1v1~1invitation_images'
-  /rest/v1/invitation_images/{id}:
-    $ref: './paths/organizer.yaml#/~1rest~1v1~1invitation_images~1{id}'
   /rest/v1/checkin_assignments:
     $ref: './paths/organizer.yaml#/~1rest~1v1~1checkin_assignments'
-  /rest/v1/checkin_assignments/{id}:
-    $ref: './paths/organizer.yaml#/~1rest~1v1~1checkin_assignments~1{id}'
   /rest/v1/email_logs:
     $ref: './paths/organizer.yaml#/~1rest~1v1~1email_logs'
   /rest/v1/audit_log_entries:
     $ref: './paths/organizer.yaml#/~1rest~1v1~1audit_log_entries'
   /rest/v1/organizer_profiles:
     $ref: './paths/admin.yaml#/~1rest~1v1~1organizer_profiles'
-  /rest/v1/organizer_profiles/{id}:
-    $ref: './paths/admin.yaml#/~1rest~1v1~1organizer_profiles~1{id}'
 
   # ---------- Admin portal ----------
   /rest/v1/admin_profiles:
     $ref: './paths/admin.yaml#/~1rest~1v1~1admin_profiles'
   /rest/v1/org_settings:
     $ref: './paths/admin.yaml#/~1rest~1v1~1org_settings'
-  /rest/v1/org_settings/{id}:
-    $ref: './paths/admin.yaml#/~1rest~1v1~1org_settings~1{id}'
 
   # ---------- Guest portal ----------
-  /rest/v1/guests/{id}:
-    $ref: './paths/guest.yaml#/~1rest~1v1~1guests~1{id}'
 
   # ---------- Check-in Staff portal ----------
 

@@ -86,20 +86,13 @@
       '403':
         $ref: '../components/responses.yaml#/Forbidden'
 
-/rest/v1/organizer_profiles/{id}:
   patch:
     operationId: adminUpdateOrganizerStatus
     summary: Update organizer verification status
     description: Updates an organizer status and records an administrator audit entry.
     tags: [Admin — Organizer Verification]
     parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-          example: 11111111-1111-1111-1111-111111111111
+      - $ref: '../components/parameters.yaml#/IdFilterParam'
       - $ref: '../components/parameters.yaml#/PreferReturnParam'
     requestBody:
       required: true
@@ -160,7 +153,6 @@
       '403':
         $ref: '../components/responses.yaml#/Forbidden'
 
-/rest/v1/org_settings/{id}:
   patch:
     operationId: updateOrgSettings
     summary: Update organization settings
@@ -169,12 +161,7 @@
       Restricted to system administrators by RLS.
     tags: [Admin — Settings]
     parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-          example: 00000000-0000-0000-0000-000000000001
+      - $ref: '../components/parameters.yaml#/IdFilterParam'
       - $ref: '../components/parameters.yaml#/PreferReturnParam'
     requestBody:
       required: true
