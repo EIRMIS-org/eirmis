@@ -55,12 +55,18 @@ export type ReminderScheduleUpsert =
 
 // ─── Configuration ────────────────────────────────────────────────────────────
 
+function getEnv(): Record<string, string | undefined> {
+    const metaEnv = (import.meta as unknown as { env?: Record<string, string | undefined> })?.env;
+    const procEnv = (globalThis as unknown as { process?: { env?: Record<string, string | undefined> } })?.process?.env;
+    return metaEnv ?? procEnv ?? {};
+}
+
 /**
  * Resolves the API base URL.
  * Priority: VITE_API_URL → VITE_SUPABASE_URL → Prism default (port 4010).
  */
 export function resolveBaseUrl(): string {
-    const env = import.meta.env as Record<string, string | undefined>;
+    const env = getEnv();
     return env.VITE_API_URL ?? env.VITE_SUPABASE_URL ?? 'http://127.0.0.1:4010';
 }
 
@@ -71,6 +77,27 @@ export const API_BASE = resolveBaseUrl();
  * Supabase Auth JWTs — the header plumbing below does not change.
  */
 export type Role = 'organizer' | 'admin' | 'guest' | 'checkin' | 'public';
+
+/** Mock-only stand-in for the project's public key when none is configured. */
+export const MOCK_PUBLIC_KEY = 'fake-anon-key';
+
+/**
+ * The project's public client key: the new-style publishable key
+ * (`sb_publishable_…`) or the legacy anon JWT. Supabase's gateway requires it
+ * in the `apikey` header on every request, and it doubles as the Bearer token
+ * for anonymous (`public`) requests, which resolve to the `anon` Postgres role.
+ * Falls back to {@link MOCK_PUBLIC_KEY} so mock traffic is shaped like real traffic.
+ */
+export function resolvePublicKey(): string {
+    const env = getEnv();
+    return (
+        env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+        env.VITE_SUPABASE_ANON_KEY ||
+        MOCK_PUBLIC_KEY
+    );
+}
+
+const PUBLIC_KEY = resolvePublicKey();
 
 const ROLE_TOKENS: Record<Exclude<Role, 'public'>, string> = {
     organizer: 'fake-organizer-jwt',
@@ -153,12 +180,28 @@ export interface RequestOptions {
     query?: Record<string, string | number | undefined>;
     /** Extra headers (e.g. `Prefer`). */
     headers?: Record<string, string>;
-    /** JSON-serializable request body. */
+    /**
+     * Request body. `FormData` is sent as multipart as-is (the browser sets the
+     * boundary); anything else is JSON-serialized.
+     */
     body?: unknown;
     /** Override the active role for this request only. */
     role?: Role;
-    /** Skip attaching the Authorization header (public / no-auth requests). */
+    /**
+     * Send the request anonymously (as the `public` role) regardless of the
+     * active role. The public key is still attached; it's required by the gateway.
+     */
     noAuth?: boolean;
+}
+
+/**
+ * Supabase auth headers: `apikey` is always the project public key; `Authorization`
+ * carries the role's JWT, or the public key for anonymous requests. Never emits
+ * an `undefined` token.
+ */
+function buildAuthHeaders(role: Role): Record<string, string> {
+    const token = role === 'public' ? PUBLIC_KEY : ROLE_TOKENS[role];
+    return { apikey: PUBLIC_KEY, Authorization: `Bearer ${token}` };
 }
 
 function buildUrl(path: string, query?: RequestOptions['query']): string {
@@ -178,17 +221,16 @@ async function request<TResponse>(
 ): Promise<TResponse> {
     const { query, headers = {}, body, role, noAuth } = options;
 
-    const requestHeaders: Record<string, string> = { ...headers };
+    const requestHeaders: Record<string, string> = {
+        ...headers,
+        ...buildAuthHeaders(noAuth ? 'public' : (role ?? activeRole)),
+    };
 
-    if (!noAuth) {
-        const token = ROLE_TOKENS[role ?? activeRole];
-        requestHeaders['Authorization'] = `Bearer ${token}`;
-        // PostgREST requires apikey alongside Authorization when talking to Supabase.
-        requestHeaders['apikey'] = token;
-    }
-
-    let requestBody: string | undefined;
-    if (body !== undefined) {
+    let requestBody: BodyInit | undefined;
+    if (body instanceof FormData) {
+        // No Content-Type: fetch sets multipart/form-data with the boundary.
+        requestBody = body;
+    } else if (body !== undefined) {
         requestHeaders['Content-Type'] = 'application/json';
         requestBody = JSON.stringify(body);
     }
@@ -252,14 +294,11 @@ export function discoverPublicEvents(): Promise<
     });
 }
 
-/** GET /rest/v1/invitation_images — public gallery for an event. */
+/** GET /rest/v1/invitation_images — public gallery for an event (delegates to {@link listInvitationImages} with `auth: false`). */
 export function listPublicGalleryImages(
     eventId: string,
 ): Promise<ListOk<operations['listInvitationImages']>> {
-    return request('GET', '/rest/v1/invitation_images', {
-        noAuth: true,
-        query: { event_id: `eq.${eventId}`, order: 'sort_order.asc' },
-    });
+    return listInvitationImages(eventId, { auth: false });
 }
 
 /** POST /functions/v1/register — public self-registration. */
@@ -426,11 +465,21 @@ export function createInvitationDesign(
     });
 }
 
+export interface ListInvitationImagesOptions {
+    /**
+     * Whether to attach authenticated headers (defaults to `true`).
+     * Set to `false` for public gallery browsing without credentials.
+     */
+    auth?: boolean;
+}
+
 /** GET /rest/v1/invitation_images — list gallery images for an event. */
 export function listInvitationImages(
     eventId: string,
+    options?: ListInvitationImagesOptions,
 ): Promise<ListOk<operations['listInvitationImages']>> {
     return request('GET', '/rest/v1/invitation_images', {
+        noAuth: options?.auth === false,
         query: { event_id: `eq.${eventId}`, order: 'sort_order.asc' },
     });
 }
@@ -523,19 +572,20 @@ export function getOrganizerProfile(): Promise<
     return request('GET', '/rest/v1/organizer_profiles');
 }
 
-/** PATCH /rest/v1/organizer_profiles/{id} — update own profile (organizer). */
+/** PATCH /rest/v1/organizer_profiles?id=eq.{id} — update own profile (organizer). */
 export function updateOrganizerProfile(
     id: string,
     body: components['schemas']['OrganizerProfileUpdate'],
 ): Promise<Ok<operations['adminUpdateOrganizerStatus']>> {
-    return request('PATCH', `/rest/v1/organizer_profiles/${id}`, {
+    return request('PATCH', '/rest/v1/organizer_profiles', {
+        query: { id: `eq.${id}` },
         body,
         headers: { Prefer: 'return=representation' },
     });
 }
 
 /** POST /functions/v1/invitation-html — upload HTML invitation (multipart). */
-export async function uploadInvitationHtml(
+export function uploadInvitationHtml(
     eventId: string,
     file: File,
 ): Promise<Ok<operations['uploadInvitationHtml']>> {
@@ -543,14 +593,7 @@ export async function uploadInvitationHtml(
     form.append('event_id', eventId);
     form.append('file', file);
 
-    const response = await fetch(`${API_BASE}/functions/v1/invitation-html`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${ROLE_TOKENS[activeRole]}` },
-        body: form,
-    });
-
-    if (!response.ok) throw await toApiError(response);
-    return (await response.json()) as Ok<operations['uploadInvitationHtml']>;
+    return request('POST', '/functions/v1/invitation-html', { body: form });
 }
 
 /** POST /functions/v1/attendees/{id}/decision — approve/reject an attendee. */
@@ -609,15 +652,16 @@ export function getAdminOrganizers(
 }
 
 /**
- * PATCH /rest/v1/organizer_profiles/{id} — admin activates/suspends an
+ * PATCH /rest/v1/organizer_profiles?id=eq.{id} — admin activates/suspends an
  * organizer account (status → active | suspended).
  */
 export function updateOrganizerStatus(
     id: string,
     status: components['schemas']['OrganizerStatus'],
 ): Promise<Ok<operations['adminUpdateOrganizerStatus']>> {
-    return request('PATCH', `/rest/v1/organizer_profiles/${id}`, {
+    return request('PATCH', '/rest/v1/organizer_profiles', {
         role: 'admin',
+        query: { id: `eq.${id}` },
         body: { status } satisfies OrganizerStatusUpdate,
         headers: { Prefer: 'return=representation' },
     });

@@ -9,12 +9,16 @@
  *   - M4 unit/component tests via `src/mocks/server.ts` (setupServer)
  *   - Browser mocking via `src/mocks/browser.ts` (setupWorker)
  *
- * Error paths: requests WITHOUT an Authorization header receive the documented
+ * Error paths: requests WITHOUT a user JWT (no Authorization header, or a Bearer
+ * equal to the public/anon key) receive the documented
  * `401` response carrying the unified Error schema `{ code, message, details, hint }`.
  */
 
 import { http, HttpResponse, delay } from 'msw';
 import type { components } from '../../contract/generated/schema';
+import { resolvePublicKey } from '../lib/api';
+
+const PUBLIC_KEY = resolvePublicKey();
 
 type ErrorSchema = components['schemas']['Error'];
 type Event = components['schemas']['Event'];
@@ -74,9 +78,14 @@ const unauthorized = () =>
         { status: 401 },
     );
 
-/** True when the request carries any Authorization header. */
+/**
+ * True when the request carries a user JWT. A Bearer equal to the project
+ * public key is anonymous (Supabase `anon` role), not authenticated.
+ */
 function hasAuth(request: Request): boolean {
-    return request.headers.has('Authorization');
+    const header = request.headers.get('Authorization');
+    if (!header) return false;
+    return header !== `Bearer ${PUBLIC_KEY}`;
 }
 
 // ─── Contract example fixtures (from contract/components/schemas examples) ───
@@ -511,9 +520,10 @@ export const handlers = [
         return jsonList(profiles, filteredProfiles.length, offset);
     }),
 
-    http.patch('*/rest/v1/organizer_profiles/:id', async ({ request, params }) => {
+    http.patch('*/rest/v1/organizer_profiles', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
-        const id = String(params.id);
+        // PostgREST targets rows by query filter: ?id=eq.<uuid>
+        const id = new URL(request.url).searchParams.get('id')?.replace(/^eq\./, '');
         const body = (await request.json()) as Partial<OrganizerProfile>;
         const profile = organizerProfiles.find((item) => item.id === id);
         if (!profile || (!body.status && !body.full_name)) {

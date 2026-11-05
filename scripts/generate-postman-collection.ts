@@ -228,7 +228,7 @@ const organizerSubfolders = [
         name: 'Update Event',
         description: 'Updates event attributes such as capacity or title.',
         method: 'PATCH' as const,
-        url: '{{baseUrl}}/rest/v1/events/eq.{{eventId}}',
+        url: '{{baseUrl}}/rest/v1/events?id=eq.{{eventId}}',
         headers: { Prefer: 'return=representation' },
         body: {
           title: 'Annual Gala 2026 — Updated',
@@ -272,7 +272,7 @@ const organizerSubfolders = [
         name: 'Delete Reminder Schedule',
         description: 'Deletes an existing reminder schedule.',
         method: 'DELETE' as const,
-        url: '{{baseUrl}}/rest/v1/reminder_schedules/eq.{{reminderId}}',
+        url: '{{baseUrl}}/rest/v1/reminder_schedules?id=eq.{{reminderId}}',
         tests: [
           'pm.test("Status code is 204 No Content", function () {',
           '    pm.response.to.have.status(204);',
@@ -322,7 +322,7 @@ const organizerSubfolders = [
         name: 'Update Invitation Max Party Size',
         description: 'Updates maximum allowed party size on an existing invitation.',
         method: 'PATCH' as const,
-        url: '{{baseUrl}}/rest/v1/invitations/eq.{{invitationId}}',
+        url: '{{baseUrl}}/rest/v1/invitations?id=eq.{{invitationId}}',
         headers: { Prefer: 'return=representation' },
         body: {
           max_party_size: 6,
@@ -426,7 +426,7 @@ const organizerSubfolders = [
         name: 'Update Gallery Image',
         description: 'Updates sort order or caption of a gallery image.',
         method: 'PATCH' as const,
-        url: '{{baseUrl}}/rest/v1/invitation_images/eq.{{imageId}}',
+        url: '{{baseUrl}}/rest/v1/invitation_images?id=eq.{{imageId}}',
         headers: { Prefer: 'return=representation' },
         body: {
           sort_order: 2,
@@ -437,7 +437,7 @@ const organizerSubfolders = [
         name: 'Delete Gallery Image',
         description: 'Removes a gallery image reference.',
         method: 'DELETE' as const,
-        url: '{{baseUrl}}/rest/v1/invitation_images/eq.{{imageId}}',
+        url: '{{baseUrl}}/rest/v1/invitation_images?id=eq.{{imageId}}',
         tests: [
           'pm.test("Status code is 204 No Content", function () {',
           '    pm.response.to.have.status(204);',
@@ -479,7 +479,7 @@ const organizerSubfolders = [
         name: 'Revoke Check-in Assignment',
         description: 'Revokes check-in staff access.',
         method: 'PATCH' as const,
-        url: '{{baseUrl}}/rest/v1/checkin_assignments/eq.{{assignmentId}}',
+        url: '{{baseUrl}}/rest/v1/checkin_assignments?id=eq.{{assignmentId}}',
         headers: { Prefer: 'return=representation' },
         body: {
           status: 'revoked',
@@ -489,7 +489,7 @@ const organizerSubfolders = [
         name: 'Delete Check-in Assignment',
         description: 'Deletes a check-in assignment record.',
         method: 'DELETE' as const,
-        url: '{{baseUrl}}/rest/v1/checkin_assignments/eq.{{assignmentId}}',
+        url: '{{baseUrl}}/rest/v1/checkin_assignments?id=eq.{{assignmentId}}',
         tests: [
           'pm.test("Status code is 204 No Content", function () {',
           '    pm.response.to.have.status(204);',
@@ -547,7 +547,7 @@ const organizerSubfolders = [
         name: 'Update Own Organizer Profile',
         description: 'Updates organizer display full name.',
         method: 'PATCH' as const,
-        url: '{{baseUrl}}/rest/v1/organizer_profiles/{{organizerId}}',
+        url: '{{baseUrl}}/rest/v1/organizer_profiles?id=eq.{{organizerId}}',
         headers: { Prefer: 'return=representation' },
         body: {
           full_name: 'Jack Jonel Fiel',
@@ -574,7 +574,7 @@ const adminRequests: RequestDefinition[] = [
     name: 'Verify & Activate Organizer Account',
     description: 'Moves a self-registered organizer account from pending to active status.',
     method: 'PATCH',
-    url: '{{baseUrl}}/rest/v1/organizer_profiles/{{organizerId}}',
+    url: '{{baseUrl}}/rest/v1/organizer_profiles?id=eq.{{organizerId}}',
     headers: { Prefer: 'return=representation' },
     body: {
       status: 'active',
@@ -587,7 +587,7 @@ const guestRequests: RequestDefinition[] = [
     name: 'Update Own Guest Profile',
     description: 'Updates authenticated guest profile name.',
     method: 'PATCH',
-    url: '{{baseUrl}}/rest/v1/guests/eq.{{guestId}}',
+    url: '{{baseUrl}}/rest/v1/guests?id=eq.{{guestId}}',
     headers: { Prefer: 'return=representation' },
     body: {
       full_name: 'Maria Santos-Cruz',
@@ -603,7 +603,7 @@ const guestRequests: RequestDefinition[] = [
     name: 'Respond to RSVP (Accept / Decline)',
     description: 'Submits or updates RSVP status, dietary preferences, and special requests.',
     method: 'PATCH',
-    url: '{{baseUrl}}/rest/v1/invitations/eq.{{invitationId}}',
+    url: '{{baseUrl}}/rest/v1/invitations?id=eq.{{invitationId}}',
     headers: { Prefer: 'return=representation' },
     body: {
       status: 'accepted',
@@ -642,7 +642,7 @@ const guestRequests: RequestDefinition[] = [
     name: 'Edit and Resubmit Attendee',
     description: 'Updates details of an attendee (e.g. if rejected with reason).',
     method: 'PATCH',
-    url: '{{baseUrl}}/rest/v1/attendees/eq.{{attendeeId}}',
+    url: '{{baseUrl}}/rest/v1/attendees?id=eq.{{attendeeId}}',
     headers: { Prefer: 'return=representation' },
     body: {
       full_name: 'Jose Antonio Santos',

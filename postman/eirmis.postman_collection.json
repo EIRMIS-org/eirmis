@@ -425,15 +425,20 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/rest/v1/events/eq.{{eventId}}",
+                  "raw": "{{baseUrl}}/rest/v1/events?id=eq.{{eventId}}",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "rest",
                     "v1",
-                    "events",
-                    "eq.{{eventId}}"
+                    "events"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "eq.{{eventId}}"
+                    }
                   ]
                 },
                 "description": "Updates event attributes such as capacity or title."
@@ -564,15 +569,20 @@
                 "method": "DELETE",
                 "header": [],
                 "url": {
-                  "raw": "{{baseUrl}}/rest/v1/reminder_schedules/eq.{{reminderId}}",
+                  "raw": "{{baseUrl}}/rest/v1/reminder_schedules?id=eq.{{reminderId}}",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "rest",
                     "v1",
-                    "reminder_schedules",
-                    "eq.{{reminderId}}"
+                    "reminder_schedules"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "eq.{{reminderId}}"
+                    }
                   ]
                 },
                 "description": "Deletes an existing reminder schedule."
@@ -762,15 +772,20 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/rest/v1/invitations/eq.{{invitationId}}",
+                  "raw": "{{baseUrl}}/rest/v1/invitations?id=eq.{{invitationId}}",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "rest",
                     "v1",
-                    "invitations",
-                    "eq.{{invitationId}}"
+                    "invitations"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "eq.{{invitationId}}"
+                    }
                   ]
                 },
                 "description": "Updates maximum allowed party size on an existing invitation."
@@ -1263,15 +1278,20 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/rest/v1/invitation_images/eq.{{imageId}}",
+                  "raw": "{{baseUrl}}/rest/v1/invitation_images?id=eq.{{imageId}}",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "rest",
                     "v1",
-                    "invitation_images",
-                    "eq.{{imageId}}"
+                    "invitation_images"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "eq.{{imageId}}"
+                    }
                   ]
                 },
                 "description": "Updates sort order or caption of a gallery image."
@@ -1297,15 +1317,20 @@
                 "method": "DELETE",
                 "header": [],
                 "url": {
-                  "raw": "{{baseUrl}}/rest/v1/invitation_images/eq.{{imageId}}",
+                  "raw": "{{baseUrl}}/rest/v1/invitation_images?id=eq.{{imageId}}",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "rest",
                     "v1",
-                    "invitation_images",
-                    "eq.{{imageId}}"
+                    "invitation_images"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "eq.{{imageId}}"
+                    }
                   ]
                 },
                 "description": "Removes a gallery image reference."
@@ -1456,15 +1481,20 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/rest/v1/checkin_assignments/eq.{{assignmentId}}",
+                  "raw": "{{baseUrl}}/rest/v1/checkin_assignments?id=eq.{{assignmentId}}",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "rest",
                     "v1",
-                    "checkin_assignments",
-                    "eq.{{assignmentId}}"
+                    "checkin_assignments"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "eq.{{assignmentId}}"
+                    }
                   ]
                 },
                 "description": "Revokes check-in staff access."
@@ -1490,15 +1520,20 @@
                 "method": "DELETE",
                 "header": [],
                 "url": {
-                  "raw": "{{baseUrl}}/rest/v1/checkin_assignments/eq.{{assignmentId}}",
+                  "raw": "{{baseUrl}}/rest/v1/checkin_assignments?id=eq.{{assignmentId}}",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "rest",
                     "v1",
-                    "checkin_assignments",
-                    "eq.{{assignmentId}}"
+                    "checkin_assignments"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "eq.{{assignmentId}}"
+                    }
                   ]
                 },
                 "description": "Deletes a check-in assignment record."
@@ -1772,15 +1807,20 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/rest/v1/organizer_profiles/{{organizerId}}",
+                  "raw": "{{baseUrl}}/rest/v1/organizer_profiles?id=eq.{{organizerId}}",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "rest",
                     "v1",
-                    "organizer_profiles",
-                    "{{organizerId}}"
+                    "organizer_profiles"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "eq.{{organizerId}}"
+                    }
                   ]
                 },
                 "description": "Updates organizer display full name."
@@ -1934,15 +1974,20 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/rest/v1/organizer_profiles/{{organizerId}}",
+              "raw": "{{baseUrl}}/rest/v1/organizer_profiles?id=eq.{{organizerId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "rest",
                 "v1",
-                "organizer_profiles",
-                "{{organizerId}}"
+                "organizer_profiles"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "eq.{{organizerId}}"
+                }
               ]
             },
             "description": "Moves a self-registered organizer account from pending to active status."
@@ -2004,15 +2049,20 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/rest/v1/guests/eq.{{guestId}}",
+              "raw": "{{baseUrl}}/rest/v1/guests?id=eq.{{guestId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "rest",
                 "v1",
-                "guests",
-                "eq.{{guestId}}"
+                "guests"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "eq.{{guestId}}"
+                }
               ]
             },
             "description": "Updates authenticated guest profile name."
@@ -2097,15 +2147,20 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/rest/v1/invitations/eq.{{invitationId}}",
+              "raw": "{{baseUrl}}/rest/v1/invitations?id=eq.{{invitationId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "rest",
                 "v1",
-                "invitations",
-                "eq.{{invitationId}}"
+                "invitations"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "eq.{{invitationId}}"
+                }
               ]
             },
             "description": "Submits or updates RSVP status, dietary preferences, and special requests."
@@ -2251,15 +2306,20 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/rest/v1/attendees/eq.{{attendeeId}}",
+              "raw": "{{baseUrl}}/rest/v1/attendees?id=eq.{{attendeeId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "rest",
                 "v1",
-                "attendees",
-                "eq.{{attendeeId}}"
+                "attendees"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "eq.{{attendeeId}}"
+                }
               ]
             },
             "description": "Updates details of an attendee (e.g. if rejected with reason)."

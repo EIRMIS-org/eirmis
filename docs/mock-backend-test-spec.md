@@ -38,35 +38,35 @@ The failure column lists only responses currently declared by the contract. It d
 |---|---|---|---|---|---|---|---|---|
 | `listEvents` | `GET /rest/v1/events` | 200 | — | — | 200 | 200 | 401 | User/public contract |
 | `createEvent` | `POST /rest/v1/events` | 201 | — | — | — | — | 401, 403, 409 | User/public contract |
-| `updateEvent` | `PATCH /rest/v1/events/{id}` | 200/204 | — | — | — | — | 401, 403 | User/public contract |
+| `updateEvent` | `PATCH /rest/v1/events?id=eq.{id}` | 200/204 | — | — | — | — | 401, 403 | User/public contract |
 | `listReminderSchedules` | `GET /rest/v1/reminder_schedules` | 200 | — | — | — | — | 401 | User/public contract |
 | `upsertReminderSchedule` | `POST /rest/v1/reminder_schedules` | 201 | — | — | — | — | 401 | User/public contract |
-| `deleteReminderSchedule` | `DELETE /rest/v1/reminder_schedules/{id}` | 204 | — | — | — | — | 401 | User/public contract |
+| `deleteReminderSchedule` | `DELETE /rest/v1/reminder_schedules?id=eq.{id}` | 204 | — | — | — | — | 401 | User/public contract |
 | `listGuests` | `GET /rest/v1/guests` | 200 | — | 200 | — | — | 401 | User/public contract |
 | `listInvitations` | `GET /rest/v1/invitations` | 200 | — | 200 | — | — | 401 | User/public contract |
 | `createInvitation` | `POST /rest/v1/invitations` | 201 | — | — | — | — | 401, 409 | User/public contract |
-| `updateInvitation` | `PATCH /rest/v1/invitations/{id}` | 200/204 | — | 200/204 | — | — | 401, 403 | User/public contract |
+| `updateInvitation` | `PATCH /rest/v1/invitations?id=eq.{id}` | 200/204 | — | 200/204 | — | — | 401, 403 | User/public contract |
 | `listAttendees` | `GET /rest/v1/attendees` | 200 | — | 200 | 200 | — | 401 | User/public contract |
 | `submitAttendee` | `POST /rest/v1/attendees` | — | — | 201 | — | — | 401, 403 | User/public contract |
-| `updateAttendee` | `PATCH /rest/v1/attendees/{id}` | — | — | 200/204 | — | — | 401, 403 | User/public contract |
+| `updateAttendee` | `PATCH /rest/v1/attendees?id=eq.{id}` | — | — | 200/204 | — | — | 401, 403 | User/public contract |
 | `listHeadcountRequests` | `GET /rest/v1/headcount_increase_requests` | 200 | — | 200 | — | — | 401 | User/public contract |
 | `submitHeadcountRequest` | `POST /functions/v1/submit-headcount-request` | — | — | 201 | — | — | 401, 403, 409, 500, 502 | Edge Function |
 | `getInvitationDesign` | `GET /rest/v1/invitation_designs` | 200 | — | — | — | — | 401 | User/public contract |
 | `createInvitationDesign` | `POST /rest/v1/invitation_designs` | 201 | — | — | — | — | 401, 409 | User/public contract |
 | `listInvitationImages` | `GET /rest/v1/invitation_images` | 200 | — | — | — | 200 | 401 | User/public contract |
 | `addInvitationImage` | `POST /rest/v1/invitation_images` | 201 | — | — | — | — | 401 | User/public contract |
-| `updateInvitationImage` | `PATCH /rest/v1/invitation_images/{id}` | 204 | — | — | — | — | 401 | User/public contract |
-| `deleteInvitationImage` | `DELETE /rest/v1/invitation_images/{id}` | 204 | — | — | — | — | 401 | User/public contract |
+| `updateInvitationImage` | `PATCH /rest/v1/invitation_images?id=eq.{id}` | 204 | — | — | — | — | 401 | User/public contract |
+| `deleteInvitationImage` | `DELETE /rest/v1/invitation_images?id=eq.{id}` | 204 | — | — | — | — | 401 | User/public contract |
 | `listCheckInAssignments` | `GET /rest/v1/checkin_assignments` | 200 | — | — | — | — | 401 | User/public contract |
 | `createCheckInAssignment` | `POST /rest/v1/checkin_assignments` | 201 | — | — | — | — | 401, 409 | User/public contract |
-| `updateCheckInAssignment` | `PATCH /rest/v1/checkin_assignments/{id}` | 204 | — | — | — | — | 401 | User/public contract |
-| `deleteCheckInAssignment` | `DELETE /rest/v1/checkin_assignments/{id}` | 204 | — | — | — | — | 401 | User/public contract |
+| `updateCheckInAssignment` | `PATCH /rest/v1/checkin_assignments?id=eq.{id}` | 204 | — | — | — | — | 401 | User/public contract |
+| `deleteCheckInAssignment` | `DELETE /rest/v1/checkin_assignments?id=eq.{id}` | 204 | — | — | — | — | 401 | User/public contract |
 | `listEmailLogs` | `GET /rest/v1/email_logs` | 200 | — | — | — | — | 401 | User/public contract |
 | `listAuditLogEntries` | `GET /rest/v1/audit_log_entries` | 200 | — | — | — | — | 401 | User/public contract |
 | `getOrganizerProfile` | `GET /rest/v1/organizer_profiles` | 200 | 200 | — | — | — | 401 | User/public contract |
-| `updateOrganizerProfile` | `PATCH /rest/v1/organizer_profiles/{id}` | 200/204 | 200/204 | — | — | — | 401, 403 | User/public contract |
+| `updateOrganizerProfile` | `PATCH /rest/v1/organizer_profiles?id=eq.{id}` | 200/204 | 200/204 | — | — | — | 401, 403 | User/public contract |
 | `getAdminProfile` | `GET /rest/v1/admin_profiles` | — | 200 | — | — | — | 401 | User/public contract |
-| `updateGuestProfile` | `PATCH /rest/v1/guests/{id}` | — | — | 200/204 | — | — | 401, 403 | User/public contract |
+| `updateGuestProfile` | `PATCH /rest/v1/guests?id=eq.{id}` | — | — | 200/204 | — | — | 401, 403 | User/public contract |
 | `uploadInvitationHtml` | `POST /functions/v1/invitation-html` | 200 | — | — | — | — | 401, 403, 422 | User/public contract |
 | `handleScanCallback` | `POST /functions/v1/html-scan-callback` | — | — | — | — | — | 400, 401 | Internal; service tests only |
 | `decideAttendee` | `POST /functions/v1/attendees/{id}/decision` | 200 | — | — | — | — | 401, 403, 404 | User/public contract |

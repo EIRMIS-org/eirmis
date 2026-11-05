@@ -31,25 +31,9 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/rest/v1/events/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
         /**
          * Update an event
-         * @description Updates an organizer's own event. Accepts any subset of `EventUpdate` fields. Uses PostgREST row-level filtering via the path `id` parameter.
+         * @description Updates an organizer's own event. Accepts any subset of `EventUpdate` fields. Uses PostgREST row filtering via the required `id=eq.<uuid>` query parameter.
          */
         patch: operations["updateEvent"];
         trace?: never;
@@ -72,22 +56,6 @@ export interface paths {
          * @description Creates a reminder schedule. Use `Prefer: resolution=merge-duplicates` to upsert — the UNIQUE(event_id, days_before_event) constraint means a duplicate silently updates the existing row.
          */
         post: operations["upsertReminderSchedule"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/rest/v1/reminder_schedules/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
         /** Delete a reminder schedule */
         delete: operations["deleteReminderSchedule"];
         options?: never;
@@ -112,7 +80,11 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Update own guest profile
+         * @description A guest may update their own `full_name`. RLS restricts the update to `auth_user_id = auth.uid()`.
+         */
+        patch: operations["updateGuestProfile"];
         trace?: never;
     };
     "/rest/v1/invitations": {
@@ -133,22 +105,6 @@ export interface paths {
          * @description For organizers: creates an invite-only invitation for a guest. For public registration: creates an `accepted` invitation linked to a self-registered guest. Caller should use `Prefer: return=representation` to receive the created row.
          */
         post: operations["createInvitation"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/rest/v1/invitations/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -177,22 +133,6 @@ export interface paths {
          * @description A guest submits an additional (non-primary) attendee for their accepted invitation. RLS enforces: `is_primary = false`, invitation `status = accepted`, guest identity.
          */
         post: operations["submitAttendee"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/rest/v1/attendees/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -262,22 +202,6 @@ export interface paths {
         put?: never;
         /** Add an image to the gallery */
         post: operations["addInvitationImage"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/rest/v1/invitation_images/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
         /** Remove an image from the gallery */
         delete: operations["deleteInvitationImage"];
         options?: never;
@@ -304,22 +228,6 @@ export interface paths {
          * @description Creates a new check-in assignment (`status = invited`). The designated email will receive a magic-link invitation. If the email already has a revoked assignment for this event, delete the old row first.
          */
         post: operations["createCheckInAssignment"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/rest/v1/checkin_assignments/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
         /**
          * Delete a check-in assignment
          * @description Hard-deletes the assignment row. Use `patch` to revoke instead if an audit trail is needed.
@@ -391,22 +299,6 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/rest/v1/organizer_profiles/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
         /**
          * Update organizer verification status
          * @description Updates an organizer status and records an administrator audit entry.
@@ -451,47 +343,11 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/rest/v1/org_settings/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
         /**
          * Update organization settings
          * @description Updates one or more fields on the organization settings singleton. Restricted to system administrators by RLS.
          */
         patch: operations["updateOrgSettings"];
-        trace?: never;
-    };
-    "/rest/v1/guests/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update own guest profile
-         * @description A guest may update their own `full_name`. RLS restricts the update to `auth_user_id = auth.uid()`.
-         */
-        patch: operations["updateGuestProfile"];
         trace?: never;
     };
     "/functions/v1/invitation-html": {
@@ -2640,6 +2496,11 @@ export interface components {
          */
         PreferReturnParam: "return=representation" | "return=minimal" | "return=headers-only";
         /**
+         * @description PostgREST row filter selecting the single row to mutate, in the form `eq.<uuid>`. PostgREST does not route `/<table>/{id}`; rows are always targeted by a query filter. Required so a PATCH/DELETE can never run unfiltered against the whole table.
+         * @example eq.55555555-5555-5555-5555-555555555555
+         */
+        IdFilterParam: string;
+        /**
          * @description Comma-separated preferences for log feed reads. PostgREST supports `count=exact`, `count=planned`, or `count=estimated` for Content-Range totals. Prism additionally accepts `example=<response-example-name>` for deterministic mock selection; this does not imply live filtering or pagination behavior.
          * @example count=exact
          */
@@ -2759,7 +2620,13 @@ export interface operations {
     };
     updateEvent: {
         parameters: {
-            query?: never;
+            query: {
+                /**
+                 * @description PostgREST row filter selecting the single row to mutate, in the form `eq.<uuid>`. PostgREST does not route `/<table>/{id}`; rows are always targeted by a query filter. Required so a PATCH/DELETE can never run unfiltered against the whole table.
+                 * @example eq.55555555-5555-5555-5555-555555555555
+                 */
+                id: components["parameters"]["IdFilterParam"];
+            };
             header?: {
                 /**
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
@@ -2767,10 +2634,7 @@ export interface operations {
                  */
                 Prefer?: components["parameters"]["PreferReturnParam"];
             };
-            path: {
-                /** @description PostgREST filter — pass the UUID directly; the `eq.` prefix is handled by the generated client. */
-                id: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -2860,11 +2724,15 @@ export interface operations {
     };
     deleteReminderSchedule: {
         parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
+            query: {
+                /**
+                 * @description PostgREST row filter selecting the single row to mutate, in the form `eq.<uuid>`. PostgREST does not route `/<table>/{id}`; rows are always targeted by a query filter. Required so a PATCH/DELETE can never run unfiltered against the whole table.
+                 * @example eq.55555555-5555-5555-5555-555555555555
+                 */
+                id: components["parameters"]["IdFilterParam"];
             };
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -2923,6 +2791,61 @@ export interface operations {
                 };
             };
             401: components["responses"]["Unauthorized"];
+        };
+    };
+    updateGuestProfile: {
+        parameters: {
+            query: {
+                /**
+                 * @description PostgREST row filter selecting the single row to mutate, in the form `eq.<uuid>`. PostgREST does not route `/<table>/{id}`; rows are always targeted by a query filter. Required so a PATCH/DELETE can never run unfiltered against the whole table.
+                 * @example eq.55555555-5555-5555-5555-555555555555
+                 */
+                id: components["parameters"]["IdFilterParam"];
+            };
+            header?: {
+                /**
+                 * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
+                 * @example return=representation
+                 */
+                Prefer?: components["parameters"]["PreferReturnParam"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GuestUpdate"];
+            };
+        };
+        responses: {
+            /** @description Updated guest profile (when `Prefer: return=representation`). */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "33333333-3333-3333-3333-333333333333",
+                     *       "email": "guest@example.com",
+                     *       "full_name": "Maria Santos",
+                     *       "auth_user_id": "33333333-3333-3333-3333-333333333333",
+                     *       "created_at": "2026-09-05T08:00:00+08:00",
+                     *       "updated_at": "2026-09-05T08:00:00+08:00"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["Guest"];
+                };
+            };
+            /** @description Updated. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     listInvitations: {
@@ -3020,7 +2943,13 @@ export interface operations {
     };
     updateInvitation: {
         parameters: {
-            query?: never;
+            query: {
+                /**
+                 * @description PostgREST row filter selecting the single row to mutate, in the form `eq.<uuid>`. PostgREST does not route `/<table>/{id}`; rows are always targeted by a query filter. Required so a PATCH/DELETE can never run unfiltered against the whole table.
+                 * @example eq.55555555-5555-5555-5555-555555555555
+                 */
+                id: components["parameters"]["IdFilterParam"];
+            };
             header?: {
                 /**
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
@@ -3028,9 +2957,7 @@ export interface operations {
                  */
                 Prefer?: components["parameters"]["PreferReturnParam"];
             };
-            path: {
-                id: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -3144,7 +3071,13 @@ export interface operations {
     };
     updateAttendee: {
         parameters: {
-            query?: never;
+            query: {
+                /**
+                 * @description PostgREST row filter selecting the single row to mutate, in the form `eq.<uuid>`. PostgREST does not route `/<table>/{id}`; rows are always targeted by a query filter. Required so a PATCH/DELETE can never run unfiltered against the whole table.
+                 * @example eq.55555555-5555-5555-5555-555555555555
+                 */
+                id: components["parameters"]["IdFilterParam"];
+            };
             header?: {
                 /**
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
@@ -3152,9 +3085,7 @@ export interface operations {
                  */
                 Prefer?: components["parameters"]["PreferReturnParam"];
             };
-            path: {
-                id: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -3352,11 +3283,15 @@ export interface operations {
     };
     deleteInvitationImage: {
         parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
+            query: {
+                /**
+                 * @description PostgREST row filter selecting the single row to mutate, in the form `eq.<uuid>`. PostgREST does not route `/<table>/{id}`; rows are always targeted by a query filter. Required so a PATCH/DELETE can never run unfiltered against the whole table.
+                 * @example eq.55555555-5555-5555-5555-555555555555
+                 */
+                id: components["parameters"]["IdFilterParam"];
             };
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -3373,7 +3308,13 @@ export interface operations {
     };
     updateInvitationImage: {
         parameters: {
-            query?: never;
+            query: {
+                /**
+                 * @description PostgREST row filter selecting the single row to mutate, in the form `eq.<uuid>`. PostgREST does not route `/<table>/{id}`; rows are always targeted by a query filter. Required so a PATCH/DELETE can never run unfiltered against the whole table.
+                 * @example eq.55555555-5555-5555-5555-555555555555
+                 */
+                id: components["parameters"]["IdFilterParam"];
+            };
             header?: {
                 /**
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
@@ -3381,9 +3322,7 @@ export interface operations {
                  */
                 Prefer?: components["parameters"]["PreferReturnParam"];
             };
-            path: {
-                id: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -3472,11 +3411,15 @@ export interface operations {
     };
     deleteCheckInAssignment: {
         parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
+            query: {
+                /**
+                 * @description PostgREST row filter selecting the single row to mutate, in the form `eq.<uuid>`. PostgREST does not route `/<table>/{id}`; rows are always targeted by a query filter. Required so a PATCH/DELETE can never run unfiltered against the whole table.
+                 * @example eq.55555555-5555-5555-5555-555555555555
+                 */
+                id: components["parameters"]["IdFilterParam"];
             };
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -3493,7 +3436,13 @@ export interface operations {
     };
     updateCheckInAssignment: {
         parameters: {
-            query?: never;
+            query: {
+                /**
+                 * @description PostgREST row filter selecting the single row to mutate, in the form `eq.<uuid>`. PostgREST does not route `/<table>/{id}`; rows are always targeted by a query filter. Required so a PATCH/DELETE can never run unfiltered against the whole table.
+                 * @example eq.55555555-5555-5555-5555-555555555555
+                 */
+                id: components["parameters"]["IdFilterParam"];
+            };
             header?: {
                 /**
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
@@ -3501,9 +3450,7 @@ export interface operations {
                  */
                 Prefer?: components["parameters"]["PreferReturnParam"];
             };
-            path: {
-                id: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -3675,7 +3622,13 @@ export interface operations {
     };
     adminUpdateOrganizerStatus: {
         parameters: {
-            query?: never;
+            query: {
+                /**
+                 * @description PostgREST row filter selecting the single row to mutate, in the form `eq.<uuid>`. PostgREST does not route `/<table>/{id}`; rows are always targeted by a query filter. Required so a PATCH/DELETE can never run unfiltered against the whole table.
+                 * @example eq.55555555-5555-5555-5555-555555555555
+                 */
+                id: components["parameters"]["IdFilterParam"];
+            };
             header?: {
                 /**
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
@@ -3683,9 +3636,7 @@ export interface operations {
                  */
                 Prefer?: components["parameters"]["PreferReturnParam"];
             };
-            path: {
-                id: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -3798,7 +3749,13 @@ export interface operations {
     };
     updateOrgSettings: {
         parameters: {
-            query?: never;
+            query: {
+                /**
+                 * @description PostgREST row filter selecting the single row to mutate, in the form `eq.<uuid>`. PostgREST does not route `/<table>/{id}`; rows are always targeted by a query filter. Required so a PATCH/DELETE can never run unfiltered against the whole table.
+                 * @example eq.55555555-5555-5555-5555-555555555555
+                 */
+                id: components["parameters"]["IdFilterParam"];
+            };
             header?: {
                 /**
                  * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
@@ -3806,9 +3763,7 @@ export interface operations {
                  */
                 Prefer?: components["parameters"]["PreferReturnParam"];
             };
-            path: {
-                id: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -3827,57 +3782,6 @@ export interface operations {
                 };
             };
             /** @description Settings updated successfully. */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            401: components["responses"]["Unauthorized"];
-            403: components["responses"]["Forbidden"];
-        };
-    };
-    updateGuestProfile: {
-        parameters: {
-            query?: never;
-            header?: {
-                /**
-                 * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
-                 * @example return=representation
-                 */
-                Prefer?: components["parameters"]["PreferReturnParam"];
-            };
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["GuestUpdate"];
-            };
-        };
-        responses: {
-            /** @description Updated guest profile (when `Prefer: return=representation`). */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "id": "33333333-3333-3333-3333-333333333333",
-                     *       "email": "guest@example.com",
-                     *       "full_name": "Maria Santos",
-                     *       "auth_user_id": "33333333-3333-3333-3333-333333333333",
-                     *       "created_at": "2026-09-05T08:00:00+08:00",
-                     *       "updated_at": "2026-09-05T08:00:00+08:00"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["Guest"];
-                };
-            };
-            /** @description Updated. */
             204: {
                 headers: {
                     [name: string]: unknown;
