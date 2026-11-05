@@ -294,14 +294,11 @@ export function discoverPublicEvents(): Promise<
     });
 }
 
-/** GET /rest/v1/invitation_images — public gallery for an event. */
+/** GET /rest/v1/invitation_images — public gallery for an event (delegates to {@link listInvitationImages} with `auth: false`). */
 export function listPublicGalleryImages(
     eventId: string,
 ): Promise<ListOk<operations['listInvitationImages']>> {
-    return request('GET', '/rest/v1/invitation_images', {
-        noAuth: true,
-        query: { event_id: `eq.${eventId}`, order: 'sort_order.asc' },
-    });
+    return listInvitationImages(eventId, { auth: false });
 }
 
 /** POST /functions/v1/register — public self-registration. */
@@ -468,11 +465,21 @@ export function createInvitationDesign(
     });
 }
 
+export interface ListInvitationImagesOptions {
+    /**
+     * Whether to attach authenticated headers (defaults to `true`).
+     * Set to `false` for public gallery browsing without credentials.
+     */
+    auth?: boolean;
+}
+
 /** GET /rest/v1/invitation_images — list gallery images for an event. */
 export function listInvitationImages(
     eventId: string,
+    options?: ListInvitationImagesOptions,
 ): Promise<ListOk<operations['listInvitationImages']>> {
     return request('GET', '/rest/v1/invitation_images', {
+        noAuth: options?.auth === false,
         query: { event_id: `eq.${eventId}`, order: 'sort_order.asc' },
     });
 }

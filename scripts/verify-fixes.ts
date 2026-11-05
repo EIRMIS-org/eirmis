@@ -78,6 +78,50 @@ async function run() {
     } else {
         console.error('❌ FAILED: URL does not use ?id=eq.{id} filter!');
     }
+
+    console.log('\n--- 5. Testing listInvitationImages() with default auth ---');
+    setRole('organizer');
+    const eventUuid = '22222222-2222-2222-2222-222222222222';
+    await api.listInvitationImages(eventUuid);
+    const req5 = requests[requests.length - 1];
+    console.log('URL:', req5.url);
+    console.log('Authorization:', req5.headers['Authorization']);
+    if (
+        req5.url.includes(`/rest/v1/invitation_images?event_id=eq.${eventUuid}&order=sort_order.asc`) &&
+        req5.headers['Authorization'] === 'Bearer fake-organizer-jwt'
+    ) {
+        console.log('✅ PASSED: listInvitationImages uses organizer auth by default.');
+    } else {
+        console.error('❌ FAILED: listInvitationImages default auth mismatch!');
+    }
+
+    console.log('\n--- 6. Testing listInvitationImages() with auth: false ---');
+    await api.listInvitationImages(eventUuid, { auth: false });
+    const req6 = requests[requests.length - 1];
+    console.log('URL:', req6.url);
+    console.log('Authorization:', req6.headers['Authorization']);
+    if (
+        req6.url.includes(`/rest/v1/invitation_images?event_id=eq.${eventUuid}&order=sort_order.asc`) &&
+        req6.headers['Authorization'] === `Bearer ${resolvePublicKey()}`
+    ) {
+        console.log('✅ PASSED: listInvitationImages with auth: false sends public anon auth.');
+    } else {
+        console.error('❌ FAILED: listInvitationImages auth: false mismatch!');
+    }
+
+    console.log('\n--- 7. Testing listPublicGalleryImages() wrapper ---');
+    await api.listPublicGalleryImages(eventUuid);
+    const req7 = requests[requests.length - 1];
+    console.log('URL:', req7.url);
+    console.log('Authorization:', req7.headers['Authorization']);
+    if (
+        req7.url.includes(`/rest/v1/invitation_images?event_id=eq.${eventUuid}&order=sort_order.asc`) &&
+        req7.headers['Authorization'] === `Bearer ${resolvePublicKey()}`
+    ) {
+        console.log('✅ PASSED: listPublicGalleryImages delegates to listInvitationImages with auth: false.');
+    } else {
+        console.error('❌ FAILED: listPublicGalleryImages wrapper mismatch!');
+    }
 }
 
 run().catch((err) => {
