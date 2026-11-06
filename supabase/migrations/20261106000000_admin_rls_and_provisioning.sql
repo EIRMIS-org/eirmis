@@ -28,7 +28,7 @@ BEGIN
   v_provider := NEW.raw_app_meta_data->>'provider';
   v_email := NEW.email;
   v_name := coalesce(NEW.raw_user_meta_data->>'full_name', split_part(v_email, '@', 1));
-  v_role := coalesce(NEW.raw_user_meta_data->>'role', NEW.raw_app_meta_data->>'role');
+  v_role := NEW.raw_app_meta_data->>'role';
 
   -- Admin provisioning via role metadata
   IF v_role = 'admin' THEN

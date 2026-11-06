@@ -105,8 +105,9 @@ SELECT results_eq(
   'Anon cannot view draft events'
 );
 
-SELECT results_gt(
-  'SELECT count(*)::integer FROM public.events WHERE visibility_mode = ''open_registration'' AND status = ''published''',
+SELECT cmp_ok(
+  (SELECT count(*)::integer FROM public.events WHERE visibility_mode = 'open_registration' AND status = 'published'),
+  '>',
   0,
   'Anon can view published open-registration events'
 );
@@ -122,8 +123,9 @@ SELECT results_eq(
   'Admin can read org_settings'
 );
 
-SELECT results_gt(
-  'SELECT count(*)::integer FROM public.audit_log_entries',
+SELECT cmp_ok(
+  (SELECT count(*)::integer FROM public.audit_log_entries),
+  '>',
   0,
   'Admin can read global audit_log_entries'
 );
