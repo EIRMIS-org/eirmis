@@ -3,7 +3,23 @@ EmailLog:
   description: >
     Record of every transactional email dispatched through Resend.
     Written by Edge Functions under service role only — no client INSERT.
-    Rows are write-once: no UPDATE or DELETE is permitted.
+    Clients have read-only access. Trusted server-side dispatch and delivery
+    handling may update the status and provider metadata of the same message.
+    A feed row represents one email, not a separate row for each status transition.
+    The created_at value remains the original queue time; sent_at is null until
+    dispatch. Delivered and bounced are M2 contract targets whose live provider
+    callbacks and database enum support are deferred to M3.
+  example:
+    id: eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee
+    event_id: null
+    invitation_id: null
+    attendee_id: null
+    recipient_email: organizer@example.com
+    type: organizer_account_verified
+    provider_message_id: resend_msg_org_verified_123456789
+    status: sent
+    sent_at: '2026-12-01T09:15:30+08:00'
+    created_at: '2026-12-01T09:15:00+08:00'
   required: [id, recipient_email, type, status, created_at]
   properties:
     id:
@@ -32,14 +48,21 @@ EmailLog:
     type:
       type: string
       description: >
-        Email type identifier (freeform — no enum, so new types can be added
-        without a migration). Known types: `invitation_sent`,
-        `rsvp_confirmation`, `waitlist_promoted`, `reminder`,
-        `invitation_nudge`, `attendee_status_update`,
-        `headcount_request_submitted`, `headcount_request_decided`,
-        `qr_codes_issued`, `invitation_design_validation_failed`,
-        `organizer_account_verified`.
-      example: rsvp_confirmation
+        Email type identifier. New values can be added without a database
+        migration because the underlying column is freeform text.
+      enum:
+        - invitation_sent
+        - rsvp_confirmation
+        - waitlist_promoted
+        - reminder
+        - invitation_nudge
+        - attendee_status_update
+        - headcount_request_submitted
+        - headcount_request_decided
+        - qr_codes_issued
+        - invitation_design_validation_failed
+        - organizer_account_verified
+      example: organizer_account_verified
     provider_message_id:
       type: ['string', 'null']
       description: Resend's message ID, useful for delivery troubleshooting.
@@ -49,7 +72,7 @@ EmailLog:
     sent_at:
       type: ['string', 'null']
       format: date-time
-      description: Set when `status` transitions to `sent`.
+      description: Dispatch timestamp; retained for delivered/bounced outcomes and null before dispatch.
       example: null
     created_at:
       type: string

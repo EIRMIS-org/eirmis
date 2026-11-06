@@ -4,6 +4,22 @@ Attendee:
     One row per person in an invitation's party — the invited guest themselves
     plus any additional members they submit. The primary attendee (`is_primary = true`)
     is auto-created when the invitation is accepted.
+  example:
+    id: 77777777-7777-7777-7777-777777777777
+    invitation_id: 66666666-6666-6666-6666-666666666666
+    full_name: Maria Santos
+    email: maria.santos@example.com
+    is_primary: true
+    status: approved
+    submitted_at: '2026-10-05T14:00:00+08:00'
+    reviewed_by: 11111111-1111-1111-1111-111111111111
+    reviewed_at: '2026-10-06T09:00:00+08:00'
+    review_reason: Primary guest approved
+    qr_token: 'signed-qr-token-sample'
+    checked_in: false
+    checked_in_at: null
+    checked_in_by: null
+    is_walk_in: false
   required:
     - id
     - invitation_id
@@ -90,31 +106,43 @@ AttendeeCreate:
   description: >
     Request body for a guest submitting an additional (non-primary) attendee
     for their accepted invitation.
+  example:
+    invitation_id: 66666666-6666-6666-6666-666666666666
+    full_name: Jose Santos
+    email: jose.santos@example.com
   required: [invitation_id, full_name]
   properties:
     invitation_id:
       type: string
       format: uuid
+      description: UUID of the accepted invitation this attendee belongs to.
       example: 66666666-6666-6666-6666-666666666666
     full_name:
       type: string
+      description: Full name of the attendee to be printed on badge and check-in roster.
       example: Jose Santos
     email:
       type: ['string', 'null']
-      example: null
+      description: Optional contact email for this attendee (receives QR code and notifications).
+      example: jose.santos@example.com
 
 AttendeeUpdate:
   type: object
   description: >
     Fields a guest may update on a rejected (non-primary) attendee to resubmit it.
     Resubmission sets the attendee back to `pending`.
+  example:
+    full_name: Jose Antonio Santos
+    email: jose@example.com
   minProperties: 1
   properties:
     full_name:
       type: string
+      description: Updated full name of the attendee.
       example: Jose Antonio Santos
     email:
       type: ['string', 'null']
+      description: Updated optional email address for the attendee.
       example: jose@example.com
 
 AttendeeDecisionRequest:
@@ -124,16 +152,20 @@ AttendeeDecisionRequest:
     Approve or reject an individual attendee. Approved attendees receive a
     signed `qr_token`. Approval performs a capacity soft-check and records an
     audit entry. A capacity-over-limit approval is audited as an override.
+  example:
+    decision: approve
+    reason: Verified team member
   required: [decision]
   properties:
     decision:
       type: string
       enum: [approve, reject]
+      description: Organizer's decision to approve or reject this attendee registration.
       example: approve
     reason:
       type: ['string', 'null']
       description: Organizer's optional note on the decision, stored in the audit log.
-      example: null
+      example: Verified team member
 
 AttendeeDecisionResponse:
   type: object
@@ -141,6 +173,24 @@ AttendeeDecisionResponse:
     Response from the `decideAttendee` Edge Function. Includes the updated
     attendee state. If the decision pushed the event over capacity, `capacity_warning`
     is `true` and the organizer's audited override is recorded.
+  example:
+    attendee:
+      id: 77777777-7777-7777-7777-777777777777
+      invitation_id: 66666666-6666-6666-6666-666666666666
+      full_name: Maria Santos
+      email: maria.santos@example.com
+      is_primary: true
+      status: approved
+      submitted_at: '2026-10-05T14:00:00+08:00'
+      reviewed_by: 11111111-1111-1111-1111-111111111111
+      reviewed_at: '2026-10-06T09:00:00+08:00'
+      review_reason: Primary guest approved
+      qr_token: 'signed-qr-token-sample'
+      checked_in: false
+      checked_in_at: null
+      checked_in_by: null
+      is_walk_in: false
+    capacity_warning: false
   required: [attendee, capacity_warning]
   properties:
     attendee:

@@ -50,6 +50,18 @@ PreferCountParam:
     `Content-Range` response header.
   example: count=exact
 
+LogFeedPreferParam:
+  name: Prefer
+  in: header
+  schema:
+    type: string
+  description: >
+    Comma-separated preferences for log feed reads. PostgREST supports
+    `count=exact`, `count=planned`, or `count=estimated` for Content-Range totals.
+    Prism additionally accepts `example=<response-example-name>` for deterministic
+    mock selection; this does not imply live filtering or pagination behavior.
+  example: count=exact
+
 PreferReturnParam:
   name: Prefer
   in: header
@@ -63,3 +75,17 @@ PreferReturnParam:
     Control whether mutated row(s) are returned in the response body.
     `return=representation` returns the full row.
   example: return=representation
+
+IdFilterParam:
+  name: id
+  in: query
+  required: true
+  schema:
+    type: string
+    pattern: '^eq\.[0-9a-fA-F-]{36}$'
+  description: >
+    PostgREST row filter selecting the single row to mutate, in the form
+    `eq.<uuid>`. PostgREST does not route `/<table>/{id}`; rows are always
+    targeted by a query filter. Required so a PATCH/DELETE can never run
+    unfiltered against the whole table.
+  example: eq.55555555-5555-5555-5555-555555555555

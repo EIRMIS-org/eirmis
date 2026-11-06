@@ -1,0 +1,162 @@
+{
+	"id": "6ae5832250de2ec156895112",
+	"name": "EIRMIS API",
+	"timestamp": "2026-10-31T05:56:54.391Z",
+	"collection_id": "8e5DEC2243B9163c3415AC6a",
+	"folder_id": 0,
+	"environment_id": "7c869c4f-8948-43b8-9193-9f93cee4357a",
+	"totalPass": 47,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2026-10-31T05:56:50.423Z",
+	"totalFail": 0,
+	"results": [],
+	"count": 1,
+	"totalTime": 0,
+	"collection": {
+		"requests": [
+			{
+				"id": "7aa42b9B5CcF252e0bd7fea5"
+			},
+			{
+				"id": "D9E4BC0C7c1Dad5ed5c8ddE1"
+			},
+			{
+				"id": "bA4aCcE26d48D89bB5De80df"
+			},
+			{
+				"id": "a1B84AcBFdE1e2CAc88FDA38"
+			},
+			{
+				"id": "ca3F69C2076F718933cE8bfB"
+			},
+			{
+				"id": "deC351cd0eCBcAA0eB20b3D3"
+			},
+			{
+				"id": "2A3606785ceAe20009BE5eC8"
+			},
+			{
+				"id": "F8EfA7cfB6DB6cC8c7f3FCdc"
+			},
+			{
+				"id": "5dDc97d9983962DedDB2F95f"
+			},
+			{
+				"id": "3CDEfCf6bAF96ADfDcd1d6E6"
+			},
+			{
+				"id": "Ac5aaedCECCb6442e4f9fca6"
+			},
+			{
+				"id": "CaBA5eEe4FE0D6630fadE14A"
+			},
+			{
+				"id": "F255577924ADDa974e89CCaD"
+			},
+			{
+				"id": "0c4a848858DeEC3Eb6BEcf95"
+			},
+			{
+				"id": "842F4E9Ffa8dd7d5debFa6C4"
+			},
+			{
+				"id": "90bF90F1dBa6800CeC12b7C9"
+			},
+			{
+				"id": "3Db9c5CD3BD7C1a91b7De89d"
+			},
+			{
+				"id": "A5a99660ABCD52f1aa3b5870"
+			},
+			{
+				"id": "fbB00Ebbd86F3Ced06F3CEAB"
+			},
+			{
+				"id": "B6dBE4fb42DAf532164B5c5E"
+			},
+			{
+				"id": "EAbc7Ecc2A3819baceF7Ee8b"
+			},
+			{
+				"id": "BFc3a7cCcd0d28C7D15fe73C"
+			},
+			{
+				"id": "670B0f80A9ffc6Dd4Ff96a9c"
+			},
+			{
+				"id": "92baDa34b6AAdE1Fb41FC54F"
+			},
+			{
+				"id": "6BaD871Ed39F90D71Cf72047"
+			},
+			{
+				"id": "1F5FdCefCBDbd2eBA302830e"
+			},
+			{
+				"id": "9D1bddb5dF8D7EA6fDfEa2A7"
+			},
+			{
+				"id": "0fbF042E9e41f9aBBc53F1ee"
+			},
+			{
+				"id": "2f4D14d1ECe483BDC96b1116"
+			},
+			{
+				"id": "422309A4fbE3BC69ABAfc5b3"
+			},
+			{
+				"id": "1f6257FFD95CEb2f6bE745CB"
+			},
+			{
+				"id": "ae357344D4EF27Cc2eD616A3"
+			},
+			{
+				"id": "B8b8d620A477db4fFcE9E5e6"
+			},
+			{
+				"id": "D19DcfF8DB72e43e832dd05E"
+			},
+			{
+				"id": "9F850Df2aE8E8F1B3a19b09b"
+			},
+			{
+				"id": "fD3cBcAD6a491f636Fe33bF7"
+			},
+			{
+				"id": "CDbcc1E02baFBE9f51BB676A"
+			},
+			{
+				"id": "a7C3daddeb0b983b85d7e7b7"
+			},
+			{
+				"id": "bB7658eA82ECaccc71ED2E17"
+			},
+			{
+				"id": "7E897bEA031Eb578a6bF3Afa"
+			},
+			{
+				"id": "9E0C13da6f81f14E962149Eb"
+			},
+			{
+				"id": "Ac97a7Fbf0cf0AEF07B72fcb"
+			},
+			{
+				"id": "c4BCEdF920C73ea7C0419deB"
+			},
+			{
+				"id": "cf7da017BA5f033Bf462eDDF"
+			},
+			{
+				"id": "3Cef0b46FC1ee8cEAF254eA9"
+			},
+			{
+				"id": "83e0adab181dBbAfA1EDfd65"
+			},
+			{
+				"id": "Bf3c63D0CB7C178cec142c35"
+			}
+		]
+	}
+}

@@ -4,7 +4,9 @@
 #   • CI / lint
 #   • CI / typecheck
 #   • CI / build
-#   • CI / contract-lint   (skipped — not failed — until contract/openapi.yaml exists)
+#   • CI / contract-lint
+#   • CI / contract-check
+#   • CI / contract-docs
 #
 # Secrets audit: NO secrets are referenced in this file.
 #   • VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY are public-by-construction
@@ -209,13 +211,54 @@ jobs:
         run: supabase start
 
   # ── Contract freshness + PostgREST drift check ────────────────────────────
-  # TODO: Enable in a future branch when contract/openapi.yaml is created.
-  # Once ready, you can configure this to check the local Supabase instance
-  # (which is started in the 'database' step above) against the OpenAPI file.
-  # contract-check:
-  #   name: Contract check (freshness + drift)
-  #   runs-on: ubuntu-latest
-  #   needs: [database, contract-lint]
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - run: npm run contract:check
+  contract-check:
+    name: Contract check (freshness + drift)
+    runs-on: ubuntu-latest
+    needs: [install, contract-lint]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Restore node_modules from cache
+        uses: actions/cache/restore@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Run contract check
+        run: npm run contract:check
+
+  # ── Redoc static documentation build ──────────────────────────────────────
+  contract-docs:
+    name: Redoc static bundle build
+    runs-on: ubuntu-latest
+    needs: [install, contract-lint]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Restore node_modules from cache
+        uses: actions/cache/restore@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Build Redoc documentation
+        run: npm run contract:docs
+
+      - name: Upload Redoc static bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: redoc-api-docs
+          path: contract/generated/docs/index.html
+

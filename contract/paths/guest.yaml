@@ -2,42 +2,20 @@
 # Guest Portal — PostgREST paths
 #
 # Paths exclusive to, or primarily used by, the Guest role.
-# Shared paths (attendees, invitations) are documented in organizer.yaml
-# with operations tagged by their actual audience.
+#
+# Shared paths documented in organizer.yaml with Guest operations:
+#   - GET  /rest/v1/invitations?guest_id=eq.{guestId}&select=*,events(*)
+#          (operationId: listInvitations, guest lists own invitations with event details)
+#   - PATCH /rest/v1/invitations?id=eq.{id}
+#          (operationId: updateInvitation, guest updates status, dietary_preference, special_requests)
+#   - POST /rest/v1/attendees
+#          (operationId: submitAttendee, guest adds party members up to max_party_size)
+#   - POST /functions/v1/submit-headcount-request
+#          (operationId: submitHeadcountRequest, inserts request and emails organizer)
+#   - PATCH /rest/v1/guests?id=eq.{id}
+#          (operationId: updateGuestProfile, guest updates own full_name)
+#
+# PostgREST has no `/<table>/{id}` route, so guest mutations live on the
+# collection paths in organizer.yaml. This file currently defines no paths.
 # =============================================================================
 
-/rest/v1/guests/{id}:
-  patch:
-    operationId: updateGuestProfile
-    summary: Update own guest profile
-    description: >
-      A guest may update their own `full_name`. RLS restricts the update
-      to `auth_user_id = auth.uid()`.
-    tags: [Guest — Profile]
-    parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-          example: eq.33333333-3333-3333-3333-333333333333
-      - $ref: '../components/parameters.yaml#/PreferReturnParam'
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../components/schemas/Guest.yaml#/GuestUpdate'
-    responses:
-      '204':
-        description: Updated.
-      '200':
-        description: "Updated guest profile (when `Prefer: return=representation`)."
-        content:
-          application/json:
-            schema:
-              $ref: '../components/schemas/Guest.yaml#/Guest'
-      '401':
-        $ref: '../components/responses.yaml#/Unauthorized'
-      '403':
-        $ref: '../components/responses.yaml#/Forbidden'

@@ -4,6 +4,16 @@ HeadcountIncreaseRequest:
     A guest's request to raise their invitation's `max_party_size`.
     At most one `pending` request per invitation at a time (enforced by a partial
     unique index). v1: approve-in-full or reject only — no partial approval.
+  example:
+    id: bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb
+    invitation_id: 66666666-6666-6666-6666-666666666666
+    requested_additional_heads: 2
+    status: pending
+    note: My two siblings confirmed they can come.
+    requested_at: '2026-11-01T10:00:00+08:00'
+    reviewed_by: null
+    reviewed_at: null
+    review_reason: null
   required:
     - id
     - invitation_id
@@ -54,18 +64,25 @@ HeadcountIncreaseRequestCreate:
     Request body for a guest submitting a headcount increase request.
     The guest's invitation must be `accepted` and at `max_party_size`.
     The partial unique index blocks a second pending request.
+  example:
+    invitation_id: 66666666-6666-6666-6666-666666666666
+    requested_additional_heads: 2
+    note: My two siblings confirmed they can come.
   required: [invitation_id, requested_additional_heads]
   properties:
     invitation_id:
       type: string
       format: uuid
+      description: The accepted invitation UUID requesting additional capacity.
       example: 66666666-6666-6666-6666-666666666666
     requested_additional_heads:
       type: integer
       minimum: 1
+      description: Number of additional slots requested beyond current max_party_size.
       example: 2
     note:
       type: ['string', 'null']
+      description: Optional explanatory note from the guest to the organizer.
       example: My two siblings confirmed they can come.
 
 HeadcountDecisionRequest:
@@ -73,13 +90,17 @@ HeadcountDecisionRequest:
   description: >
     Request body for the `decideHeadcountRequest` Edge Function.
     Approve (raises `max_party_size` by `requested_additional_heads`) or reject.
+  example:
+    decision: approve
+    reason: Additional table space arranged
   required: [decision]
   properties:
     decision:
       type: string
       enum: [approve, reject]
+      description: Decision to approve or reject the additional headcount request.
       example: approve
     reason:
       type: ['string', 'null']
       description: Organizer's optional note on the decision.
-      example: null
+      example: Additional table space arranged

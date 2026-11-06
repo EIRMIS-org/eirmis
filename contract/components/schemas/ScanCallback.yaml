@@ -8,6 +8,10 @@ ScanCallbackRequest:
     `invitation_designs` row, and flips `validation_status` to `passed` or `failed`.
     On `failed`, it sets `validation_notes` and sends an `invitation_design_validation_failed`
     email to the organizer.
+  example:
+    scan_id: scan-job-abc123
+    result: clean
+    notes: null
   required: [scan_id, result]
   properties:
     scan_id:
