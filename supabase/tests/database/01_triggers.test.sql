@@ -11,7 +11,7 @@ SELECT has_trigger('auth', 'users', 'trg_on_auth_user_created', 'auth.users has 
 SELECT has_trigger('public', 'organizer_profiles', 'trg_organizer_profiles_updated_at', 'organizer_profiles has updated_at trigger');
 SELECT has_trigger('public', 'events', 'trg_events_updated_at', 'events has updated_at trigger');
 SELECT has_trigger('public', 'invitations', 'trg_invitations_updated_at', 'invitations has updated_at trigger');
-SELECT has_trigger('public', 'attendees', 'trg_attendees_updated_at', 'attendees has updated_at trigger');
+SELECT has_trigger('public', 'guests', 'trg_guests_updated_at', 'guests has updated_at trigger');
 SELECT has_trigger('public', 'org_settings', 'trg_org_settings_updated_at', 'org_settings has updated_at trigger');
 SELECT has_trigger('public', 'attendees', 'trg_attendee_insert_enforce_rsvp_deadline', 'attendees enforces rsvp deadline on insert');
 SELECT has_trigger('public', 'headcount_increase_requests', 'trg_hir_insert_enforce_rsvp_deadline', 'hir enforces rsvp deadline on insert');

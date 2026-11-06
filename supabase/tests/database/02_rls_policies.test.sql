@@ -91,8 +91,8 @@ SELECT ok(
 );
 
 SELECT ok(
-  EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'events' AND policyname = 'events: public reads published open registration'),
-  'Policy events: public reads published open registration exists'
+  EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'events' AND policyname = 'events: public reads open registration published'),
+  'Policy events: public reads open registration published exists'
 );
 
 -- 3. Behavioral Role Tests via Session Switching
