@@ -6,4 +6,4 @@
 - [ ] `npm run typecheck` exits 0
 - [ ] `npm run build` exits 0
 - [ ] Commit contains **only** `package.json` and `package-lock.json`
-- [ ] No other task has started editing files (this commit is first on the week branch)
+- [ ] No other task has started editing files (this commit is first on the milestone branch `feat/m4-frontend`)

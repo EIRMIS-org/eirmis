@@ -5,7 +5,7 @@
 | **Order** | After 04 + 05 (settings form also needs 11) |
 | **Owner** | Cerna + Edgar (Cerna builds task 11 first, then this) |
 | **Lane** | D (Portals) — parallel with 07, 08, 09 |
-| **Branch** | `feat/m4-w1-admin-portal` |
+| **Branch** | `feat/m4-w1-admin-portal` → PR to `feat/m4-frontend` |
 
 ---
 

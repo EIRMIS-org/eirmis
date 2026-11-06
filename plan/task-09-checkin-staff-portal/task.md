@@ -5,7 +5,7 @@
 | **Order** | After 04 + 05 — least-blocked portal |
 | **Owner** | Gian + Pete (Gian after handing task 11 to Cerna) |
 | **Lane** | D (Portals) — parallel with 07, 08, 10 |
-| **Branch** | `feat/m4-w1-checkin-portal` |
+| **Branch** | `feat/m4-w1-checkin-portal` → PR to `feat/m4-frontend` |
 
 ---
 

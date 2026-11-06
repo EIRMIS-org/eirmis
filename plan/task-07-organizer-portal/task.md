@@ -5,7 +5,7 @@
 | **Order** | After 04 + 05 (form screens also need 11) |
 | **Owner** | Jian + Jebron (Jian after finishing task 06) |
 | **Lane** | D (Portals) — parallel with 08, 09, 10 |
-| **Branch** | `feat/m4-w1-organizer-portal` |
+| **Branch** | `feat/m4-w1-organizer-portal` → PR to `feat/m4-frontend` |
 
 ---
 

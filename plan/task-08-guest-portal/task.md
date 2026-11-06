@@ -5,7 +5,7 @@
 | **Order** | After 04 + 05 (form screens also need 11) |
 | **Owner** | Genesis + Martin (Genesis after finishing task 05) |
 | **Lane** | D (Portals) — parallel with 07, 09, 10 |
-| **Branch** | `feat/m4-w1-guest-portal` |
+| **Branch** | `feat/m4-w1-guest-portal` → PR to `feat/m4-frontend` |
 
 ---
 
