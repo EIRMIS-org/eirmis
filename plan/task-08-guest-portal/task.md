@@ -36,6 +36,115 @@ Build the guest's mobile-first core screens: my invitations, RSVP, roster submis
 - **QR pass:** once approved + QR issued, render the wallet-style pass via [`wallet-pass.tsx`](../../src/components/eirmis/wallet-pass.tsx).
 - **Cross-portal visibility (checkpoint requirement):** guest RSVP/roster submission appears in the organizer's approvals tab; organizer approval flips status here; staff scan marks the pass as used.
 
+## Developer Import Map
+
+```tsx
+// 1. Session Context (from Task 03)
+import { useSession } from '@/app/providers/session-context'
+
+// 2. Data Hooks (from Task 05 - src/features/guest/hooks/)
+import { useMyInvitations } from '@/features/guest/hooks/use-my-invitations'
+import { useRsvp } from '@/features/guest/hooks/use-rsvp'
+import { useSubmitAttendee } from '@/features/guest/hooks/use-submit-attendee'
+import { useUpdateAttendee } from '@/features/guest/hooks/use-update-attendee'
+import { useSubmitHeadcountRequest } from '@/features/guest/hooks/use-submit-headcount-request'
+import { useListAttendees } from '@/features/organizer/hooks/use-list-attendees'
+
+// 3. Forms & Validation (from Task 11 - src/lib/forms/)
+import {
+  invitationRsvpUpdateSchema,
+  invitationRsvpUpdateResolver,
+  attendeeCreateSchema,
+  attendeeCreateResolver,
+  attendeeUpdateSchema,
+  attendeeUpdateResolver,
+  headcountRequestCreateSchema,
+  headcountRequestCreateResolver,
+  FormRow,
+  applyContractError,
+} from '@/lib/forms'
+
+// 4. Pre-built Domain Components (src/components/eirmis/)
+import { RsvpSelector } from '@/components/eirmis/rsvp-selector'
+import { WalletPass } from '@/components/eirmis/wallet-pass'
+import { AttendeeItem, QuotaBar } from '@/components/eirmis/portal-cards'
+
+// 5. UI Primitives (src/components/ui/)
+import { Button } from '@/components/ui/button'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Textarea } from '@/components/ui/textarea'
+```
+
+## Target File Structure
+
+```
+src/
+├── pages/
+│   └── guest/
+│       ├── guest-layout.tsx                 (existing layout shell rendering AppChrome + Outlet)
+│       ├── guest-invitations-page.tsx       ← NEW: Invitations list ("/guest")
+│       └── invitation-detail-page.tsx       ← NEW: RSVP, Roster, Pass ("/guest/invitations/:invitationId")
+└── features/
+    └── guest/
+        └── components/                      ← NEW: Feature components
+            ├── invitation-card.tsx          (Card with event title, date, status chip, RSVP button)
+            ├── rsvp-section.tsx             (RsvpSelector + dietary & special requests form)
+            ├── roster-editor.tsx            (List of submitted attendees + "Add member" action with ceiling check)
+            ├── add-attendee-modal.tsx       (Modal with attendeeCreateResolver)
+            ├── resubmit-attendee-modal.tsx  (Pre-filled modal for rejected attendees via attendeeUpdateResolver)
+            ├── headcount-request-modal.tsx  (Reason + requested heads via headcountRequestCreateResolver)
+            └── wallet-pass-view.tsx         (Displays wallet pass with QR token for approved status)
+```
+
+## Router Slot Handoff
+
+In [`src/app/routing/router.tsx`](../../src/app/routing/router.tsx):
+```tsx
+// Replace PlaceholderPage elements under /guest:
+{
+  path: 'guest',
+  element: <GuestInvitationsPage />,
+},
+{
+  path: 'guest/invitations/:invitationId',
+  element: <InvitationDetailPage />,
+}
+```
+
+---
+
+## Detailed Step-by-Step Implementation Guide
+
+1. **Mobile-First Container (`guest-invitations-page.tsx`)**:
+   - Wrap views in a mobile-optimized container: `<div className="mx-auto max-w-lg p-4 space-y-6">`.
+   - Query: `useMyInvitations()`.
+   - States: Loading skeleton, Empty ("You have no invitations yet"), Error with retry, Success list of invitations.
+   - Clicking an invitation navigates to `/guest/invitations/${invitation.id}`.
+2. **RSVP Section (`rsvp-section.tsx`)**:
+   - Render [`RsvpSelector`](../../src/components/eirmis/rsvp-selector.tsx) with statuses (`accepted`, `declined`).
+   - Fields: `dietary_preference`, `special_requests`.
+   - Form handled via `useForm({ resolver: invitationRsvpUpdateResolver })`.
+   - Mutation: `useRsvp()`.
+3. **Roster Editor & Ceiling Enforcement (`roster-editor.tsx`)**:
+   - Query party members via `useListAttendees({ invitation_id: invitationId })`.
+   - Enforce `max_party_size`:
+     - If `attendees.length >= invitation.max_party_size`, disable the "Add Member" button and show a helpful banner: *"Party limit reached (max {max_party_size}). Need more spots?"* with a button to open `<HeadcountRequestModal />`.
+   - Each row renders [`AttendeeItem`](../../src/components/eirmis/portal-cards.tsx):
+     - If status is `rejected`, show a badge and a "Fix & Resubmit" button opening `<ResubmitAttendeeModal />`.
+4. **Headcount Request Modal (`headcount-request-modal.tsx`)**:
+   - Form: `requested_additional_heads` (number) and `note` (string).
+   - Form handled via `headcountRequestCreateResolver`.
+   - Mutation: `useSubmitHeadcountRequest()`.
+   - After submission, show "Request Pending Approval" badge.
+5. **QR Wallet Pass (`wallet-pass-view.tsx`)**:
+   - If `invitation.status === 'accepted'` and attendees have approved QR tokens:
+   - Render [`WalletPass`](../../src/components/eirmis/wallet-pass.tsx) displaying event title, date, guest name, and the generated QR token.
+
+---
+
 ## Steps
 
 1. My-invitations list with the four basic states (mobile-first container).

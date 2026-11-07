@@ -44,6 +44,104 @@ The state machine lives in `src/features/checkin/lib/scan-result-machine.ts` as 
 - **Walk-in:** register a new party member on-site (`useSubmitAttendee`), then check them in.
 - **Cross-portal visibility (checkpoint requirement):** every successful scan increments the organizer's attendance dashboard count.
 
+## Developer Import Map
+
+```tsx
+// 1. Session Context (from Task 03)
+import { useSession } from '@/app/providers/session-context'
+
+// 2. Data Hooks (from Task 05 - src/features/checkin/hooks/ and organizer/)
+import { useAssignedEvent } from '@/features/checkin/hooks/use-assigned-event'
+import { useScanCheckIn } from '@/features/checkin/hooks/use-scan-check-in'
+import { useListAttendees } from '@/features/organizer/hooks/use-list-attendees'
+import { useSubmitAttendee } from '@/features/guest/hooks/use-submit-attendee'
+
+// 3. Forms & Validation (from Task 11)
+import {
+  attendeeCreateSchema,
+  attendeeCreateResolver,
+  FormRow,
+  applyContractError,
+} from '@/lib/forms'
+
+// 4. Pre-built Domain Components (src/components/eirmis/)
+import { ScanResult, type ScanResultStatus } from '@/components/eirmis/scan-result'
+
+// 5. UI Primitives (src/components/ui/)
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
+import { Badge } from '@/components/ui/badge'
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table'
+```
+
+## Target File Structure
+
+```
+src/
+├── pages/
+│   └── staff/
+│       ├── staff-layout.tsx                 (existing layout shell rendering AppChrome + Outlet)
+│       ├── staff-scan-page.tsx              ← NEW: Active scanner & simulation screen ("/staff")
+│       └── staff-search-page.tsx            ← NEW: Manual search & walk-in registration ("/staff/search")
+└── features/
+    └── checkin/
+        ├── lib/
+        │   └── scan-result-machine.ts       ← NEW: Pure reducer state machine for scan outcomes
+        └── components/                      ← NEW: Feature components
+            ├── assigned-event-header.tsx    (Shows current active event title, date, venue)
+            ├── scan-simulator.tsx           (Token input + 5 one-click simulation buttons for checkpoint demo)
+            ├── scan-outcome-display.tsx     (Renders ScanResult with guest details, party size, error reasons)
+            ├── manual-search-table.tsx      (Search input + table of attendees with "Check In" button)
+            └── walk-in-modal.tsx            (On-site registration dialog with attendeeCreateResolver)
+```
+
+## Router Slot Handoff
+
+In [`src/app/routing/router.tsx`](../../src/app/routing/router.tsx):
+```tsx
+// Replace PlaceholderPage elements under /staff:
+{
+  path: 'staff',
+  element: <StaffScanPage />,
+},
+{
+  path: 'staff/search',
+  element: <StaffSearchPage />,
+}
+```
+
+---
+
+## Detailed Step-by-Step Implementation Guide
+
+1. **Scan-Result State Machine (`scan-result-machine.ts`)**:
+   - Pure reducer function: `scanResultReducer(state, action)`.
+   - States: `'idle' | 'success' | 'already-checked-in' | 'invalid-token' | 'wrong-event' | 'capacity-full'`.
+   - Returns `{ status, attendee, message, checkedInAt }`.
+2. **Scan Screen (`staff-scan-page.tsx` + `scan-simulator.tsx`)**:
+   - Query: `useAssignedEvent(eventId)` — displays banner with event name and venue.
+   - Text input for pasting or entering a QR token string.
+   - **Check-in Simulation Bar (Crucial for Checkpoint Walkthrough)**:
+     - Button 1: "Simulate Valid Scan" → calls `useScanCheckIn({ qr_token: 'signed-qr-token-sample' })` → transitions to `success`.
+     - Button 2: "Simulate Duplicate Scan" → transitions to `already-checked-in`.
+     - Button 3: "Simulate Invalid Token" → calls mutation with `'invalid.token'` → transitions to `invalid-token`.
+     - Button 4: "Simulate Wrong Event" → transitions to `wrong-event`.
+     - Button 5: "Simulate Capacity Full" → transitions to `capacity-full`.
+   - Outcome area renders [`ScanResult`](../../src/components/eirmis/scan-result.tsx) with matching status, guest name, and timestamp.
+3. **Manual Search Screen (`staff-search-page.tsx` + `manual-search-table.tsx`)**:
+   - Search bar filtering attendees by name or email.
+   - Table of attendees: Name, Email, Status, Checked-in state (`Yes` / `No`).
+   - Action: "Check In" button calling `useScanCheckIn({ qr_token: attendee.qr_token })`.
+4. **Walk-in Registration Flow (`walk-in-modal.tsx`)**:
+   - "Register Walk-in" button opens modal.
+   - Form uses `attendeeCreateResolver` with `full_name` and `email`.
+   - On submit, call `submitAttendee({ ...values, is_walk_in: true })`.
+   - Immediately trigger `scanCheckIn` to complete entry.
+
+---
+
 ## Steps
 
 1. Scan screen shell: assigned-event header via `useAssignedEvent`.
