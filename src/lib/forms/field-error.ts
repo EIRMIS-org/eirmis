@@ -37,7 +37,7 @@ function fieldIssuesFromRecord(
     const message = messageFromValue(value)
     return message === undefined
       ? []
-      : [{ name, message, type: 'server' as const }]
+      : [{ name: name || 'root.server', message, type: 'server' as const }]
   })
 }
 
@@ -60,7 +60,7 @@ function parseServerDetails(details: string | null | undefined): FormFieldIssue[
 
         return name === undefined
           ? []
-          : [{ name, message: item.message, type: 'server' as const }]
+          : [{ name: name || 'root.server', message: item.message, type: 'server' as const }]
       })
     }
 

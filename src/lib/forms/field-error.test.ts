@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { createFormControl } from 'react-hook-form'
 import { describe, expect, it, vi } from 'vitest'
 
 import {
@@ -48,6 +49,20 @@ describe('form field error adapters', () => {
       message: 'Registration is closed',
       details: JSON.stringify({ message: 'The deadline passed' }),
     })).toEqual([{ name: 'root.server', message: 'Registration is closed', type: 'server' }])
+  })
+
+  it('preserves both form-level and field-level server issues in RHF', () => {
+    const form = createFormControl()
+    applyContractError(form.setError, {
+      code: 'VALIDATION_ERROR',
+      message: 'Invalid request',
+      details: JSON.stringify([
+        { path: [], message: 'Invalid combination' },
+        { path: ['email'], message: 'Invalid email' },
+      ]),
+    })
+    expect(form.getFieldState('root.server').error?.message).toBe('Invalid combination')
+    expect(form.getFieldState('email').error?.message).toBe('Invalid email')
   })
 
   it('uses a root error when contract details are unstructured', () => {
