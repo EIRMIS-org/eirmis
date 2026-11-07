@@ -42,6 +42,14 @@ describe('form field error adapters', () => {
     }])
   })
 
+  it('keeps JSON metadata without a field-error envelope at the form root', () => {
+    expect(mapContractError({
+      code: 'P0001',
+      message: 'Registration is closed',
+      details: JSON.stringify({ message: 'The deadline passed' }),
+    })).toEqual([{ name: 'root.server', message: 'Registration is closed', type: 'server' }])
+  })
+
   it('uses a root error when contract details are unstructured', () => {
     expect(mapContractError({
       code: 'P0001',

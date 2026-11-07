@@ -68,7 +68,7 @@ function parseServerDetails(details: string | null | undefined): FormFieldIssue[
       const nested = parsed.field_errors ?? parsed.errors
       return isRecord(nested)
         ? fieldIssuesFromRecord(nested)
-        : fieldIssuesFromRecord(parsed)
+        : []
     }
   } catch {
     // PostgREST commonly returns human-readable details rather than JSON.
