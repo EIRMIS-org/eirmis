@@ -23,7 +23,7 @@ const DEFAULT_EVENT_ID = '55555555-5555-5555-5555-555555555555'
 
 export function AssignedEventHeader({
     eventId = DEFAULT_EVENT_ID,
-    checkedInCount,
+    checkedInCount = 0,
 }: AssignedEventHeaderProps) {
     const { data: events, isLoading, isError } = useAssignedEvent(eventId)
     const event = events?.[0]
@@ -45,8 +45,8 @@ export function AssignedEventHeader({
         )
     }
 
-    const eventDate = event.event_start_time
-        ? new Date(event.event_start_time).toLocaleDateString(undefined, {
+    const eventDate = event.starts_at
+        ? new Date(event.starts_at).toLocaleDateString(undefined, {
               weekday: 'short',
               month: 'short',
               day: 'numeric',
@@ -82,10 +82,10 @@ export function AssignedEventHeader({
                     <UsersIcon className="size-4 text-primary" />
                     <div>
                         <span className="font-bold text-foreground">
-                            {checkedInCount !== undefined ? checkedInCount : (event.checked_in_count ?? 48)}
+                            {checkedInCount}
                         </span>
                         <span className="text-muted-foreground">
-                            {' '}/ {event.expected_attendee_count ?? 112} Checked In
+                            {' '}/ {event.capacity} Checked In
                         </span>
                     </div>
                 </div>

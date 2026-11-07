@@ -24,10 +24,10 @@ import {
 
 export function StaffScanPage() {
     const [scanState, dispatch] = useReducer(scanResultReducer, initialScanState)
-    const [liveCheckedIn, setLiveCheckedIn] = useState<number | undefined>(undefined)
+    const [liveCheckedIn, setLiveCheckedIn] = useState(0)
 
     const handleSuccess = () => {
-        setLiveCheckedIn((prev) => (prev !== undefined ? prev + 1 : 49))
+        setLiveCheckedIn((prev) => prev + 1)
     }
 
     return (
