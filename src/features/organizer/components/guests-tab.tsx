@@ -39,6 +39,12 @@ export function GuestsTab({ eventId }: GuestsTabProps) {
 
   const guests = guestsQuery.data ?? [];
   const invitations = invitationsQuery.data ?? [];
+  const invitationByGuestId = new Map(
+    invitations.map((invitation) => [invitation.guest_id, invitation]),
+  );
+  const eventGuests = guests.filter((guest) =>
+    invitationByGuestId.has(guest.id),
+  );
 
   const renderGuestsState = () => {
     if (guestsQuery.isPending) {
@@ -70,7 +76,7 @@ export function GuestsTab({ eventId }: GuestsTabProps) {
       );
     }
 
-    if (guests.length === 0) {
+    if (eventGuests.length === 0) {
       return (
         <div className="rounded-xl border border-dashed border-border bg-muted/30 p-8 text-center text-sm text-muted-foreground">
           No guests found for this event yet.
@@ -84,25 +90,25 @@ export function GuestsTab({ eventId }: GuestsTabProps) {
           <TableRow>
             <TableHead>Guest</TableHead>
             <TableHead>Email</TableHead>
-            <TableHead>Account</TableHead>
-            <TableHead>Created</TableHead>
+            <TableHead>Invitation status</TableHead>
+            <TableHead>Max party</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {guests.map((guest) => (
-            <TableRow key={guest.id}>
-              <TableCell className="font-medium text-foreground">
-                {guest.full_name ?? "Guest"}
-              </TableCell>
-              <TableCell>{guest.email ?? "No email"}</TableCell>
-              <TableCell>
-                {guest.auth_user_id ? "Linked" : "Not linked"}
-              </TableCell>
-              <TableCell>
-                {new Date(guest.created_at).toLocaleDateString()}
-              </TableCell>
-            </TableRow>
-          ))}
+          {eventGuests.map((guest) => {
+            const invitation = invitationByGuestId.get(guest.id);
+
+            return (
+              <TableRow key={guest.id}>
+                <TableCell className="font-medium text-foreground">
+                  {guest.full_name ?? "Guest"}
+                </TableCell>
+                <TableCell>{guest.email ?? "No email"}</TableCell>
+                <TableCell>{invitation?.status ?? "not invited"}</TableCell>
+                <TableCell>{invitation?.max_party_size ?? 1}</TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     );

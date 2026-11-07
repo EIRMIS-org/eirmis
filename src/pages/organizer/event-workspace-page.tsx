@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ApprovalsTab } from "@/features/organizer/components/approvals-tab";
 import { GuestsTab } from "@/features/organizer/components/guests-tab";
 
 /**
@@ -112,19 +113,7 @@ export function EventWorkspacePage() {
           </TabsContent>
 
           <TabsContent value="approvals" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Approval queue</CardTitle>
-                <CardDescription>
-                  Attendee and headcount review will be handled here.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  This tab is reserved for attendee and headcount decisions.
-                </p>
-              </CardContent>
-            </Card>
+            <ApprovalsTab eventId={eventId ?? ""} capacity={120} />
           </TabsContent>
 
           <TabsContent value="qr" className="space-y-4">
