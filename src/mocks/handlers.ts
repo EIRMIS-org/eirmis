@@ -157,6 +157,14 @@ const exampleAttendee: Attendee = {
     is_walk_in: false,
 };
 
+let mockInvitation: Invitation = { ...exampleInvitation };
+let mockAttendees: Attendee[] = [{ ...exampleAttendee }];
+
+export function resetMockCheckInState(): void {
+    mockInvitation = { ...exampleInvitation };
+    mockAttendees = [{ ...exampleAttendee }];
+}
+
 const exampleHir: HeadcountIncreaseRequest = {
     id: UUID.HIR,
     invitation_id: UUID.INVITATION,
@@ -374,7 +382,7 @@ export const handlers = [
     // ═══ PostgREST: invitations ═══
     http.get('*/rest/v1/invitations', ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
-        return jsonList(filterByEq(request, [exampleInvitation], 'event_id'));
+        return jsonList(filterByEq(request, [mockInvitation], 'event_id'));
     }),
 
     http.post('*/rest/v1/invitations', async ({ request }) => {
@@ -389,37 +397,64 @@ export const handlers = [
     http.patch('*/rest/v1/invitations', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
         const body = (await request.json()) as Partial<Invitation>;
-        return HttpResponse.json({ ...exampleInvitation, ...body });
+        mockInvitation = { ...mockInvitation, ...body };
+        return HttpResponse.json(mockInvitation);
     }),
 
     // ═══ PostgREST: attendees ═══
     http.get('*/rest/v1/attendees', ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
-        return jsonList(filterByEq(request, [exampleAttendee], 'invitation_id'));
+        return jsonList(filterByEq(request, mockAttendees, 'invitation_id'));
     }),
 
     http.post('*/rest/v1/attendees', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
         const body = (await request.json()) as Partial<Attendee>;
-        return HttpResponse.json(
-            {
-                ...exampleAttendee,
-                ...body,
-                id: crypto.randomUUID(),
-                is_primary: false,
-                status: 'pending' as const,
-                submitted_at: new Date().toISOString(),
-                checked_in: false,
-                is_walk_in: false,
-            },
-            { status: 201 },
-        );
+        const isWalkIn = body.is_walk_in === true;
+        if (isWalkIn && request.headers.get('Authorization') !== 'Bearer fake-checkin-staff-jwt') {
+            return HttpResponse.json(errorBody('42501', 'Only assigned staff can register walk-ins'), { status: 403 });
+        }
+        if (body.invitation_id !== mockInvitation.id || mockInvitation.status !== 'accepted') {
+            return HttpResponse.json(errorBody('42501', 'Select an accepted invitation for the assigned event'), { status: 403 });
+        }
+        const id = crypto.randomUUID();
+        const attendee: Attendee = {
+            ...exampleAttendee,
+            ...body,
+            id,
+            is_primary: false,
+            status: isWalkIn ? 'approved' : 'pending',
+            submitted_at: new Date().toISOString(),
+            reviewed_by: isWalkIn ? UUID.CHECKIN_STAFF : null,
+            reviewed_at: isWalkIn ? new Date().toISOString() : null,
+            review_reason: isWalkIn ? 'Registered on site' : null,
+            qr_token: isWalkIn ? `walk-in-${id}` : null,
+            checked_in: false,
+            checked_in_at: null,
+            checked_in_by: null,
+            is_walk_in: isWalkIn,
+        };
+
+        mockAttendees = [...mockAttendees, attendee];
+        if (isWalkIn) {
+            mockInvitation = {
+                ...mockInvitation,
+                party_size: mockInvitation.party_size + 1,
+            };
+        }
+
+        return HttpResponse.json(attendee, { status: 201 });
     }),
 
     http.patch('*/rest/v1/attendees', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
         const body = (await request.json()) as Partial<Attendee>;
-        return HttpResponse.json({ ...exampleAttendee, ...body });
+        const url = new URL(request.url);
+        const id = url.searchParams.get('id')?.replace(/^eq\./, '');
+        const current = mockAttendees.find((attendee) => attendee.id === id) ?? exampleAttendee;
+        const attendee = { ...current, ...body };
+        mockAttendees = mockAttendees.map((item) => item.id === attendee.id ? attendee : item);
+        return HttpResponse.json(attendee);
     }),
 
     // ═══ PostgREST: headcount_increase_requests ═══
@@ -670,13 +705,66 @@ export const handlers = [
     http.post('*/functions/v1/checkin/scan', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
         const body = (await request.json()) as { qr_token?: string };
-        if (body.qr_token === 'invalid.token') {
+        if (body.qr_token === 'invalid.token' || body.qr_token === 'simulate-invalid-token') {
             return HttpResponse.json(errorBody('SCAN_403', 'QR token signature invalid'), { status: 403 });
         }
+        if (body.qr_token === 'simulate-wrong-event') {
+            return HttpResponse.json(errorBody('EVENT_MISMATCH_403', 'Token belongs to another event: Tech Forward Gala 2025'), { status: 403 });
+        }
+        if (body.qr_token === 'simulate-capacity-full') {
+            return HttpResponse.json(errorBody('CAPACITY_422', 'Event has reached maximum capacity'), { status: 422 });
+        }
+        if (body.qr_token === 'simulate-duplicate') {
+            const scanResponse: ScanCheckInResponse = {
+                result: 'already_checked_in',
+                attendee: { ...exampleAttendee, checked_in: true },
+                checked_in_at: '2026-12-15T17:45:00+08:00',
+                message: 'Attendee was already checked in at 5:45 PM.',
+            };
+            return HttpResponse.json(scanResponse);
+        }
+
+        const matchedAttendee = mockAttendees.find(
+            (attendee) => attendee.qr_token === body.qr_token,
+        );
+
+        if (!matchedAttendee || matchedAttendee.status !== 'approved') {
+            return HttpResponse.json({
+                result: 'invalid_token',
+                attendee: null,
+                message: 'Token does not belong to an approved attendee.',
+            } satisfies ScanCheckInResponse);
+        }
+
+        if (matchedAttendee.checked_in) {
+            const scanResponse: ScanCheckInResponse = {
+                result: 'already_checked_in',
+                attendee: matchedAttendee,
+                checked_in_at: matchedAttendee.checked_in_at,
+                message: 'Attendee was already checked in.',
+            };
+            return HttpResponse.json(scanResponse);
+        }
+
+        const checkedInAt = new Date().toISOString();
+        const checkedInAttendee: Attendee = {
+            ...matchedAttendee,
+            checked_in: true,
+            checked_in_at: checkedInAt,
+            checked_in_by: UUID.CHECKIN_STAFF,
+        };
+        mockAttendees = mockAttendees.map((attendee) =>
+            attendee.id === checkedInAttendee.id ? checkedInAttendee : attendee,
+        );
+        mockInvitation = {
+            ...mockInvitation,
+            checked_in_count: mockInvitation.checked_in_count + 1,
+        };
+
         const scanResponse: ScanCheckInResponse = {
             result: 'accepted',
-            attendee: { ...exampleAttendee, checked_in: true },
-            checked_in_at: '2026-12-15T18:07:00+08:00',
+            attendee: checkedInAttendee,
+            checked_in_at: checkedInAt,
             message: null,
         };
         return HttpResponse.json(scanResponse);
