@@ -25,9 +25,11 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useDecideAttendee } from "@/features/organizer/hooks/use-decide-attendee";
+import { useDecideHeadcountRequest } from "@/features/organizer/hooks/use-decide-headcount-request";
 import { useListAttendees } from "@/features/organizer/hooks/use-list-attendees";
+import { useListHeadcountRequests } from "@/features/organizer/hooks/use-list-headcount-requests";
 import { useListInvitations } from "@/features/organizer/hooks/use-list-invitations";
-import type { Attendee } from "@/lib/api";
+import type { Attendee, HeadcountIncreaseRequest } from "@/lib/api";
 
 interface ApprovalsTabProps {
   eventId: string;
@@ -42,9 +44,14 @@ interface OverrideState {
 export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
   const invitationsQuery = useListInvitations({ event_id: eventId });
   const attendeesQuery = useListAttendees();
+  const headcountQuery = useListHeadcountRequests({ status: "pending" });
   const decideAttendee = useDecideAttendee();
+  const decideHeadcountRequest = useDecideHeadcountRequest();
 
   const [reviewReasonById, setReviewReasonById] = useState<
+    Record<string, string>
+  >({});
+  const [headcountReasonById, setHeadcountReasonById] = useState<
     Record<string, string>
   >({});
   const [overrideTarget, setOverrideTarget] = useState<OverrideState | null>(
@@ -72,6 +79,18 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
   const approvedCount = eventAttendees.filter(
     (attendee) => attendee.status === "approved",
   ).length;
+
+  const eventHeadcountRequests = useMemo(
+    () =>
+      (headcountQuery.data ?? [])
+        .filter((request) => invitationIds.has(request.invitation_id))
+        .sort(
+          (left, right) =>
+            new Date(right.requested_at).getTime() -
+            new Date(left.requested_at).getTime(),
+        ),
+    [headcountQuery.data, invitationIds],
+  );
 
   const requestDecision = (
     attendee: Attendee,
@@ -107,6 +126,21 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
       },
     });
     setOverrideTarget(null);
+  };
+
+  const decideHeadcount = (
+    request: HeadcountIncreaseRequest,
+    decision: "approve" | "reject",
+  ) => {
+    const reason = headcountReasonById[request.id]?.trim();
+
+    decideHeadcountRequest.mutate({
+      id: request.id,
+      body: {
+        decision,
+        reason: reason || null,
+      },
+    });
   };
 
   const renderQueue = () => {
@@ -254,22 +288,127 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
 
   return (
     <>
-      <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-3">
-          <div>
-            <CardTitle>Attendee approvals</CardTitle>
+      <div className="space-y-6">
+        <Card>
+          <CardHeader className="flex flex-row items-start justify-between gap-3">
+            <div>
+              <CardTitle>Attendee approvals</CardTitle>
+              <CardDescription>
+                Review guest-party registrations for this event and decide each
+                one.
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2 rounded-full border border-border bg-muted/40 px-3 py-1.5 text-xs text-muted-foreground">
+              <AlertTriangle className="h-3.5 w-3.5" />
+              {approvedCount}/{capacity} approved
+            </div>
+          </CardHeader>
+          <CardContent>{renderQueue()}</CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Headcount requests</CardTitle>
             <CardDescription>
-              Review guest-party registrations for this event and decide each
-              one.
+              Review guest requests to increase the invitation party limit.
             </CardDescription>
-          </div>
-          <div className="flex items-center gap-2 rounded-full border border-border bg-muted/40 px-3 py-1.5 text-xs text-muted-foreground">
-            <AlertTriangle className="h-3.5 w-3.5" />
-            {approvedCount}/{capacity} approved
-          </div>
-        </CardHeader>
-        <CardContent>{renderQueue()}</CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent>
+            {headcountQuery.isPending ? (
+              <div className="space-y-3">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </div>
+            ) : headcountQuery.isError ? (
+              <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+                Unable to load headcount requests.
+              </div>
+            ) : eventHeadcountRequests.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-border bg-muted/30 p-8 text-center text-sm text-muted-foreground">
+                No headcount requests are pending for this event.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {eventHeadcountRequests.map((request) => (
+                  <Card key={request.id} className="border-border/80">
+                    <CardHeader className="flex flex-row items-start justify-between gap-4 pb-3">
+                      <div className="space-y-2">
+                        <CardTitle className="text-base">
+                          +{request.requested_additional_heads} additional heads
+                        </CardTitle>
+                        <CardDescription>
+                          Invitation {request.invitation_id.slice(0, 8)}
+                        </CardDescription>
+                      </div>
+                      <Badge
+                        variant="outline"
+                        className={
+                          request.status === "approved"
+                            ? "border-emerald-200 bg-emerald-500/10 text-emerald-700"
+                            : request.status === "rejected"
+                              ? "border-red-200 bg-red-500/10 text-red-700"
+                              : "border-amber-200 bg-amber-500/10 text-amber-700"
+                        }
+                      >
+                        {request.status}
+                      </Badge>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-sm text-muted-foreground">
+                        {request.note ?? "No note provided."}
+                      </p>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-foreground">
+                          Review reason
+                        </label>
+                        <Textarea
+                          value={
+                            headcountReasonById[request.id] ??
+                            request.review_reason ??
+                            ""
+                          }
+                          onChange={(event) =>
+                            setHeadcountReasonById((current) => ({
+                              ...current,
+                              [request.id]: event.target.value,
+                            }))
+                          }
+                          placeholder="Optional note for this headcount decision"
+                          className="min-h-22.5"
+                        />
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="text-emerald-700 hover:bg-emerald-500/10"
+                          onClick={() => decideHeadcount(request, "approve")}
+                          disabled={decideHeadcountRequest.isPending}
+                        >
+                          <CheckCircle2 className="mr-2 h-4 w-4" />
+                          Approve
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="text-red-700 hover:bg-red-500/10"
+                          onClick={() => decideHeadcount(request, "reject")}
+                          disabled={decideHeadcountRequest.isPending}
+                        >
+                          <XCircle className="mr-2 h-4 w-4" />
+                          Reject
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       <Dialog
         open={Boolean(overrideTarget)}
