@@ -5,14 +5,31 @@
 -- 1. Create Auth Users
 INSERT INTO auth.users (
   id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, 
-  last_sign_in_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+  last_sign_in_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+  confirmation_token, recovery_token, email_change_token_new, email_change
 ) VALUES 
-  ('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'organizer@example.com', crypt('password123', gen_salt('bf')), now(), now(), '{"provider":"email","providers":["email"]}', '{"role":"organizer","full_name":"Synthetic Organizer"}', now(), now()),
-  ('11111111-1111-1111-1111-111111111112', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'organizer2@example.com', crypt('password123', gen_salt('bf')), now(), now(), '{"provider":"email","providers":["email"]}', '{"role":"organizer","full_name":"Synthetic Organizer"}', now(), now()),
-  ('22222222-2222-2222-2222-222222222222', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'admin@example.com', crypt('password123', gen_salt('bf')), now(), now(), '{"provider":"email","providers":["email"],"role":"admin"}', '{"role":"admin","full_name":"Synthetic Admin"}', now(), now()),
-  ('33333333-3333-3333-3333-333333333333', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'guest@example.com', crypt('password123', gen_salt('bf')), now(), now(), '{"provider":"email","providers":["email"]}', '{"role":"guest","full_name":"Synthetic Guest"}', now(), now()),
-  ('44444444-4444-4444-4444-444444444444', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'staff@example.com', crypt('password123', gen_salt('bf')), now(), now(), '{"provider":"email","providers":["email"]}', '{"role":"staff","full_name":"Synthetic Staff"}', now(), now())
+  ('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'organizer@example.com', crypt('password123', gen_salt('bf')), now(), now(), '{"provider":"email","providers":["email"]}', '{"role":"organizer","full_name":"Synthetic Organizer"}', now(), now(), '', '', '', ''),
+  ('11111111-1111-1111-1111-111111111112', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'organizer2@example.com', crypt('password123', gen_salt('bf')), now(), now(), '{"provider":"email","providers":["email"]}', '{"role":"organizer","full_name":"Synthetic Organizer"}', now(), now(), '', '', '', ''),
+  ('22222222-2222-2222-2222-222222222222', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'admin@example.com', crypt('password123', gen_salt('bf')), now(), now(), '{"provider":"email","providers":["email"],"role":"admin"}', '{"role":"admin","full_name":"Synthetic Admin"}', now(), now(), '', '', '', ''),
+  ('33333333-3333-3333-3333-333333333333', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'guest@example.com', crypt('password123', gen_salt('bf')), now(), now(), '{"provider":"email","providers":["email"]}', '{"role":"guest","full_name":"Synthetic Guest"}', now(), now(), '', '', '', ''),
+  ('44444444-4444-4444-4444-444444444444', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'staff@example.com', crypt('password123', gen_salt('bf')), now(), now(), '{"provider":"email","providers":["email"]}', '{"role":"staff","full_name":"Synthetic Staff"}', now(), now(), '', '', '', '')
 ON CONFLICT (id) DO NOTHING;
+
+-- Link Auth Identities for password login
+INSERT INTO auth.identities (
+  id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at
+)
+SELECT 
+  id, id, id::text, format('{"sub":"%s","email":"%s"}', id::text, email)::jsonb, 'email', now(), now(), now()
+FROM auth.users
+WHERE email IN (
+  'organizer@example.com',
+  'organizer2@example.com',
+  'admin@example.com',
+  'guest@example.com',
+  'staff@example.com'
+)
+ON CONFLICT DO NOTHING;
 
 -- 2. Profiles
 INSERT INTO public.organizer_profiles (id, email, full_name, status)
