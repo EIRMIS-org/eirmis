@@ -24,6 +24,8 @@ import { StaffLayout } from '@/pages/staff/staff-layout'
 import { AdminLayout } from '@/pages/admin/admin-layout'
 import { PlaceholderPage } from '@/pages/shared/placeholder-page'
 import { DocsPage } from '@/pages/shared/docs-page'
+import { GuestInvitationsPage } from '@/pages/guest/guest-invitations-page'
+import { InvitationDetailPage } from '@/pages/guest/invitation-detail-page'
 
 const Styleguide = lazy(() => import('@/Styleguide'))
 
@@ -104,21 +106,11 @@ export const router = createBrowserRouter([
         children: [
             {
                 path: 'guest',
-                element: (
-                    <PlaceholderPage
-                        title="Guest Portal"
-                        note="Filled by task 08 — Guest Portal"
-                    />
-                ),
+                element: <GuestInvitationsPage />,
             },
             {
                 path: 'guest/invitations/:invitationId',
-                element: (
-                    <PlaceholderPage
-                        title="Guest — Invitation / RSVP"
-                        note="Filled by task 08"
-                    />
-                ),
+                element: <InvitationDetailPage />,
             },
         ],
     },
@@ -189,4 +181,3 @@ export const router = createBrowserRouter([
 export function AppRouter() {
     return <RouterProvider router={router} />
 }
-
