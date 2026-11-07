@@ -1,7 +1,7 @@
 # Task 05 — Acceptance Criteria
 
-- [ ] `src/lib/api/query-keys.ts` exports a factory for every read operation, keys shaped `[operationId, params]`
-- [ ] Every contract operation has a hook: 18 read hooks (`useQuery`) + ~27 write hooks (`useMutation`), organized under `src/features/{organizer,guest,checkin,admin,landing}/hooks/`
+- [x] `src/lib/api/query-keys.ts` exports a factory for every read operation, keys shaped `[operationId, params]`
+- [x] Every contract operation has a hook: 18 read hooks (`useQuery`) + ~27 write hooks (`useMutation`), organized under `src/features/{organizer,guest,checkin,admin,landing}/hooks/`
 - [x] Every mutation invalidates the query keys its operation affects (spot-check: `useDecideAttendee` invalidates `listAttendees` + `listInvitations`)
 - [x] Every mutation surfaces contract `Error` bodies as sonner toasts (verify a 422 path)
 - [x] Smoke test passes in-browser against MSW: `useListEvents` returns data; `useCreateEvent` creates + refetches the list; a forced 422 shows the error toast
