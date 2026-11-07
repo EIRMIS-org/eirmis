@@ -16,7 +16,6 @@
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { RoleGuard } from './role-guard'
-import { ForbiddenPage } from './forbidden-page'
 import { NotFoundPage } from './not-found-page'
 import { LandingLayout } from '@/pages/landing/landing-layout'
 import { OrganizerLayout } from '@/pages/organizer/organizer-layout'
