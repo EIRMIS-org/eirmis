@@ -9,7 +9,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { GuestsTab } from "@/features/organizer/components/guests-tab";
 
+/**
+ * Task 07 — Organizer Portal: this page is the event workspace shell for the
+ * guest, approval, and QR tabs. The tab state is kept in the URL so the active
+ * view stays stable after refresh and matches the task requirement for
+ * deep-linkable organizer screens.
+ */
 const TAB_VALUES = ["guests", "approvals", "qr"] as const;
 
 type WorkspaceTab = (typeof TAB_VALUES)[number];
@@ -101,20 +108,7 @@ export function EventWorkspacePage() {
           </TabsList>
 
           <TabsContent value="guests" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Guest roster</CardTitle>
-                <CardDescription>
-                  Invitation and guest status for this event will live here.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  This tab is reserved for the guest list and invitation
-                  creation flow.
-                </p>
-              </CardContent>
-            </Card>
+            <GuestsTab eventId={eventId ?? ""} />
           </TabsContent>
 
           <TabsContent value="approvals" className="space-y-4">
