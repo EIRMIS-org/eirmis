@@ -7,10 +7,18 @@ const eventStatusSchema = z.enum(['draft', 'published', 'closed', 'archived'])
 const eventVisibilitySchema = z.enum(['open_registration', 'invite_only'])
 const dateTimeSchema = z.string().datetime({ offset: true })
 const nullableTextSchema = z.string().trim().nullable().optional()
+const slugSchema = z
+  .string()
+  .trim()
+  .min(1, 'Event slug is required')
+  .regex(
+    /^[A-Za-z0-9._~-]+$/,
+    'Event slug may only contain URL-safe letters, numbers, dots, underscores, tildes, and hyphens',
+  )
 
 const eventShape = {
   title: z.string().trim().min(1, 'Event title is required'),
-  slug: z.string().trim().min(1, 'Event slug is required'),
+  slug: slugSchema,
   description: nullableTextSchema,
   cover_image_url: nullableTextSchema,
   starts_at: dateTimeSchema,
