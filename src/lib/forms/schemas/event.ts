@@ -27,9 +27,17 @@ const eventShape = {
 } as const
 
 function validateChronology(
-  value: { starts_at?: string; ends_at?: string },
+  value: { starts_at?: string; ends_at?: string; rsvp_deadline?: string },
   context: z.RefinementCtx,
 ) {
+  if (value.starts_at && value.rsvp_deadline &&
+      Date.parse(value.rsvp_deadline) > Date.parse(value.starts_at)) {
+    context.addIssue({
+      code: 'custom',
+      path: ['rsvp_deadline'],
+      message: 'RSVP deadline must be at or before the start time',
+    })
+  }
   if (
     value.starts_at !== undefined &&
     value.ends_at !== undefined &&

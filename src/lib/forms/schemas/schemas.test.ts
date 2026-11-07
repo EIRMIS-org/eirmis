@@ -63,6 +63,22 @@ describe('contract form schemas', () => {
     expect(orgSettingsUpdateSchema.safeParse({}).success).toBe(false)
   })
 
+  it('enforces the RSVP cutoff on create and update using absolute time', () => {
+    const event = {
+      title: 'Gala', slug: 'gala', event_timezone: 'Asia/Manila',
+      capacity: 1, visibility_mode: 'invite_only',
+      starts_at: '2026-12-15T18:00:00+08:00', ends_at: '2026-12-15T19:00:00+08:00',
+      rsvp_deadline: '2026-12-15T10:00:00Z',
+    }
+    for (const schema of [eventCreateSchema, eventUpdateSchema]) {
+      expect(schema.safeParse(event).success).toBe(true)
+      const late = schema.safeParse({ ...event, rsvp_deadline: '2026-12-15T10:00:01Z' })
+      expect(late.error?.issues.map(issue => issue.path)).toEqual([['rsvp_deadline']])
+    }
+    expect(eventUpdateSchema.safeParse({ starts_at: event.starts_at }).success).toBe(true)
+    expect(eventUpdateSchema.safeParse({ rsvp_deadline: event.rsvp_deadline }).success).toBe(true)
+  })
+
   it('accepts invitation, attendee, and headcount request payloads', () => {
     expect(invitationCreateSchema.safeParse({
       event_id: eventId,
