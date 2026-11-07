@@ -22,6 +22,7 @@ import { OrganizerLayout } from '@/pages/organizer/organizer-layout'
 import { GuestLayout } from '@/pages/guest/guest-layout'
 import { StaffLayout } from '@/pages/staff/staff-layout'
 import { StaffScanPage } from '@/pages/staff/staff-scan-page'
+import { StaffSearchPage } from '@/pages/staff/staff-search-page'
 import { AdminLayout } from '@/pages/admin/admin-layout'
 import { PlaceholderPage } from '@/pages/shared/placeholder-page'
 import { DocsPage } from '@/pages/shared/docs-page'
@@ -138,12 +139,7 @@ export const router = createBrowserRouter([
             },
             {
                 path: 'staff/search',
-                element: (
-                    <PlaceholderPage
-                        title="Check-in — Manual Search / Walk-in"
-                        note="Filled by task 09"
-                    />
-                ),
+                element: <StaffSearchPage />,
             },
         ],
     },
