@@ -11,6 +11,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ApprovalsTab } from "@/features/organizer/components/approvals-tab";
 import { GuestsTab } from "@/features/organizer/components/guests-tab";
+import { QrDispatchTab } from "@/features/organizer/components/qr-dispatch-tab";
 
 /**
  * Task 07 — Organizer Portal: this page is the event workspace shell for the
@@ -117,19 +118,7 @@ export function EventWorkspacePage() {
           </TabsContent>
 
           <TabsContent value="qr" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>QR dispatch</CardTitle>
-                <CardDescription>
-                  Approved invitations can be bundled and sent here.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  This tab is reserved for multi-select QR bundle dispatch.
-                </p>
-              </CardContent>
-            </Card>
+            <QrDispatchTab eventId={eventId ?? ""} />
           </TabsContent>
         </Tabs>
       </div>
