@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { ApiError, type Invitation, type InvitationRsvpUpdate } from '@/lib/api'
 import { RsvpSelector, type RsvpChoice } from '@/components/eirmis/rsvp-selector'
 import { Button } from '@/components/ui/button'
@@ -39,7 +39,10 @@ export function RsvpSection({ invitation }: { invitation: Invitation }) {
     })
   }, [form, invitation])
 
-  const selectedChoice = statusToChoice[form.watch('status')]
+  const selectedChoice = statusToChoice[useWatch({
+    control: form.control,
+    name: 'status',
+  })]
 
   async function submit(values: InvitationRsvpUpdate) {
     try {
