@@ -2,6 +2,7 @@ import type { OrgSettings, OrgSettingsUpdate } from '@/lib/api'
 import { z } from 'zod'
 
 import { createZodResolver } from '../zod-resolver'
+import { identifierSchema } from './identifier'
 
 const orgNameSchema = z.string().trim().min(1, 'Organization name is required')
 const timezoneSchema = z.string().trim().min(1, 'Default timezone is required')
@@ -9,7 +10,7 @@ const senderDomainSchema = z.string().trim().min(1, 'Sender domain is required')
 const capacitySchema = z.coerce.number().int().positive()
 
 export const orgSettingsSchema = z.object({
-  id: z.string().uuid(),
+  id: identifierSchema,
   org_name: orgNameSchema,
   default_timezone: timezoneSchema,
   default_capacity_ceiling: capacitySchema,

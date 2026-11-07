@@ -7,6 +7,7 @@ import {
   eventUpdateSchema,
   headcountRequestCreateSchema,
   invitationCreateSchema,
+  invitationCreateResolver,
   invitationOrganizerUpdateSchema,
   invitationRsvpUpdateSchema,
   orgSettingsSchema,
@@ -14,11 +15,19 @@ import {
   registerPublicSchema,
 } from './index'
 
-const eventId = '550e8400-e29b-41d4-a716-446655440000'
-const guestId = '86c7465e-2874-4a6e-9d3e-06d596824b9b'
-const invitationId = '68d26a7e-5a92-407f-b559-75e0555b03eb'
+const eventId = '55555555-5555-5555-5555-555555555555'
+const guestId = '33333333-3333-3333-3333-333333333333'
+const invitationId = '66666666-6666-6666-6666-666666666666'
 
 describe('contract form schemas', () => {
+  it('accepts mock identifiers through the invitation resolver and rejects malformed IDs', async () => {
+    const values = { event_id: eventId, guest_id: guestId }
+    expect(await invitationCreateResolver(values, undefined, {
+      fields: {}, shouldUseNativeValidation: false,
+    })).toEqual({ values, errors: {} })
+    expect(invitationCreateSchema.safeParse({ ...values, guest_id: 'invalid' }).success).toBe(false)
+  })
+
   it('parses an EventCreate payload and coerces its capacity', () => {
     const result = eventCreateSchema.parse({
       title: 'Annual Gala',
@@ -76,7 +85,7 @@ describe('contract form schemas', () => {
 
   it('accepts organization settings and public registration payloads', () => {
     expect(orgSettingsSchema.safeParse({
-      id: eventId,
+      id: '00000000-0000-0000-0000-000000000001',
       org_name: 'EIRMIS',
       default_timezone: 'Asia/Manila',
       default_capacity_ceiling: 150,

@@ -6,6 +6,7 @@ import type {
 import { z } from 'zod'
 
 import { createZodResolver } from '../zod-resolver'
+import { identifierSchema } from './identifier'
 
 const invitationStatusSchema = z.enum([
   'pending',
@@ -19,8 +20,8 @@ const hasDefinedField = (value: object) =>
   Object.values(value).some((field) => field !== undefined)
 
 export const invitationCreateSchema = z.object({
-  event_id: z.string().uuid(),
-  guest_id: z.string().uuid(),
+  event_id: identifierSchema,
+  guest_id: identifierSchema,
   max_party_size: z.coerce.number().int().positive().optional(),
   status: invitationStatusSchema.optional(),
   dietary_preference: nullableTextSchema,

@@ -2,6 +2,7 @@ import type { AttendeeCreate, AttendeeUpdate } from '@/lib/api'
 import { z } from 'zod'
 
 import { createZodResolver } from '../zod-resolver'
+import { identifierSchema } from './identifier'
 
 const optionalEmailSchema = z
   .union([z.string().trim().email(), z.literal('')])
@@ -10,7 +11,7 @@ const optionalEmailSchema = z
   .optional()
 
 export const attendeeCreateSchema = z.object({
-  invitation_id: z.string().uuid(),
+  invitation_id: identifierSchema,
   full_name: z.string().trim().min(1, 'Attendee name is required'),
   email: optionalEmailSchema,
 }) satisfies z.ZodType<AttendeeCreate>
