@@ -13,6 +13,12 @@ const eventId = '55555555-5555-5555-5555-555555555555'
 const invitationId = '66666666-6666-6666-6666-666666666666'
 
 describe('check-in cross-portal flow', () => {
+    it('rejects an unknown token without changing attendance', async () => {
+        const result = await scanCheckIn('unknown-token')
+        expect(result.result).toBe('invalid_token')
+        const invitations = await listInvitations({ event_id: `eq.${eventId}` })
+        expect(invitations[0]?.checked_in_count).toBe(0)
+    })
     beforeAll(() => server.listen())
 
     afterEach(() => {

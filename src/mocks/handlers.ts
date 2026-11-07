@@ -720,7 +720,15 @@ export const handlers = [
 
         const matchedAttendee = mockAttendees.find(
             (attendee) => attendee.qr_token === body.qr_token,
-        ) ?? mockAttendees[0];
+        );
+
+        if (!matchedAttendee || matchedAttendee.status !== 'approved') {
+            return HttpResponse.json({
+                result: 'invalid_token',
+                attendee: null,
+                message: 'Token does not belong to an approved attendee.',
+            } satisfies ScanCheckInResponse);
+        }
 
         if (matchedAttendee.checked_in) {
             const scanResponse: ScanCheckInResponse = {

@@ -130,7 +130,7 @@ export function ScanSimulator({
                         variant="outline"
                         size="sm"
                         disabled={isResolving}
-                        onClick={() => executeScan('eyJhbGciOiJIUzI1NiJ9.attendee-token-payload.signature')}
+                        onClick={() => executeScan('signed-qr-token-sample')}
                         className="text-xs text-success border-success-border hover:bg-success-bg/30"
                     >
                         1. Valid QR
