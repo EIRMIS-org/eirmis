@@ -44,6 +44,12 @@ export type AttendeeCreate = components['schemas']['AttendeeCreate'];
 export type AttendeeUpdate = components['schemas']['AttendeeUpdate'];
 export type HeadcountIncreaseRequest =
     components['schemas']['HeadcountIncreaseRequest'];
+export type HeadcountIncreaseRequestCreate =
+    components['schemas']['HeadcountIncreaseRequestCreate'];
+export type OrgSettings = components['schemas']['OrgSettings'];
+export type OrgSettingsUpdate = components['schemas']['OrgSettingsUpdate'];
+export type RegisterPublicRequest =
+    components['schemas']['RegisterPublicRequest'];
 export type OrganizerProfile = components['schemas']['OrganizerProfile'];
 export type OrganizerStatus = components['schemas']['OrganizerStatus'];
 export type OrganizerStatusUpdate =
