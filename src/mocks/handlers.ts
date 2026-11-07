@@ -29,6 +29,7 @@ type HeadcountIncreaseRequest =
     components['schemas']['HeadcountIncreaseRequest'];
 type OrganizerProfile = components['schemas']['OrganizerProfile'];
 type AdminProfile = components['schemas']['AdminProfile'];
+type OrgSettings = components['schemas']['OrgSettings'];
 type ReminderSchedule = components['schemas']['ReminderSchedule'];
 type InvitationDesign = components['schemas']['InvitationDesign'];
 type InvitationImage = components['schemas']['InvitationImage'];
@@ -197,6 +198,18 @@ const exampleAdminProfile: AdminProfile = {
     email: 'admin@example.com',
     full_name: 'System Administrator',
     created_at: '2026-09-01T08:00:00+08:00',
+};
+
+const exampleOrgSettings: OrgSettings = {
+    id: '00000000-0000-0000-0000-000000000001',
+    org_name: 'EIRMIS Enterprise Cloud Platform',
+    default_timezone: 'Asia/Manila',
+    default_capacity_ceiling: 150,
+    sender_domain: 'invites.eirmis.org',
+    malware_sandbox_enabled: true,
+    self_registration_gate_enabled: true,
+    created_at: '2026-09-01T08:00:00+08:00',
+    updated_at: '2026-09-10T12:30:00+08:00',
 };
 
 const exampleReminder: ReminderSchedule = {
@@ -570,6 +583,22 @@ export const handlers = [
     http.get('*/rest/v1/admin_profiles', ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
         return jsonList([exampleAdminProfile]);
+    }),
+
+    // ═══ PostgREST: org_settings ═══
+    http.get('*/rest/v1/org_settings', ({ request }) => {
+        if (!hasAuth(request)) return unauthorized();
+        return jsonList([exampleOrgSettings]);
+    }),
+
+    http.patch('*/rest/v1/org_settings', async ({ request }) => {
+        if (!hasAuth(request)) return unauthorized();
+        const body = (await request.json()) as Partial<OrgSettings>;
+        Object.assign(exampleOrgSettings, body, {
+            id: exampleOrgSettings.id,
+            updated_at: new Date().toISOString(),
+        });
+        return HttpResponse.json(exampleOrgSettings);
     }),
 
     // ═══ Edge Functions ═══
