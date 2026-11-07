@@ -16,13 +16,17 @@ const invitationStatusSchema = z.enum([
   'waitlisted',
 ])
 const nullableTextSchema = z.string().trim().nullable().optional()
+const optionalPartySizeSchema = z.preprocess(
+  (value) => value === '' ? undefined : value,
+  z.coerce.number().int().positive().optional(),
+)
 const hasDefinedField = (value: object) =>
   Object.values(value).some((field) => field !== undefined)
 
 export const invitationCreateSchema = z.object({
   event_id: identifierSchema,
   guest_id: identifierSchema,
-  max_party_size: z.coerce.number().int().positive().optional(),
+  max_party_size: optionalPartySizeSchema,
   status: invitationStatusSchema.optional(),
   dietary_preference: nullableTextSchema,
   special_requests: nullableTextSchema,
@@ -40,7 +44,7 @@ export const invitationRsvpUpdateSchema = z
 
 export const invitationOrganizerUpdateSchema = z
   .object({
-    max_party_size: z.coerce.number().int().positive().optional(),
+    max_party_size: optionalPartySizeSchema,
     status: invitationStatusSchema.optional(),
   })
   .refine(hasDefinedField, {

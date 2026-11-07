@@ -99,6 +99,30 @@ describe('contract form schemas', () => {
     }).success).toBe(true)
   })
 
+  it('treats a blank optional party size as omitted', async () => {
+    const values = {
+      event_id: eventId,
+      guest_id: guestId,
+      max_party_size: '',
+    }
+    const result = await invitationCreateResolver(values, undefined, {
+      fields: {},
+      shouldUseNativeValidation: false,
+    })
+
+    expect(result).toEqual({
+      values: { event_id: eventId, guest_id: guestId },
+      errors: {},
+    })
+    expect(invitationCreateSchema.safeParse({
+      ...values,
+      max_party_size: 0,
+    }).success).toBe(false)
+    expect(invitationOrganizerUpdateSchema.safeParse({
+      max_party_size: '',
+    }).success).toBe(false)
+  })
+
   it('accepts organization settings and public registration payloads', () => {
     expect(orgSettingsSchema.safeParse({
       id: '00000000-0000-0000-0000-000000000001',
