@@ -7,7 +7,7 @@ export function useListInvitationImages(
     options?: Parameters<typeof listInvitationImages>[1],
 ) {
     return useQuery({
-        queryKey: qk.listInvitationImages(eventId),
+        queryKey: qk.listInvitationImages(eventId, options),
         queryFn: () => listInvitationImages(eventId, options),
     });
 }

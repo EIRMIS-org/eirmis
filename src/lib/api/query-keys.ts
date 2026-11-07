@@ -26,8 +26,10 @@ export const qk = {
     getInvitationDesign: (eventId: string) =>
         ['getInvitationDesign', eventId] as const,
     listInvitationImagesPrefix: () => ['listInvitationImages'] as const,
-    listInvitationImages: (eventId: string) =>
-        ['listInvitationImages', eventId] as const,
+    listInvitationImages: (
+        eventId: string,
+        options?: { auth?: boolean },
+    ) => ['listInvitationImages', eventId, options] as const,
     listCheckInAssignmentsPrefix: () => ['listCheckInAssignments'] as const,
     listCheckInAssignments: (eventId: string) =>
         ['listCheckInAssignments', eventId] as const,
@@ -39,6 +41,8 @@ export const qk = {
     adminListOrganizersPrefix: () => ['adminListOrganizers'] as const,
     adminListOrganizers: (page = 0, status = 'eq.pending') =>
         ['adminListOrganizers', page, status] as const,
+    getOrgSettingsPrefix: () => ['getOrgSettings'] as const,
+    getOrgSettings: () => ['getOrgSettings'] as const,
     getAssignedEvent: (eventId: string) => ['getAssignedEvent', eventId] as const,
     discoverPublicEvents: () => ['discoverPublicEvents'] as const,
     listPublicGalleryImages: (eventId: string) =>
