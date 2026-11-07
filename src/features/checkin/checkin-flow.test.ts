@@ -50,6 +50,7 @@ describe('check-in cross-portal flow', () => {
     it('creates a walk-in and checks them in across staff and organizer views', async () => {
         setRole('checkin')
         const walkIn = await submitAttendee({
+            is_walk_in: true,
             invitation_id: invitationId,
             full_name: 'On-site Guest',
             email: 'walkin@example.com',

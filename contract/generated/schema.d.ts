@@ -130,7 +130,7 @@ export interface paths {
         put?: never;
         /**
          * Submit an additional attendee
-         * @description A guest submits an additional (non-primary) attendee for their accepted invitation. RLS enforces: `is_primary = false`, invitation `status = accepted`, guest identity.
+         * @description A guest submits an additional (non-primary) attendee for their accepted invitation. RLS enforces: `is_primary = false`, invitation `status = accepted`, guest identity. Assigned check-in staff may submit `is_walk_in = true` for an explicitly selected invitation in their assigned event. This creates an approved walk-in with a unique QR token ready for the check-in function.
          */
         post: operations["submitAttendee"];
         delete?: never;
@@ -1498,7 +1498,7 @@ export interface components {
             is_walk_in: boolean;
         };
         /**
-         * @description Request body for a guest submitting an additional (non-primary) attendee for their accepted invitation.
+         * @description Request body for a guest submitting an additional (non-primary) attendee for their accepted invitation. Assigned check-in staff may set is_walk_in to register an approved on-site attendee under an explicitly selected accepted invitation for their assigned event.
          * @example {
          *       "invitation_id": "66666666-6666-6666-6666-666666666666",
          *       "full_name": "Jose Santos",
@@ -1506,6 +1506,8 @@ export interface components {
          *     }
          */
         AttendeeCreate: {
+            /** @description Staff-only on-site registration. Guests must omit or set false. */
+            is_walk_in?: boolean;
             /**
              * Format: uuid
              * @description UUID of the accepted invitation this attendee belongs to.
@@ -3056,7 +3058,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Attendee submitted; status is `pending` awaiting organizer review. */
+            /** @description Guest submissions are pending review. Staff walk-ins are approved with a QR token. */
             201: {
                 headers: {
                     [name: string]: unknown;

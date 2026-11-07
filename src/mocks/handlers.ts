@@ -410,7 +410,13 @@ export const handlers = [
     http.post('*/rest/v1/attendees', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
         const body = (await request.json()) as Partial<Attendee>;
-        const isWalkIn = request.headers.get('Authorization') === 'Bearer fake-checkin-staff-jwt';
+        const isWalkIn = body.is_walk_in === true;
+        if (isWalkIn && request.headers.get('Authorization') !== 'Bearer fake-checkin-staff-jwt') {
+            return HttpResponse.json(errorBody('42501', 'Only assigned staff can register walk-ins'), { status: 403 });
+        }
+        if (body.invitation_id !== mockInvitation.id || mockInvitation.status !== 'accepted') {
+            return HttpResponse.json(errorBody('42501', 'Select an accepted invitation for the assigned event'), { status: 403 });
+        }
         const id = crypto.randomUUID();
         const attendee: Attendee = {
             ...exampleAttendee,

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { UserPlusIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -13,8 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import { useScanCheckIn } from '@/features/checkin/hooks/use-scan-check-in'
 import { useSubmitAttendee } from '@/features/guest/hooks/use-submit-attendee'
-import { useListAttendees } from '@/features/organizer/hooks/use-list-attendees'
-import { ApiError, type AttendeeCreate } from '@/lib/api'
+import { ApiError, type Attendee, type AttendeeCreate } from '@/lib/api'
 import {
     applyContractError,
     attendeeCreateResolver,
@@ -23,10 +22,9 @@ import {
 
 export function WalkInModal() {
     const [open, setOpen] = useState(false)
-    const { data: attendees = [] } = useListAttendees()
+    const [createdAttendee, setCreatedAttendee] = useState<Attendee | null>(null)
     const submitAttendee = useSubmitAttendee()
     const scanCheckIn = useScanCheckIn()
-    const invitationId = attendees[0]?.invitation_id
     const form = useForm<AttendeeCreate>({
         resolver: attendeeCreateResolver,
         defaultValues: {
@@ -36,19 +34,17 @@ export function WalkInModal() {
         },
     })
 
-    useEffect(() => {
-        if (invitationId) {
-            form.setValue('invitation_id', invitationId, { shouldValidate: false })
-        }
-    }, [form, invitationId])
-
     const isPending = submitAttendee.isPending || scanCheckIn.isPending
 
     const handleSubmit = form.handleSubmit(async (values) => {
         form.clearErrors('root')
 
         try {
-            const attendee = await submitAttendee.mutateAsync(values)
+            const attendee = createdAttendee ?? await submitAttendee.mutateAsync({
+                ...values,
+                is_walk_in: true,
+            })
+            setCreatedAttendee(attendee)
             if (!attendee.qr_token) {
                 form.setError('root.server', {
                     type: 'server',
@@ -57,9 +53,17 @@ export function WalkInModal() {
                 return
             }
 
-            await scanCheckIn.mutateAsync(attendee.qr_token)
+            const result = await scanCheckIn.mutateAsync(attendee.qr_token)
+            if (result.result === 'invalid_token') {
+                form.setError('root.server', {
+                    type: 'server',
+                    message: result.message || 'Check-in failed. Retry this attendee.',
+                })
+                return
+            }
+            setCreatedAttendee(null)
             form.reset({
-                invitation_id: invitationId || '',
+                invitation_id: '',
                 full_name: '',
                 email: '',
             })
@@ -81,7 +85,7 @@ export function WalkInModal() {
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger
                 render={
-                    <Button type="button" disabled={!invitationId}>
+                    <Button type="button">
                         <UserPlusIcon className="mr-1.5 size-4" />
                         Register Walk-in
                     </Button>
@@ -96,7 +100,15 @@ export function WalkInModal() {
                         </DialogDescription>
                     </DialogHeader>
 
-                    <input type="hidden" {...form.register('invitation_id')} />
+                    <FormRow
+                        id="walk-in-invitation"
+                        label="Invitation ID"
+                        description="Enter the accepted invitation ID for the party this attendee is joining."
+                        required
+                        readOnly={Boolean(createdAttendee) || isPending}
+                        error={form.formState.errors.invitation_id}
+                        {...form.register('invitation_id')}
+                    />
 
                     <div className="space-y-4">
                         <FormRow
@@ -104,6 +116,7 @@ export function WalkInModal() {
                             label="Full name"
                             required
                             autoComplete="name"
+                            readOnly={Boolean(createdAttendee) || isPending}
                             error={form.formState.errors.full_name}
                             {...form.register('full_name')}
                         />
@@ -112,6 +125,7 @@ export function WalkInModal() {
                             label="Email"
                             type="email"
                             autoComplete="email"
+                            readOnly={Boolean(createdAttendee) || isPending}
                             description="Optional. Used for attendee contact details."
                             error={form.formState.errors.email}
                             {...form.register('email')}
@@ -125,8 +139,8 @@ export function WalkInModal() {
                     )}
 
                     <DialogFooter>
-                        <Button type="submit" disabled={isPending || !invitationId}>
-                            {isPending ? 'Registering and checking in…' : 'Register and Check In'}
+                        <Button type="submit" disabled={isPending}>
+                            {isPending ? 'Processing…' : createdAttendee ? 'Retry Check-in' : 'Register and Check In'}
                         </Button>
                     </DialogFooter>
                 </form>

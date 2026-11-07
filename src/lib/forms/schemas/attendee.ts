@@ -11,6 +11,7 @@ const optionalEmailSchema = z
   .optional()
 
 export const attendeeCreateSchema = z.object({
+  is_walk_in: z.boolean().optional(),
   invitation_id: identifierSchema,
   full_name: z.string().trim().min(1, 'Attendee name is required'),
   email: optionalEmailSchema,
