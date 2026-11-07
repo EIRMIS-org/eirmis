@@ -9,7 +9,8 @@
  * 3. Wires useScanCheckIn → machine transitions; 5 simulate buttons that hit the API.
  */
 
-import { useReducer, useState } from 'react'
+import { useReducer } from 'react'
+import { useListAttendees } from '@/features/organizer/hooks/use-list-attendees'
 import { Link } from 'react-router-dom'
 import { SearchIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -24,11 +25,8 @@ import {
 
 export function StaffScanPage() {
     const [scanState, dispatch] = useReducer(scanResultReducer, initialScanState)
-    const [liveCheckedIn, setLiveCheckedIn] = useState(0)
-
-    const handleSuccess = () => {
-        setLiveCheckedIn((prev) => prev + 1)
-    }
+    const { data: attendees = [] } = useListAttendees()
+    const checkedInCount = attendees.filter((attendee) => attendee.checked_in).length
 
     return (
         <div className="mx-auto max-w-2xl px-4 py-6">
@@ -51,7 +49,7 @@ export function StaffScanPage() {
             </div>
 
             {/* Step 1: Assigned-event header */}
-            <AssignedEventHeader checkedInCount={liveCheckedIn} />
+            <AssignedEventHeader checkedInCount={checkedInCount} />
 
             {/* Simulated Viewfinder Visual from Mockup Contract */}
             <Card className="mb-4 overflow-hidden border-border bg-slate-950 p-6 text-white shadow-card">
@@ -69,7 +67,6 @@ export function StaffScanPage() {
             <ScanSimulator
                 dispatch={dispatch}
                 isResolving={scanState.status === 'resolving'}
-                onScanSuccess={handleSuccess}
             />
 
             {/* Step 2: Scan-result state machine UI states via scan-result.tsx */}
