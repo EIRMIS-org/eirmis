@@ -13,180 +13,175 @@
  * wrong-role users get the shared 403 screen.
  */
 
-import { lazy, Suspense } from 'react'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { RoleGuard } from './role-guard'
-import { NotFoundPage } from './not-found-page'
-import { LandingLayout } from '@/pages/landing/landing-layout'
-import { OrganizerLayout } from '@/pages/organizer/organizer-layout'
-import { GuestLayout } from '@/pages/guest/guest-layout'
-import { StaffLayout } from '@/pages/staff/staff-layout'
-import { AdminLayout } from '@/pages/admin/admin-layout'
-import { PlaceholderPage } from '@/pages/shared/placeholder-page'
-import { DocsPage } from '@/pages/shared/docs-page'
+import { lazy, Suspense } from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { RoleGuard } from "./role-guard";
+import { NotFoundPage } from "./not-found-page";
+import { LandingLayout } from "@/pages/landing/landing-layout";
+import { OrganizerLayout } from "@/pages/organizer/organizer-layout";
+import { GuestLayout } from "@/pages/guest/guest-layout";
+import { StaffLayout } from "@/pages/staff/staff-layout";
+import { AdminLayout } from "@/pages/admin/admin-layout";
+import { PlaceholderPage } from "@/pages/shared/placeholder-page";
+import { DocsPage } from "@/pages/shared/docs-page";
+import { EventWorkspacePage } from "@/pages/organizer/event-workspace-page";
 
-const Styleguide = lazy(() => import('@/Styleguide'))
+const Styleguide = lazy(() => import("@/Styleguide"));
 
 export const router = createBrowserRouter([
-    // ── Public: landing (task 06 fills the outlet) ────────────────────────
-    {
-        path: '/',
-        element: <LandingLayout />,
-        children: [
-            {
-                index: true,
-                element: (
-                    <PlaceholderPage
-                        title="Public Hub"
-                        note="Filled by task 06 — Landing & Auth"
-                    />
-                ),
-            },
-        ],
-    },
-
-    // ── Public: migrated from App.tsx ─────────────────────────────────────
-    { path: '/docs', element: <DocsPage /> },
-    {
-        path: '/styleguide',
+  // ── Public: landing (task 06 fills the outlet) ────────────────────────
+  {
+    path: "/",
+    element: <LandingLayout />,
+    children: [
+      {
+        index: true,
         element: (
-            <Suspense fallback={<p>Loading style guide...</p>}>
-                <Styleguide />
-            </Suspense>
+          <PlaceholderPage
+            title="Public Hub"
+            note="Filled by task 06 — Landing & Auth"
+          />
         ),
-    },
+      },
+    ],
+  },
 
-    // ── Organizer portal (task 07) ────────────────────────────────────────
-    {
+  // ── Public: migrated from App.tsx ─────────────────────────────────────
+  { path: "/docs", element: <DocsPage /> },
+  {
+    path: "/styleguide",
+    element: (
+      <Suspense fallback={<p>Loading style guide...</p>}>
+        <Styleguide />
+      </Suspense>
+    ),
+  },
+
+  // ── Organizer portal (task 07) ────────────────────────────────────────
+  {
+    element: (
+      <RoleGuard allow={["organizer"]}>
+        <OrganizerLayout />
+      </RoleGuard>
+    ),
+    children: [
+      {
+        path: "organizer",
         element: (
-            <RoleGuard allow={['organizer']}>
-                <OrganizerLayout />
-            </RoleGuard>
+          <PlaceholderPage
+            title="Organizer — Events"
+            note="Filled by task 07 — Organizer Portal"
+          />
         ),
-        children: [
-            {
-                path: 'organizer',
-                element: (
-                    <PlaceholderPage
-                        title="Organizer — Events"
-                        note="Filled by task 07 — Organizer Portal"
-                    />
-                ),
-            },
-            {
-                path: 'organizer/events/new',
-                element: (
-                    <PlaceholderPage
-                        title="Organizer — Create Event"
-                        note="Filled by task 07 — 4-step wizard"
-                    />
-                ),
-            },
-            {
-                path: 'organizer/events/:eventId',
-                element: (
-                    <PlaceholderPage
-                        title="Organizer — Event Workspace"
-                        note="Filled by task 07 — guests, approvals, reminders, design, check-in, logs"
-                    />
-                ),
-            },
-        ],
-    },
-
-    // ── Guest portal (task 08) ────────────────────────────────────────────
-    {
+      },
+      {
+        path: "organizer/events/new",
         element: (
-            <RoleGuard allow={['guest']}>
-                <GuestLayout />
-            </RoleGuard>
+          <PlaceholderPage
+            title="Organizer — Create Event"
+            note="Filled by task 07 — 4-step wizard"
+          />
         ),
-        children: [
-            {
-                path: 'guest',
-                element: (
-                    <PlaceholderPage
-                        title="Guest Portal"
-                        note="Filled by task 08 — Guest Portal"
-                    />
-                ),
-            },
-            {
-                path: 'guest/invitations/:invitationId',
-                element: (
-                    <PlaceholderPage
-                        title="Guest — Invitation / RSVP"
-                        note="Filled by task 08"
-                    />
-                ),
-            },
-        ],
-    },
+      },
+      {
+        path: "organizer/events/:eventId",
+        element: <EventWorkspacePage />,
+      },
+    ],
+  },
 
-    // ── Check-in staff portal (task 09) ───────────────────────────────────
-    {
+  // ── Guest portal (task 08) ────────────────────────────────────────────
+  {
+    element: (
+      <RoleGuard allow={["guest"]}>
+        <GuestLayout />
+      </RoleGuard>
+    ),
+    children: [
+      {
+        path: "guest",
         element: (
-            <RoleGuard allow={['checkin']}>
-                <StaffLayout />
-            </RoleGuard>
+          <PlaceholderPage
+            title="Guest Portal"
+            note="Filled by task 08 — Guest Portal"
+          />
         ),
-        children: [
-            {
-                path: 'staff',
-                element: (
-                    <PlaceholderPage
-                        title="Check-in — Scanner"
-                        note="Filled by task 09 — Check-in Staff Portal"
-                    />
-                ),
-            },
-            {
-                path: 'staff/search',
-                element: (
-                    <PlaceholderPage
-                        title="Check-in — Manual Search / Walk-in"
-                        note="Filled by task 09"
-                    />
-                ),
-            },
-        ],
-    },
-
-    // ── Admin portal (task 10) ────────────────────────────────────────────
-    {
+      },
+      {
+        path: "guest/invitations/:invitationId",
         element: (
-            <RoleGuard allow={['admin']}>
-                <AdminLayout />
-            </RoleGuard>
+          <PlaceholderPage
+            title="Guest — Invitation / RSVP"
+            note="Filled by task 08"
+          />
         ),
-        children: [
-            {
-                path: 'admin',
-                element: (
-                    <PlaceholderPage
-                        title="Admin — Verification Queue"
-                        note="Filled by task 10 — Admin Portal"
-                    />
-                ),
-            },
-            {
-                path: 'admin/settings',
-                element: (
-                    <PlaceholderPage
-                        title="Admin — Org Settings"
-                        note="Filled by task 10"
-                    />
-                ),
-            },
-        ],
-    },
+      },
+    ],
+  },
 
-    // ── 404 catch-all ─────────────────────────────────────────────────────
-    { path: '*', element: <NotFoundPage /> },
-])
+  // ── Check-in staff portal (task 09) ───────────────────────────────────
+  {
+    element: (
+      <RoleGuard allow={["checkin"]}>
+        <StaffLayout />
+      </RoleGuard>
+    ),
+    children: [
+      {
+        path: "staff",
+        element: (
+          <PlaceholderPage
+            title="Check-in — Scanner"
+            note="Filled by task 09 — Check-in Staff Portal"
+          />
+        ),
+      },
+      {
+        path: "staff/search",
+        element: (
+          <PlaceholderPage
+            title="Check-in — Manual Search / Walk-in"
+            note="Filled by task 09"
+          />
+        ),
+      },
+    ],
+  },
+
+  // ── Admin portal (task 10) ────────────────────────────────────────────
+  {
+    element: (
+      <RoleGuard allow={["admin"]}>
+        <AdminLayout />
+      </RoleGuard>
+    ),
+    children: [
+      {
+        path: "admin",
+        element: (
+          <PlaceholderPage
+            title="Admin — Verification Queue"
+            note="Filled by task 10 — Admin Portal"
+          />
+        ),
+      },
+      {
+        path: "admin/settings",
+        element: (
+          <PlaceholderPage
+            title="Admin — Org Settings"
+            note="Filled by task 10"
+          />
+        ),
+      },
+    ],
+  },
+
+  // ── 404 catch-all ─────────────────────────────────────────────────────
+  { path: "*", element: <NotFoundPage /> },
+]);
 
 /** App entry renders this — keeps App.tsx a one-liner. */
 export function AppRouter() {
-    return <RouterProvider router={router} />
+  return <RouterProvider router={router} />;
 }
-
