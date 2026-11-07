@@ -670,8 +670,23 @@ export const handlers = [
     http.post('*/functions/v1/checkin/scan', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
         const body = (await request.json()) as { qr_token?: string };
-        if (body.qr_token === 'invalid.token') {
+        if (body.qr_token === 'invalid.token' || body.qr_token === 'simulate-invalid-token') {
             return HttpResponse.json(errorBody('SCAN_403', 'QR token signature invalid'), { status: 403 });
+        }
+        if (body.qr_token === 'simulate-wrong-event') {
+            return HttpResponse.json(errorBody('EVENT_MISMATCH_403', 'Token belongs to another event: Tech Forward Gala 2025'), { status: 403 });
+        }
+        if (body.qr_token === 'simulate-capacity-full') {
+            return HttpResponse.json(errorBody('CAPACITY_422', 'Event has reached maximum capacity'), { status: 422 });
+        }
+        if (body.qr_token === 'simulate-duplicate') {
+            const scanResponse: ScanCheckInResponse = {
+                result: 'already_checked_in',
+                attendee: { ...exampleAttendee, checked_in: true },
+                checked_in_at: '2026-12-15T17:45:00+08:00',
+                message: 'Attendee was already checked in at 5:45 PM.',
+            };
+            return HttpResponse.json(scanResponse);
         }
         const scanResponse: ScanCheckInResponse = {
             result: 'accepted',

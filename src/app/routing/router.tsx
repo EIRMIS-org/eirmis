@@ -21,6 +21,7 @@ import { LandingLayout } from '@/pages/landing/landing-layout'
 import { OrganizerLayout } from '@/pages/organizer/organizer-layout'
 import { GuestLayout } from '@/pages/guest/guest-layout'
 import { StaffLayout } from '@/pages/staff/staff-layout'
+import { StaffScanPage } from '@/pages/staff/staff-scan-page'
 import { AdminLayout } from '@/pages/admin/admin-layout'
 import { PlaceholderPage } from '@/pages/shared/placeholder-page'
 import { DocsPage } from '@/pages/shared/docs-page'
@@ -133,12 +134,7 @@ export const router = createBrowserRouter([
         children: [
             {
                 path: 'staff',
-                element: (
-                    <PlaceholderPage
-                        title="Check-in — Scanner"
-                        note="Filled by task 09 — Check-in Staff Portal"
-                    />
-                ),
+                element: <StaffScanPage />,
             },
             {
                 path: 'staff/search',
