@@ -8,3 +8,18 @@
 - [ ] Schema inventory + export names posted to the task board
 - [x] No portal files touched
 - [x] `npm run lint && npm run typecheck` all green
+
+## Task-board handoff
+
+Import the shared exports from `@/lib/forms`. Each stem below exports a
+`Schema` and a `Resolver`, for example `eventCreateSchema` and `eventCreateResolver`.
+
+| Consumer | Export stems |
+|---|---|
+| Organizer | `eventCreate`, `eventUpdate`, `invitationCreate`, `invitationOrganizerUpdate` |
+| Guest and roster forms | `invitationRsvpUpdate`, `attendeeCreate`, `attendeeUpdate`, `headcountRequestCreate` |
+| Admin settings | `orgSettings` (full record), `orgSettingsUpdate` (PATCH payload) |
+| Public registration | `registerPublic` |
+
+The same entry point exports `FormRow`, `createZodResolver`, `applyZodIssues`,
+`applyContractError`, `mapZodIssues`, and `mapContractError`.
