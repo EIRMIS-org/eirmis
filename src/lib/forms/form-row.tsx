@@ -11,15 +11,24 @@ interface ControlAccessibilityProps {
   required?: boolean
 }
 
-export interface FormRowProps
-  extends Omit<React.ComponentProps<typeof Input>, 'id' | 'aria-invalid'> {
+interface RowProps {
   id: string
   label: React.ReactNode
   description?: React.ReactNode
   error?: FieldError | string
   containerClassName?: string
-  renderControl?: (props: ControlAccessibilityProps) => React.ReactNode
+  required?: boolean
+  'aria-describedby'?: string
 }
+
+type InputProps = Omit<React.ComponentProps<typeof Input>, keyof RowProps | 'aria-invalid'>
+
+// A custom renderer owns its control's registration, value, and event props.
+export type FormRowProps = RowProps & (
+  | (InputProps & { renderControl?: never })
+  | ({ renderControl: (props: ControlAccessibilityProps) => React.ReactNode } &
+      { [K in keyof InputProps]?: never })
+)
 
 export function FormRow({
   id,

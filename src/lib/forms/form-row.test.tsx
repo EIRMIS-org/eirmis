@@ -2,7 +2,9 @@
 
 import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import { useForm } from 'react-hook-form'
+import userEvent from '@testing-library/user-event'
 
 import { FormRow } from './form-row'
 
@@ -27,6 +29,29 @@ describe('FormRow', () => {
       'guest-email-description guest-email-error',
     )
     expect(alert).toHaveTextContent('Enter a valid email')
+  })
+
+  it('submits the selected value from a custom registered control', async () => {
+    const onSubmit = vi.fn()
+    function StatusForm() {
+      const { register, handleSubmit } = useForm({ defaultValues: { status: 'draft' } })
+      return (
+        <form onSubmit={handleSubmit(values => onSubmit(values))}>
+          <FormRow id="status" label="Status" renderControl={props => (
+            <select {...props} {...register('status')}>
+              <option value="draft">Draft</option>
+              <option value="published">Published</option>
+            </select>
+          )} />
+          <button>Save</button>
+        </form>
+      )
+    }
+    const user = userEvent.setup()
+    render(<StatusForm />)
+    await user.selectOptions(screen.getByLabelText('Status'), 'published')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+    expect(onSubmit).toHaveBeenCalledWith({ status: 'published' })
   })
 
   it('passes accessibility attributes to a custom control renderer', () => {
