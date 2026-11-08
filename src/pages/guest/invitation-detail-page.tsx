@@ -1,6 +1,8 @@
 import { Link, useParams } from 'react-router-dom'
 import { useMyInvitations } from '@/features/guest/hooks/use-my-invitations'
+import { RosterEditor } from '@/features/guest/components/roster-editor'
 import { RsvpSection } from '@/features/guest/components/rsvp-section'
+import { WalletPassView } from '@/features/guest/components/wallet-pass-view'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -55,6 +57,8 @@ export function InvitationDetailPage() {
         <h1 className="text-2xl font-semibold">Your RSVP</h1>
       </header>
       <RsvpSection invitation={invitation} />
+      <RosterEditor invitation={invitation} />
+      <WalletPassView invitation={invitation} />
     </main>
   )
 }
