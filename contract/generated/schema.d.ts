@@ -2394,10 +2394,10 @@ export interface components {
          */
         AuditActorType: "organizer" | "admin" | "guest" | "check_in_staff" | "system";
         /**
-         * @description `pending` — newly self-registered; awaiting admin verification. `active`  — verified; may create and manage events.
+         * @description `pending` — newly self-registered; awaiting admin verification. `active`  — verified; may create and manage events. `suspended` — previously verified; access revoked by an administrator.
          * @enum {string}
          */
-        OrganizerStatus: "pending" | "active";
+        OrganizerStatus: "pending" | "active" | "suspended";
         /**
          * @description Request payload for public self-registration to an open event.
          * @example {
