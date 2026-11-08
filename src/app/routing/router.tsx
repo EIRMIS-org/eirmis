@@ -13,6 +13,7 @@
  * wrong-role users get the shared 403 screen.
  */
 
+import { AdminSettingsPage } from '@/pages/admin/admin-settings-page'
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { RoleGuard } from './role-guard'
@@ -171,12 +172,7 @@ export const router = createBrowserRouter([
             },
             {
                 path: 'admin/settings',
-                element: (
-                    <PlaceholderPage
-                        title="Admin — Org Settings"
-                        note="Filled by task 10"
-                    />
-                ),
+                element: <AdminSettingsPage />,
             },
         ],
     },
@@ -189,4 +185,5 @@ export const router = createBrowserRouter([
 export function AppRouter() {
     return <RouterProvider router={router} />
 }
+
 
