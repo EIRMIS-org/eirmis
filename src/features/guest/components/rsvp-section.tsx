@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useForm, useWatch } from 'react-hook-form'
 import { ApiError, type Invitation, type InvitationRsvpUpdate } from '@/lib/api'
+import { qk } from '@/lib/api/query-keys'
 import { RsvpSelector, type RsvpChoice } from '@/components/eirmis/rsvp-selector'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -21,6 +23,7 @@ const choiceToStatus: Record<RsvpChoice, InvitationRsvpUpdate['status']> = {
 }
 
 export function RsvpSection({ invitation }: { invitation: Invitation }) {
+  const queryClient = useQueryClient()
   const mutation = useRsvp()
   const form = useForm<InvitationRsvpUpdate>({
     resolver: invitationRsvpUpdateResolver,
@@ -46,13 +49,24 @@ export function RsvpSection({ invitation }: { invitation: Invitation }) {
 
   async function submit(values: InvitationRsvpUpdate) {
     try {
-      await mutation.mutateAsync({ id: invitation.id, body: values })
+      const updated = await mutation.mutateAsync({ id: invitation.id, body: values })
+      queryClient.setQueriesData<Invitation[]>(
+        { queryKey: qk.listInvitationsPrefix() },
+        (current) =>
+          current?.map((item) =>
+            item.id === invitation.id ? { ...item, ...updated, ...values } : item,
+          ),
+      )
     } catch (error) {
       if (error instanceof ApiError) {
         applyContractError(form.setError, error)
       }
     }
   }
+
+  const rootError =
+    form.formState.errors.root?.server?.message ??
+    form.formState.errors.root?.validation?.message
 
   return (
     <Card>
@@ -95,6 +109,11 @@ export function RsvpSection({ invitation }: { invitation: Invitation }) {
               <Textarea {...props} {...form.register('special_requests')} placeholder="Anything the host should know?" />
             )}
           />
+          {rootError && (
+            <p role="alert" className="text-xs text-destructive">
+              {rootError}
+            </p>
+          )}
           <Button type="submit" disabled={mutation.isPending}>
             {mutation.isPending ? 'Saving...' : 'Save RSVP'}
           </Button>
