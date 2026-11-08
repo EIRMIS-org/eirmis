@@ -17,7 +17,6 @@ import { AppProviders } from './app/providers/app-providers'
 async function enableMocking() {
   if (!import.meta.env.DEV) return
   const { worker } = await import('./mocks/browser')
-  // MSW 3 renamed `onUnhandledRequest` to `onUnhandledFrame`.
   // 'bypass' lets non-API requests (Vite assets, HMR) pass through untouched.
   return worker.start({ onUnhandledFrame: 'bypass' })
 }

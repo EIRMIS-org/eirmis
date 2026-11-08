@@ -14,6 +14,7 @@
  */
 
 import { AdminSettingsPage } from '@/pages/admin/admin-settings-page'
+import { AdminVerificationQueuePage } from '@/pages/admin/admin-verification-queue-page'
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { RoleGuard } from './role-guard'
@@ -163,12 +164,7 @@ export const router = createBrowserRouter([
         children: [
             {
                 path: 'admin',
-                element: (
-                    <PlaceholderPage
-                        title="Admin — Verification Queue"
-                        note="Filled by task 10 — Admin Portal"
-                    />
-                ),
+                element: <AdminVerificationQueuePage />,
             },
             {
                 path: 'admin/settings',
@@ -185,5 +181,4 @@ export const router = createBrowserRouter([
 export function AppRouter() {
     return <RouterProvider router={router} />
 }
-
 

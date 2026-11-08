@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import type { z } from 'zod'
 import { Save, Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -16,6 +17,7 @@ import {
 import { SettingsSection } from '@/components/eirmis/settings-section'
 import { useOrgSettings, useUpdateOrgSettings } from '../hooks/use-org-settings'
 import {
+  orgSettingsUpdateSchema,
   orgSettingsUpdateResolver,
   type OrgSettingsUpdate,
 } from '@/lib/forms/schemas/org-settings'
@@ -37,7 +39,11 @@ export function OrgSettingsForm() {
 
   const settings = Array.isArray(rawData) ? rawData[0] : rawData
 
-  const form = useForm<OrgSettingsUpdate>({
+  const form = useForm<
+    z.input<typeof orgSettingsUpdateSchema>,
+    unknown,
+    OrgSettingsUpdate
+  >({
     resolver: orgSettingsUpdateResolver,
     defaultValues: {
       org_name: '',
