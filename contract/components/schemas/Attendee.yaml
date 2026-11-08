@@ -105,13 +105,18 @@ AttendeeCreate:
   type: object
   description: >
     Request body for a guest submitting an additional (non-primary) attendee
-    for their accepted invitation.
+    for their accepted invitation. Assigned check-in staff may set is_walk_in
+    to register an approved on-site attendee under an explicitly selected
+    accepted invitation for their assigned event.
   example:
     invitation_id: 66666666-6666-6666-6666-666666666666
     full_name: Jose Santos
     email: jose.santos@example.com
   required: [invitation_id, full_name]
   properties:
+    is_walk_in:
+      type: boolean
+      description: Staff-only on-site registration. Guests must omit or set false.
     invitation_id:
       type: string
       format: uuid

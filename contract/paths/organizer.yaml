@@ -662,6 +662,9 @@
     description: >
       A guest submits an additional (non-primary) attendee for their accepted invitation.
       RLS enforces: `is_primary = false`, invitation `status = accepted`, guest identity.
+      Assigned check-in staff may submit `is_walk_in = true` for an explicitly
+      selected invitation in their assigned event. This creates an approved
+      walk-in with a unique QR token ready for the check-in function.
     tags: [Guest — Attendees]
     parameters:
       - $ref: '../components/parameters.yaml#/PreferReturnParam'
@@ -680,7 +683,7 @@
                 email: null
     responses:
       '201':
-        description: Attendee submitted; status is `pending` awaiting organizer review.
+        description: Guest submissions are pending review. Staff walk-ins are approved with a QR token.
         content:
           application/json:
             schema:
