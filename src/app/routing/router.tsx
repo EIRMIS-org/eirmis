@@ -18,6 +18,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { RoleGuard } from './role-guard'
 import { NotFoundPage } from './not-found-page'
 import { LandingLayout } from '@/pages/landing/landing-layout'
+import { LandingPage } from '@/pages/landing/landing-page'
 import { OrganizerLayout } from '@/pages/organizer/organizer-layout'
 import { GuestLayout } from '@/pages/guest/guest-layout'
 import { StaffLayout } from '@/pages/staff/staff-layout'
@@ -35,12 +36,7 @@ export const router = createBrowserRouter([
         children: [
             {
                 index: true,
-                element: (
-                    <PlaceholderPage
-                        title="Public Hub"
-                        note="Filled by task 06 — Landing & Auth"
-                    />
-                ),
+                    element: <LandingPage />,
             },
         ],
     },
@@ -189,4 +185,3 @@ export const router = createBrowserRouter([
 export function AppRouter() {
     return <RouterProvider router={router} />
 }
-
