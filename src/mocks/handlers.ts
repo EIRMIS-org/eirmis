@@ -182,12 +182,12 @@ const organizerProfiles: OrganizerProfile[] = Array.from(
     { length: 21 },
     (_, index) => {
         if (index === 0) return { ...exampleOrganizerProfile };
-        const suffix = String(index).padStart(2, '0');
+        const suffix = String(index).padStart(12, '0');
         return {
             ...exampleOrganizerProfile,
-            id: `11111111-1111-1111-1111-1111111111${suffix}`,
-            email: `organizer${suffix}@example.com`,
-            full_name: `Organizer ${suffix}`,
+            id: `11111111-1111-1111-1111-${suffix}`,
+            email: `organizer${index.toString().padStart(2, '0')}@example.com`,
+            full_name: `Organizer ${index.toString().padStart(2, '0')}`,
             created_at: `2026-09-${String(index + 1).padStart(2, '0')}T08:00:00+08:00`,
         };
     },
@@ -552,7 +552,7 @@ export const handlers = [
             return HttpResponse.json(profile);
         }
 
-        if (!body.status || !['pending', 'active'].includes(body.status)) {
+        if (!body.status || !['pending', 'active', 'suspended'].includes(body.status)) {
             return HttpResponse.json(
                 errorBody('PGRST102', 'Invalid organizer status'),
                 { status: 400 },

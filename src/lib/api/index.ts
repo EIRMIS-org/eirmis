@@ -67,13 +67,18 @@ function getEnv(): Record<string, string | undefined> {
     return metaEnv ?? procEnv ?? {};
 }
 
+function isDevelopmentBuild(): boolean {
+    const metaEnv = (import.meta as unknown as { env?: { DEV?: boolean } }).env;
+    return metaEnv?.DEV === true;
+}
+
 /**
  * Resolves the API base URL.
- * Priority: VITE_API_URL → VITE_SUPABASE_URL → Prism default (port 4010).
+ * Priority: VITE_API_URL → VITE_SUPABASE_URL → same-origin MSW in development.
  */
 export function resolveBaseUrl(): string {
     const env = getEnv();
-    return env.VITE_API_URL ?? env.VITE_SUPABASE_URL ?? 'http://127.0.0.1:4010';
+    return env.VITE_API_URL ?? env.VITE_SUPABASE_URL ?? (isDevelopmentBuild() ? '' : 'http://127.0.0.1:4010');
 }
 
 export const API_BASE = resolveBaseUrl();
@@ -211,7 +216,10 @@ function buildAuthHeaders(role: Role): Record<string, string> {
 }
 
 function buildUrl(path: string, query?: RequestOptions['query']): string {
-    const url = new URL(`${API_BASE}${path}`);
+    const url = new URL(
+        `${API_BASE}${path}`,
+        globalThis.location?.origin ?? 'http://127.0.0.1:4010',
+    );
     if (query) {
         for (const [key, value] of Object.entries(query)) {
             if (value !== undefined) url.searchParams.set(key, String(value));
@@ -653,7 +661,7 @@ export function getAdminOrganizers(
 ): Promise<ListOk<operations['adminListOrganizers']>> {
     return request('GET', '/rest/v1/organizer_profiles', {
         role: 'admin',
-        query: { status, limit: 20, offset: page * 20 },
+        query: { status: status || undefined, limit: 20, offset: page * 20 },
     });
 }
 
