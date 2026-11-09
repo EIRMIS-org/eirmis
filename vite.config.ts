@@ -25,10 +25,18 @@ export default defineConfig({
     },
   ],
   build: {
-    // Custom codeSplitting groups (vendor minSize/maxSize) removed: the
-    // experimental rolldown chunking broke module init order in the prod
-    // bundle ("r is not a function" at runtime, blank page on preview).
-    // Default rolldown chunking is correct and still splits vendor code.
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [{
+            name: 'vendor',
+            test: /node_modules[\\/]/,
+            minSize: 100_000,
+            maxSize: 300_000,
+          }],
+        },
+      },
+    },
   },
   resolve: {
     alias: {
