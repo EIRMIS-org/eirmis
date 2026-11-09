@@ -17,6 +17,10 @@ declare
   v_total_checked_in integer;
   v_result text;
 begin
+  -- Serialize scans for the same event before reading attendance. A later
+  -- scan then counts all earlier committed check-ins, across invitations.
+  perform 1 from public.events where id = p_event_id for no key update;
+
   select a.* into v_attendee
   from attendees a
   join invitations i on i.id = a.invitation_id
@@ -85,7 +89,7 @@ begin
 end;
 $$;
 
-revoke all on function public.record_attendee_check_in(uuid, uuid, uuid, audit_actor_type_enum, uuid) from public;
+revoke all on function public.record_attendee_check_in(uuid, uuid, uuid, audit_actor_type_enum, uuid) from public, anon, authenticated;
 grant execute on function public.record_attendee_check_in(uuid, uuid, uuid, audit_actor_type_enum, uuid) to service_role;
 
 -- Only the owning organizer or assigned staff can subscribe to an event topic.
