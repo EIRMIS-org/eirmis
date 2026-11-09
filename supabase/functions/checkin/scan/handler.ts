@@ -86,6 +86,13 @@ export function createScanHandler(dependencies: ScanDependencies) {
       return error(422, "INVALID_QR_TOKEN", message);
     }
 
+    if ("event_id" in body) {
+      if (typeof body.event_id !== "string") return error(400, "INVALID_REQUEST", "Expected an event ID.");
+      if (body.event_id.toLowerCase() !== claims.event_id.toLowerCase()) {
+        return error(422, "EVENT_MISMATCH", "QR token belongs to a different event.");
+      }
+    }
+
     const attendee = await dependencies.resolveAttendee(claims, token);
     if (!attendee || attendee.status !== "approved") {
       return json({ result: "invalid_token", attendee: null, checked_in_at: null, message: "Invalid QR token." });

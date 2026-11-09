@@ -18,11 +18,11 @@ const attendee = {
   checked_in_at: null,
 };
 
-function request(token: string, authorization = "Bearer valid"): Request {
+function request(token: string, eventId?: string): Request {
   return new Request("http://localhost/functions/v1/checkin/scan", {
     method: "POST",
-    headers: { Authorization: authorization, "Content-Type": "application/json" },
-    body: JSON.stringify({ qr_token: token }),
+    headers: { Authorization: "Bearer valid", "Content-Type": "application/json" },
+    body: JSON.stringify({ qr_token: token, event_id: eventId }),
   });
 }
 
@@ -87,7 +87,7 @@ describe("scan check-in handler", () => {
   });
 
   it("returns the atomic first-scan result", async () => {
-    const response = await createScanHandler(dependencies)(request(token));
+    const response = await createScanHandler(dependencies)(request(token, claims.event_id));
     expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({
       result: "accepted", checked_in_at: now.toISOString(), message: null,
@@ -96,6 +96,15 @@ describe("scan check-in handler", () => {
       attendeeId: claims.attendee_id,
       eventId: claims.event_id,
     }));
+  });
+
+  it("rejects a different selected event even for an organizer who owns both", async () => {
+    dependencies.authorize = vi.fn().mockResolvedValue({ actorType: "organizer", actorId: "owner" });
+    const response = await createScanHandler(dependencies)(request(token, "88888888-8888-8888-8888-888888888888"));
+    expect(response.status).toBe(422);
+    expect(await response.json()).toMatchObject({ code: "EVENT_MISMATCH" });
+    expect(dependencies.resolveAttendee).not.toHaveBeenCalled();
+    expect(dependencies.recordCheckIn).not.toHaveBeenCalled();
   });
 
   it("preserves the database timestamp for duplicate scans", async () => {

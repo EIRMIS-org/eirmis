@@ -722,10 +722,11 @@ export function getAssignedEvent(
 /** POST /functions/v1/checkin/scan — scan a QR token and record check-in. */
 export function scanCheckIn(
     qrToken: string,
+    eventId?: string,
 ): Promise<Ok<operations['scanCheckIn']>> {
     return request('POST', '/functions/v1/checkin/scan', {
         role: 'checkin',
-        body: { qr_token: qrToken } satisfies components['schemas']['ScanCheckInRequest'],
+        body: { qr_token: qrToken, event_id: eventId } satisfies components['schemas']['ScanCheckInRequest'],
     });
 }
 

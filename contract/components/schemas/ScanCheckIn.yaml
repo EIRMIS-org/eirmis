@@ -9,6 +9,10 @@ ScanCheckInRequest:
     qr_token: eyJhbGciOiJIUzI1NiJ9.attendee-token-payload.signature
   required: [qr_token]
   properties:
+    event_id:
+      type: string
+      format: uuid
+      description: Selected scanner event. When provided, must match the signed event claim or the scan returns 422.
     qr_token:
       type: string
       description: The signed QR token scanned from the attendee's QR code.

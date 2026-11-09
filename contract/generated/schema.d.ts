@@ -2095,6 +2095,11 @@ export interface components {
          */
         ScanCheckInRequest: {
             /**
+             * Format: uuid
+             * @description Selected scanner event. When provided, must match the signed event claim or the scan returns 422.
+             */
+            event_id?: string;
+            /**
              * @description The signed QR token scanned from the attendee's QR code.
              * @example eyJhbGciOiJIUzI1NiJ9.attendee-token-payload.signature
              */
