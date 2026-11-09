@@ -18,6 +18,19 @@ Each task lives in its own folder with three files:
 | `dependencies.md` | **Blocked-by / blocks / parallel-with** analysis, contract operations consumed, shared-file conflict warnings |
 | `acceptance-criteria.md` | Done-when checklist the assignee (or reviewer) verifies before closing the task |
 
+### Branching model
+
+All Week 1 work follows a three-level flow — the milestone branch is the only path to `develop`:
+
+```mermaid
+graph LR
+    T["feat/m4-w1-* (task branches)"] --> M["feat/m4-frontend (milestone)"] --> D["develop"]
+```
+
+- Each task works on its own `feat/m4-w1-...` branch (see the **Branch** row in each `task.md`).
+- Every task PR targets **`feat/m4-frontend`** — the milestone branch — and requests review from **@AndreiKahano** and **@BigDrems**.
+- `feat/m4-frontend` is merged to `develop` only after the checkpoint (task 12) passes.
+
 ---
 
 ## 2. Team & task index

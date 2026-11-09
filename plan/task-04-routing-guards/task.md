@@ -5,7 +5,7 @@
 | **Order** | 4th — after task 03; final Lane A task |
 | **Owner** | Andrei (Lead) + Jack |
 | **Lane** | A (Infra) — final sequential task: 03 → 04, then Lane D opens |
-| **Branch** | `feat/m4-w1-routing-guards` |
+| **Branch** | `feat/m4-w1-routing-guards` → PR to `feat/m4-frontend` |
 
 ---
 

@@ -44,6 +44,12 @@ export type AttendeeCreate = components['schemas']['AttendeeCreate'];
 export type AttendeeUpdate = components['schemas']['AttendeeUpdate'];
 export type HeadcountIncreaseRequest =
     components['schemas']['HeadcountIncreaseRequest'];
+export type HeadcountIncreaseRequestCreate =
+    components['schemas']['HeadcountIncreaseRequestCreate'];
+export type OrgSettings = components['schemas']['OrgSettings'];
+export type OrgSettingsUpdate = components['schemas']['OrgSettingsUpdate'];
+export type RegisterPublicRequest =
+    components['schemas']['RegisterPublicRequest'];
 export type OrganizerProfile = components['schemas']['OrganizerProfile'];
 export type OrganizerStatus = components['schemas']['OrganizerStatus'];
 export type OrganizerStatusUpdate =
@@ -667,6 +673,25 @@ export function updateOrganizerStatus(
     });
 }
 
+/** GET /rest/v1/org_settings — read organization settings singleton. */
+export function getOrgSettings(): Promise<
+    ListOk<operations['getOrgSettings']>
+> {
+    return request('GET', '/rest/v1/org_settings', { role: 'admin' });
+}
+
+/** PATCH /rest/v1/org_settings?id=eq.{id} — update org settings singleton. */
+export function updateOrgSettings(
+    body: components['schemas']['OrgSettingsUpdate'],
+): Promise<Ok<operations['updateOrgSettings']>> {
+    return request('PATCH', '/rest/v1/org_settings', {
+        role: 'admin',
+        query: { id: 'eq.00000000-0000-0000-0000-000000000001' },
+        body,
+        headers: { Prefer: 'return=representation' },
+    });
+}
+
 // ─── Guest operations ─────────────────────────────────────────────────────────
 
 /** PATCH /rest/v1/guests?id=eq.{id} — update own guest profile. */
@@ -754,6 +779,8 @@ const api = {
     getAdminProfile,
     getAdminOrganizers,
     updateOrganizerStatus,
+    getOrgSettings,
+    updateOrgSettings,
     // guest
     updateGuestProfile,
     // check-in staff
