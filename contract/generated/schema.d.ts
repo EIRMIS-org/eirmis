@@ -2103,7 +2103,7 @@ export interface components {
         /**
          * @description Response from the `scanCheckIn` Edge Function. Discriminated by `result`: - `accepted`         — first-time successful check-in. - `already_checked_in` — attendee was previously checked in (re-scan/re-entry).
          *       The organizer UI should surface this distinctly from an error.
-         *     - `invalid_token`    — the token is malformed, expired, or not found.
+         *     - `invalid_token`    — the signed token does not resolve to an approved attendee. Malformed, expired, or tampered tokens are rejected with HTTP 422.
          * @example {
          *       "result": "accepted",
          *       "attendee": {
@@ -2134,7 +2134,8 @@ export interface components {
              * @enum {string}
              */
             result: "accepted" | "already_checked_in" | "invalid_token";
-            attendee: components["schemas"]["Attendee"];
+            /** @description Null when the signed token does not resolve to an approved attendee. */
+            attendee: components["schemas"]["Attendee"] | null;
             /**
              * Format: date-time
              * @description Set when `result = accepted` or `already_checked_in`.
@@ -2456,6 +2457,15 @@ export interface components {
         };
         /** @description Bad request — invalid query parameters or request body. */
         BadRequest: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Unprocessable Entity — the request was syntactically valid but failed a domain-level validation (e.g. HTML structural scan rejected the uploaded file). */
+        UnprocessableEntity: {
             headers: {
                 [name: string]: unknown;
             };
@@ -4053,6 +4063,7 @@ export interface operations {
             };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            422: components["responses"]["UnprocessableEntity"];
         };
     };
     sendReminders: {
