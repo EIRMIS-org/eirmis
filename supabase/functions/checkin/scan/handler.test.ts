@@ -57,6 +57,13 @@ describe("scan check-in handler", () => {
     expect(dependencies.resolveAttendee).not.toHaveBeenCalled();
   });
 
+  it("dispatches the gateway path and rejects unknown checkin routes", async () => {
+    const handle = createScanHandler(dependencies);
+    expect((await handle(new Request("http://local/checkin/scan", request(token)))).status).toBe(200);
+    expect((await handle(new Request("http://local/checkin/other", request(token)))).status).toBe(404);
+    expect(dependencies.recordCheckIn).toHaveBeenCalledTimes(1);
+  });
+
   it("returns 422 for a tampered signature", async () => {
     const response = await createScanHandler(dependencies)(request(`${token.slice(0, -1)}x`));
     expect(response.status).toBe(422);

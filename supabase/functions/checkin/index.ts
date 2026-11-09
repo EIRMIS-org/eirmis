@@ -1,7 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { createScanHandler, type ScanActor, type ScanAttendee } from "./handler.ts";
-import type { QrTokenClaims } from "../../_shared/qr-token.ts";
+import { createScanHandler, type ScanActor, type ScanAttendee } from "./scan/handler.ts";
+import type { QrTokenClaims } from "../_shared/qr-token.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
 const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";

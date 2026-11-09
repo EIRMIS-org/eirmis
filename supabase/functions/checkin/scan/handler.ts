@@ -53,6 +53,10 @@ function error(status: number, code: string, message: string): Response {
 
 export function createScanHandler(dependencies: ScanDependencies) {
   return async (request: Request): Promise<Response> => {
+    const path = new URL(request.url).pathname;
+    if (path !== "/checkin/scan" && path !== "/functions/v1/checkin/scan") {
+      return error(404, "NOT_FOUND", "Unknown check-in route.");
+    }
     if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
     if (request.method !== "POST") return error(405, "METHOD_NOT_ALLOWED", "Method not allowed.");
 
