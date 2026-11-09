@@ -212,6 +212,213 @@ export async function verifyAndDecodeQrToken(
   }
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+export async function renderAttendeeQrAssets(
+  attendees: {
+    id: string;
+    full_name: string;
+    is_primary?: boolean;
+    qr_token: string;
+  }[],
+  eventTitle?: string,
+): Promise<{
+  pdfBytes: Uint8Array;
+  passesWithPngBase64: {
+    id: string;
+    full_name: string;
+    is_primary: boolean;
+    qr_token: string;
+    pngBase64: string;
+  }[];
+}> {
+  const pdf = await PDFDocument.create();
+  const fontBold = await pdf.embedFont(StandardFonts.HelveticaBold);
+  const fontRegular = await pdf.embedFont(StandardFonts.Helvetica);
+
+  const passesWithPngBase64: {
+    id: string;
+    full_name: string;
+    is_primary: boolean;
+    qr_token: string;
+    pngBase64: string;
+  }[] = [];
+
+  for (const attendee of attendees) {
+    if (!attendee.qr_token) {
+      throw new Error(
+        `Approved attendee "${attendee.full_name}" has no QR token.`,
+      );
+    }
+
+    const pngBuffer = await QRCode.toBuffer(attendee.qr_token, {
+      type: "png",
+      width: 300,
+      margin: 2,
+    });
+    const pngBytes = new Uint8Array(pngBuffer);
+    const pngBase64 = bytesToBase64(pngBytes);
+
+    passesWithPngBase64.push({
+      id: attendee.id,
+      full_name: attendee.full_name,
+      is_primary: Boolean(attendee.is_primary),
+      qr_token: attendee.qr_token,
+      pngBase64,
+    });
+
+    const qrImage = await pdf.embedPng(pngBytes);
+    const page = pdf.addPage([612, 792]);
+    const qrSize = 300;
+
+    if (eventTitle) {
+      page.drawText(eventTitle, {
+        x: 48,
+        y: page.getHeight() - 56,
+        size: 14,
+        font: fontRegular,
+        color: rgb(0.35, 0.38, 0.45),
+      });
+    }
+
+    page.drawText(attendee.full_name, {
+      x: 48,
+      y: page.getHeight() - 88,
+      size: 22,
+      font: fontBold,
+      color: rgb(0.07, 0.09, 0.15),
+    });
+
+    page.drawText(
+      attendee.is_primary ? "Primary Guest Pass" : "Party Attendee Pass",
+      {
+        x: 48,
+        y: page.getHeight() - 112,
+        size: 12,
+        font: fontRegular,
+        color: rgb(0.4, 0.45, 0.52),
+      },
+    );
+
+    page.drawImage(qrImage, {
+      x: (page.getWidth() - qrSize) / 2,
+      y: (page.getHeight() - qrSize) / 2 - 20,
+      width: qrSize,
+      height: qrSize,
+    });
+
+    page.drawText(
+      "Present this QR code at the event entrance for check-in.",
+      {
+        x: 48,
+        y: 72,
+        size: 11,
+        font: fontRegular,
+        color: rgb(0.4, 0.45, 0.52),
+      },
+    );
+  }
+
+  return {
+    pdfBytes: new Uint8Array(await pdf.save()),
+    passesWithPngBase64,
+  };
+}
+
+export function buildQrBundleEmailHtml(params: {
+  guestName: string;
+  eventTitle: string;
+  eventStartsAt: string | null;
+  eventLocation: string | null;
+  passes: {
+    id: string;
+    full_name: string;
+    is_primary: boolean;
+    qr_token: string;
+    pngBase64: string;
+  }[];
+}): string {
+  const { guestName, eventTitle, eventStartsAt, eventLocation, passes } =
+    params;
+
+  const formattedDate = eventStartsAt
+    ? new Date(eventStartsAt).toUTCString()
+    : null;
+
+  const passCardsHtml = passes
+    .map(
+      (pass) => `
+      <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 16px; text-align: center; background-color: #ffffff;">
+        <p style="margin: 0 0 4px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 600;">
+          ${pass.is_primary ? "Primary Guest" : "Party Attendee"}
+        </p>
+        <h3 style="margin: 0 0 12px 0; font-size: 18px; color: #0f172a;">
+          ${escapeHtml(pass.full_name)}
+        </h3>
+        <img
+          src="data:image/png;base64,${pass.pngBase64}"
+          alt="QR Pass for ${escapeHtml(pass.full_name)}"
+          width="220"
+          height="220"
+          style="display: block; margin: 0 auto 12px auto; max-width: 220px; height: auto; border: 1px solid #f1f5f9; border-radius: 8px;"
+        />
+        <p style="margin: 0; font-size: 11px; color: #94a3b8; word-break: break-all; font-family: monospace;">
+          Pass ID: ${escapeHtml(pass.id)}
+        </p>
+      </div>`,
+    )
+    .join("\n");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your QR Code Passes — ${escapeHtml(eventTitle)}</title>
+</head>
+<body style="margin: 0; padding: 24px; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0f172a;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px;">
+    <h1 style="margin: 0 0 12px 0; font-size: 24px; color: #0f172a;">
+      Your Event QR Code Passes
+    </h1>
+    <p style="margin: 0 0 16px 0; font-size: 15px; line-height: 1.6; color: #334155;">
+      Hello <strong>${escapeHtml(guestName)}</strong>, your approved attendee QR code passes for <strong>${escapeHtml(eventTitle)}</strong> are ready.
+    </p>
+    ${
+    formattedDate || eventLocation
+      ? `<div style="background-color: #f1f5f9; border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; font-size: 14px; color: #334155;">
+          ${
+        formattedDate
+          ? `<p style="margin: 0 0 4px 0;"><strong>Date:</strong> ${escapeHtml(formattedDate)}</p>`
+          : ""
+      }
+          ${
+        eventLocation
+          ? `<p style="margin: 0;"><strong>Location:</strong> ${escapeHtml(eventLocation)}</p>`
+          : ""
+      }
+        </div>`
+      : ""
+  }
+    <div style="background-color: #eff6ff; border-left: 4px solid #2563eb; padding: 12px 16px; margin-bottom: 24px; font-size: 14px; color: #1e3a8a;">
+      <strong>Check-in Instructions:</strong> Present each attendee's individual QR code below (or from the attached multi-page PDF) to the check-in staff at the venue entrance. Each QR code is uniquely signed and valid for a single check-in.
+    </div>
+    ${passCardsHtml}
+    <p style="margin: 24px 0 0 0; font-size: 12px; color: #64748b; text-align: center;">
+      A printable multi-page PDF containing all ${passes.length} pass(es) is also attached to this email.
+    </p>
+  </div>
+</body>
+</html>`;
+}
+
 async function createQrBundlePdf(attendees: {
   full_name: string;
   qr_token: string | null;
