@@ -1,18 +1,15 @@
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ApiError } from '@/lib/api'
+import type { RegisterPublicRequest } from '@/lib/api'
+import { registerPublicResolver } from '@/lib/forms'
 import { useRegisterPublicGuest } from '@/features/landing/hooks/use-register-public-guest'
 
 interface PublicRegistrationFormProps {
   eventId: string
   eventTitle: string
-}
-
-interface FormErrors {
-  fullName?: string
-  email?: string
-  form?: string
 }
 
 export function PublicRegistrationForm({
@@ -21,50 +18,41 @@ export function PublicRegistrationForm({
 }: PublicRegistrationFormProps) {
   const registration = useRegisterPublicGuest()
   const [submitted, setSubmitted] = useState(false)
-  const [errors, setErrors] = useState<FormErrors>({})
-  const [partySize, setPartySize] = useState('1')
+  const [formError, setFormError] = useState<string>()
+  const {
+    clearErrors,
+    formState: { errors },
+    handleSubmit,
+    register,
+    setError,
+  } = useForm({
+    resolver: registerPublicResolver,
+    defaultValues: {
+      event_id: eventId,
+      full_name: '',
+      email: '',
+    },
+  })
+  const fullNameField = register('full_name')
+  const emailField = register('email')
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const formData = new FormData(event.currentTarget)
-    const fullName = String(formData.get('full_name') ?? '').trim()
-    const email = String(formData.get('email') ?? '').trim()
-    const nextErrors: FormErrors = {}
-
-    if (!fullName) nextErrors.fullName = 'Enter your name.'
-    if (!email) {
-      nextErrors.email = 'Enter your email address.'
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      nextErrors.email = 'Enter a valid email address.'
-    }
-    const partyCount = Number(partySize)
-    if (!Number.isInteger(partyCount) || partyCount < 1 || partyCount > 10) {
-      nextErrors.form = 'Party size must be between 1 and 10.'
-    }
-
-    if (Object.keys(nextErrors).length > 0) {
-      setErrors(nextErrors)
-      return
-    }
-
-    setErrors({})
+  async function onSubmit(values: RegisterPublicRequest) {
+    setFormError(undefined)
     try {
-      await registration.mutateAsync({
-        event_id: eventId,
-        full_name: fullName,
-        email,
-      })
+      await registration.mutateAsync(values)
       setSubmitted(true)
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
-        setErrors({ email: 'This email is already registered for this event.' })
-      } else {
-        setErrors({
-          form:
-            error instanceof ApiError || error instanceof Error
-              ? error.message
-              : 'Registration could not be completed. Please try again.',
+        setError('email', {
+          type: 'server',
+          message: 'This email is already registered for this event.',
         })
+      } else {
+        setFormError(
+          error instanceof ApiError || error instanceof Error
+            ? error.message
+            : 'Registration could not be completed. Please try again.',
+        )
       }
     }
   }
@@ -87,7 +75,7 @@ export function PublicRegistrationForm({
   }
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+    <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
       <div>
         <label
           htmlFor="public-registration-name"
@@ -97,22 +85,23 @@ export function PublicRegistrationForm({
         </label>
         <Input
           id="public-registration-name"
-          name="full_name"
           autoComplete="name"
-          aria-invalid={Boolean(errors.fullName)}
+          aria-invalid={Boolean(errors.full_name)}
           aria-describedby={
-            errors.fullName ? 'public-registration-name-error' : undefined
+            errors.full_name ? 'public-registration-name-error' : undefined
           }
-          onChange={() =>
-            setErrors((current) => ({ ...current, fullName: undefined }))
-          }
+          {...fullNameField}
+          onChange={(event) => {
+            fullNameField.onChange(event)
+            clearErrors('full_name')
+          }}
         />
-        {errors.fullName && (
+        {errors.full_name?.message && (
           <p
             id="public-registration-name-error"
             className="mt-1 text-xs text-error"
           >
-            {errors.fullName}
+            {errors.full_name.message}
           </p>
         )}
       </div>
@@ -126,57 +115,34 @@ export function PublicRegistrationForm({
         </label>
         <Input
           id="public-registration-email"
-          name="email"
           type="email"
           autoComplete="email"
           aria-invalid={Boolean(errors.email)}
           aria-describedby={
             errors.email ? 'public-registration-email-error' : undefined
           }
-          onChange={() =>
-            setErrors((current) => ({ ...current, email: undefined }))
-          }
+          {...emailField}
+          onChange={(event) => {
+            emailField.onChange(event)
+            clearErrors('email')
+          }}
         />
-        {errors.email && (
+        {errors.email?.message && (
           <p
             id="public-registration-email-error"
             className="mt-1 text-xs text-error"
           >
-            {errors.email}
+            {errors.email.message}
           </p>
         )}
       </div>
 
-      <div>
-        <label
-          htmlFor="public-registration-party-size"
-          className="mb-1.5 block text-xs font-semibold text-foreground"
-        >
-          Party size
-        </label>
-        <Input
-          id="public-registration-party-size"
-          type="number"
-          min={1}
-          max={10}
-          value={partySize}
-          onChange={(event) => {
-            setPartySize(event.target.value)
-            setErrors((current) => ({ ...current, form: undefined }))
-          }}
-        />
-        <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
-          This preview registers one guest; party size is collected for planning
-          only.
-        </p>
-      </div>
-
-      {errors.form && (
+      {formError && (
         <p
           className="rounded-lg border border-error-border bg-error-bg px-3 py-2 text-xs text-error"
           role="alert"
         >
-          {errors.form}
+          {formError}
         </p>
       )}
 
