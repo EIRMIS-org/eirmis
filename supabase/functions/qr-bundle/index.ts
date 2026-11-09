@@ -1,7 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import QRCode from "npm:qrcode@1.5.4";
-import { PDFDocument, StandardFonts } from "npm:pdf-lib@1.17.1";
+import { PDFDocument, rgb, StandardFonts } from "npm:pdf-lib@1.17.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -10,6 +10,51 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+const uuidPattern =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export interface QrTokenPayload {
+  attendee_id: string;
+  event_id: string;
+  invitation_id: string;
+  issued_at: string;
+}
+
+interface AttendeeRow {
+  id: string;
+  invitation_id: string;
+  full_name: string;
+  email: string | null;
+  is_primary: boolean;
+  status: string;
+  qr_token: string | null;
+  submitted_at: string | null;
+  reviewed_at: string | null;
+}
+
+interface InvitationRow {
+  id: string;
+  event_id: string;
+  guest_id: string;
+  status: string;
+}
+
+interface EventRow {
+  id: string;
+  organizer_id: string;
+  title: string;
+  starts_at: string | null;
+  venue_name: string | null;
+  address: string | null;
+  city: string | null;
+}
+
+interface GuestRow {
+  id: string;
+  email: string;
+  full_name: string;
+}
+
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -17,7 +62,20 @@ function jsonResponse(body: unknown, status = 200) {
   });
 }
 
-function bytesToBase64(bytes: Uint8Array) {
+function errorResponse(
+  code: string,
+  message: string,
+  status: number,
+  details: string | null = null,
+  hint: string | null = null,
+) {
+  return jsonResponse(
+    { code, message, details, hint, error: message },
+    status,
+  );
+}
+
+export function bytesToBase64(bytes: Uint8Array): string {
   let binary = "";
   const chunkSize = 0x8000;
 
@@ -28,6 +86,130 @@ function bytesToBase64(bytes: Uint8Array) {
   }
 
   return btoa(binary);
+}
+
+function base64UrlEncodeBytes(bytes: Uint8Array): string {
+  return bytesToBase64(bytes)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+}
+
+function base64UrlEncodeString(value: string): string {
+  return base64UrlEncodeBytes(new TextEncoder().encode(value));
+}
+
+function base64UrlDecodeToString(value: string): string {
+  const padded = value
+    .replace(/-/g, "+")
+    .replace(/_/g, "/")
+    .padEnd(Math.ceil(value.length / 4) * 4, "=");
+  const binary = atob(padded);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return new TextDecoder().decode(bytes);
+}
+
+async function importHmacKey(secret: string): Promise<CryptoKey> {
+  return await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign", "verify"],
+  );
+}
+
+export async function signQrToken(
+  payload: QrTokenPayload,
+  secret: string,
+): Promise<string> {
+  const headerB64 = base64UrlEncodeString(JSON.stringify({ alg: "HS256" }));
+  const payloadB64 = base64UrlEncodeString(
+    JSON.stringify({
+      attendee_id: payload.attendee_id,
+      event_id: payload.event_id,
+      invitation_id: payload.invitation_id,
+      issued_at: payload.issued_at,
+    }),
+  );
+  const signingInput = `${headerB64}.${payloadB64}`;
+  const key = await importHmacKey(secret);
+  const signatureBuffer = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(signingInput),
+  );
+  const signatureB64 = base64UrlEncodeBytes(new Uint8Array(signatureBuffer));
+  return `${signingInput}.${signatureB64}`;
+}
+
+export async function verifyAndDecodeQrToken(
+  token: string | null | undefined,
+  expected: { attendee_id: string; event_id: string; invitation_id: string },
+  secret: string,
+): Promise<QrTokenPayload | null> {
+  if (!token || typeof token !== "string") {
+    return null;
+  }
+
+  const parts = token.split(".");
+  if (parts.length !== 3) {
+    return null;
+  }
+
+  const [headerB64, payloadB64, signatureB64] = parts;
+  if (!headerB64 || !payloadB64 || !signatureB64) {
+    return null;
+  }
+
+  try {
+    const signingInput = `${headerB64}.${payloadB64}`;
+    const key = await importHmacKey(secret);
+    const expectedSigBuffer = await crypto.subtle.sign(
+      "HMAC",
+      key,
+      new TextEncoder().encode(signingInput),
+    );
+    const expectedSigB64 = base64UrlEncodeBytes(
+      new Uint8Array(expectedSigBuffer),
+    );
+
+    if (expectedSigB64.length !== signatureB64.length) {
+      return null;
+    }
+    let mismatch = 0;
+    for (let i = 0; i < expectedSigB64.length; i++) {
+      mismatch |= expectedSigB64.charCodeAt(i) ^ signatureB64.charCodeAt(i);
+    }
+    if (mismatch !== 0) {
+      return null;
+    }
+
+    const decodedJson = JSON.parse(base64UrlDecodeToString(payloadB64));
+    if (
+      decodedJson === null ||
+      typeof decodedJson !== "object" ||
+      decodedJson.attendee_id !== expected.attendee_id ||
+      decodedJson.event_id !== expected.event_id ||
+      decodedJson.invitation_id !== expected.invitation_id ||
+      typeof decodedJson.issued_at !== "string" ||
+      !decodedJson.issued_at
+    ) {
+      return null;
+    }
+
+    return {
+      attendee_id: decodedJson.attendee_id,
+      event_id: decodedJson.event_id,
+      invitation_id: decodedJson.invitation_id,
+      issued_at: decodedJson.issued_at,
+    };
+  } catch {
+    return null;
+  }
 }
 
 async function createQrBundlePdf(attendees: {
