@@ -24,6 +24,8 @@ import { StaffLayout } from '@/pages/staff/staff-layout'
 import { AdminLayout } from '@/pages/admin/admin-layout'
 import { PlaceholderPage } from '@/pages/shared/placeholder-page'
 import { DocsPage } from '@/pages/shared/docs-page'
+import { EventsPage } from '@/pages/organizer/events-page'
+import { CreateEventPage } from '@/pages/organizer/create-event-page'
 
 const Styleguide = lazy(() => import('@/Styleguide'))
 
@@ -66,21 +68,11 @@ export const router = createBrowserRouter([
         children: [
             {
                 path: 'organizer',
-                element: (
-                    <PlaceholderPage
-                        title="Organizer — Events"
-                        note="Filled by task 07 — Organizer Portal"
-                    />
-                ),
+                element: <EventsPage />,
             },
             {
                 path: 'organizer/events/new',
-                element: (
-                    <PlaceholderPage
-                        title="Organizer — Create Event"
-                        note="Filled by task 07 — 4-step wizard"
-                    />
-                ),
+                element: <CreateEventPage />,
             },
             {
                 path: 'organizer/events/:eventId',

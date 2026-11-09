@@ -13,6 +13,11 @@
 
 Build the organizer's core Week-1 screens: events list, create-event wizard, guest list, and the approval queue (attendees + headcount). This is the **largest portal** — it anchors the main checkpoint flow (event → invite → approve → QR).
 
+### Pair split
+
+- **Jian (`trojian-00`):** events list and 4-step create-event wizard.
+- **Jebron (`Jebzzzzz`):** guests, approvals, and QR dispatch tabs.
+
 ## Visual contract
 
 [`mockup-plan/organizer-portal/organizer-portal.html`](../../mockup-plan/organizer-portal/organizer-portal.html) — event workspace with tabs, 4-step create wizard, approval queue with audited capacity override.

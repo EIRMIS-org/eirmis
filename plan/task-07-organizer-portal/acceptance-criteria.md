@@ -1,6 +1,6 @@
 # Task 07 — Acceptance Criteria
 
-- [ ] Events list shows the organizer's events with loading/empty/error/success states
+- [x] Events list shows the organizer's events with loading/empty/error/success states
 - [ ] 4-step create wizard validates each step with Zod; submitting creates an event via MSW and navigates to its workspace
 - [ ] Guests tab lists guests + invitations; adding an invitation appears immediately (cache invalidation works)
 - [ ] Approvals tab: approving/rejecting an attendee updates the queue and the invitation status
