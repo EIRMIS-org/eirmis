@@ -159,10 +159,12 @@ const exampleAttendee: Attendee = {
 
 let mockInvitation: Invitation = { ...exampleInvitation };
 let mockAttendees: Attendee[] = [{ ...exampleAttendee }];
+let mockHeadcountRequests: HeadcountIncreaseRequest[] = [];
 
 export function resetMockCheckInState(): void {
     mockInvitation = { ...exampleInvitation };
     mockAttendees = [{ ...exampleAttendee }];
+    mockHeadcountRequests = [];
 }
 
 const exampleHir: HeadcountIncreaseRequest = {
@@ -176,6 +178,8 @@ const exampleHir: HeadcountIncreaseRequest = {
     reviewed_at: null,
     review_reason: null,
 };
+
+mockHeadcountRequests = [{ ...exampleHir }];
 
 const exampleOrganizerProfile: OrganizerProfile = {
     id: UUID.ORGANIZER,
@@ -460,17 +464,21 @@ export const handlers = [
     // ═══ PostgREST: headcount_increase_requests ═══
     http.get('*/rest/v1/headcount_increase_requests', ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
-        return jsonList(filterByEq(request, [exampleHir], 'invitation_id'));
+        return jsonList(filterByEq(request, mockHeadcountRequests, 'invitation_id'));
     }),
 
     // ═══ Edge Function: submit headcount request and notify organizer ═══
     http.post('*/functions/v1/submit-headcount-request', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
         const body = (await request.json()) as Partial<HeadcountIncreaseRequest>;
-        return HttpResponse.json(
-            { ...exampleHir, ...body, id: crypto.randomUUID(), status: 'pending' as const },
-            { status: 201 },
-        );
+        const requestRecord: HeadcountIncreaseRequest = {
+            ...exampleHir,
+            ...body,
+            id: crypto.randomUUID(),
+            status: 'pending',
+        };
+        mockHeadcountRequests = [...mockHeadcountRequests, requestRecord];
+        return HttpResponse.json(requestRecord, { status: 201 });
     }),
 
     // ═══ PostgREST: invitation_designs ═══
@@ -675,11 +683,28 @@ export const handlers = [
         if (!body.decision) {
             return HttpResponse.json(errorBody('P0001', 'decision is required'), { status: 400 });
         }
+        const id = new URL(request.url).pathname.split('/').at(-2);
+        const current = mockAttendees.find((attendee) => attendee.id === id);
+        if (!current) {
+            return HttpResponse.json(errorBody('PGRST116', 'Attendee not found'), { status: 404 });
+        }
+        const approved = body.decision === 'approve';
+        const updatedAttendee: Attendee = {
+            ...current,
+            status: approved ? 'approved' : 'rejected',
+            reviewed_by: UUID.ORGANIZER,
+            reviewed_at: new Date().toISOString(),
+            review_reason: (body as { reason?: string | null }).reason ?? null,
+            qr_token: approved ? current.qr_token ?? `signed-qr-token-${current.id}` : null,
+        };
+        mockAttendees = mockAttendees.map((attendee) =>
+            attendee.id === updatedAttendee.id ? updatedAttendee : attendee,
+        );
+        if (approved) {
+            mockInvitation = { ...mockInvitation, status: 'accepted' };
+        }
         return HttpResponse.json({
-            attendee: {
-                ...exampleAttendee,
-                status: body.decision === 'approve' ? ('approved' as const) : ('rejected' as const),
-            },
+            attendee: updatedAttendee,
             capacity_warning: null,
         });
     }),
@@ -687,9 +712,32 @@ export const handlers = [
     http.post('*/functions/v1/headcount-requests/:id/decision', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
         const body = (await request.json()) as { decision?: string };
+        const id = new URL(request.url).pathname.split('/').at(-2);
+        const current = mockHeadcountRequests.find((item) => item.id === id);
+        if (!current) {
+            return HttpResponse.json(errorBody('PGRST116', 'Headcount request not found'), { status: 404 });
+        }
+        const approved = body.decision === 'approve';
+        const updatedRequest: HeadcountIncreaseRequest = {
+            ...current,
+            status: approved ? 'approved' : 'rejected',
+            reviewed_by: UUID.ORGANIZER,
+            reviewed_at: new Date().toISOString(),
+            review_reason: (body as { reason?: string | null }).reason ?? null,
+        };
+        mockHeadcountRequests = mockHeadcountRequests.map((item) =>
+            item.id === updatedRequest.id ? updatedRequest : item,
+        );
+        if (approved) {
+            mockInvitation = {
+                ...mockInvitation,
+                max_party_size:
+                    mockInvitation.max_party_size +
+                    updatedRequest.requested_additional_heads,
+            };
+        }
         return HttpResponse.json({
-            ...exampleHir,
-            status: body.decision === 'approve' ? ('approved' as const) : ('rejected' as const),
+            ...updatedRequest,
         });
     }),
 
