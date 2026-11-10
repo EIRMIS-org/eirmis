@@ -19,6 +19,9 @@ import { RoleGuard } from './role-guard'
 import { NotFoundPage } from './not-found-page'
 import { LandingLayout } from '@/pages/landing/landing-layout'
 import { OrganizerLayout } from '@/pages/organizer/organizer-layout'
+import { EventsPage } from '@/pages/organizer/events-page'
+import { CreateEventPage } from '@/pages/organizer/create-event-page'
+import { EventWorkspacePage } from '@/pages/organizer/event-workspace-page'
 import { GuestLayout } from '@/pages/guest/guest-layout'
 import { StaffLayout } from '@/pages/staff/staff-layout'
 import { StaffScanPage } from '@/pages/staff/staff-scan-page'
@@ -29,7 +32,7 @@ import { DocsPage } from '@/pages/shared/docs-page'
 import { GuestInvitationsPage } from '@/pages/guest/guest-invitations-page'
 import { InvitationDetailPage } from '@/pages/guest/invitation-detail-page'
 
-const Styleguide = lazy(() => import("@/Styleguide"));
+const Styleguide = lazy(() => import('@/Styleguide'))
 
 export const router = createBrowserRouter([
   // ── Public: landing (task 06 fills the outlet) ────────────────────────
@@ -63,81 +66,45 @@ export const router = createBrowserRouter([
   // ── Organizer portal (task 07) ────────────────────────────────────────
   {
     element: (
-      <RoleGuard allow={["organizer"]}>
+      <RoleGuard allow={['organizer']}>
         <OrganizerLayout />
       </RoleGuard>
     ),
     children: [
-      { path: "organizer", element: <EventsPage /> },
-      { path: "organizer/events/new", element: <CreateEventPage /> },
-      { path: "organizer/events/:eventId", element: <EventWorkspacePage /> },
+      { path: 'organizer', element: <EventsPage /> },
+      { path: 'organizer/events/new', element: <CreateEventPage /> },
+      { path: 'organizer/events/:eventId', element: <EventWorkspacePage /> },
     ],
   },
 
   // ── Guest portal (task 08) ────────────────────────────────────────────
   {
     element: (
-      <RoleGuard allow={["guest"]}>
+      <RoleGuard allow={['guest']}>
         <GuestLayout />
       </RoleGuard>
     ),
     children: [
+      { path: 'guest', element: <GuestInvitationsPage /> },
       {
-        path: "guest",
-        element: (
-          <PlaceholderPage
-            title="Guest Portal"
-            note="Filled by task 08 — Guest Portal"
-          />
-        ),
+        path: 'guest/invitations/:invitationId',
+        element: <InvitationDetailPage />,
       },
-      {
-        path: "guest/invitations/:invitationId",
-        element: (
-          <PlaceholderPage
-            title="Guest — Invitation / RSVP"
-            note="Filled by task 08"
-          />
-        ),
-        children: [
-            {
-                path: 'guest',
-                element: <GuestInvitationsPage />,
-            },
-            {
-                path: 'guest/invitations/:invitationId',
-                element: <InvitationDetailPage />,
-            },
-        ],
-    },
+    ],
+  },
 
   // ── Check-in staff portal (task 09) ───────────────────────────────────
   {
     element: (
-      <RoleGuard allow={["checkin"]}>
+      <RoleGuard allow={['checkin']}>
         <StaffLayout />
       </RoleGuard>
     ),
     children: [
-      {
-        path: "staff",
-        element: (
-          <PlaceholderPage
-            title="Check-in — Scanner"
-            note="Filled by task 09 — Check-in Staff Portal"
-          />
-        ),
-        children: [
-            {
-                path: 'staff',
-                element: <StaffScanPage />,
-            },
-            {
-                path: 'staff/search',
-                element: <StaffSearchPage />,
-            },
-        ],
-    },
+      { path: 'staff', element: <StaffScanPage /> },
+      { path: 'staff/search', element: <StaffSearchPage /> },
+    ],
+  },
 
   // ── Admin portal (task 10) ────────────────────────────────────────────
   {
@@ -170,9 +137,9 @@ export const router = createBrowserRouter([
 
   // ── 404 catch-all ─────────────────────────────────────────────────────
   { path: "*", element: <NotFoundPage /> },
-]);
+])
 
 /** App entry renders this — keeps App.tsx a one-liner. */
 export function AppRouter() {
-  return <RouterProvider router={router} />;
+  return <RouterProvider router={router} />
 }
