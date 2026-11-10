@@ -29,81 +29,75 @@ import { DocsPage } from '@/pages/shared/docs-page'
 import { GuestInvitationsPage } from '@/pages/guest/guest-invitations-page'
 import { InvitationDetailPage } from '@/pages/guest/invitation-detail-page'
 
-const Styleguide = lazy(() => import('@/Styleguide'))
+const Styleguide = lazy(() => import("@/Styleguide"));
 
 export const router = createBrowserRouter([
-    // ── Public: landing (task 06 fills the outlet) ────────────────────────
-    {
-        path: '/',
-        element: <LandingLayout />,
-        children: [
-            {
-                index: true,
-                element: (
-                    <PlaceholderPage
-                        title="Public Hub"
-                        note="Filled by task 06 — Landing & Auth"
-                    />
-                ),
-            },
-        ],
-    },
-
-    // ── Public: migrated from App.tsx ─────────────────────────────────────
-    { path: '/docs', element: <DocsPage /> },
-    {
-        path: '/styleguide',
+  // ── Public: landing (task 06 fills the outlet) ────────────────────────
+  {
+    path: "/",
+    element: <LandingLayout />,
+    children: [
+      {
+        index: true,
         element: (
-            <Suspense fallback={<p>Loading style guide...</p>}>
-                <Styleguide />
-            </Suspense>
+          <PlaceholderPage
+            title="Public Hub"
+            note="Filled by task 06 — Landing & Auth"
+          />
         ),
-    },
+      },
+    ],
+  },
 
-    // ── Organizer portal (task 07) ────────────────────────────────────────
-    {
+  // ── Public: migrated from App.tsx ─────────────────────────────────────
+  { path: "/docs", element: <DocsPage /> },
+  {
+    path: "/styleguide",
+    element: (
+      <Suspense fallback={<p>Loading style guide...</p>}>
+        <Styleguide />
+      </Suspense>
+    ),
+  },
+
+  // ── Organizer portal (task 07) ────────────────────────────────────────
+  {
+    element: (
+      <RoleGuard allow={["organizer"]}>
+        <OrganizerLayout />
+      </RoleGuard>
+    ),
+    children: [
+      { path: "organizer", element: <EventsPage /> },
+      { path: "organizer/events/new", element: <CreateEventPage /> },
+      { path: "organizer/events/:eventId", element: <EventWorkspacePage /> },
+    ],
+  },
+
+  // ── Guest portal (task 08) ────────────────────────────────────────────
+  {
+    element: (
+      <RoleGuard allow={["guest"]}>
+        <GuestLayout />
+      </RoleGuard>
+    ),
+    children: [
+      {
+        path: "guest",
         element: (
-            <RoleGuard allow={['organizer']}>
-                <OrganizerLayout />
-            </RoleGuard>
+          <PlaceholderPage
+            title="Guest Portal"
+            note="Filled by task 08 — Guest Portal"
+          />
         ),
-        children: [
-            {
-                path: 'organizer',
-                element: (
-                    <PlaceholderPage
-                        title="Organizer — Events"
-                        note="Filled by task 07 — Organizer Portal"
-                    />
-                ),
-            },
-            {
-                path: 'organizer/events/new',
-                element: (
-                    <PlaceholderPage
-                        title="Organizer — Create Event"
-                        note="Filled by task 07 — 4-step wizard"
-                    />
-                ),
-            },
-            {
-                path: 'organizer/events/:eventId',
-                element: (
-                    <PlaceholderPage
-                        title="Organizer — Event Workspace"
-                        note="Filled by task 07 — guests, approvals, reminders, design, check-in, logs"
-                    />
-                ),
-            },
-        ],
-    },
-
-    // ── Guest portal (task 08) ────────────────────────────────────────────
-    {
+      },
+      {
+        path: "guest/invitations/:invitationId",
         element: (
-            <RoleGuard allow={['guest']}>
-                <GuestLayout />
-            </RoleGuard>
+          <PlaceholderPage
+            title="Guest — Invitation / RSVP"
+            note="Filled by task 08"
+          />
         ),
         children: [
             {
@@ -117,12 +111,21 @@ export const router = createBrowserRouter([
         ],
     },
 
-    // ── Check-in staff portal (task 09) ───────────────────────────────────
-    {
+  // ── Check-in staff portal (task 09) ───────────────────────────────────
+  {
+    element: (
+      <RoleGuard allow={["checkin"]}>
+        <StaffLayout />
+      </RoleGuard>
+    ),
+    children: [
+      {
+        path: "staff",
         element: (
-            <RoleGuard allow={['checkin']}>
-                <StaffLayout />
-            </RoleGuard>
+          <PlaceholderPage
+            title="Check-in — Scanner"
+            note="Filled by task 09 — Check-in Staff Portal"
+          />
         ),
         children: [
             {
@@ -136,40 +139,40 @@ export const router = createBrowserRouter([
         ],
     },
 
-    // ── Admin portal (task 10) ────────────────────────────────────────────
-    {
+  // ── Admin portal (task 10) ────────────────────────────────────────────
+  {
+    element: (
+      <RoleGuard allow={["admin"]}>
+        <AdminLayout />
+      </RoleGuard>
+    ),
+    children: [
+      {
+        path: "admin",
         element: (
-            <RoleGuard allow={['admin']}>
-                <AdminLayout />
-            </RoleGuard>
+          <PlaceholderPage
+            title="Admin — Verification Queue"
+            note="Filled by task 10 — Admin Portal"
+          />
         ),
-        children: [
-            {
-                path: 'admin',
-                element: (
-                    <PlaceholderPage
-                        title="Admin — Verification Queue"
-                        note="Filled by task 10 — Admin Portal"
-                    />
-                ),
-            },
-            {
-                path: 'admin/settings',
-                element: (
-                    <PlaceholderPage
-                        title="Admin — Org Settings"
-                        note="Filled by task 10"
-                    />
-                ),
-            },
-        ],
-    },
+      },
+      {
+        path: "admin/settings",
+        element: (
+          <PlaceholderPage
+            title="Admin — Org Settings"
+            note="Filled by task 10"
+          />
+        ),
+      },
+    ],
+  },
 
-    // ── 404 catch-all ─────────────────────────────────────────────────────
-    { path: '*', element: <NotFoundPage /> },
-])
+  // ── 404 catch-all ─────────────────────────────────────────────────────
+  { path: "*", element: <NotFoundPage /> },
+]);
 
 /** App entry renders this — keeps App.tsx a one-liner. */
 export function AppRouter() {
-    return <RouterProvider router={router} />
+  return <RouterProvider router={router} />;
 }

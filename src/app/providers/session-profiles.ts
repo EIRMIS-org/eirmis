@@ -19,6 +19,16 @@ export interface SessionProfile {
 /** Roles that can hold a session (everything except anonymous `public`). */
 export type AuthenticatedRole = Exclude<Role, 'public'>
 
+export const SESSION_ROLE_OPTIONS: {
+    role: AuthenticatedRole
+    label: string
+}[] = [
+    { role: 'organizer', label: 'Organizer' },
+    { role: 'admin', label: 'Admin' },
+    { role: 'guest', label: 'Guest' },
+    { role: 'checkin', label: 'Check-in Staff' },
+]
+
 export const SESSION_PROFILES: Record<AuthenticatedRole, SessionProfile> = {
     organizer: {
         name: 'Maria Santos',
