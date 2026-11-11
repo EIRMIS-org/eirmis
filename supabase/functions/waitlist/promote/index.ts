@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+﻿import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 
 const corsHeaders = {
@@ -42,258 +42,266 @@ async function ensureOrganizerForEvent(
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-
-  if (req.method !== "POST") {
-    return jsonResponse({ error: "Method Not Allowed" }, 405);
-  }
-
-  const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
-  const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  const resendApiKey = Deno.env.get("RESEND_API_KEY");
-  const resendFromEmail = Deno.env.get("RESEND_FROM_EMAIL");
-  const authorization = req.headers.get("Authorization");
-
-  if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceRoleKey || !resendApiKey || !resendFromEmail) {
-    return jsonResponse({ error: "Function is not configured." }, 500);
-  }
-
-  if (!authorization) {
-    return jsonResponse({ error: "Unauthorized" }, 401);
-  }
-
-  let body: unknown;
   try {
-    body = await req.json();
-  } catch {
-    return jsonResponse({ error: "Request body must be valid JSON." }, 400);
-  }
+    if (req.method === "OPTIONS") {
+      return new Response("ok", { headers: corsHeaders });
+    }
 
-  if (!body || typeof body !== "object") {
-    return jsonResponse({ error: "Request body must be a JSON object." }, 400);
-  }
+    if (req.method !== "POST") {
+      return jsonResponse({ error: "Method Not Allowed" }, 405);
+    }
 
-  const requestBody = body as Record<string, unknown>;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    const resendFromEmail = Deno.env.get("RESEND_FROM_EMAIL");
+    const authorization = req.headers.get("Authorization");
 
-  if (!("event_id" in requestBody) || !isUuid(requestBody.event_id)) {
-    return jsonResponse({ error: "event_id must be a valid UUID." }, 400);
-  }
+    if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceRoleKey || !resendApiKey || !resendFromEmail) {
+      return jsonResponse({ error: "Function is not configured." }, 500);
+    }
 
-  const maxPromote = "max_promote" in requestBody && requestBody.max_promote !== undefined
-    ? requestBody.max_promote
-    : 10;
-
-  if (
-    typeof maxPromote !== "number" ||
-    !Number.isInteger(maxPromote) ||
-    maxPromote < 1
-  ) {
-    return jsonResponse({ error: "max_promote must be a positive integer." }, 400);
-  }
-
-  const serviceClient = createClient(supabaseUrl, supabaseServiceRoleKey);
-  const isServiceRoleRequest = authorization === `Bearer ${supabaseServiceRoleKey}` || authorization === supabaseServiceRoleKey;
-
-  if (!isServiceRoleRequest) {
-    const authClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: {
-        headers: {
-          Authorization: authorization,
-        },
-      },
-    });
-
-    const {
-      data: { user },
-      error: authError,
-    } = await authClient.auth.getUser();
-
-    if (authError || !user) {
+    if (!authorization) {
       return jsonResponse({ error: "Unauthorized" }, 401);
     }
 
+    let body: unknown;
     try {
-      const isOrganizer = await ensureOrganizerForEvent(
-        serviceClient,
-        user.id,
-        requestBody.event_id as string,
-      );
-
-      if (!isOrganizer) {
-        return jsonResponse({ error: "Forbidden" }, 403);
-      }
-    } catch (error) {
-      console.error("Error verifying organizer access:", error);
-      return jsonResponse({ error: "Failed to verify organizer access." }, 500);
-    }
-  }
-
-  const { data: eventData, error: eventError } = await serviceClient
-    .from("events")
-    .select("capacity")
-    .eq("id", requestBody.event_id as string)
-    .maybeSingle();
-
-  if (eventError) {
-    console.error("Error fetching event capacity:", eventError.message);
-    return jsonResponse({ error: "Failed to load event capacity." }, 500);
-  }
-
-  if (!eventData || eventData.capacity == null) {
-    return jsonResponse({ error: "Event capacity not found." }, 404);
-  }
-
-  const { count: totalApprovedHeadcount, error: headcountError } = await serviceClient
-    .from("invitations")
-    .select("id", { count: "exact", head: true })
-    .eq("event_id", requestBody.event_id as string)
-    .eq("status", "accepted");
-
-  if (headcountError) {
-    console.error("Error calculating approved headcount:", headcountError.message);
-    return jsonResponse({ error: "Failed to calculate approved headcount." }, 500);
-  }
-
-  const headroom = Number(eventData.capacity) - Number(totalApprovedHeadcount ?? 0);
-
-  if (headroom <= 0) {
-    return jsonResponse({
-      promoted_count: 0,
-      remaining_capacity: 0,
-    }, 200);
-  }
-
-  const effectiveMaxPromote = Math.min(maxPromote, headroom);
-
-  const { data: promotedRows, error: promoteError } = await serviceClient.rpc(
-    "promote_waitlist_atomic",
-    {
-      p_event_id: requestBody.event_id as string,
-      p_headroom: headroom,
-      p_max_promote: effectiveMaxPromote,
-    },
-  );
-
-  if (promoteError) {
-    console.error("Failed to promote waitlisted invitations:", promoteError.message);
-    return jsonResponse({ error: "Failed to promote waitlisted invitations." }, 500);
-  }
-
-  const promotedInvitations = Array.isArray(promotedRows) ? promotedRows : [];
-  const promotedInvitationIds: string[] = [];
-  const promotedAuditEntries: Array<{ action: string; entity_id: string; event_id: string; details: Record<string, unknown> }> = [];
-
-  for (const row of promotedInvitations) {
-    const { data: invitation, error: invitationError } = await serviceClient
-      .from("invitations")
-      .select("id, event_id, guest_id, guests(email, full_name)")
-      .eq("id", row.id)
-      .maybeSingle();
-
-    if (invitationError || !invitation) {
-      console.error("Error fetching promoted invitation details:", invitationError?.message ?? "unknown");
-      return jsonResponse({ error: "Failed to load promoted invitation details." }, 500);
+      body = await req.json();
+    } catch {
+      return jsonResponse({ error: "Request body must be valid JSON." }, 400);
     }
 
-    promotedInvitationIds.push(invitation.id);
-
-    const guestEmail = Array.isArray(invitation.guests)
-      ? invitation.guests[0]?.email
-      : invitation.guests?.email;
-
-    if (!guestEmail) {
-      console.error(`Invitation ${invitation.id} has no guest email for notification.`);
-      return jsonResponse({ error: "Promoted invitation is missing guest email." }, 500);
+    if (!body || typeof body !== "object") {
+      return jsonResponse({ error: "Request body must be a JSON object." }, 400);
     }
 
-    let emailProviderMessageId: string | null = null;
+    const requestBody = body as Record<string, unknown>;
 
-    try {
-      const emailResponse = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${resendApiKey}`,
-          "Content-Type": "application/json",
+    if (!("event_id" in requestBody) || !isUuid(requestBody.event_id)) {
+      return jsonResponse({ error: "event_id must be a valid UUID." }, 400);
+    }
+
+    const maxPromote = "max_promote" in requestBody && requestBody.max_promote !== undefined
+      ? requestBody.max_promote
+      : 10;
+
+    if (
+      typeof maxPromote !== "number" ||
+      !Number.isInteger(maxPromote) ||
+      maxPromote < 1
+    ) {
+      return jsonResponse({ error: "max_promote must be a positive integer." }, 400);
+    }
+
+    const serviceClient = createClient(supabaseUrl, supabaseServiceRoleKey);
+    const isServiceRoleRequest = authorization === `Bearer ${supabaseServiceRoleKey}` || authorization === supabaseServiceRoleKey;
+
+    if (!isServiceRoleRequest) {
+      const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: {
+          headers: {
+            Authorization: authorization,
+          },
         },
-        body: JSON.stringify({
-          from: resendFromEmail,
-          to: [guestEmail],
-          subject: "You have been promoted from the waitlist",
-          text: "A spot opened up for the event and your invitation has been promoted from the waitlist.",
-        }),
       });
 
-      const emailResult = await emailResponse.json();
-      if (!emailResponse.ok || typeof emailResult?.id !== "string") {
-        throw new Error(`Resend returned non-OK response: ${emailResponse.status}`);
+      const {
+        data: { user },
+        error: authError,
+      } = await authClient.auth.getUser();
+
+      if (authError || !user) {
+        return jsonResponse({ error: "Unauthorized" }, 401);
       }
 
-      emailProviderMessageId = emailResult.id;
-    } catch (error) {
-      console.error("Failed to send waitlist promotion email:", error);
-      await serviceClient.from("email_logs").insert({
+      try {
+        const isOrganizer = await ensureOrganizerForEvent(
+          serviceClient,
+          user.id,
+          requestBody.event_id as string,
+        );
+
+        if (!isOrganizer) {
+          return jsonResponse({ error: "Forbidden" }, 403);
+        }
+      } catch (error) {
+        console.error("Error verifying organizer access:", error);
+        return jsonResponse({ error: "Failed to verify organizer access." }, 500);
+      }
+    }
+
+    const { data: eventData, error: eventError } = await serviceClient
+      .from("events")
+      .select("capacity")
+      .eq("id", requestBody.event_id as string)
+      .maybeSingle();
+
+    if (eventError) {
+      console.error("Error fetching event capacity:", eventError.message);
+      return jsonResponse({ error: "Failed to load event capacity." }, 500);
+    }
+
+    if (!eventData || eventData.capacity == null) {
+      return jsonResponse({ error: "Event capacity not found." }, 404);
+    }
+
+    const { count: totalApprovedHeadcount, error: headcountError } = await serviceClient
+      .from("invitations")
+      .select("id", { count: "exact", head: true })
+      .eq("event_id", requestBody.event_id as string)
+      .eq("status", "accepted");
+
+    if (headcountError) {
+      console.error("Error calculating approved headcount:", headcountError.message);
+      return jsonResponse({ error: "Failed to calculate approved headcount." }, 500);
+    }
+
+    const headroom = Number(eventData.capacity) - Number(totalApprovedHeadcount ?? 0);
+
+    if (headroom <= 0) {
+      return jsonResponse({
+        promoted_count: 0,
+        remaining_capacity: 0,
+      }, 200);
+    }
+
+    const effectiveMaxPromote = Math.min(maxPromote, headroom);
+
+    const { data: promotedRows, error: promoteError } = await serviceClient.rpc(
+      "promote_waitlist_atomic",
+      {
+        p_event_id: requestBody.event_id as string,
+        p_headroom: headroom,
+        p_max_promote: effectiveMaxPromote,
+      },
+    );
+
+    if (promoteError) {
+      console.error("Failed to promote waitlisted invitations:", promoteError.message);
+      return jsonResponse({ error: "Failed to promote waitlisted invitations." }, 500);
+    }
+
+    const promotedInvitations = Array.isArray(promotedRows) ? promotedRows : [];
+    const promotedInvitationIds: string[] = [];
+    const promotedAuditEntries: Array<{
+      action: string;
+      entity_id: string;
+      event_id: string;
+      details: Record<string, unknown>;
+    }> = [];
+
+    for (const row of promotedInvitations) {
+      const { data: invitation, error: invitationError } = await serviceClient
+        .from("invitations")
+        .select("id, event_id, guest_id, guests(email, full_name)")
+        .eq("id", row.id)
+        .maybeSingle();
+
+      if (invitationError || !invitation) {
+        console.error("Error fetching promoted invitation details:", invitationError?.message ?? "unknown");
+        return jsonResponse({ error: "Failed to load promoted invitation details." }, 500);
+      }
+
+      promotedInvitationIds.push(invitation.id);
+
+      const guestEmail = Array.isArray(invitation.guests)
+        ? invitation.guests[0]?.email
+        : invitation.guests?.email;
+
+      if (!guestEmail) {
+        console.error(`Invitation ${invitation.id} has no guest email for notification.`);
+        return jsonResponse({ error: "Promoted invitation is missing guest email." }, 500);
+      }
+
+      let emailProviderMessageId: string | null = null;
+
+      try {
+        const emailResponse = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${resendApiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: resendFromEmail,
+            to: [guestEmail],
+            subject: "You have been promoted from the waitlist",
+            text: "A spot opened up for the event and your invitation has been promoted from the waitlist.",
+          }),
+        });
+
+        const emailResult = await emailResponse.json();
+        if (!emailResponse.ok || typeof emailResult?.id !== "string") {
+          throw new Error(`Resend returned non-OK response: ${emailResponse.status}`);
+        }
+
+        emailProviderMessageId = emailResult.id;
+      } catch (error) {
+        console.error("Failed to send waitlist promotion email:", error);
+        await serviceClient.from("email_logs").insert({
+          event_id: invitation.event_id,
+          invitation_id: invitation.id,
+          recipient_email: guestEmail,
+          type: "waitlist_promoted",
+          status: "failed",
+        });
+        return jsonResponse({ error: "Promotion succeeded but email dispatch failed." }, 500);
+      }
+
+      const { error: emailLogError } = await serviceClient.from("email_logs").insert({
         event_id: invitation.event_id,
         invitation_id: invitation.id,
         recipient_email: guestEmail,
         type: "waitlist_promoted",
-        status: "failed",
+        status: "sent",
+        provider_message_id: emailProviderMessageId,
+        sent_at: new Date().toISOString(),
       });
-      return jsonResponse({ error: "Promotion succeeded but email dispatch failed." }, 500);
+
+      if (emailLogError) {
+        console.error("Failed to log waitlist promotion email:", emailLogError.message);
+        return jsonResponse({ error: "Promotion succeeded but email logging failed." }, 500);
+      }
+
+      promotedAuditEntries.push({
+        action: "waitlist.promoted",
+        entity_id: invitation.id,
+        event_id: invitation.event_id,
+        details: {
+          guest_email: guestEmail,
+          email_provider_message_id: emailProviderMessageId,
+        },
+      });
     }
 
-    const { error: emailLogError } = await serviceClient.from("email_logs").insert({
-      event_id: invitation.event_id,
-      invitation_id: invitation.id,
-      recipient_email: guestEmail,
-      type: "waitlist_promoted",
-      status: "sent",
-      provider_message_id: emailProviderMessageId,
-      sent_at: new Date().toISOString(),
-    });
+    if (promotedAuditEntries.length > 0) {
+      const { error: auditError } = await serviceClient.from("audit_log_entries").insert(
+        promotedAuditEntries.map((entry) => ({
+          event_id: entry.event_id,
+          action: entry.action,
+          entity_type: "invitation",
+          entity_id: entry.entity_id,
+          details: entry.details,
+        })),
+      );
 
-    if (emailLogError) {
-      console.error("Failed to log waitlist promotion email:", emailLogError.message);
-      return jsonResponse({ error: "Promotion succeeded but email logging failed." }, 500);
+      if (auditError) {
+        console.error("Failed to write waitlist promotion audit log:", auditError.message);
+        return jsonResponse({ error: "Promotion succeeded but audit logging failed." }, 500);
+      }
     }
 
-    promotedAuditEntries.push({
-      action: "waitlist.promoted",
-      entity_id: invitation.id,
-      event_id: invitation.event_id,
-      details: {
-        guest_email: guestEmail,
-        email_provider_message_id: emailProviderMessageId,
-      },
-    });
+    return jsonResponse({
+      promoted_count: promotedInvitationIds.length,
+      remaining_capacity: Math.max(headroom - promotedInvitationIds.length, 0),
+    }, 200);
+  } catch (error) {
+    console.error("Unexpected waitlist promotion error:", error);
+    return jsonResponse({
+      error: "Internal Server Error",
+      details: error instanceof Error ? error.message : "Unknown error",
+    }, 500);
   }
-
-  if (promotedAuditEntries.length > 0) {
-    const { error: auditError } = await serviceClient.from("audit_log_entries").insert(
-      promotedAuditEntries.map((entry) => ({
-        event_id: entry.event_id,
-        action: entry.action,
-        entity_type: "invitation",
-        entity_id: entry.entity_id,
-        details: entry.details,
-      })),
-    );
-
-    if (auditError) {
-      console.error("Failed to write waitlist promotion audit log:", auditError.message);
-      return jsonResponse({ error: "Promotion succeeded but audit logging failed." }, 500);
-    }
-  }
-
-  return jsonResponse({
-    ok: true,
-    event_id: requestBody.event_id,
-    max_promote: maxPromote,
-    caller: isServiceRoleRequest ? "service-role-worker" : "organizer",
-    headroom,
-    promoted_count: promotedInvitationIds.length,
-    remaining_capacity: Math.max(headroom - promotedInvitationIds.length, 0),
-  });
 });
