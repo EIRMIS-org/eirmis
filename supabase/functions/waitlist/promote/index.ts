@@ -129,10 +129,46 @@ serve(async (req) => {
     }
   }
 
+  const { data: eventData, error: eventError } = await serviceClient
+    .from("events")
+    .select("capacity")
+    .eq("id", requestBody.event_id as string)
+    .maybeSingle();
+
+  if (eventError) {
+    console.error("Error fetching event capacity:", eventError.message);
+    return jsonResponse({ error: "Failed to load event capacity." }, 500);
+  }
+
+  if (!eventData || eventData.capacity == null) {
+    return jsonResponse({ error: "Event capacity not found." }, 404);
+  }
+
+  const { count: totalApprovedHeadcount, error: headcountError } = await serviceClient
+    .from("invitations")
+    .select("id", { count: "exact", head: true })
+    .eq("event_id", requestBody.event_id as string)
+    .eq("status", "accepted");
+
+  if (headcountError) {
+    console.error("Error calculating approved headcount:", headcountError.message);
+    return jsonResponse({ error: "Failed to calculate approved headcount." }, 500);
+  }
+
+  const headroom = Number(eventData.capacity) - Number(totalApprovedHeadcount ?? 0);
+
+  if (headroom <= 0) {
+    return jsonResponse({
+      promoted_count: 0,
+      remaining_capacity: 0,
+    }, 200);
+  }
+
   return jsonResponse({
     ok: true,
     event_id: requestBody.event_id,
     max_promote: maxPromote,
     caller: isServiceRoleRequest ? "service-role-worker" : "organizer",
+    headroom,
   });
 });
