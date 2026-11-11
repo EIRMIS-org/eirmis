@@ -164,11 +164,29 @@ serve(async (req) => {
     }, 200);
   }
 
+  const effectiveMaxPromote = Math.min(maxPromote, headroom);
+
+  const { data: promotedRows, error: promoteError } = await serviceClient.rpc(
+    "promote_waitlist_atomic",
+    {
+      p_event_id: requestBody.event_id as string,
+      p_headroom: headroom,
+      p_max_promote: effectiveMaxPromote,
+    },
+  );
+
+  if (promoteError) {
+    console.error("Failed to promote waitlisted invitations:", promoteError.message);
+    return jsonResponse({ error: "Failed to promote waitlisted invitations." }, 500);
+  }
+
   return jsonResponse({
     ok: true,
     event_id: requestBody.event_id,
     max_promote: maxPromote,
     caller: isServiceRoleRequest ? "service-role-worker" : "organizer",
     headroom,
+    promoted_count: Array.isArray(promotedRows) ? promotedRows.length : 0,
+    remaining_capacity: Math.max(headroom - (Array.isArray(promotedRows) ? promotedRows.length : 0), 0),
   });
 });
