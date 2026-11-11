@@ -620,12 +620,17 @@ export const handlers = [
         });
     }),
 
-    http.post('*/functions/v1/headcount-requests/:id/decision', async ({ request }) => {
+    http.post('*/functions/v1/headcount-requests/:id/decision', async ({ request, params }) => {
         if (!hasAuth(request)) return unauthorized();
-        const body = (await request.json()) as { decision?: string };
+        const body = (await request.json()) as { decision?: string; reason?: string | null };
+        const id = typeof params.id === 'string' ? params.id : exampleHir.id;
         return HttpResponse.json({
             ...exampleHir,
+            id,
             status: body.decision === 'approve' ? ('approved' as const) : ('rejected' as const),
+            reviewed_by: UUID.ORGANIZER,
+            reviewed_at: new Date().toISOString(),
+            review_reason: body.reason ?? null,
         });
     }),
 
