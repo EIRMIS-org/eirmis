@@ -53,9 +53,11 @@ serve(async (req) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
   const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const resendApiKey = Deno.env.get("RESEND_API_KEY");
+  const resendFromEmail = Deno.env.get("RESEND_FROM_EMAIL");
   const authorization = req.headers.get("Authorization");
 
-  if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceRoleKey) {
+  if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceRoleKey || !resendApiKey || !resendFromEmail) {
     return jsonResponse({ error: "Function is not configured." }, 500);
   }
 
@@ -180,13 +182,118 @@ serve(async (req) => {
     return jsonResponse({ error: "Failed to promote waitlisted invitations." }, 500);
   }
 
+  const promotedInvitations = Array.isArray(promotedRows) ? promotedRows : [];
+  const promotedInvitationIds: string[] = [];
+  const promotedAuditEntries: Array<{ action: string; entity_id: string; event_id: string; details: Record<string, unknown> }> = [];
+
+  for (const row of promotedInvitations) {
+    const { data: invitation, error: invitationError } = await serviceClient
+      .from("invitations")
+      .select("id, event_id, guest_id, guests(email, full_name)")
+      .eq("id", row.id)
+      .maybeSingle();
+
+    if (invitationError || !invitation) {
+      console.error("Error fetching promoted invitation details:", invitationError?.message ?? "unknown");
+      return jsonResponse({ error: "Failed to load promoted invitation details." }, 500);
+    }
+
+    promotedInvitationIds.push(invitation.id);
+
+    const guestEmail = Array.isArray(invitation.guests)
+      ? invitation.guests[0]?.email
+      : invitation.guests?.email;
+
+    if (!guestEmail) {
+      console.error(`Invitation ${invitation.id} has no guest email for notification.`);
+      return jsonResponse({ error: "Promoted invitation is missing guest email." }, 500);
+    }
+
+    let emailProviderMessageId: string | null = null;
+
+    try {
+      const emailResponse = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: resendFromEmail,
+          to: [guestEmail],
+          subject: "You have been promoted from the waitlist",
+          text: "A spot opened up for the event and your invitation has been promoted from the waitlist.",
+        }),
+      });
+
+      const emailResult = await emailResponse.json();
+      if (!emailResponse.ok || typeof emailResult?.id !== "string") {
+        throw new Error(`Resend returned non-OK response: ${emailResponse.status}`);
+      }
+
+      emailProviderMessageId = emailResult.id;
+    } catch (error) {
+      console.error("Failed to send waitlist promotion email:", error);
+      await serviceClient.from("email_logs").insert({
+        event_id: invitation.event_id,
+        invitation_id: invitation.id,
+        recipient_email: guestEmail,
+        type: "waitlist_promoted",
+        status: "failed",
+      });
+      return jsonResponse({ error: "Promotion succeeded but email dispatch failed." }, 500);
+    }
+
+    const { error: emailLogError } = await serviceClient.from("email_logs").insert({
+      event_id: invitation.event_id,
+      invitation_id: invitation.id,
+      recipient_email: guestEmail,
+      type: "waitlist_promoted",
+      status: "sent",
+      provider_message_id: emailProviderMessageId,
+      sent_at: new Date().toISOString(),
+    });
+
+    if (emailLogError) {
+      console.error("Failed to log waitlist promotion email:", emailLogError.message);
+      return jsonResponse({ error: "Promotion succeeded but email logging failed." }, 500);
+    }
+
+    promotedAuditEntries.push({
+      action: "waitlist.promoted",
+      entity_id: invitation.id,
+      event_id: invitation.event_id,
+      details: {
+        guest_email: guestEmail,
+        email_provider_message_id: emailProviderMessageId,
+      },
+    });
+  }
+
+  if (promotedAuditEntries.length > 0) {
+    const { error: auditError } = await serviceClient.from("audit_log_entries").insert(
+      promotedAuditEntries.map((entry) => ({
+        event_id: entry.event_id,
+        action: entry.action,
+        entity_type: "invitation",
+        entity_id: entry.entity_id,
+        details: entry.details,
+      })),
+    );
+
+    if (auditError) {
+      console.error("Failed to write waitlist promotion audit log:", auditError.message);
+      return jsonResponse({ error: "Promotion succeeded but audit logging failed." }, 500);
+    }
+  }
+
   return jsonResponse({
     ok: true,
     event_id: requestBody.event_id,
     max_promote: maxPromote,
     caller: isServiceRoleRequest ? "service-role-worker" : "organizer",
     headroom,
-    promoted_count: Array.isArray(promotedRows) ? promotedRows.length : 0,
-    remaining_capacity: Math.max(headroom - (Array.isArray(promotedRows) ? promotedRows.length : 0), 0),
+    promoted_count: promotedInvitationIds.length,
+    remaining_capacity: Math.max(headroom - promotedInvitationIds.length, 0),
   });
 });
