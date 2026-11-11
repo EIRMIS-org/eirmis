@@ -133,9 +133,9 @@ serve(async (req) => {
       return jsonResponse({ error: "Event capacity not found." }, 404);
     }
 
-    const { count: totalApprovedHeadcount, error: headcountError } = await serviceClient
+    const { data: approvedInvitations, error: headcountError } = await serviceClient
       .from("invitations")
-      .select("id", { count: "exact", head: true })
+      .select("party_size")
       .eq("event_id", requestBody.event_id as string)
       .eq("status", "accepted");
 
@@ -144,7 +144,12 @@ serve(async (req) => {
       return jsonResponse({ error: "Failed to calculate approved headcount." }, 500);
     }
 
-    const headroom = Number(eventData.capacity) - Number(totalApprovedHeadcount ?? 0);
+    const totalApprovedPartySize = (approvedInvitations ?? []).reduce(
+      (sum, invitation) => sum + Number(invitation.party_size ?? 0),
+      0,
+    );
+
+    const headroom = Number(eventData.capacity) - totalApprovedPartySize;
     if (headroom <= 0) {
       return jsonResponse({ promoted_count: 0, remaining_capacity: 0 }, 200);
     }
@@ -166,6 +171,10 @@ serve(async (req) => {
 
     const promotedInvitations = Array.isArray(promotedRows) ? promotedRows : [];
     const promotedInvitationIds: string[] = [];
+    const promotedPartySizeTotal = promotedInvitations.reduce(
+      (sum, row) => sum + Number(row.party_size ?? 0),
+      0,
+    );
     const auditEntries: Array<{
       event_id: string;
       action: string;
@@ -268,7 +277,7 @@ serve(async (req) => {
 
     return jsonResponse({
       promoted_count: promotedInvitationIds.length,
-      remaining_capacity: Math.max(headroom - promotedInvitationIds.length, 0),
+      remaining_capacity: Math.max(headroom - promotedPartySizeTotal, 0),
     }, 200);
   } catch (error) {
     console.error("Unexpected waitlist promotion error:", error);
