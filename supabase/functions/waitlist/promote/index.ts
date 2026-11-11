@@ -3,8 +3,7 @@ import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
@@ -16,10 +15,10 @@ function jsonResponse(body: unknown, status = 200) {
 }
 
 function isUuid(value: unknown): value is string {
-  return typeof value === "string" &&
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-      value,
-    );
+  return (
+    typeof value === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)
+  );
 }
 
 async function ensureOrganizerForEvent(
@@ -87,11 +86,7 @@ serve(async (req) => {
       ? requestBody.max_promote
       : 10;
 
-    if (
-      typeof maxPromote !== "number" ||
-      !Number.isInteger(maxPromote) ||
-      maxPromote < 1
-    ) {
+    if (typeof maxPromote !== "number" || !Number.isInteger(maxPromote) || maxPromote < 1) {
       return jsonResponse({ error: "max_promote must be a positive integer." }, 400);
     }
 
@@ -107,22 +102,13 @@ serve(async (req) => {
         },
       });
 
-      const {
-        data: { user },
-        error: authError,
-      } = await authClient.auth.getUser();
-
+      const { data: { user }, error: authError } = await authClient.auth.getUser();
       if (authError || !user) {
         return jsonResponse({ error: "Unauthorized" }, 401);
       }
 
       try {
-        const isOrganizer = await ensureOrganizerForEvent(
-          serviceClient,
-          user.id,
-          requestBody.event_id as string,
-        );
-
+        const isOrganizer = await ensureOrganizerForEvent(serviceClient, user.id, requestBody.event_id as string);
         if (!isOrganizer) {
           return jsonResponse({ error: "Forbidden" }, 403);
         }
@@ -159,16 +145,11 @@ serve(async (req) => {
     }
 
     const headroom = Number(eventData.capacity) - Number(totalApprovedHeadcount ?? 0);
-
     if (headroom <= 0) {
-      return jsonResponse({
-        promoted_count: 0,
-        remaining_capacity: 0,
-      }, 200);
+      return jsonResponse({ promoted_count: 0, remaining_capacity: 0 }, 200);
     }
 
     const effectiveMaxPromote = Math.min(maxPromote, headroom);
-
     const { data: promotedRows, error: promoteError } = await serviceClient.rpc(
       "promote_waitlist_atomic",
       {
@@ -185,10 +166,11 @@ serve(async (req) => {
 
     const promotedInvitations = Array.isArray(promotedRows) ? promotedRows : [];
     const promotedInvitationIds: string[] = [];
-    const promotedAuditEntries: Array<{
-      action: string;
-      entity_id: string;
+    const auditEntries: Array<{
       event_id: string;
+      action: string;
+      entity_type: string;
+      entity_id: string;
       details: Record<string, unknown>;
     }> = [];
 
@@ -215,8 +197,7 @@ serve(async (req) => {
         return jsonResponse({ error: "Promoted invitation is missing guest email." }, 500);
       }
 
-      let emailProviderMessageId: string | null = null;
-
+      let providerMessageId: string | null = null;
       try {
         const emailResponse = await fetch("https://api.resend.com/emails", {
           method: "POST",
@@ -237,7 +218,7 @@ serve(async (req) => {
           throw new Error(`Resend returned non-OK response: ${emailResponse.status}`);
         }
 
-        emailProviderMessageId = emailResult.id;
+        providerMessageId = emailResult.id;
       } catch (error) {
         console.error("Failed to send waitlist promotion email:", error);
         await serviceClient.from("email_logs").insert({
@@ -256,7 +237,7 @@ serve(async (req) => {
         recipient_email: guestEmail,
         type: "waitlist_promoted",
         status: "sent",
-        provider_message_id: emailProviderMessageId,
+        provider_message_id: providerMessageId,
         sent_at: new Date().toISOString(),
       });
 
@@ -265,28 +246,20 @@ serve(async (req) => {
         return jsonResponse({ error: "Promotion succeeded but email logging failed." }, 500);
       }
 
-      promotedAuditEntries.push({
-        action: "waitlist.promoted",
-        entity_id: invitation.id,
+      auditEntries.push({
         event_id: invitation.event_id,
+        action: "waitlist.promoted",
+        entity_type: "invitation",
+        entity_id: invitation.id,
         details: {
           guest_email: guestEmail,
-          email_provider_message_id: emailProviderMessageId,
+          provider_message_id: providerMessageId,
         },
       });
     }
 
-    if (promotedAuditEntries.length > 0) {
-      const { error: auditError } = await serviceClient.from("audit_log_entries").insert(
-        promotedAuditEntries.map((entry) => ({
-          event_id: entry.event_id,
-          action: entry.action,
-          entity_type: "invitation",
-          entity_id: entry.entity_id,
-          details: entry.details,
-        })),
-      );
-
+    if (auditEntries.length > 0) {
+      const { error: auditError } = await serviceClient.from("audit_log_entries").insert(auditEntries);
       if (auditError) {
         console.error("Failed to write waitlist promotion audit log:", auditError.message);
         return jsonResponse({ error: "Promotion succeeded but audit logging failed." }, 500);
@@ -299,9 +272,12 @@ serve(async (req) => {
     }, 200);
   } catch (error) {
     console.error("Unexpected waitlist promotion error:", error);
-    return jsonResponse({
-      error: "Internal Server Error",
-      details: error instanceof Error ? error.message : "Unknown error",
-    }, 500);
+    return jsonResponse(
+      {
+        error: "Internal Server Error",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      500,
+    );
   }
 });
