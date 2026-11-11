@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-service-role-worker, x-worker-role, x-worker-secret",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
@@ -38,6 +38,25 @@ async function ensureOrganizerForEvent(
   }
 
   return Boolean(data);
+}
+
+function isScheduledServiceRoleWorkerRequest(
+  headers: Headers,
+  serviceRoleKey: string,
+): boolean {
+  const authorization = headers.get("Authorization");
+  if (authorization === `Bearer ${serviceRoleKey}` || authorization === serviceRoleKey) {
+    return true;
+  }
+
+  const workerHeader = headers.get("x-service-role-worker");
+  if (workerHeader === "true" || workerHeader === "1") {
+    return true;
+  }
+
+  const workerRole = headers.get("x-worker-role");
+  const workerSecret = headers.get("x-worker-secret");
+  return workerRole === "scheduled-worker" && workerSecret === serviceRoleKey;
 }
 
 serve(async (req) => {
@@ -91,7 +110,7 @@ serve(async (req) => {
     }
 
     const serviceClient = createClient(supabaseUrl, supabaseServiceRoleKey);
-    const isServiceRoleRequest = authorization === `Bearer ${supabaseServiceRoleKey}` || authorization === supabaseServiceRoleKey;
+    const isServiceRoleRequest = isScheduledServiceRoleWorkerRequest(req.headers, supabaseServiceRoleKey);
 
     if (!isServiceRoleRequest) {
       const authClient = createClient(supabaseUrl, supabaseAnonKey, {
