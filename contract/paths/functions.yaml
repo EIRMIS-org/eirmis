@@ -486,14 +486,17 @@
       '403':
         $ref: '../components/responses.yaml#/Forbidden'
 
-/functions/v1/register:
+/functions/v1/register-public:
   post:
     operationId: registerPublicGuest
     summary: Register for an open-registration event
     description: >
-      Atomically creates/matches a guest row, creates an `accepted` invitation
-      for the specified open-registration event, and dispatches the confirmation
-      email with a magic-link.
+      Creates or matches a guest row and atomically creates an invitation
+      for the specified open-registration event. The invitation is assigned
+      `accepted` when sufficient event capacity is available, or `waitlisted`
+      otherwise. After the database transaction commits, the function generates
+      a Supabase Auth magic link and sends a confirmation email through Resend.
+      Email delivery failure does not roll back the created registration.
     tags: [Public — Registration]
     security: []
     requestBody:
@@ -504,16 +507,78 @@
             $ref: '../components/schemas/RegisterPublicRequest.yaml'
     responses:
       '201':
-        description: Guest registered and invitation created.
+        description: >
+          Registration created and confirmation email successfully sent.
+          The invitation status is `accepted` or `waitlisted`, depending on
+          available event capacity.
         content:
           application/json:
             schema:
               $ref: '../components/schemas/Invitation.yaml#/Invitation'
       '400':
-        $ref: '../components/responses.yaml#/BadRequest'
-      '409':
-        description: Conflict — guest already registered for this event.
+        description: Invalid JSON, event ID, email address, or full name.
         content:
           application/json:
             schema:
               $ref: '../components/schemas/Error.yaml#/Error'
+      '404':
+        description: The requested event does not exist.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Error.yaml#/Error'
+      '405':
+        description: Method not allowed. Only POST is supported.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Error.yaml#/Error'
+      '409':
+        description: >
+          Registration conflict. The guest may already be registered for this
+          event, or the event may not currently accept public registrations.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Error.yaml#/Error'
+      '500':
+        description: >
+          Internal server error. Depending on when the error occurred, the
+          registration may not have been created, or it may already exist.
+          If `registration_created` is true, the invitation was created. If
+          `email_sent` is true, the confirmation email was sent but its log
+          could not be saved.
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [error]
+              properties:
+                error:
+                  type: string
+                registration_created:
+                  type: boolean
+                  description: Present and true when the invitation was created.
+                email_sent:
+                  type: boolean
+                  description: Present and true when the email was sent successfully.
+                invitation:
+                  $ref: '../components/schemas/Invitation.yaml#/Invitation'
+      '502':
+        description: >
+          The registration was created, but Supabase Auth could not generate
+          a magic link or Resend could not send the confirmation email. The
+          invitation remains saved and is not rolled back.
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [error, registration_created, invitation]
+              properties:
+                error:
+                  type: string
+                registration_created:
+                  type: boolean
+                  enum: [true]
+                invitation:
+                  $ref: '../components/schemas/Invitation.yaml#/Invitation'
