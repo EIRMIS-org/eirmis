@@ -1,3 +1,4 @@
+
 -- =============================================================================
 -- EIRMIS pgTAP: party-size and approved-attendee count invariants
 --
@@ -9,20 +10,20 @@
 --   - An approved headcount-increase request raises max_party_size.
 --
 -- The existing migrations implement the approved-attendee cache and the
--- party_size <= max_party_size CHECK. The total-roster INSERT/UPDATE checks
--- described in README.md are not present in the inspected baseline migrations.
--- Assertions 11 and 12 are therefore expected to expose that missing guard
--- until a corrective migration adds it. The existing partial unique index for
--- pending headcount requests is also checked below. The approval operation
--- itself is an Edge Function concern and is not implemented by these migrations.
+-- party_size <= max_party_size CHECK. The additive roster-limit migration
+-- enforces max_party_size against total attendee rows on INSERT/UPDATE and
+-- prevents reducing the ceiling below the current roster.
+--
+-- This suite verifies both the existing count behavior and the new database
+-- protections. The pending-request uniqueness rule is also checked below.
 -- =============================================================================
 
 BEGIN;
 
-SELECT plan(14);
+SELECT plan(15);
 
--- Use the synthetic organizer created by supabase/seed.sql. Everything else
--- in this file is created with test-only IDs and rolled back at the end.
+-- Use the synthetic organizer created by supabase/seed.sql.
+-- All test-created records are rolled back at the end.
 INSERT INTO public.events (
     id,
     organizer_id,
@@ -60,7 +61,7 @@ VALUES
         'pgTAP Full Party Guest'
     );
 
--- The accepted invitation automatically receives its primary attendee.
+-- Accepting the invitations automatically creates their primary attendees.
 INSERT INTO public.invitations (
     id, event_id, guest_id, status, max_party_size
 ) VALUES
@@ -156,6 +157,13 @@ SELECT is(
 );
 
 -- 7. Inserting an already-approved attendee increments the cache.
+--
+-- The invitation currently has three roster rows. Temporarily raise its
+-- ceiling to four to make room for this separate count-maintenance assertion.
+UPDATE public.invitations
+SET max_party_size = 4
+WHERE id = 'a3000000-0000-4000-8000-000000000001';
+
 INSERT INTO public.attendees (id, invitation_id, full_name, status)
 VALUES (
     'a4000000-0000-4000-8000-000000000003',
@@ -175,6 +183,11 @@ SELECT is(
 DELETE FROM public.attendees
 WHERE id = 'a4000000-0000-4000-8000-000000000003';
 
+-- Restore the original ceiling. The roster is back to three rows.
+UPDATE public.invitations
+SET max_party_size = 3
+WHERE id = 'a3000000-0000-4000-8000-000000000001';
+
 SELECT is(
     (SELECT party_size FROM public.invitations
      WHERE id = 'a3000000-0000-4000-8000-000000000001'),
@@ -184,6 +197,7 @@ SELECT is(
 
 -- 9. max_party_size must be at least 1.
 SAVEPOINT party_size_minimum_check;
+
 SELECT throws_ok(
     $$UPDATE public.invitations
       SET max_party_size = 0
@@ -192,10 +206,12 @@ SELECT throws_ok(
     NULL,
     'max_party_size cannot be less than 1'
 );
+
 ROLLBACK TO SAVEPOINT party_size_minimum_check;
 
 -- 10. The cached approved count cannot be greater than max_party_size.
 SAVEPOINT party_size_cache_ceiling_check;
+
 SELECT throws_ok(
     $$UPDATE public.invitations
       SET party_size = max_party_size + 1
@@ -204,12 +220,13 @@ SELECT throws_ok(
     NULL,
     'party_size cannot exceed max_party_size'
 );
+
 ROLLBACK TO SAVEPOINT party_size_cache_ceiling_check;
 
--- 11. A new row beyond the total roster ceiling must be rejected, regardless
--- of attendee status. The primary plus the two additional rows already use
--- all 3 allocated places. This is expected to fail on the current baseline.
+-- 11. A new row beyond the total roster ceiling must be rejected,
+-- regardless of attendee status.
 SAVEPOINT party_size_roster_insert_check;
+
 SELECT throws_ok(
     $$INSERT INTO public.attendees (id, invitation_id, full_name, status)
       VALUES (
@@ -222,12 +239,13 @@ SELECT throws_ok(
     NULL,
     'inserting an attendee beyond max_party_size is rejected'
 );
+
 ROLLBACK TO SAVEPOINT party_size_roster_insert_check;
 
 -- 12. Moving an existing attendee into an invitation whose roster is already
--- full must also be rejected. The moved attendee is rejected, so party_size
--- alone cannot detect this overflow; the total roster count must be checked.
+-- full must also be rejected.
 SAVEPOINT party_size_roster_update_check;
+
 SELECT throws_ok(
     $$UPDATE public.attendees
       SET invitation_id = 'a3000000-0000-4000-8000-000000000002'
@@ -236,11 +254,17 @@ SELECT throws_ok(
     NULL,
     'moving an attendee into a full invitation is rejected'
 );
+
 ROLLBACK TO SAVEPOINT party_size_roster_update_check;
 
--- A pending headcount request does not itself grant additional roster places.
+-- 13. A pending headcount request does not itself grant additional roster
+-- places.
 INSERT INTO public.headcount_increase_requests (
-    id, invitation_id, requested_additional_heads, status, note
+    id,
+    invitation_id,
+    requested_additional_heads,
+    status,
+    note
 ) VALUES (
     'a5000000-0000-4000-8000-000000000001',
     'a3000000-0000-4000-8000-000000000001',
@@ -249,7 +273,6 @@ INSERT INTO public.headcount_increase_requests (
     'Requesting two additional places'
 );
 
--- 13. Submitting a request leaves the allocated max_party_size unchanged.
 SELECT is(
     (SELECT max_party_size FROM public.invitations
      WHERE id = 'a3000000-0000-4000-8000-000000000001'),
@@ -258,12 +281,13 @@ SELECT is(
 );
 
 -- 14. The existing partial unique index allows only one pending request per
--- invitation. throws_ok() captures the expected constraint violation itself;
--- do not roll back a surrounding savepoint because that also rolls back
--- pgTAP's recorded assertion result.
+-- invitation. throws_ok() captures the expected constraint violation itself.
 SELECT throws_ok(
     $$INSERT INTO public.headcount_increase_requests (
-        id, invitation_id, requested_additional_heads, status
+        id,
+        invitation_id,
+        requested_additional_heads,
+        status
       ) VALUES (
         'a5000000-0000-4000-8000-000000000002',
         'a3000000-0000-4000-8000-000000000001',
@@ -275,5 +299,17 @@ SELECT throws_ok(
     'an invitation cannot have two pending headcount requests'
 );
 
+-- 15. The organizer cannot lower the allocated ceiling below the current
+-- total roster size. Pending and rejected roster members still occupy slots.
+SELECT throws_ok(
+    $$UPDATE public.invitations
+      SET max_party_size = 2
+      WHERE id = 'a3000000-0000-4000-8000-000000000001'$$,
+    '23514',
+    NULL,
+    'max_party_size cannot be reduced below the existing total roster'
+);
+
 SELECT * FROM finish();
+
 ROLLBACK;
