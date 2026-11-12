@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+/// <reference lib="dom.iterable" />
 import { parseHTML } from "npm:linkedom@0.18.12";
 
 const embeddedAsset = /^data:(?:image\/(?:png|jpeg|gif|webp|avif)|(?:audio|video|font)\/[\w.+-]+|application\/font-woff);base64,[a-z0-9+/=\s]+$/i;
@@ -20,6 +22,9 @@ export function validateHtml(html: string) {
     const tag = element.localName.toLowerCase();
     const reject = (rule: string) => errors.push({ rule, detail: "Prohibited reference or element in <" + tag + ">." });
     if (blockedTags.has(tag)) reject("blocked_element");
+    if (tag === "script" && /\b(?:import\s*(?:\(|["']|[\s\S]*?\bfrom\s*["'])|importScripts\s*\(|fetch\s*\(|new\s+(?:Worker|XMLHttpRequest|WebSocket)\b)|createElement\s*\(\s*["']script["']/i.test(element.textContent ?? "")) {
+      reject("external_loader");
+    }
     if (tag === "meta" && element.getAttribute("http-equiv")?.trim().toLowerCase() === "refresh") reject("redirect");
     if (tag === "style" && unsafeCss(element.textContent ?? "")) reject("external_css");
     for (const attribute of element.attributes) {
