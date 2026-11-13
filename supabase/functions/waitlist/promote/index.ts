@@ -64,6 +64,7 @@ serve(async (req) => {
     const { pathname: requestPath } = new URL(req.url);
     if (
       requestPath !== "/functions/v1/waitlist/promote" &&
+      requestPath !== "/waitlist/promote" &&
       requestPath !== "/promote"
     ) {
       return jsonResponse({ error: "Not Found" }, 404);
@@ -119,6 +120,7 @@ serve(async (req) => {
 
     const serviceClient = createClient(supabaseUrl, supabaseServiceRoleKey);
     const isServiceRoleRequest = isScheduledServiceRoleWorkerRequest(req.headers, supabaseServiceRoleKey);
+    let actorId: string | null = null;
 
     if (!isServiceRoleRequest) {
       const authClient = createClient(supabaseUrl, supabaseAnonKey, {
@@ -133,6 +135,7 @@ serve(async (req) => {
       if (authError || !user) {
         return jsonResponse({ error: "Unauthorized" }, 401);
       }
+      actorId = user.id;
 
       try {
         const isOrganizer = await ensureOrganizerForEvent(serviceClient, user.id, requestBody.event_id as string);
@@ -203,11 +206,12 @@ serve(async (req) => {
       0,
     );
     const auditEntries: Array<{
-      event_id: string;
+      actor_type: "system" | "organizer";
+      actor_id: string | null;
       action: string;
       entity_type: string;
       entity_id: string;
-      details: Record<string, unknown>;
+      new_value: Record<string, unknown>;
     }> = [];
 
     for (const row of promotedInvitations) {
@@ -283,11 +287,13 @@ serve(async (req) => {
       }
 
       auditEntries.push({
-        event_id: invitation.event_id,
+        actor_type: isServiceRoleRequest ? "system" : "organizer",
+        actor_id: actorId,
         action: "waitlist.promoted",
         entity_type: "invitation",
         entity_id: invitation.id,
-        details: {
+        new_value: {
+          event_id: invitation.event_id,
           guest_email: guestEmail,
           provider_message_id: providerMessageId,
         },
