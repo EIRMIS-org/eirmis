@@ -110,12 +110,12 @@ serve(async (req) => {
       return jsonResponse({ error: "event_id must be a valid UUID." }, 400);
     }
 
-    const maxPromote = "max_promote" in requestBody && requestBody.max_promote !== undefined
-      ? requestBody.max_promote
-      : 10;
+    const maxPromotions = "max_promotions" in requestBody && requestBody.max_promotions !== undefined
+      ? requestBody.max_promotions
+      : 1;
 
-    if (typeof maxPromote !== "number" || !Number.isInteger(maxPromote) || maxPromote < 1) {
-      return jsonResponse({ error: "max_promote must be a positive integer." }, 400);
+    if (typeof maxPromotions !== "number" || !Number.isInteger(maxPromotions) || maxPromotions < 1) {
+      return jsonResponse({ error: "max_promotions must be a positive integer." }, 400);
     }
 
     const serviceClient = createClient(supabaseUrl, supabaseServiceRoleKey);
@@ -181,16 +181,16 @@ serve(async (req) => {
 
     const headroom = Number(eventData.capacity) - totalApprovedPartySize;
     if (headroom <= 0) {
-      return jsonResponse({ promoted_count: 0, remaining_capacity: 0 }, 200);
+      return jsonResponse({ promoted_count: 0, promoted_invitation_ids: [] }, 200);
     }
 
-    const effectiveMaxPromote = Math.min(maxPromote, headroom);
+    const effectiveMaxPromotions = Math.min(maxPromotions, headroom);
     const { data: promotedRows, error: promoteError } = await serviceClient.rpc(
       "promote_waitlist_atomic",
       {
         p_event_id: requestBody.event_id as string,
         p_headroom: headroom,
-        p_max_promote: effectiveMaxPromote,
+        p_max_promote: effectiveMaxPromotions,
       },
     );
 
@@ -201,10 +201,6 @@ serve(async (req) => {
 
     const promotedInvitations = Array.isArray(promotedRows) ? promotedRows : [];
     const promotedInvitationIds: string[] = [];
-    const promotedPartySizeTotal = promotedInvitations.reduce(
-      (sum, row) => sum + Number(row.party_size ?? 0),
-      0,
-    );
     const auditEntries: Array<{
       actor_type: "system" | "organizer";
       actor_id: string | null;
@@ -310,7 +306,7 @@ serve(async (req) => {
 
     return jsonResponse({
       promoted_count: promotedInvitationIds.length,
-      remaining_capacity: Math.max(headroom - promotedPartySizeTotal, 0),
+      promoted_invitation_ids: promotedInvitationIds,
     }, 200);
   } catch (error) {
     console.error("Unexpected waitlist promotion error:", error);
