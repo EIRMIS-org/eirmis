@@ -5,7 +5,7 @@
 | **Order** | 1st — root task, before anything else (~30 min) |
 | **Owner** | Andrei (Lead) + Jack |
 | **Lane** | Root of all lanes — nothing else starts until this is merged |
-| **Branch** | `feat/m4-w1-deps` → PR to `feat/m4-frontend` |
+| **Branch** | `feat/m4-w1-deps` (or direct to the week branch if the team works trunk-based) |
 
 ---
 

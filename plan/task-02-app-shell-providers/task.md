@@ -5,7 +5,7 @@
 | **Order** | 2nd — after task 01 |
 | **Owner** | Andrei (Lead) + Jack |
 | **Lane** | A (Infra) — sequential: 01 → 02 → 03 → 04 |
-| **Branch** | `feat/m4-w1-app-shell` → PR to `feat/m4-frontend` |
+| **Branch** | `feat/m4-w1-app-shell` |
 
 ---
 

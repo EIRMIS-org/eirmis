@@ -5,7 +5,7 @@
 | **Order** | Starts immediately after task 01 — runs parallel to Lanes A and B |
 | **Owner** | Gian (start) → Cerna (handoff, then builds task 10) |
 | **Lane** | C (Forms) — 01 → 11, parallel with Lanes A and B |
-| **Branch** | `feat/m4-w1-forms-schemas` → PR to `feat/m4-frontend` |
+| **Branch** | `feat/m4-w1-forms-schemas` |
 
 ---
 
