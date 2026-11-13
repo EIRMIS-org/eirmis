@@ -1,4 +1,4 @@
-﻿import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 
 const corsHeaders = {
@@ -61,6 +61,14 @@ function isScheduledServiceRoleWorkerRequest(
 
 serve(async (req) => {
   try {
+    const { pathname: requestPath } = new URL(req.url);
+    if (
+      requestPath !== "/functions/v1/waitlist/promote" &&
+      requestPath !== "/promote"
+    ) {
+      return jsonResponse({ error: "Not Found" }, 404);
+    }
+
     if (req.method === "OPTIONS") {
       return new Response("ok", { headers: corsHeaders });
     }
