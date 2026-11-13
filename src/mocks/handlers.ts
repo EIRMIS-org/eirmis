@@ -669,7 +669,10 @@ export const handlers = [
 
     http.post('*/functions/v1/checkin/scan', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
-        const body = (await request.json()) as { qr_token?: string };
+        const body = (await request.json()) as { qr_token?: string; event_id?: string };
+        if (body.event_id !== undefined && body.event_id.toLowerCase() !== UUID.EVENT) {
+            return HttpResponse.json(errorBody('EVENT_MISMATCH', 'QR token belongs to a different event.'), { status: 422 });
+        }
         if (body.qr_token === 'invalid.token') {
             return HttpResponse.json(errorBody('SCAN_403', 'QR token signature invalid'), { status: 403 });
         }

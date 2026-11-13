@@ -7,6 +7,7 @@
 #   • CI / contract-lint
 #   • CI / contract-check
 #   • CI / contract-docs
+#   • CI / Database & integration tests
 #
 # Secrets audit: NO secrets are referenced in this file.
 #   • VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY are public-by-construction
@@ -44,7 +45,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "npm"
 
       - name: Install dependencies
@@ -69,7 +70,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "npm"
 
       - name: Restore node_modules from cache
@@ -92,7 +93,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "npm"
 
       - name: Restore node_modules from cache
@@ -115,7 +116,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "npm"
 
       - name: Restore node_modules from cache
@@ -149,7 +150,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "npm"
 
       - name: Restore node_modules from cache
@@ -181,34 +182,57 @@ jobs:
   #   steps:
   #     - uses: actions/checkout@v4
   #     - uses: actions/setup-node@v4
-  #       with: { node-version: "20", cache: "npm" }
+  #       with: { node-version: "24", cache: "npm" }
   #     - uses: actions/cache/restore@v4
   #       with:
   #         path: node_modules
   #         key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
   #     - run: npm run test
 
-  # ── Database Migration Check ───────────────────────────────────────────────
-  # Ensures that the Supabase database can start up locally and all SQL
-  # migrations apply successfully without syntax errors.
+  # ── Database + capacity concurrency tests ──────────────────────────────────
+  # Start a clean local Supabase stack, apply every migration and seed, then run
+  # the pgTAP suite and the five real concurrent-capacity scenarios. No remote
+  # Supabase credentials or production secrets are required.
   database:
-    name: Database check
+    name: Database & integration tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
 
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
           version: latest
 
+      - name: Verify database test tooling
+        run: |
+          node --version
+          supabase --version
+          pwsh --version
+          docker --version
+
       - name: Start Supabase locally
         run: supabase start
+
+      - name: Reset local database and apply migrations
+        run: supabase db reset
+
+      - name: Run pgTAP database tests (158 assertions)
+        run: npm run test:db
+
+      - name: Run capacity concurrency tests (five scenarios)
+        run: npm run test:db:concurrency
+
+      - name: Stop Supabase
+        if: always()
+        continue-on-error: true
+        run: supabase stop --no-backup
 
   # ── Contract freshness + PostgREST drift check ────────────────────────────
   contract-check:
@@ -221,7 +245,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "npm"
 
       - name: Restore node_modules from cache
@@ -244,7 +268,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "npm"
 
       - name: Restore node_modules from cache

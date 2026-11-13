@@ -1,9 +1,9 @@
 import { scanCheckIn } from '@/lib/api';
 import { useApiMutation } from '@/lib/api/use-api-mutation';
 
-export function useScanCheckIn() {
+export function useScanCheckIn(eventId?: string) {
     return useApiMutation(
-        (qrToken: Parameters<typeof scanCheckIn>[0]) => scanCheckIn(qrToken),
+        (qrToken: string) => scanCheckIn(qrToken, eventId),
         [],
         'Check-in recorded',
     );
