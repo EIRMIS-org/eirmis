@@ -140,7 +140,7 @@ VALUES
   -- Waitlisted on Event 1
   ('66666666-6666-6666-6666-666666666661', '55555555-5555-5555-5555-555555555551', '33333333-3333-3333-3333-333333333333', 'waitlisted', 2),
   -- Accepted on Event 1
-  ('66666666-6666-6666-6666-666666666662', '55555555-5555-5555-5555-555555555551', '33333333-3333-3333-3333-333333333334', 'accepted', 4),
+  ('66666666-6666-6666-6666-666666666662', '55555555-5555-5555-5555-555555555551', '33333333-3333-3333-3333-333333333334', 'accepted', 5),
   -- Pending on Event 3
   ('66666666-6666-6666-6666-666666666663', '55555555-5555-5555-5555-555555555553', '33333333-3333-3333-3333-333333333335', 'pending', 2),
   -- Declined on Event 3
@@ -153,33 +153,19 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.attendees (
   id, invitation_id, full_name, email, is_primary, is_walk_in, status, qr_token, checked_in, checked_in_at, checked_in_by
 ) VALUES
-  -- Waitlisted guest pending primary
+  -- Waitlisted invitation pending attendee (no primary attendee until promoted)
   (
     '77777777-7777-7777-7777-777777777771',
     '66666666-6666-6666-6666-666666666661',
     'Synthetic Guest',
     'guest@example.com',
-    true,
+    false,
     false,
     'pending',
     NULL,
     false,
     NULL,
     NULL
-  ),
-  -- Accepted invitation primary attendee (approved, issued qr_token, checked in)
-  (
-    '77777777-7777-7777-7777-777777777772',
-    '66666666-6666-6666-6666-666666666662',
-    'Jane Doe',
-    'guest2@example.com',
-    true,
-    false,
-    'approved',
-    'token-primary-001',
-    true,
-    now() - interval '1 hour',
-    '44444444-4444-4444-4444-444444444444'
   ),
   -- Secondary approved attendee
   (
@@ -238,6 +224,17 @@ INSERT INTO public.attendees (
     NULL
   )
 ON CONFLICT (id) DO NOTHING;
+
+-- Update the trigger-created primary attendee for the accepted invitation (66666666-...-6662)
+UPDATE public.attendees
+SET
+  id = '77777777-7777-7777-7777-777777777772',
+  qr_token = 'token-primary-001',
+  checked_in = true,
+  checked_in_at = now() - interval '1 hour',
+  checked_in_by = '44444444-4444-4444-4444-444444444444'
+WHERE invitation_id = '66666666-6666-6666-6666-666666666662'
+  AND is_primary IS TRUE;
 
 -- 7. Headcount Increase Requests (covering pending, approved, rejected)
 INSERT INTO public.headcount_increase_requests (
