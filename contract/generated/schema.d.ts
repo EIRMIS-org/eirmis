@@ -2405,6 +2405,22 @@ export interface components {
          */
         OrganizerStatus: "pending" | "active";
         /**
+         * @description Present only when the structural scan failed (HTTP 422). Each entry describes one rule violation found in the uploaded file.
+         * @example []
+         */
+        errors: {
+            /**
+             * @description Which scan rule was violated.
+             * @example external_href
+             */
+            rule: string;
+            /**
+             * @description Human-readable description of the violation.
+             * @example Found external href: https://external.example.com/script.js
+             */
+            detail: string;
+        }[];
+        /**
          * @description Request payload for public self-registration to an open event.
          * @example {
          *       "event_id": "55555555-5555-5555-5555-555555555555",
@@ -3841,16 +3857,33 @@ export interface operations {
                     "application/json": components["schemas"]["HtmlUploadResponse"];
                 };
             };
+            400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            /** @description Upload exceeds the file or multipart size limit. */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Structural scan failed — the file contains prohibited external references. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HtmlUploadResponse"];
+                    "application/json": {
+                        errors: components["schemas"]["errors"];
+                    };
                 };
+            };
+            /** @description Scanner unavailable or submission failed. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
