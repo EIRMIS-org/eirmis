@@ -22,7 +22,6 @@ export interface SolutionCardProps {
   badge?: string
   href?: string
   className?: string
-  children?: ReactNode
 }
 
 export function SolutionCard({
@@ -33,7 +32,6 @@ export function SolutionCard({
   badge,
   href,
   className,
-  children,
 }: SolutionCardProps) {
   return (
     <div
@@ -64,25 +62,23 @@ export function SolutionCard({
         </div>
       </div>
 
-      {children ?? (
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-border/50 pt-4">
-          <div className="flex flex-wrap gap-1.5">
-            {tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-          {href && (
-            <span className="flex items-center gap-1 text-xs font-semibold text-primary group-hover:translate-x-0.5 transition-transform">
-              Explore <ChevronRightIcon className="size-3.5" />
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-border/50 pt-4">
+        <div className="flex flex-wrap gap-1.5">
+          {tags.map((tag) => (
+            <span
+              key={tag}
+              className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+            >
+              {tag}
             </span>
-          )}
+          ))}
         </div>
-      )}
+        {href && (
+          <span className="flex items-center gap-1 text-xs font-semibold text-primary group-hover:translate-x-0.5 transition-transform">
+            Explore <ChevronRightIcon className="size-3.5" />
+          </span>
+        )}
+      </div>
     </div>
   )
 }
