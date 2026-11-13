@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-service-role-worker, x-worker-role, x-worker-secret",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
@@ -21,42 +21,8 @@ function isUuid(value: unknown): value is string {
   );
 }
 
-async function ensureOrganizerForEvent(
-  supabase: ReturnType<typeof createClient>,
-  userId: string,
-  eventId: string,
-): Promise<boolean> {
-  const { data, error } = await supabase
-    .from("events")
-    .select("id")
-    .eq("id", eventId)
-    .eq("organizer_id", userId)
-    .maybeSingle();
-
-  if (error) {
-    throw error;
-  }
-
-  return Boolean(data);
-}
-
-function isScheduledServiceRoleWorkerRequest(
-  headers: Headers,
-  serviceRoleKey: string,
-): boolean {
-  const authorization = headers.get("Authorization");
-  if (authorization === `Bearer ${serviceRoleKey}` || authorization === serviceRoleKey) {
-    return true;
-  }
-
-  const workerHeader = headers.get("x-service-role-worker");
-  if (workerHeader === "true" || workerHeader === "1") {
-    return true;
-  }
-
-  const workerRole = headers.get("x-worker-role");
-  const workerSecret = headers.get("x-worker-secret");
-  return workerRole === "scheduled-worker" && workerSecret === serviceRoleKey;
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 serve(async (req) => {
@@ -93,6 +59,11 @@ serve(async (req) => {
       return jsonResponse({ error: "Unauthorized" }, 401);
     }
 
+    const isServiceRoleRequest = authorization === `Bearer ${supabaseServiceRoleKey}`;
+    if (!isServiceRoleRequest && !authorization.startsWith("Bearer ")) {
+      return jsonResponse({ error: "Unauthorized" }, 401);
+    }
+
     let body: unknown;
     try {
       body = await req.json();
@@ -100,13 +71,14 @@ serve(async (req) => {
       return jsonResponse({ error: "Request body must be valid JSON." }, 400);
     }
 
-    if (!body || typeof body !== "object") {
+    if (!isRecord(body)) {
       return jsonResponse({ error: "Request body must be a JSON object." }, 400);
     }
 
-    const requestBody = body as Record<string, unknown>;
+    const requestBody = body;
+    const eventId = requestBody.event_id;
 
-    if (!("event_id" in requestBody) || !isUuid(requestBody.event_id)) {
+    if (!isUuid(eventId)) {
       return jsonResponse({ error: "event_id must be a valid UUID." }, 400);
     }
 
@@ -119,7 +91,6 @@ serve(async (req) => {
     }
 
     const serviceClient = createClient(supabaseUrl, supabaseServiceRoleKey);
-    const isServiceRoleRequest = isScheduledServiceRoleWorkerRequest(req.headers, supabaseServiceRoleKey);
     let actorId: string | null = null;
 
     if (!isServiceRoleRequest) {
@@ -138,8 +109,17 @@ serve(async (req) => {
       actorId = user.id;
 
       try {
-        const isOrganizer = await ensureOrganizerForEvent(serviceClient, user.id, requestBody.event_id as string);
-        if (!isOrganizer) {
+        const { data: event, error: eventError } = await serviceClient
+          .from("events")
+          .select("id")
+          .eq("id", eventId)
+          .eq("organizer_id", user.id)
+          .maybeSingle();
+
+        if (eventError) {
+          throw eventError;
+        }
+        if (!event) {
           return jsonResponse({ error: "Forbidden" }, 403);
         }
       } catch (error) {
@@ -151,7 +131,7 @@ serve(async (req) => {
     const { data: eventData, error: eventError } = await serviceClient
       .from("events")
       .select("capacity")
-      .eq("id", requestBody.event_id as string)
+      .eq("id", eventId)
       .maybeSingle();
 
     if (eventError) {
@@ -166,7 +146,7 @@ serve(async (req) => {
     const { data: approvedInvitations, error: headcountError } = await serviceClient
       .from("invitations")
       .select("party_size")
-      .eq("event_id", requestBody.event_id as string)
+      .eq("event_id", eventId)
       .eq("status", "accepted");
 
     if (headcountError) {
@@ -188,7 +168,7 @@ serve(async (req) => {
     const { data: promotedRows, error: promoteError } = await serviceClient.rpc(
       "promote_waitlist_atomic",
       {
-        p_event_id: requestBody.event_id as string,
+        p_event_id: eventId,
         p_headroom: headroom,
         p_max_promote: effectiveMaxPromotions,
       },
@@ -213,7 +193,7 @@ serve(async (req) => {
     for (const row of promotedInvitations) {
       const { data: invitation, error: invitationError } = await serviceClient
         .from("invitations")
-        .select("id, event_id, guest_id, guests(email, full_name)")
+        .select("id, event_id, guest_id")
         .eq("id", row.id)
         .maybeSingle();
 
@@ -222,11 +202,20 @@ serve(async (req) => {
         return jsonResponse({ error: "Failed to load promoted invitation details." }, 500);
       }
 
+      const { data: guest, error: guestError } = await serviceClient
+        .from("guests")
+        .select("email")
+        .eq("id", invitation.guest_id)
+        .maybeSingle();
+
+      if (guestError || !guest) {
+        console.error("Error fetching promoted invitation guest:", guestError?.message ?? "Guest not found.");
+        return jsonResponse({ error: "Failed to load promoted invitation guest." }, 500);
+      }
+
       promotedInvitationIds.push(invitation.id);
 
-      const guestEmail = Array.isArray(invitation.guests)
-        ? invitation.guests[0]?.email
-        : invitation.guests?.email;
+      const guestEmail = guest.email;
 
       if (!guestEmail) {
         console.error(`Invitation ${invitation.id} has no guest email for notification.`);
