@@ -1,6 +1,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { signQrToken } from "../_shared/qr-token.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -40,6 +41,7 @@ serve(async (req) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
   const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const qrSigningSecret = Deno.env.get("QR_SIGNING_SECRET");
   const authorization = req.headers.get("Authorization");
 
   const attendeeId = new URL(req.url).pathname.match(
@@ -50,7 +52,12 @@ serve(async (req) => {
   // 1. Validate environment configuration.
   // --------------------------------------------------------------------------
 
-  if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceRoleKey) {
+  if (
+    !supabaseUrl ||
+    !supabaseAnonKey ||
+    !supabaseServiceRoleKey ||
+    !qrSigningSecret
+  ) {
     console.error(
       "Attendee decision function is missing required configuration.",
     );
@@ -373,9 +380,42 @@ serve(async (req) => {
     );
   }
 
-  const updatedAttendee = decisionResult.attendee;
+  let updatedAttendee = decisionResult.attendee;
 
   const capacityWarning = decisionResult.capacity_warning;
+
+  if (decision === "approve") {
+    const qrToken = await signQrToken(
+      {
+        attendee_id: updatedAttendee.id,
+        event_id: invitation.event_id,
+        invitation_id: updatedAttendee.invitation_id,
+      },
+      qrSigningSecret,
+    );
+    const { data: attendeeWithQrToken, error: tokenError } =
+      await serviceClient
+        .from("attendees")
+        .update({ qr_token: qrToken })
+        .eq("id", updatedAttendee.id)
+        .eq("status", "approved")
+        .select("*")
+        .single();
+
+    if (tokenError || !attendeeWithQrToken) {
+      console.error(
+        "Attendee approved, but QR token persistence failed:",
+        tokenError?.message ?? "No attendee row returned.",
+      );
+      return jsonResponse({
+        error: "Attendee approved, but QR token could not be issued.",
+        attendee: updatedAttendee,
+        capacity_warning: capacityWarning,
+      }, 500);
+    }
+
+    updatedAttendee = attendeeWithQrToken;
+  }
 
   // --------------------------------------------------------------------------
   // 12. Preserve the existing QR-bundle behavior.
@@ -408,6 +448,50 @@ serve(async (req) => {
     }
 
     if (pendingCount === 0) {
+      const { data: notificationContext, error: notificationContextError } =
+        await serviceClient
+          .from("invitations")
+          .select("event_id, guests!inner(email)")
+          .eq("id", updatedAttendee.invitation_id)
+          .single();
+
+      if (notificationContextError || !notificationContext) {
+        console.error(
+          "Failed to fetch attendee notification recipient:",
+          notificationContextError?.message ?? "No invitation returned.",
+        );
+        return jsonResponse({
+          error: "Decision saved, but notification could not be queued.",
+          attendee: updatedAttendee,
+          capacity_warning: capacityWarning,
+        }, 500);
+      }
+
+      const guest = Array.isArray(notificationContext.guests)
+        ? notificationContext.guests[0]
+        : notificationContext.guests;
+      const { error: notificationError } = await serviceClient
+        .from("email_logs")
+        .insert({
+          event_id: notificationContext.event_id,
+          invitation_id: updatedAttendee.invitation_id,
+          recipient_email: guest.email,
+          type: "attendee_status_update",
+          status: "queued",
+        });
+
+      if (notificationError) {
+        console.error(
+          "Failed to queue attendee status notification:",
+          notificationError.message,
+        );
+        return jsonResponse({
+          error: "Decision saved, but notification could not be queued.",
+          attendee: updatedAttendee,
+          capacity_warning: capacityWarning,
+        }, 500);
+      }
+
       try {
         const qrBundleResponse = await fetch(
           `${supabaseUrl.replace(/\/$/, "")}/functions/v1/qr-bundle`,
