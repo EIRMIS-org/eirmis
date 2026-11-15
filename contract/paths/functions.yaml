@@ -63,7 +63,17 @@
         content:
           application/json:
             schema:
-              $ref: '../components/schemas/HtmlUpload.yaml#/HtmlUploadResponse'
+              type: object
+              required: [errors]
+              properties:
+                errors:
+                  $ref: '../components/schemas/HtmlUpload.yaml#/HtmlUploadResponse/properties/errors'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '413':
+        description: Upload exceeds the file or multipart size limit.
+      '503':
+        description: Scanner unavailable or submission failed.
       '401':
         $ref: '../components/responses.yaml#/Unauthorized'
       '403':
