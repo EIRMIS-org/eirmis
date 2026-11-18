@@ -1,17 +1,33 @@
 import * as React from 'react'
-import { Menu, LogOut, LogIn, Layers } from 'lucide-react'
+import { Menu, LogIn, Layers, ChevronDown, Check, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import {
+  SESSION_ROLE_OPTIONS,
+  type AuthenticatedRole,
+} from '@/app/providers/session-profiles'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   MobileDrawer,
   type UserSession,
 } from './mobile-drawer'
 import { DEFAULT_PORTALS, type PortalItem } from './portal-constants'
 
+function getIdentityLabel(role?: string): string | undefined {
+  return SESSION_ROLE_OPTIONS.find((option) => option.role === role)?.label ?? role
+}
+
 export interface GlobalNavProps {
   activePortal?: string
   onPortalSelect?: (id: string) => void
   portals?: PortalItem[]
   user?: UserSession | null
+  onIdentitySwitch?: (role: AuthenticatedRole) => void
   onSignOut?: () => void
   onSignIn?: () => void
   brandTitle?: string
@@ -29,6 +45,7 @@ export function GlobalNav({
   onPortalSelect,
   portals = DEFAULT_PORTALS,
   user = null,
+  onIdentitySwitch,
   onSignOut,
   onSignIn,
   brandTitle = 'EIRMIS',
@@ -101,29 +118,54 @@ export function GlobalNav({
           {/* Right Session Pill & Mobile Hamburger */}
           <div className="flex items-center gap-2 shrink-0">
             {user ? (
-              <div className="hidden sm:flex items-center gap-2.5 rounded-full border border-border bg-surface py-1 pr-3 pl-1.5 shadow-xs">
-                <div className="flex size-6 items-center justify-center rounded-full bg-gradient-to-br from-primary to-indigo-900 text-[10px] font-bold text-white shadow-xs">
-                  {user.initials || user.name.slice(0, 2).toUpperCase()}
-                </div>
-                <span className="text-xs font-semibold text-foreground max-w-[120px] truncate">
-                  {user.name}
-                </span>
-                {user.role && (
-                  <span className="rounded-full bg-primary/10 px-1.5 py-0.2 text-[9px] font-bold uppercase tracking-wider text-primary">
-                    {user.role}
+              <DropdownMenu>
+                <DropdownMenuTrigger className="hidden sm:flex items-center gap-2.5 rounded-full border border-border bg-surface py-1 pr-2.5 pl-1.5 shadow-xs hover:bg-muted/60">
+                  <span className="flex size-6 items-center justify-center rounded-full bg-gradient-to-br from-primary to-indigo-900 text-[10px] font-bold text-white shadow-xs">
+                    {user.initials || user.name.slice(0, 2).toUpperCase()}
                   </span>
-                )}
-                {onSignOut && (
-                  <button
-                    type="button"
-                    onClick={onSignOut}
-                    title="Sign out"
-                    className="ml-0.5 rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-                  >
-                    <LogOut className="size-3.5" />
-                  </button>
-                )}
-              </div>
+                  <span className="max-w-[120px] truncate text-xs font-semibold text-foreground">
+                    {user.name}
+                  </span>
+                  {user.role && (
+                    <span className="rounded-full bg-primary/10 px-1.5 py-0.2 text-[9px] font-bold uppercase tracking-wider text-primary">
+                      {getIdentityLabel(user.role)}
+                    </span>
+                  )}
+                  <ChevronDown className="size-3.5 text-muted-foreground" aria-hidden="true" />
+                  <span className="sr-only">Open session menu</span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-52">
+                  <DropdownMenuLabel>
+                    {onIdentitySwitch ? 'Switch identity' : 'Signed in'}
+                    <span className="mt-0.5 block truncate font-normal text-muted-foreground">
+                      {user.name}
+                    </span>
+                  </DropdownMenuLabel>
+                  {onIdentitySwitch && SESSION_ROLE_OPTIONS.map((option) => (
+                    <DropdownMenuItem
+                      key={option.role}
+                      onClick={() => onIdentitySwitch?.(option.role)}
+                    >
+                      <span className="flex-1">{option.label}</span>
+                      {user.role === option.role && (
+                        <Check className="size-3.5 text-primary" aria-hidden="true" />
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                  {onSignOut && (
+                    <>
+                      <div className="my-1 border-t border-border" />
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onClick={onSignOut}
+                      >
+                        <LogOut className="size-3.5" aria-hidden="true" />
+                        Sign out
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <button
                 type="button"
@@ -156,6 +198,7 @@ export function GlobalNav({
         onPortalSelect={onPortalSelect}
         portals={portals}
         user={user}
+        onIdentitySwitch={onIdentitySwitch}
         onSignOut={onSignOut}
         onSignIn={onSignIn}
       />

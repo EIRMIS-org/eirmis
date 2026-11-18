@@ -11,6 +11,7 @@
 
 import { Outlet, useNavigate } from 'react-router-dom'
 import { useSession } from '@/app/providers/session-context'
+import type { AuthenticatedRole } from '@/app/providers/session-profiles'
 import { GlobalNav } from '@/components/eirmis/global-nav'
 
 /** Portal nav ids → the routes Task 04 owns. */
@@ -22,6 +23,13 @@ const PORTAL_ROUTES: Record<string, string> = {
     staff: '/staff',
 }
 
+const IDENTITY_ROUTES: Record<AuthenticatedRole, string> = {
+    organizer: '/organizer',
+    admin: '/admin',
+    guest: '/guest',
+    checkin: '/staff',
+}
+
 export interface AppChromeProps {
     /** Which nav item is highlighted (`hub` | `organizer` | `guest` | `staff` | `admin`). */
     activePortal: string
@@ -29,7 +37,7 @@ export interface AppChromeProps {
 
 export function AppChrome({ activePortal }: AppChromeProps) {
     const navigate = useNavigate()
-    const { role, profile, isAuthenticated, signOut } = useSession()
+    const { role, profile, isAuthenticated, signIn, signOut } = useSession()
 
     return (
         <div className="flex min-h-screen flex-col bg-background">
@@ -37,6 +45,10 @@ export function AppChrome({ activePortal }: AppChromeProps) {
                 activePortal={activePortal}
                 onPortalSelect={(id) => navigate(PORTAL_ROUTES[id] ?? '/')}
                 onBrandClick={() => navigate('/')}
+                onIdentitySwitch={(nextRole) => {
+                    signIn(nextRole)
+                    navigate(IDENTITY_ROUTES[nextRole])
+                }}
                 user={
                     isAuthenticated && profile
                         ? {
