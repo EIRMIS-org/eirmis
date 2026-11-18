@@ -19,9 +19,9 @@
 | 48 | 38 | 10 | 0 | 79.17% | 16.79s |
 
 - **Overall Status:** [ ] PASS  [ ] CONDITIONAL PASS  [x] FAIL
-- **Blockers / High Severity Issues:** 
-QA-01 (Critical): On a clean supabase db reset, no seeded user can log in (POST /auth/v1/token returns 500 Database error querying schema). This blocks all authenticated role testing unless a workaround(for testing only) is applied.
-QA-02 (Medium): POST /functions/v1/register returns 404. The implemented function is register-public.
+- **Blockers / High Severity Issues :** 
+QA-01 (Critical): `POST /rest/v1/checkin_assignments` | Returns `400` (`23502`): `invited_by` is NOT NULL in the database, but the request in the collection does not supply it. Contract/collection and schema disagree.
+QA-02 (Medium): `POST /rest/v1/events` | Returns `403` (`42501`) "new row violates row-level security policy" for `organizer@example.com`, whose status is `active`. Still `403` when the request is sent alone. <<VERIFY: root cause not yet confirmed>>
 ---
 
 ### Results by Role / Module
@@ -63,6 +63,10 @@ POST(Submit Headcount Request) returned a 403, *code: forbidden, message: the in
 **1. Run Summary & Initial Endpoints**
 *Shows the Postman run summary with 48 total tests, 38 passed, 10 failed, 0 skipped, and 0 errors; *
 ![Run Summary Screenshot](images/2026-11-17/screenshot-1-summary.png)
+
+**2. Public**
+*Shows three events related requests, two marked PASSED with 200,201,204 responses: GET, POST, and DELETE.*
+![Reminders](images/2026-11-17/screenshot-public.png)
 
 **2. Reminders**
 *Shows three reminder schedule requests, all marked PASSED with 200,201,204 responses: GET, POST, and DELETE.*
