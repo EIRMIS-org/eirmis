@@ -4,6 +4,8 @@ import { z } from 'zod'
 import { createZodResolver } from '../zod-resolver'
 import { identifierSchema } from './identifier'
 
+export type { OrgSettings, OrgSettingsUpdate }
+
 const orgNameSchema = z.string().trim().min(1, 'Organization name is required')
 const timezoneSchema = z.string().trim().min(1, 'Default timezone is required')
 const senderDomainSchema = z.string().trim().min(1, 'Sender domain is required')

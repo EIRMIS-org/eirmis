@@ -1,4 +1,4 @@
-/**
+﻿/**
  * src/app/routing/router.tsx
  *
  * Task 04 — Routing & Role Guards (M4 Frontend Week 1)
@@ -27,6 +27,8 @@ import { DocsPage } from "@/pages/shared/docs-page";
 import { CreateEventPage } from "@/pages/organizer/create-event-page";
 import { EventWorkspacePage } from "@/pages/organizer/event-workspace-page";
 import { EventsPage } from "@/pages/organizer/events-page";
+import { AdminSettingsPage } from "@/pages/admin/admin-settings-page";
+import { AdminVerificationQueuePage } from "@/pages/admin/admin-verification-queue-page";
 
 const Styleguide = lazy(() => import("@/Styleguide"));
 
@@ -141,21 +143,11 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "admin",
-        element: (
-          <PlaceholderPage
-            title="Admin — Verification Queue"
-            note="Filled by task 10 — Admin Portal"
-          />
-        ),
+        element: <AdminVerificationQueuePage />,
       },
       {
         path: "admin/settings",
-        element: (
-          <PlaceholderPage
-            title="Admin — Org Settings"
-            note="Filled by task 10"
-          />
-        ),
+        element: <AdminSettingsPage />,
       },
     ],
   },
