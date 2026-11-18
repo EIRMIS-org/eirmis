@@ -1,10 +1,9 @@
 OrganizerStatus:
   type: string
-  enum: [pending, active, suspended]
+  enum: [pending, active]
   description: >
     `pending` — newly self-registered; awaiting admin verification.
     `active`  — verified; may create and manage events.
-    `suspended` — previously verified; access revoked by an administrator.
 
 EventStatus:
   type: string

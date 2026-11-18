@@ -28,7 +28,6 @@ const PAGE_SIZE = 20
 const statusLabels: Record<OrganizerStatus, string> = {
     pending: 'Pending',
     active: 'Active',
-    suspended: 'Suspended',
 }
 
 const statusVariants: Record<
@@ -37,12 +36,11 @@ const statusVariants: Record<
 > = {
     pending: 'warning',
     active: 'success',
-    suspended: 'destructive',
 }
 
 function targetStatus(status: OrganizerStatus): OrganizerStatus | undefined {
     if (status === 'pending') return 'active'
-    if (status === 'active') return 'suspended'
+    if (status === 'active') return 'pending'
     return undefined
 }
 
@@ -145,12 +143,7 @@ export function OrganizerVerificationQueue() {
                                             {formatDate(organizer.created_at)}
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            {organizer.status === 'suspended' ? (
-                                                <span className="text-xs text-muted-foreground">
-                                                    Access revoked
-                                                </span>
-                                            ) : (
-                                                <Button
+                                            <Button
                                                     size="sm"
                                                     variant={
                                                         organizer.status === 'active'
@@ -168,7 +161,6 @@ export function OrganizerVerificationQueue() {
                                                         ? 'Revoke'
                                                         : 'Approve'}
                                                 </Button>
-                                            )}
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -229,7 +221,7 @@ export function OrganizerVerificationQueue() {
                             Cancel
                         </Button>
                         <Button
-                            variant={pendingChange?.status === 'suspended' ? 'destructive' : 'primary'}
+                            variant={pendingChange?.status === 'pending' ? 'destructive' : 'primary'}
                             onClick={confirmStatusChange}
                             disabled={updateStatus.isPending}
                         >

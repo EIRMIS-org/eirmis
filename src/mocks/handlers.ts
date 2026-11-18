@@ -552,7 +552,7 @@ export const handlers = [
             return HttpResponse.json(profile);
         }
 
-        if (!body.status || !['pending', 'active', 'suspended'].includes(body.status)) {
+        if (!body.status || !['pending', 'active'].includes(body.status)) {
             return HttpResponse.json(
                 errorBody('PGRST102', 'Invalid organizer status'),
                 { status: 400 },
