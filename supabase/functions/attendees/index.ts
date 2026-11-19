@@ -493,20 +493,26 @@ serve(async (req) => {
       }
 
       try {
-        const qrBundleResponse = await fetch(
-          `${supabaseUrl.replace(/\/$/, "")}/functions/v1/qr-bundle`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: authorization,
-              apikey: supabaseAnonKey,
-              "Content-Type": "application/json",
+        const invokeQrBundle = () =>
+          fetch(
+            `${supabaseUrl.replace(/\/$/, "")}/functions/v1/qr-bundle`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: authorization,
+                apikey: supabaseAnonKey,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                invitation_id: updatedAttendee.invitation_id,
+              }),
             },
-            body: JSON.stringify({
-              invitation_id: updatedAttendee.invitation_id,
-            }),
-          },
-        );
+          );
+
+        let qrBundleResponse = await invokeQrBundle();
+        if (qrBundleResponse.status === 503 || qrBundleResponse.status === 546) {
+          qrBundleResponse = await invokeQrBundle();
+        }
 
         if (!qrBundleResponse.ok) {
           const responseBody = await qrBundleResponse.text();

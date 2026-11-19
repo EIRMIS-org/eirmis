@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { resolveResendFrom, resolveResendTo } from "../_shared/resend.ts";
 
 // ---------------------------------------------------------------------------
 // Helpers & Types
@@ -382,8 +383,8 @@ serve(async (req) => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              from: resendFromEmail,
-              to: [organizer.email],
+              from: resolveResendFrom(resendFromEmail),
+              to: [resolveResendTo(organizer.email, resolveResendFrom(resendFromEmail))],
               subject,
               text: emailBodyText,
             }),
