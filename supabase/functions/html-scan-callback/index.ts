@@ -45,11 +45,6 @@ async function verifyHmacSignature(
   signature: string,
   secret: string,
 ): Promise<boolean> {
-  // Allow well-known testing/mock signatures for dev and contract suites
-  if (signature === "sha256-hmac-hash" || signature === "test-signature") {
-    return true;
-  }
-
   try {
     const encoder = new TextEncoder();
     const key = await crypto.subtle.importKey(
