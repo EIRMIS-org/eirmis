@@ -21,14 +21,14 @@ const UUID = {
   ADMIN:        '22222222-2222-2222-2222-222222222222',
   GUEST:        '33333333-3333-3333-3333-333333333333',
   CHECKIN_STAFF:'44444444-4444-4444-4444-444444444444',
-  EVENT:        '55555555-5555-5555-5555-555555555555',
-  INVITATION:   '66666666-6666-6666-6666-666666666666',
-  ATTENDEE:     '77777777-7777-7777-7777-777777777777',
-  ASSIGNMENT:   '88888888-8888-8888-8888-888888888888',
-  REMINDER:     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-  HIR:          'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
-  DESIGN:       'cccccccc-cccc-cccc-cccc-cccccccccccc',
-  IMAGE:        'dddddddd-dddd-dddd-dddd-dddddddddddd',
+  EVENT:        '55555555-5555-5555-5555-555555555551',
+  INVITATION:   '66666666-6666-6666-6666-666666666665',
+  ATTENDEE:     '77777777-7777-7777-7777-777777777774',
+  ASSIGNMENT:   '88888888-8888-8888-8888-888888888882',
+  REMINDER:     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa3',
+  HIR:          'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb1',
+  DESIGN:       'cccccccc-cccc-cccc-cccc-ccccccccccc1',
+  IMAGE:        'dddddddd-dddd-dddd-dddd-ddddddddddd2',
 };
 
 function parseUrl(rawUrl: string) {
