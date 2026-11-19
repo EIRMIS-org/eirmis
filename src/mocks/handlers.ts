@@ -573,7 +573,7 @@ export const handlers = [
     }),
 
     // ═══ Edge Functions ═══
-    http.post('*/functions/v1/register', async ({ request }) => {
+    http.post('*/functions/v1/register-public', async ({ request }) => {
         const body = (await request.json()) as Record<string, unknown>;
         if (!body.email || !body.event_id) {
             return HttpResponse.json(

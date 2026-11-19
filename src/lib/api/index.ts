@@ -301,11 +301,11 @@ export function listPublicGalleryImages(
     return listInvitationImages(eventId, { auth: false });
 }
 
-/** POST /functions/v1/register — public self-registration. */
+/** POST /functions/v1/register-public — public self-registration. */
 export function registerPublicGuest(
     body: components['schemas']['RegisterPublicRequest'],
 ): Promise<Ok<operations['registerPublicGuest']>> {
-    return request('POST', '/functions/v1/register', { noAuth: true, body });
+    return request('POST', '/functions/v1/register-public', { noAuth: true, body });
 }
 
 // ─── Organizer operations ─────────────────────────────────────────────────────

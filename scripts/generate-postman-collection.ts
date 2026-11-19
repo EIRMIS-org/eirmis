@@ -163,7 +163,7 @@ const publicRequests: RequestDefinition[] = [
     name: 'Register for Open-Registration Event',
     description: 'Public self-registration handled by Supabase Edge Function.',
     method: 'POST',
-    url: '{{baseUrl}}/functions/v1/register',
+    url: '{{baseUrl}}/functions/v1/register-public',
     body: {
       event_id: '{{eventId}}',
       email: 'newguest@example.com',
@@ -195,7 +195,7 @@ const organizerSubfolders = [
         headers: { Prefer: 'return=representation' },
         body: {
           title: 'Annual Gala 2026',
-          slug: 'annual-gala-2026',
+          slug: 'annual-gala-2026-draft',
           description: 'A celebration of achievements and milestones.',
           starts_at: '2026-12-15T18:00:00+08:00',
           ends_at: '2026-12-15T22:00:00+08:00',
