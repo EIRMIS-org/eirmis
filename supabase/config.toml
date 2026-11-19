@@ -426,3 +426,6 @@ enabled = true
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
 [functions.register-public]
 verify_jwt = false
+
+[functions.html-scan-callback]
+verify_jwt = false
