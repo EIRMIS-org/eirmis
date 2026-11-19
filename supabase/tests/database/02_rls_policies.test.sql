@@ -5,7 +5,7 @@
 -- =============================================================================
 
 BEGIN;
-SELECT plan(22);
+SELECT plan(24);
 
 -- 1. Verify RLS is enabled on all 14 application tables
 SELECT is(
@@ -135,6 +135,58 @@ SELECT results_eq(
   'SELECT count(*)::integer FROM public.attendees',
   ARRAY[0],
   'Admin has no read access to attendees roster'
+);
+
+-- Active Organizer: Should be able to create an event without passing organizer_id explicitly
+RESET ROLE;
+SET LOCAL ROLE authenticated;
+SET LOCAL "request.jwt.claim.sub" = '11111111-1111-1111-1111-111111111111'; -- Synthetic active Organizer from seed
+SET LOCAL "request.jwt.claims" = '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}';
+
+SELECT lives_ok(
+  $$INSERT INTO public.events (
+      title, slug, description, starts_at, ends_at, event_timezone,
+      venue_name, address, city, capacity, rsvp_deadline, visibility_mode, status
+    ) VALUES (
+      'Organizer RLS Insert Test',
+      'organizer-rls-insert-test',
+      'Created without explicit organizer_id in payload.',
+      now() + interval '30 days',
+      now() + interval '31 days',
+      'Asia/Manila',
+      'Grand Ballroom',
+      '123 Rizal Avenue',
+      'Cebu City',
+      500,
+      now() + interval '20 days',
+      'invite_only',
+      'draft'
+    )$$,
+  'Active organizer can insert an event without explicitly specifying organizer_id'
+);
+
+-- Pending Organizer: Should be blocked by RLS from creating an event
+RESET ROLE;
+SET LOCAL ROLE authenticated;
+SET LOCAL "request.jwt.claim.sub" = '11111111-1111-1111-1111-111111111112'; -- Synthetic pending Organizer from seed
+SET LOCAL "request.jwt.claims" = '{"sub":"11111111-1111-1111-1111-111111111112","role":"authenticated"}';
+
+SELECT throws_ok(
+  $$INSERT INTO public.events (
+      title, slug, starts_at, ends_at, capacity, rsvp_deadline, visibility_mode, status
+    ) VALUES (
+      'Pending Organizer Event',
+      'pending-organizer-event',
+      now() + interval '30 days',
+      now() + interval '31 days',
+      100,
+      now() + interval '20 days',
+      'invite_only',
+      'draft'
+    )$$,
+  '42501',
+  NULL,
+  'Pending organizer cannot insert an event'
 );
 
 SELECT * FROM finish();
