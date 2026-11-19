@@ -8,5 +8,5 @@
 - [x] Capacity-override approval shows the audited-override confirmation before applying
 - [x] QR dispatch sends the bundle for selected approved invitations and toasts the summary
 - [x] Tab state is URL-driven (refresh keeps the active tab)
-- [ ] Cross-portal: an approval made here is reflected in the guest portal's invitation status
+- [x] Cross-portal: an approval made here is reflected in the guest portal's invitation status
 - [x] `npm run lint && npm run typecheck && npm run build` all green
