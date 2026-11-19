@@ -40,10 +40,7 @@ export function WalkInModal() {
         form.clearErrors('root')
 
         try {
-            const attendee = createdAttendee ?? await submitAttendee.mutateAsync({
-                ...values,
-                is_walk_in: true,
-            })
+            const attendee = createdAttendee ?? await submitAttendee.mutateAsync(values)
             setCreatedAttendee(attendee)
             if (!attendee.qr_token) {
                 form.setError('root.server', {

@@ -194,12 +194,12 @@ const organizerProfiles: OrganizerProfile[] = Array.from(
     { length: 21 },
     (_, index) => {
         if (index === 0) return { ...exampleOrganizerProfile };
-        const suffix = String(index).padStart(2, '0');
+        const suffix = String(index).padStart(12, '0');
         return {
             ...exampleOrganizerProfile,
-            id: `11111111-1111-1111-1111-1111111111${suffix}`,
-            email: `organizer${suffix}@example.com`,
-            full_name: `Organizer ${suffix}`,
+            id: `11111111-1111-1111-1111-${suffix}`,
+            email: `organizer${index.toString().padStart(2, '0')}@example.com`,
+            full_name: `Organizer ${index.toString().padStart(2, '0')}`,
             created_at: `2026-09-${String(index + 1).padStart(2, '0')}T08:00:00+08:00`,
         };
     },
@@ -414,10 +414,8 @@ export const handlers = [
     http.post('*/rest/v1/attendees', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
         const body = (await request.json()) as Partial<Attendee>;
-        const isWalkIn = body.is_walk_in === true;
-        if (isWalkIn && request.headers.get('Authorization') !== 'Bearer fake-checkin-staff-jwt') {
-            return HttpResponse.json(errorBody('42501', 'Only assigned staff can register walk-ins'), { status: 403 });
-        }
+        const isWalkIn =
+            request.headers.get('Authorization') === 'Bearer fake-checkin-staff-jwt';
         if (body.invitation_id !== mockInvitation.id || mockInvitation.status !== 'accepted') {
             return HttpResponse.json(errorBody('42501', 'Select an accepted invitation for the assigned event'), { status: 403 });
         }
