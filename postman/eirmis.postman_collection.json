@@ -210,14 +210,14 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/functions/v1/register",
+              "raw": "{{baseUrl}}/functions/v1/register-public",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "functions",
                 "v1",
-                "register"
+                "register-public"
               ]
             },
             "description": "Public self-registration handled by Supabase Edge Function."
@@ -317,7 +317,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"title\": \"Annual Gala 2026\",\n  \"slug\": \"annual-gala-2026\",\n  \"description\": \"A celebration of achievements and milestones.\",\n  \"starts_at\": \"2026-12-15T18:00:00+08:00\",\n  \"ends_at\": \"2026-12-15T22:00:00+08:00\",\n  \"event_timezone\": \"Asia/Manila\",\n  \"venue_name\": \"Grand Ballroom\",\n  \"address\": \"123 Rizal Avenue\",\n  \"city\": \"Cebu City\",\n  \"capacity\": 500,\n  \"rsvp_deadline\": \"2026-12-01T23:59:59+08:00\",\n  \"visibility_mode\": \"invite_only\",\n  \"status\": \"draft\"\n}",
+                  "raw": "{\n  \"title\": \"Annual Gala 2026\",\n  \"slug\": \"annual-gala-2026-draft\",\n  \"description\": \"A celebration of achievements and milestones.\",\n  \"starts_at\": \"2026-12-15T18:00:00+08:00\",\n  \"ends_at\": \"2026-12-15T22:00:00+08:00\",\n  \"event_timezone\": \"Asia/Manila\",\n  \"venue_name\": \"Grand Ballroom\",\n  \"address\": \"123 Rizal Avenue\",\n  \"city\": \"Cebu City\",\n  \"capacity\": 500,\n  \"rsvp_deadline\": \"2026-12-01T23:59:59+08:00\",\n  \"visibility_mode\": \"invite_only\",\n  \"status\": \"draft\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
