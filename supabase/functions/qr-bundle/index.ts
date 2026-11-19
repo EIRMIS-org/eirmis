@@ -2,6 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import QRCode from "npm:qrcode@1.5.4";
 import { PDFDocument, rgb, StandardFonts } from "npm:pdf-lib@1.17.1";
+import { resolveResendFrom, resolveResendTo } from "../_shared/resend.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -260,8 +261,8 @@ export async function renderAttendeeQrAssets(
 
     const pngBuffer = await QRCode.toBuffer(attendee.qr_token, {
       type: "png",
-      width: 300,
-      margin: 2,
+      scale: 2,
+      margin: 1,
     });
     const pngBytes = new Uint8Array(pngBuffer);
     const pngBase64 = bytesToBase64(pngBytes);
@@ -327,7 +328,7 @@ export async function renderAttendeeQrAssets(
   }
 
   return {
-    pdfBytes: new Uint8Array(await pdf.save()),
+    pdfBytes: new Uint8Array(await pdf.save({ useObjectStreams: false })),
     passesWithPngBase64,
   };
 }
@@ -882,8 +883,8 @@ export async function handleQrBundleRequest(req: Request): Promise<Response> {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: resendFromEmail,
-          to: [guest.email],
+          from: resolveResendFrom(resendFromEmail),
+          to: [resolveResendTo(guest.email, resolveResendFrom(resendFromEmail))],
           subject: event.title
             ? `Your QR Code Passes for ${event.title}`
             : "Your EIRMIS QR codes",

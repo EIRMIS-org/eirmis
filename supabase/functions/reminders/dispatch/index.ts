@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { resolveResendFrom, resolveResendTo } from "../../_shared/resend.ts";
 import {
   createDispatchHandler,
   type BatchSendResult,
@@ -114,8 +115,8 @@ const handler = createDispatchHandler({
         },
         body: JSON.stringify(
           emails.map((email) => ({
-            from: resendFromEmail,
-            to: [email.recipient_email],
+            from: resolveResendFrom(resendFromEmail),
+            to: [resolveResendTo(email.recipient_email, resolveResendFrom(resendFromEmail))],
             subject: email.subject,
             html: email.html,
             text: email.text,

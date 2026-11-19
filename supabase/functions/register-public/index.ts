@@ -1,5 +1,6 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { resolveResendFrom, resolveResendTo } from "../_shared/resend.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -409,8 +410,8 @@ Deno.serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: resendFromEmail,
-          to: [email],
+          from: resolveResendFrom(resendFromEmail),
+          to: [resolveResendTo(email, resolveResendFrom(resendFromEmail))],
           subject: emailSubject,
           text: emailText,
         }),

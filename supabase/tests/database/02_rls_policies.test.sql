@@ -5,7 +5,7 @@
 -- =============================================================================
 
 BEGIN;
-SELECT plan(24);
+SELECT plan(27);
 
 -- 1. Verify RLS is enabled on all 14 application tables
 SELECT is(
@@ -187,6 +187,48 @@ SELECT throws_ok(
   '42501',
   NULL,
   'Pending organizer cannot insert an event'
+);
+
+-- Active Organizer: Should be able to create a check-in assignment without passing invited_by explicitly
+RESET ROLE;
+SET LOCAL ROLE authenticated;
+SET LOCAL "request.jwt.claim.sub" = '11111111-1111-1111-1111-111111111111'; -- Synthetic active Organizer from seed
+SET LOCAL "request.jwt.claims" = '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}';
+
+SELECT lives_ok(
+  $$INSERT INTO public.checkin_assignments (
+      event_id, staff_email
+    ) VALUES (
+      '55555555-5555-5555-5555-555555555555',
+      'staff@example.com'
+    )$$,
+  'Active organizer can insert a checkin_assignment without explicitly specifying invited_by'
+);
+
+SELECT results_eq(
+  $$SELECT invited_by FROM public.checkin_assignments
+    WHERE event_id = '55555555-5555-5555-5555-555555555555'
+      AND staff_email = 'staff@example.com'$$,
+  ARRAY['11111111-1111-1111-1111-111111111111'::uuid],
+  'checkin_assignments.invited_by defaults to auth.uid() on insert'
+);
+
+-- Non-owner Organizer: Should be blocked by RLS from assigning check-in staff to another organizer''s event
+RESET ROLE;
+SET LOCAL ROLE authenticated;
+SET LOCAL "request.jwt.claim.sub" = '11111111-1111-1111-1111-111111111112';
+SET LOCAL "request.jwt.claims" = '{"sub":"11111111-1111-1111-1111-111111111112","role":"authenticated"}';
+
+SELECT throws_ok(
+  $$INSERT INTO public.checkin_assignments (
+      event_id, staff_email
+    ) VALUES (
+      '55555555-5555-5555-5555-555555555555',
+      'unauthorized-staff@example.com'
+    )$$,
+  '42501',
+  NULL,
+  'Non-owner organizer cannot insert a checkin_assignment for another organizer''s event'
 );
 
 SELECT * FROM finish();
