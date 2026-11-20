@@ -63,51 +63,57 @@ POST(Submit Headcount Request) returned a 403, *code: forbidden, message: the in
 
 **1. Run Summary & Initial Endpoints**
 *Shows the Postman run summary with 48 total tests, 38 passed, 10 failed, 0 skipped, and 0 errors; *
-![Run Summary Screenshot](images/2026-11-17/screenshot-1-summary.png)
+![Run Summary Screenshot](images/2026-11-17/screenshot-summary.png)
 
 **2. Public**
 *Shows three events related requests, two marked PASS with 200 responses and a 409 for the failed test*
-![Reminders](images/2026-11-17/screenshot-public.png)
+![Public](images/2026-11-17/screenshot-1-public.png)
 
-**2. Reminders**
+**3. Events**
+*Shows four events related requests, three marked PASS with 200 responses and a 403 for the failed test*
+![Public](images/2026-11-17/screenshot-2-events.png)
+
+**4. Reminders**
 *Shows three reminder schedule requests, all marked PASS with 200,201,204 responses: GET, POST, and DELETE.*
 ![Reminders](images/2026-11-17/screenshot-3-reminders.png)
 
-**3. Guests & Invitations**
+**5. Guests & Invitations**
 *Shows four guests and invitations requests, all marked PASSED with 200S and 201 responses.*
 ![Guests and Invitations](images/2026-11-17/screenshot-4-guests.png)
 
-**4. Approvals**
+**6. Approvals**
 *Shows two requests marked FAIL and two requests marked PASSED: two returned 200 the other two 404.*
-![Approvals](images/2026-11-17/screenshot-5-approvals.png)
+![Approvals](images/2026-11-17/screenshot-5.1-approvals.png)
+![](images/2026-11-17/screenshot-5.2-approvals.png)
 
-**5. Invitation Design & Gallery**
+**7. Invitation Design & Gallery**
 *Shows the invitation design and gallery run with 7 tests, 6 passed, and 1 failed; the visible requests include 200,201,204 responses and a 404 for Upload HTML Invitation File.*
 ![Invitation Design and Gallery](images/2026-11-17/screenshot-6-invitation-design-gallery.png)
 
-**6. Check-in Staff Assignments**
+**8. Check-in Staff Assignments**
 *Shows four check-in staff assignment requests, three marked PASS, one marked FAILED.*
 ![Check-in Staff Assignments](images/2026-11-17/screenshot-7-checkin.png)
 
-**7. QR Codes & Waitlist**
+**9. QR Codes & Waitlist**
 *Shows two QR and waitlist requests, both marked FAIL: Dispatch QR Code PDF Bundle and Promote Waitlisted Guest returned 404.*
 ![QR Codes and Waitlist](images/2026-11-17/screenshot-8-qr-codes.png)
 
-**8. Logs & Profile**
+**10. Logs & Profile**
 *Shows four logs and profile requests, all marked PASS with 200 responses.*
 ![Logs and Profile](images/2026-11-17/screenshot-9-logs.png)
 
-**9. Admin**
+**11. Admin**
 *Shows three admin requests, all marked PASS with 200 responses.*
 ![Admin](images/2026-11-17/screenshot-10-admin.png)
 
-**10. Guest**
+**12. Guest**
 *Shows the guest run with 8 tests, 6 passed, and 2 failed; the visible requests are marked FAIL with 403 responses.*
-![Guest](images/2026-11-17/screenshot-11-guest.png)
+![Guest](images/2026-11-17/screenshot-11.1-guest.png)
+![](images/2026-11-17/screenshot-11.2-guest.png)
 
-**11. Check-in Staff**
+**13. Check-in Staff**
 *Shows two check-in staff requests, one marked FAIL the other marked PASS: Read Assigned Event Details returned 200 and Scan QR Token and Record Check-in returned 404.*
-![Check-in Staff](images/2026-11-06/screenshot-12-checkin-staff.png)
+![Check-in Staff](images/2026-11-17/screenshot-12-checkin-staff.png)
 
 
 
