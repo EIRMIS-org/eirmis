@@ -1,4 +1,4 @@
-﻿/**
+/**
  * src/app/routing/router.tsx
  *
  * Task 04 — Routing & Role Guards (M4 Frontend Week 1)
@@ -23,6 +23,7 @@ import { OrganizerLayout } from '@/pages/organizer/organizer-layout'
 import { EventsPage } from '@/pages/organizer/events-page'
 import { CreateEventPage } from '@/pages/organizer/create-event-page'
 import { EventWorkspacePage } from '@/pages/organizer/event-workspace-page'
+import { OrganizerSettingsPage } from '@/pages/organizer/organizer-settings-page'
 import { GuestLayout } from '@/pages/guest/guest-layout'
 import { StaffLayout } from '@/pages/staff/staff-layout'
 import { StaffScanPage } from '@/pages/staff/staff-scan-page'
@@ -73,6 +74,7 @@ export const router = createBrowserRouter([
       { path: 'organizer', element: <EventsPage /> },
       { path: 'organizer/events/new', element: <CreateEventPage /> },
       { path: 'organizer/events/:eventId', element: <EventWorkspacePage /> },
+      { path: 'organizer/settings', element: <OrganizerSettingsPage /> },
     ],
   },
 
