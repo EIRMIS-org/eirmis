@@ -1,5 +1,7 @@
-import { AlertCircle, Plus, RefreshCw } from "lucide-react";
-import { useState } from "react";
+import { AlertCircle, Pencil, Plus, RefreshCw } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import type { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,6 +10,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -19,23 +30,61 @@ import {
 } from "@/components/ui/table";
 import { useListGuests } from "@/features/organizer/hooks/use-list-guests";
 import { useListInvitations } from "@/features/organizer/hooks/use-list-invitations";
+import { useUpdateInvitation } from "@/features/organizer/hooks/use-update-invitation";
+import type { Invitation, InvitationOrganizerUpdate } from "@/lib/api";
+import { FormRow, invitationOrganizerUpdateResolver } from "@/lib/forms";
+import { invitationOrganizerUpdateSchema } from "@/lib/forms/schemas/invitation";
 import { AddInvitationDialog } from "./add-invitation-dialog";
 
-/**
- * Task 07 — Organizer Portal (assigned to Jebzzzzz): this is the Guests tab for
- * the event workspace. It loads the guest roster and the invitation list for the
- * current event, exposes loading/error/empty states, and gives the organizer the
- * action to create a new invitation for that event.
- */
+type InvitationEditInput = z.input<typeof invitationOrganizerUpdateSchema>;
+
 export interface GuestsTabProps {
   eventId: string;
 }
 
 export function GuestsTab({ eventId }: GuestsTabProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingInvitation, setEditingInvitation] =
+    useState<Invitation | null>(null);
 
   const guestsQuery = useListGuests();
-  const invitationsQuery = useListInvitations({ event_id: eventId });
+  const invitationsQuery = useListInvitations({ event_id: `eq.${eventId}` });
+  const updateInvitation = useUpdateInvitation();
+
+  const editForm = useForm<
+    InvitationEditInput,
+    unknown,
+    InvitationOrganizerUpdate
+  >({
+    resolver: invitationOrganizerUpdateResolver,
+    defaultValues: {
+      max_party_size: 1,
+      status: "pending",
+    },
+  });
+
+  useEffect(() => {
+    if (!editingInvitation) return;
+    editForm.reset({
+      max_party_size: editingInvitation.max_party_size,
+      status: editingInvitation.status,
+    });
+  }, [editForm, editingInvitation]);
+
+  const handleEditSubmit = (values: InvitationOrganizerUpdate) => {
+    if (!editingInvitation) return;
+    updateInvitation.mutate(
+      {
+        id: editingInvitation.id,
+        body: values,
+      },
+      {
+        onSuccess: () => {
+          setEditingInvitation(null);
+        },
+      },
+    );
+  };
 
   const guests = guestsQuery.data ?? [];
   const invitations = invitationsQuery.data ?? [];
@@ -148,6 +197,7 @@ export function GuestsTab({ eventId }: GuestsTabProps) {
             <TableHead>Guest</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Max party</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -159,6 +209,17 @@ export function GuestsTab({ eventId }: GuestsTabProps) {
               <TableCell>{invitation.guest_id ?? "Unknown guest"}</TableCell>
               <TableCell>{invitation.status ?? "pending"}</TableCell>
               <TableCell>{invitation.max_party_size ?? 1}</TableCell>
+              <TableCell className="text-right">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditingInvitation(invitation)}
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  Edit
+                </Button>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -204,6 +265,68 @@ export function GuestsTab({ eventId }: GuestsTabProps) {
           email: guest.email,
         }))}
       />
+
+      <Dialog
+        open={Boolean(editingInvitation)}
+        onOpenChange={(open) => {
+          if (!open) setEditingInvitation(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit invitation</DialogTitle>
+            <DialogDescription>
+              Update party size limit or status for invitation{" "}
+              {editingInvitation?.id.slice(0, 8)}.
+            </DialogDescription>
+          </DialogHeader>
+          <form
+            noValidate
+            className="space-y-4"
+            onSubmit={editForm.handleSubmit(handleEditSubmit)}
+          >
+            <FormRow
+              id="edit-invitation-party-size"
+              label="Max party size"
+              type="number"
+              min={1}
+              error={editForm.formState.errors.max_party_size?.message}
+              {...editForm.register("max_party_size", { valueAsNumber: true })}
+            />
+            <div>
+              <Label htmlFor="edit-invitation-status">Status</Label>
+              <select
+                id="edit-invitation-status"
+                className="mt-1.5 flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                {...editForm.register("status")}
+              >
+                <option value="pending">Pending</option>
+                <option value="accepted">Accepted</option>
+                <option value="declined">Declined</option>
+                <option value="tentative">Tentative</option>
+                <option value="waitlisted">Waitlisted</option>
+              </select>
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditingInvitation(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={
+                  editForm.formState.isSubmitting || updateInvitation.isPending
+                }
+              >
+                {updateInvitation.isPending ? "Saving…" : "Save invitation"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

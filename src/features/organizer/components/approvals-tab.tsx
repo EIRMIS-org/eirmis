@@ -1,5 +1,6 @@
 import {
   AlertTriangle,
+  ArrowUpCircle,
   CheckCircle2,
   ShieldAlert,
   XCircle,
@@ -22,6 +23,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useDecideAttendee } from "@/features/organizer/hooks/use-decide-attendee";
@@ -29,6 +32,7 @@ import { useDecideHeadcountRequest } from "@/features/organizer/hooks/use-decide
 import { useListAttendees } from "@/features/organizer/hooks/use-list-attendees";
 import { useListHeadcountRequests } from "@/features/organizer/hooks/use-list-headcount-requests";
 import { useListInvitations } from "@/features/organizer/hooks/use-list-invitations";
+import { usePromoteWaitlist } from "@/features/organizer/hooks/use-promote-waitlist";
 import type { Attendee, HeadcountIncreaseRequest } from "@/lib/api";
 
 interface ApprovalsTabProps {
@@ -42,11 +46,12 @@ interface OverrideState {
 }
 
 export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
-  const invitationsQuery = useListInvitations({ event_id: eventId });
+  const invitationsQuery = useListInvitations({ event_id: `eq.${eventId}` });
   const attendeesQuery = useListAttendees();
   const headcountQuery = useListHeadcountRequests({ status: "pending" });
   const decideAttendee = useDecideAttendee();
   const decideHeadcountRequest = useDecideHeadcountRequest();
+  const promoteWaitlist = usePromoteWaitlist();
 
   const [reviewReasonById, setReviewReasonById] = useState<
     Record<string, string>
@@ -57,10 +62,20 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
   const [overrideTarget, setOverrideTarget] = useState<OverrideState | null>(
     null,
   );
+  const [isPromoteOpen, setIsPromoteOpen] = useState(false);
+  const [promoteCount, setPromoteCount] = useState(1);
 
   const invitationIds = useMemo(
     () =>
       new Set((invitationsQuery.data ?? []).map((invitation) => invitation.id)),
+    [invitationsQuery.data],
+  );
+
+  const waitlistedInvitations = useMemo(
+    () =>
+      (invitationsQuery.data ?? []).filter(
+        (invitation) => invitation.status === "waitlisted",
+      ),
     [invitationsQuery.data],
   );
 
@@ -141,6 +156,22 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
         reason: reason || null,
       },
     });
+  };
+
+  const handleConfirmPromote = () => {
+    const safeCount = Math.max(
+      1,
+      Math.min(promoteCount, Math.max(1, waitlistedInvitations.length)),
+    );
+    promoteWaitlist.mutate(
+      { event_id: eventId, max_promotions: safeCount },
+      {
+        onSuccess: () => {
+          setIsPromoteOpen(false);
+          setPromoteCount(1);
+        },
+      },
+    );
   };
 
   const renderQueue = () => {
@@ -408,7 +439,126 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
             )}
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-start justify-between gap-3">
+            <div>
+              <CardTitle>Waitlist</CardTitle>
+              <CardDescription>
+                Promote waitlisted invitations to accepted status as capacity
+                opens up.
+              </CardDescription>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={
+                waitlistedInvitations.length === 0 || promoteWaitlist.isPending
+              }
+              onClick={() => {
+                setPromoteCount(1);
+                setIsPromoteOpen(true);
+              }}
+            >
+              <ArrowUpCircle className="h-4 w-4" />
+              Promote from waitlist
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {invitationsQuery.isPending ? (
+              <div className="space-y-2">
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ) : invitationsQuery.isError ? (
+              <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+                Unable to load waitlist.
+              </div>
+            ) : waitlistedInvitations.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-border bg-muted/30 p-8 text-center text-sm text-muted-foreground">
+                No invitations are currently on the waitlist for this event.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {waitlistedInvitations.map((invitation) => (
+                  <div
+                    key={invitation.id}
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/80 p-4 text-sm"
+                  >
+                    <div>
+                      <p className="font-medium text-foreground">
+                        Invitation {invitation.id.slice(0, 8)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Guest {invitation.guest_id.slice(0, 8)} • Max party{" "}
+                        {invitation.max_party_size}
+                      </p>
+                    </div>
+                    <Badge variant="warning">waitlisted</Badge>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
+
+      <Dialog open={isPromoteOpen} onOpenChange={setIsPromoteOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Promote from waitlist</DialogTitle>
+            <DialogDescription>
+              Promote the next waitlisted invitation(s) in FIFO order to
+              accepted status. Promoted guests will be notified by email.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            <div className="rounded-xl border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">
+                {waitlistedInvitations.length}
+              </span>{" "}
+              waitlisted{" "}
+              {waitlistedInvitations.length === 1
+                ? "invitation"
+                : "invitations"}{" "}
+              available for promotion.
+            </div>
+            <div>
+              <Label htmlFor="waitlist-max-promotions">
+                Number of invitations to promote
+              </Label>
+              <Input
+                id="waitlist-max-promotions"
+                type="number"
+                min={1}
+                max={Math.max(1, waitlistedInvitations.length)}
+                className="mt-1.5"
+                value={promoteCount}
+                onChange={(event) =>
+                  setPromoteCount(Math.max(1, Number(event.target.value) || 1))
+                }
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsPromoteOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              disabled={promoteWaitlist.isPending}
+              onClick={handleConfirmPromote}
+            >
+              {promoteWaitlist.isPending ? "Promoting…" : "Confirm promotion"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={Boolean(overrideTarget)}
