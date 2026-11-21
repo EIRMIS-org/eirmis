@@ -8,5 +8,3 @@ export function useListOrganizerProfile() {
         queryFn: getOrganizerProfile,
     });
 }
-
-export const useGetOrganizerProfile = useListOrganizerProfile;
