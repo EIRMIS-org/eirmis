@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useId, type ReactNode } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
@@ -19,8 +19,11 @@ export function SettingsSection({
   footer,
   className,
 }: SettingsSectionProps) {
+  const headingId = useId()
+
   return (
-    <div
+    <section
+      aria-labelledby={headingId}
       className={cn(
         'grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8 items-start',
         className
@@ -29,7 +32,7 @@ export function SettingsSection({
       {/* Left Column: Heading and explanation */}
       <div className="space-y-1.5 lg:col-span-4">
         <div className="flex items-center gap-2">
-          <h3 className="font-heading text-sm font-bold text-foreground">
+          <h3 id={headingId} className="font-heading text-sm font-bold text-foreground">
             {title}
           </h3>
           {badge && (
@@ -56,6 +59,6 @@ export function SettingsSection({
           </div>
         )}
       </Card>
-    </div>
+    </section>
   )
 }

@@ -81,6 +81,7 @@ export function RoleCardGrid() {
               description={card.description}
               icon={<Icon className="size-5" aria-hidden="true" />}
               badge={card.badge}
+              headingLevel="h3"
               className="h-full p-5"
             >
               <div className="mt-5 border-t border-border/70 pt-4">
@@ -90,6 +91,7 @@ export function RoleCardGrid() {
                   subtitle="Mock authentication for this preview"
                   badgeText="Mock sign-in"
                   primary={card.role === 'organizer' || card.role === 'admin'}
+                  className="static after:absolute after:inset-0 after:content-['']"
                   onClick={() => {
                     signIn(card.role)
                     navigate(card.destination)
