@@ -1,10 +1,9 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { ApiError } from '@/lib/api'
 import type { RegisterPublicRequest } from '@/lib/api'
-import { registerPublicResolver } from '@/lib/forms'
+import { FormRow, registerPublicResolver } from '@/lib/forms'
 import { useRegisterPublicGuest } from '@/features/landing/hooks/use-register-public-guest'
 
 interface PublicRegistrationFormProps {
@@ -16,6 +15,7 @@ export function PublicRegistrationForm({
   eventId,
   eventTitle,
 }: PublicRegistrationFormProps) {
+  const idPrefix = useId()
   const registration = useRegisterPublicGuest()
   const [submitted, setSubmitted] = useState(false)
   const [formError, setFormError] = useState<string>()
@@ -62,6 +62,7 @@ export function PublicRegistrationForm({
       <div
         className="rounded-2xl border border-success-border bg-success-bg p-5"
         role="status"
+        aria-live="polite"
       >
         <p className="font-heading text-sm font-bold text-success">
           Registration confirmed
@@ -76,66 +77,32 @@ export function PublicRegistrationForm({
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div>
-        <label
-          htmlFor="public-registration-name"
-          className="mb-1.5 block text-xs font-semibold text-foreground"
-        >
-          Full name
-        </label>
-        <Input
-          id="public-registration-name"
-          autoComplete="name"
-          aria-invalid={Boolean(errors.full_name)}
-          aria-describedby={
-            errors.full_name ? 'public-registration-name-error' : undefined
-          }
-          {...fullNameField}
-          onChange={(event) => {
-            fullNameField.onChange(event)
-            clearErrors('full_name')
-          }}
-        />
-        {errors.full_name?.message && (
-          <p
-            id="public-registration-name-error"
-            className="mt-1 text-xs text-error"
-          >
-            {errors.full_name.message}
-          </p>
-        )}
-      </div>
+      <FormRow
+        id={`${idPrefix}-full-name`}
+        label="Full name"
+        autoComplete="name"
+        error={errors.full_name}
+        required
+        {...fullNameField}
+        onChange={(event) => {
+          fullNameField.onChange(event)
+          clearErrors('full_name')
+        }}
+      />
 
-      <div>
-        <label
-          htmlFor="public-registration-email"
-          className="mb-1.5 block text-xs font-semibold text-foreground"
-        >
-          Email address
-        </label>
-        <Input
-          id="public-registration-email"
-          type="email"
-          autoComplete="email"
-          aria-invalid={Boolean(errors.email)}
-          aria-describedby={
-            errors.email ? 'public-registration-email-error' : undefined
-          }
-          {...emailField}
-          onChange={(event) => {
-            emailField.onChange(event)
-            clearErrors('email')
-          }}
-        />
-        {errors.email?.message && (
-          <p
-            id="public-registration-email-error"
-            className="mt-1 text-xs text-error"
-          >
-            {errors.email.message}
-          </p>
-        )}
-      </div>
+      <FormRow
+        id={`${idPrefix}-email`}
+        label="Email address"
+        type="email"
+        autoComplete="email"
+        error={errors.email}
+        required
+        {...emailField}
+        onChange={(event) => {
+          emailField.onChange(event)
+          clearErrors('email')
+        }}
+      />
 
       {formError && (
         <p
@@ -150,6 +117,7 @@ export function PublicRegistrationForm({
         type="submit"
         className="w-full"
         disabled={registration.isPending}
+        aria-busy={registration.isPending}
       >
         {registration.isPending ? 'Submitting…' : 'Register for this event'}
       </Button>
