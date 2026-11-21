@@ -190,7 +190,7 @@ describe('Guest Portal (Task 08)', () => {
     const user = userEvent.setup()
     renderWithProviders(<RsvpSection invitation={BASE_INVITATION} />)
 
-    await user.click(screen.getByRole('button', { name: /Decline/i }))
+    await user.click(screen.getByRole('radio', { name: /Decline/i }))
     await user.click(screen.getByRole('button', { name: 'Save RSVP' }))
 
     await waitFor(() => {
