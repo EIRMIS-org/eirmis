@@ -88,6 +88,7 @@ const defaultContent: Record<
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
+        aria-hidden="true"
       >
         <rect x="3" y="4" width="18" height="18" rx="2" />
         <line x1="16" y1="2" x2="16" y2="6" />
@@ -106,6 +107,7 @@ const defaultContent: Record<
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
+        aria-hidden="true"
       >
         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
         <circle cx="9" cy="7" r="4" />
@@ -123,6 +125,7 @@ const defaultContent: Record<
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
+        aria-hidden="true"
       >
         <path d="M3 7V5a2 2 0 0 1 2-2h2" />
         <path d="M17 3h2a2 2 0 0 1 2 2v2" />
@@ -142,6 +145,7 @@ export function SsoButton({
   primary,
   icon,
   className,
+  'aria-label': ariaLabelProp,
   ...props
 }: SsoButtonProps) {
   const fallback = defaultContent[provider]
@@ -150,12 +154,15 @@ export function SsoButton({
   const displayBadge = badgeText ?? fallback.defaultBadge
   const displayIcon = icon ?? fallback.icon
   const isGooglePrimary = primary || provider === 'google'
+  const resolvedAriaLabel =
+    ariaLabelProp ?? (!displayTitle.trim() ? fallback.title : undefined)
 
   return (
     <button
       type="button"
+      aria-label={resolvedAriaLabel}
       className={cn(
-        'group relative flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3.5 text-left transition-all duration-200',
+        'group relative flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3.5 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         'border-border/80 bg-surface hover:border-border hover:shadow-xs active:scale-[0.99]',
         isGooglePrimary &&
           'border-primary-border bg-gradient-to-br from-surface to-primary-subtle/40 hover:border-primary-border hover:shadow-sm',
@@ -180,9 +187,11 @@ export function SsoButton({
               {displayBadge}
             </span>
           )}
-          <span className="block truncate text-xs font-semibold text-foreground group-hover:text-foreground">
-            {displayTitle}
-          </span>
+          {displayTitle && (
+            <span className="block truncate text-xs font-semibold text-foreground group-hover:text-foreground">
+              {displayTitle}
+            </span>
+          )}
           {displaySubtitle && (
             <span className="block truncate text-[11px] text-muted-foreground">
               {displaySubtitle}
@@ -190,7 +199,10 @@ export function SsoButton({
           )}
         </div>
       </div>
-      <span className="shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-foreground">
+      <span
+        aria-hidden="true"
+        className="shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-foreground"
+      >
         →
       </span>
     </button>

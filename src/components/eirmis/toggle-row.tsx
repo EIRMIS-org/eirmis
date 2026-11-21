@@ -27,6 +27,7 @@ export function ToggleRow({
 }: ToggleRowProps) {
   const generatedId = useId()
   const switchId = id || generatedId
+  const descriptionId = description ? `${switchId}-description` : undefined
 
   return (
     <div
@@ -51,7 +52,10 @@ export function ToggleRow({
           )}
         </div>
         {description && (
-          <p className="text-[11px] text-muted-foreground leading-normal">
+          <p
+            id={descriptionId}
+            className="text-[11px] text-muted-foreground leading-normal"
+          >
             {description}
           </p>
         )}
@@ -59,6 +63,7 @@ export function ToggleRow({
 
       <Switch
         id={switchId}
+        aria-describedby={descriptionId}
         checked={checked}
         defaultChecked={defaultChecked}
         onCheckedChange={onCheckedChange}
