@@ -157,14 +157,46 @@ const exampleAttendee: Attendee = {
     is_walk_in: false,
 };
 
+const exampleGuest2: Guest = {
+    id: '33333333-3333-3333-3333-333333333334',
+    email: 'waitlist.guest@example.com',
+    full_name: 'Jose Rizal',
+    auth_user_id: '33333333-3333-3333-3333-333333333334',
+    created_at: '2026-09-06T08:00:00+08:00',
+    updated_at: '2026-09-06T08:00:00+08:00',
+};
+
+const exampleWaitlistedInvitation: Invitation = {
+    id: '66666666-6666-6666-6666-666666666667',
+    event_id: UUID.EVENT,
+    guest_id: exampleGuest2.id,
+    status: 'waitlisted',
+    max_party_size: 2,
+    party_size: 0,
+    checked_in_count: 0,
+    dietary_preference: null,
+    special_requests: 'Aisle seat preferred',
+    invited_by: UUID.ORGANIZER,
+    invited_at: '2026-10-02T09:00:00+08:00',
+    responded_at: null,
+    waitlisted_at: '2026-10-03T11:00:00+08:00',
+    created_at: '2026-10-02T09:00:00+08:00',
+    updated_at: '2026-10-03T11:00:00+08:00',
+};
+
+let mockEvents: Event[] = [{ ...exampleEvent }];
+let mockGuests: Guest[] = [{ ...exampleGuest }, { ...exampleGuest2 }];
 let mockInvitation: Invitation = { ...exampleInvitation };
+let mockExtraInvitations: Invitation[] = [{ ...exampleWaitlistedInvitation }];
 let mockAttendees: Attendee[] = [{ ...exampleAttendee }];
 let mockHeadcountRequests: HeadcountIncreaseRequest[] = [];
 
 export function resetMockCheckInState(): void {
     mockInvitation = { ...exampleInvitation };
+    mockExtraInvitations = [{ ...exampleWaitlistedInvitation }];
     mockAttendees = [{ ...exampleAttendee }];
     mockHeadcountRequests = [];
+    resetMockOrganizerState();
 }
 
 const exampleHir: HeadcountIncreaseRequest = {
@@ -293,6 +325,62 @@ const exampleAuditEntry: AuditLogEntry = {
 
 const exampleAuditEntries: AuditLogEntry[] = [exampleAuditEntry];
 
+const exampleReminder2: ReminderSchedule = {
+    id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaab',
+    event_id: UUID.EVENT,
+    days_before_event: 1,
+    send_time_of_day: '08:00',
+    enabled: true,
+    last_sent_at: null,
+};
+
+const exampleImage2: InvitationImage = {
+    id: 'dddddddd-dddd-dddd-dddd-ddddddddddde',
+    event_id: UUID.EVENT,
+    storage_path: `designs/${UUID.EVENT}/gallery/002.jpg`,
+    sort_order: 2,
+    caption: 'Grand Ballroom Reception Hall',
+    created_at: '2026-09-08T10:00:00+08:00',
+};
+
+const exampleEmailLog2: EmailLog = {
+    id: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeef',
+    event_id: UUID.EVENT,
+    invitation_id: UUID.INVITATION,
+    attendee_id: UUID.ATTENDEE,
+    recipient_email: 'maria.santos@example.com',
+    type: 'qr_codes_issued',
+    provider_message_id: 'resend_msg_987654321',
+    status: 'delivered',
+    sent_at: '2026-12-05T14:20:00+08:00',
+    created_at: '2026-12-05T14:19:45+08:00',
+};
+
+let mockReminderSchedules: ReminderSchedule[] = [
+    { ...exampleReminder },
+    { ...exampleReminder2 },
+];
+let mockInvitationDesigns: InvitationDesign[] = [{ ...exampleDesign }];
+let mockInvitationImages: InvitationImage[] = [
+    { ...exampleImage },
+    { ...exampleImage2 },
+];
+let mockCheckInAssignments: CheckInAssignment[] = [{ ...exampleAssignment }];
+let mockEmailLogs: EmailLog[] = [{ ...exampleEmailLog }, { ...exampleEmailLog2 }];
+
+export function resetMockOrganizerState(): void {
+    mockEvents = [{ ...exampleEvent }];
+    mockGuests = [{ ...exampleGuest }, { ...exampleGuest2 }];
+    mockInvitation = { ...exampleInvitation };
+    mockExtraInvitations = [{ ...exampleWaitlistedInvitation }];
+    mockReminderSchedules = [{ ...exampleReminder }, { ...exampleReminder2 }];
+    mockInvitationDesigns = [{ ...exampleDesign }];
+    mockInvitationImages = [{ ...exampleImage }, { ...exampleImage2 }];
+    mockCheckInAssignments = [{ ...exampleAssignment }];
+    mockEmailLogs = [{ ...exampleEmailLog }, { ...exampleEmailLog2 }];
+    organizerProfiles[0] = { ...exampleOrganizerProfile };
+}
+
 // ─── Handler helpers ──────────────────────────────────────────────────────────
 
 /** Wraps a JSON list response with a PostgREST-style Content-Range header. */
@@ -328,53 +416,103 @@ export const handlers = [
     http.get('*/rest/v1/events', ({ request }) => {
         if (!hasAuth(request)) {
             // Public discovery — RLS anon-read only exposes open-registration published events.
-            return jsonList([
-                {
-                    ...exampleEvent,
-                    visibility_mode: 'open_registration' as const,
-                    status: 'published' as const,
-                },
-            ]);
+            return jsonList(
+                mockEvents
+                    .filter(
+                        (e) =>
+                            e.visibility_mode === 'open_registration' &&
+                            e.status === 'published',
+                    )
+                    .map((e) => ({
+                        ...e,
+                        visibility_mode: 'open_registration' as const,
+                        status: 'published' as const,
+                    })),
+            );
         }
-        return jsonList([exampleEvent]);
+        return jsonList(filterByEq(request, mockEvents, 'id'));
     }),
 
     http.post('*/rest/v1/events', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
         const body = (await request.json()) as Partial<Event>;
-        return HttpResponse.json(
-            { ...exampleEvent, ...body, id: exampleEvent.id, organizer_id: UUID.ORGANIZER },
-            { status: 201 },
-        );
+        const now = new Date().toISOString();
+        const created: Event = {
+            ...exampleEvent,
+            ...body,
+            id: crypto.randomUUID(),
+            organizer_id: UUID.ORGANIZER,
+            created_at: now,
+            updated_at: now,
+        };
+        mockEvents = [...mockEvents, created];
+        return HttpResponse.json(created, { status: 201 });
     }),
 
     http.patch('*/rest/v1/events', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
+        const id = new URL(request.url).searchParams.get('id')?.replace(/^eq\./, '');
         const body = (await request.json()) as Partial<Event>;
-        return HttpResponse.json({ ...exampleEvent, ...body });
+        const target = mockEvents.find((event) => event.id === id) ?? mockEvents[0] ?? exampleEvent;
+        const updated: Event = {
+            ...target,
+            ...body,
+            updated_at: new Date().toISOString(),
+        };
+        mockEvents = mockEvents.map((event) =>
+            event.id === updated.id ? updated : event,
+        );
+        return HttpResponse.json(updated);
     }),
 
     // ═══ PostgREST: reminder_schedules ═══
     http.get('*/rest/v1/reminder_schedules', ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
-        return jsonList(filterByEq(request, [exampleReminder], 'event_id'));
+        return jsonList(filterByEq(request, mockReminderSchedules, 'event_id'));
     }),
 
     http.post('*/rest/v1/reminder_schedules', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
         const body = (await request.json()) as Partial<ReminderSchedule>;
-        return HttpResponse.json(
-            { ...exampleReminder, ...body, id: UUID.REMINDER },
-            { status: 201 },
+        const existingIndex = mockReminderSchedules.findIndex(
+            (item) =>
+                item.event_id === (body.event_id ?? UUID.EVENT) &&
+                item.days_before_event === body.days_before_event,
         );
+        if (existingIndex >= 0) {
+            const updated: ReminderSchedule = {
+                ...mockReminderSchedules[existingIndex],
+                ...body,
+            };
+            mockReminderSchedules = mockReminderSchedules.map((item, idx) =>
+                idx === existingIndex ? updated : item,
+            );
+            return HttpResponse.json(updated, { status: 201 });
+        }
+        const created: ReminderSchedule = {
+            ...exampleReminder,
+            ...body,
+            id: crypto.randomUUID(),
+            send_time_of_day: body.send_time_of_day ?? '09:00',
+            enabled: body.enabled ?? true,
+            last_sent_at: null,
+        };
+        mockReminderSchedules = [...mockReminderSchedules, created];
+        return HttpResponse.json(created, { status: 201 });
     }),
 
-    http.delete('*/rest/v1/reminder_schedules', () => new HttpResponse(null, { status: 204 })),
+    http.delete('*/rest/v1/reminder_schedules', ({ request }) => {
+        const id = new URL(request.url).searchParams.get('id')?.replace(/^eq\./, '');
+        if (id) {
+            mockReminderSchedules = mockReminderSchedules.filter((item) => item.id !== id);
+        }
+        return new HttpResponse(null, { status: 204 });
+    }),
 
     // ═══ PostgREST: guests ═══
     http.get('*/rest/v1/guests', ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
-        return jsonList([exampleGuest]);
+        return jsonList(mockGuests);
     }),
 
     http.patch('*/rest/v1/guests', async ({ request }) => {
@@ -386,21 +524,44 @@ export const handlers = [
     // ═══ PostgREST: invitations ═══
     http.get('*/rest/v1/invitations', ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
-        return jsonList(filterByEq(request, [mockInvitation], 'event_id'));
+        const isGuest =
+            request.headers.get('Authorization') === 'Bearer fake-guest-jwt';
+        const visibleInvitations = isGuest
+            ? [mockInvitation]
+            : [mockInvitation, ...mockExtraInvitations];
+        return jsonList(filterByEq(request, visibleInvitations, 'event_id'));
     }),
 
     http.post('*/rest/v1/invitations', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
         const body = (await request.json()) as Partial<Invitation>;
-        return HttpResponse.json(
-            { ...exampleInvitation, ...body, status: 'pending' as const, party_size: 0 },
-            { status: 201 },
-        );
+        const created: Invitation = {
+            ...exampleInvitation,
+            ...body,
+            id: crypto.randomUUID(),
+            status: body.status ?? ('pending' as const),
+            party_size: 0,
+        };
+        mockExtraInvitations = [...mockExtraInvitations, created];
+        return HttpResponse.json(created, { status: 201 });
     }),
 
     http.patch('*/rest/v1/invitations', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
+        const id = new URL(request.url).searchParams.get('id')?.replace(/^eq\./, '');
         const body = (await request.json()) as Partial<Invitation>;
+        if (!id || id === mockInvitation.id) {
+            mockInvitation = { ...mockInvitation, ...body };
+            return HttpResponse.json(mockInvitation);
+        }
+        const target = mockExtraInvitations.find((inv) => inv.id === id);
+        if (target) {
+            const updated: Invitation = { ...target, ...body };
+            mockExtraInvitations = mockExtraInvitations.map((inv) =>
+                inv.id === id ? updated : inv,
+            );
+            return HttpResponse.json(updated);
+        }
         mockInvitation = { ...mockInvitation, ...body };
         return HttpResponse.json(mockInvitation);
     }),
@@ -482,74 +643,129 @@ export const handlers = [
     // ═══ PostgREST: invitation_designs ═══
     http.get('*/rest/v1/invitation_designs', ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
-        return jsonList(filterByEq(request, [exampleDesign], 'event_id'));
+        return jsonList(filterByEq(request, mockInvitationDesigns, 'event_id'));
     }),
 
     http.post('*/rest/v1/invitation_designs', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
         const body = (await request.json()) as Partial<InvitationDesign>;
-        return HttpResponse.json(
-            { ...exampleDesign, ...body, id: crypto.randomUUID() },
-            { status: 201 },
-        );
+        const targetEventId = body.event_id ?? UUID.EVENT;
+        const now = new Date().toISOString();
+        const existing = mockInvitationDesigns.find((d) => d.event_id === targetEventId);
+        if (existing) {
+            const updated: InvitationDesign = {
+                ...existing,
+                ...body,
+                updated_at: now,
+            };
+            mockInvitationDesigns = mockInvitationDesigns.map((d) =>
+                d.event_id === targetEventId ? updated : d,
+            );
+            return HttpResponse.json(updated, { status: 201 });
+        }
+        const created: InvitationDesign = {
+            ...exampleDesign,
+            ...body,
+            id: crypto.randomUUID(),
+            event_id: targetEventId,
+            created_at: now,
+            updated_at: now,
+        };
+        mockInvitationDesigns = [...mockInvitationDesigns, created];
+        return HttpResponse.json(created, { status: 201 });
     }),
 
     // ═══ PostgREST: invitation_images ═══
     http.get('*/rest/v1/invitation_images', ({ request }) => {
         // Public gallery read is allowed unauthenticated for open-registration events.
-        return jsonList(filterByEq(request, [exampleImage], 'event_id'));
+        const filtered = filterByEq(request, mockInvitationImages, 'event_id').sort(
+            (a, b) => a.sort_order - b.sort_order,
+        );
+        return jsonList(filtered);
     }),
 
     http.post('*/rest/v1/invitation_images', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
         const body = (await request.json()) as Partial<InvitationImage>;
-        return HttpResponse.json(
-            { ...exampleImage, ...body, id: crypto.randomUUID() },
-            { status: 201 },
-        );
+        const created: InvitationImage = {
+            ...exampleImage,
+            ...body,
+            id: crypto.randomUUID(),
+            created_at: new Date().toISOString(),
+        };
+        mockInvitationImages = [...mockInvitationImages, created];
+        return HttpResponse.json(created, { status: 201 });
     }),
 
     http.patch('*/rest/v1/invitation_images', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
-        await request.json();
+        const id = new URL(request.url).searchParams.get('id')?.replace(/^eq\./, '');
+        const body = (await request.json()) as Partial<InvitationImage>;
+        if (id) {
+            mockInvitationImages = mockInvitationImages.map((img) =>
+                img.id === id ? { ...img, ...body } : img,
+            );
+        }
         return new HttpResponse(null, { status: 204 });
     }),
 
-    http.delete('*/rest/v1/invitation_images', () => new HttpResponse(null, { status: 204 })),
+    http.delete('*/rest/v1/invitation_images', ({ request }) => {
+        const id = new URL(request.url).searchParams.get('id')?.replace(/^eq\./, '');
+        if (id) {
+            mockInvitationImages = mockInvitationImages.filter((img) => img.id !== id);
+        }
+        return new HttpResponse(null, { status: 204 });
+    }),
 
     // ═══ PostgREST: checkin_assignments ═══
     http.get('*/rest/v1/checkin_assignments', ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
-        return jsonList(filterByEq(request, [exampleAssignment], 'event_id'));
+        return jsonList(filterByEq(request, mockCheckInAssignments, 'event_id'));
     }),
 
     http.post('*/rest/v1/checkin_assignments', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
         const body = (await request.json()) as Partial<CheckInAssignment>;
-        return HttpResponse.json(
-            {
-                ...exampleAssignment,
-                ...body,
-                id: crypto.randomUUID(),
-                invited_by: UUID.ORGANIZER,
-                status: 'active' as const,
-            },
-            { status: 201 },
-        );
+        const now = new Date().toISOString();
+        const created: CheckInAssignment = {
+            ...exampleAssignment,
+            ...body,
+            id: crypto.randomUUID(),
+            invited_by: UUID.ORGANIZER,
+            status: 'active' as const,
+            created_at: now,
+            updated_at: now,
+        };
+        mockCheckInAssignments = [...mockCheckInAssignments, created];
+        return HttpResponse.json(created, { status: 201 });
     }),
 
     http.patch('*/rest/v1/checkin_assignments', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
-        await request.json();
+        const id = new URL(request.url).searchParams.get('id')?.replace(/^eq\./, '');
+        const body = (await request.json()) as Partial<CheckInAssignment>;
+        if (id) {
+            mockCheckInAssignments = mockCheckInAssignments.map((item) =>
+                item.id === id
+                    ? { ...item, ...body, updated_at: new Date().toISOString() }
+                    : item,
+            );
+        }
         return new HttpResponse(null, { status: 204 });
     }),
 
-    http.delete('*/rest/v1/checkin_assignments', () => new HttpResponse(null, { status: 204 })),
+    http.delete('*/rest/v1/checkin_assignments', ({ request }) => {
+        const id = new URL(request.url).searchParams.get('id')?.replace(/^eq\./, '');
+        if (id) {
+            mockCheckInAssignments = mockCheckInAssignments.filter((item) => item.id !== id);
+        }
+        return new HttpResponse(null, { status: 204 });
+    }),
 
     // ═══ PostgREST: email_logs & audit_log_entries ═══
     http.get('*/rest/v1/email_logs', ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
-        return jsonList(filterByEq(request, [exampleEmailLog], 'event_id'));
+        return jsonList(filterByEq(request, mockEmailLogs, 'event_id'));
     }),
 
     http.get('*/rest/v1/audit_log_entries', ({ request }) => {
@@ -672,7 +888,33 @@ export const handlers = [
                 { status: 422 },
             );
         }
-        return HttpResponse.json({ design: exampleDesign, errors: [] });
+        const formData = await request.formData();
+        const eventId = String(formData.get('event_id') ?? UUID.EVENT);
+        const uploadedFile = formData.get('file');
+        const fileName =
+            uploadedFile && typeof uploadedFile === 'object' && 'name' in uploadedFile && uploadedFile.name
+                ? String(uploadedFile.name)
+                : 'invitation.html';
+        const now = new Date().toISOString();
+        const existing = mockInvitationDesigns.find((d) => d.event_id === eventId);
+        const updatedDesign: InvitationDesign = {
+            ...(existing ?? exampleDesign),
+            id: existing?.id ?? crypto.randomUUID(),
+            event_id: eventId,
+            design_type: 'html',
+            html_storage_path: `designs/${eventId}/${fileName}`,
+            validation_status: 'pending',
+            validation_notes: null,
+            updated_at: now,
+        };
+        if (existing) {
+            mockInvitationDesigns = mockInvitationDesigns.map((d) =>
+                d.event_id === eventId ? updatedDesign : d,
+            );
+        } else {
+            mockInvitationDesigns = [...mockInvitationDesigns, updatedDesign];
+        }
+        return HttpResponse.json({ design: updatedDesign, errors: [] });
     }),
 
     http.post('*/functions/v1/attendees/:id/decision', async ({ request }) => {
@@ -818,10 +1060,37 @@ export const handlers = [
 
     http.post('*/functions/v1/waitlist/promote', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
-        await request.json();
+        const body = (await request.json()) as {
+            event_id?: string;
+            max_promotions?: number;
+        };
+        const limit = Math.max(1, body.max_promotions ?? 1);
+        const promotedIds: string[] = [];
+
+        if (
+            mockInvitation.status === 'waitlisted' &&
+            (!body.event_id || mockInvitation.event_id === body.event_id) &&
+            promotedIds.length < limit
+        ) {
+            mockInvitation = { ...mockInvitation, status: 'accepted', waitlisted_at: null };
+            promotedIds.push(mockInvitation.id);
+        }
+
+        mockExtraInvitations = mockExtraInvitations.map((inv) => {
+            if (
+                inv.status === 'waitlisted' &&
+                (!body.event_id || inv.event_id === body.event_id) &&
+                promotedIds.length < limit
+            ) {
+                promotedIds.push(inv.id);
+                return { ...inv, status: 'accepted', waitlisted_at: null };
+            }
+            return inv;
+        });
+
         return HttpResponse.json({
-            promoted_count: 1,
-            promoted_invitation_ids: [UUID.INVITATION],
+            promoted_count: promotedIds.length,
+            promoted_invitation_ids: promotedIds,
         });
     }),
 
