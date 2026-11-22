@@ -323,7 +323,45 @@ const exampleAuditEntry: AuditLogEntry = {
     created_at: '2026-12-10T08:05:00+08:00',
 };
 
-const exampleAuditEntries: AuditLogEntry[] = [exampleAuditEntry];
+const exampleAuditEntries: AuditLogEntry[] = [
+    exampleAuditEntry,
+    {
+        id: 'ffffffff-ffff-ffff-ffff-ffffffffff02',
+        actor_type: 'admin',
+        actor_id: UUID.ADMIN,
+        action: 'organizer.verified',
+        entity_type: 'organizer_profile',
+        entity_id: UUID.ORGANIZER,
+        old_value: { status: 'pending' },
+        new_value: { status: 'active' },
+        reason: 'Completed identity and domain verification',
+        created_at: '2026-12-10T09:15:00+08:00',
+    },
+    {
+        id: 'ffffffff-ffff-ffff-ffff-ffffffffff03',
+        actor_type: 'system',
+        actor_id: null,
+        action: 'invitation_design.uploaded',
+        entity_type: 'invitation_design',
+        entity_id: UUID.DESIGN,
+        old_value: null,
+        new_value: { validation_status: 'passed' },
+        reason: 'Automated HTML sandbox validation passed',
+        created_at: '2026-12-11T14:30:00+08:00',
+    },
+    {
+        id: 'ffffffff-ffff-ffff-ffff-ffffffffff04',
+        actor_type: 'check_in_staff',
+        actor_id: UUID.ASSIGNMENT,
+        action: 'checkin.attendee_scanned',
+        entity_type: 'attendee',
+        entity_id: UUID.ATTENDEE,
+        old_value: { checked_in: false },
+        new_value: { checked_in: true },
+        reason: 'Entrance gate QR scan accepted',
+        created_at: '2026-12-15T18:02:00+08:00',
+    },
+];
 
 const exampleReminder2: ReminderSchedule = {
     id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaab',
