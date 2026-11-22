@@ -32,15 +32,19 @@ export function RouteSwitcher({
   className,
 }: RouteSwitcherProps) {
   return (
-    <div
+    <nav
+      aria-label={label || 'Portal route'}
       className={cn(
         'flex items-center gap-2 overflow-x-auto rounded-2xl border border-border/80 bg-surface p-1.5 shadow-xs scrollbar-none',
         className
       )}
     >
       {label && (
-        <div className="flex items-center gap-1.5 px-2.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground shrink-0 select-none">
-          <CompassIcon className="size-3.5 text-primary" />
+        <div
+          aria-hidden="true"
+          className="flex items-center gap-1.5 px-2.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground shrink-0 select-none"
+        >
+          <CompassIcon className="size-3.5 text-primary" aria-hidden="true" />
           <span>{label}</span>
         </div>
       )}
@@ -52,9 +56,10 @@ export function RouteSwitcher({
             <button
               key={route.id}
               type="button"
+              aria-current={isActive ? 'page' : undefined}
               onClick={() => onRouteChange?.(route.id)}
               className={cn(
-                'group relative flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-all duration-150',
+                'group relative flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
                 isActive
                   ? 'bg-primary text-primary-foreground shadow-xs'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'
@@ -89,6 +94,6 @@ export function RouteSwitcher({
           )
         })}
       </div>
-    </div>
+    </nav>
   )
 }

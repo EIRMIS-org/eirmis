@@ -13,9 +13,6 @@ export function useInvitationDesign(eventId: string) {
     });
 }
 
-export const useGetInvitationDesign = useInvitationDesign;
-export const useListInvitationDesign = useInvitationDesign;
-
 export function useCreateInvitationDesign() {
     return useApiMutation(
         (body: Parameters<typeof createInvitationDesign>[0]) =>

@@ -22,6 +22,12 @@ function escapeCSVValue(value: CSVValue): string {
   return formattedValue;
 }
 
+/**
+ * Triggers a browser download of a UTF-8 CSV file.
+ *
+ * Retained for the planned Organizer portal CSV export flows
+ * (event list and attendance report exports).
+ */
 export function downloadCSV(
   filename: string,
   headers: readonly CSVValue[],

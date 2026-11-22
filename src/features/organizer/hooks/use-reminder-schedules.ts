@@ -14,8 +14,6 @@ export function useReminderSchedules(eventId: string) {
     });
 }
 
-export const useListReminderSchedules = useReminderSchedules;
-
 export function useUpsertReminderSchedule() {
     return useApiMutation(
         (body: Parameters<typeof upsertReminderSchedule>[0]) =>

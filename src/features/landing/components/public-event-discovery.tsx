@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { CalendarDays, MapPin, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -12,15 +12,14 @@ function EventCard({
   onSelect,
 }: {
   event: Event
-  onSelect: (event: Event) => void
+  onSelect: (event: Event, trigger: HTMLButtonElement) => void
 }) {
   return (
-    <article className="overflow-hidden rounded-2xl border border-border/80 bg-surface shadow-xs transition-all hover:-translate-y-1 hover:shadow-md">
+    <article className="overflow-hidden rounded-2xl border border-border/80 bg-surface shadow-xs transition-all hover:-translate-y-1 hover:shadow-md focus-within:-translate-y-1 focus-within:shadow-md">
       <button
         type="button"
-        className="block w-full text-left"
-        onClick={() => onSelect(event)}
-        aria-label={`View ${event.title} details and registration`}
+        className="block w-full rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+        onClick={(e) => onSelect(event, e.currentTarget)}
       >
         <div className="relative aspect-[16/9] overflow-hidden bg-muted">
           <img
@@ -61,6 +60,21 @@ function EventCard({
 export function PublicEventDiscovery() {
   const eventsQuery = useDiscoverPublicEvents()
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
+  const triggerRef = useRef<HTMLButtonElement | null>(null)
+
+  const handleSelectEvent = (event: Event, trigger: HTMLButtonElement) => {
+    triggerRef.current = trigger
+    setSelectedEvent(event)
+  }
+
+  const handleDrawerOpenChange = (open: boolean) => {
+    if (!open) {
+      setSelectedEvent(null)
+      const returnTarget = triggerRef.current
+      triggerRef.current = null
+      queueMicrotask(() => returnTarget?.focus())
+    }
+  }
 
   return (
     <section
@@ -96,7 +110,11 @@ export function PublicEventDiscovery() {
         </div>
 
         {eventsQuery.isPending ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            aria-busy="true"
+            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          >
+            <span className="sr-only">Loading public events…</span>
             {Array.from({ length: 3 }, (_, index) => (
               <div
                 key={index}
@@ -148,15 +166,16 @@ export function PublicEventDiscovery() {
             </p>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
             {eventsQuery.data?.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                onSelect={setSelectedEvent}
-              />
+              <li key={event.id}>
+                <EventCard
+                  event={event}
+                  onSelect={handleSelectEvent}
+                />
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </div>
 
@@ -164,9 +183,7 @@ export function PublicEventDiscovery() {
         <PublicEventDrawer
           event={selectedEvent}
           open
-          onOpenChange={(open) => {
-            if (!open) setSelectedEvent(null)
-          }}
+          onOpenChange={handleDrawerOpenChange}
         />
       )}
     </section>
