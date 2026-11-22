@@ -1,4 +1,4 @@
-import { CalendarDays, Plus } from 'lucide-react'
+import { CalendarDays, Plus, Settings } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { useListEvents } from '@/features/organizer/hooks/use-list-events'
@@ -24,10 +24,19 @@ export function EventsPage() {
             Create and manage events for your organization.
           </p>
         </div>
-        <Button onClick={() => navigate('/organizer/events/new')}>
-          <Plus aria-hidden="true" />
-          Create event
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => navigate('/organizer/settings')}
+          >
+            <Settings aria-hidden="true" />
+            Settings
+          </Button>
+          <Button onClick={() => navigate('/organizer/events/new')}>
+            <Plus aria-hidden="true" />
+            Create event
+          </Button>
+        </div>
       </header>
 
       {eventsQuery.isPending ? (
