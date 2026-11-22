@@ -114,14 +114,14 @@ export function StaffScanPage({ eventId = DEFAULT_EVENT_ID }: StaffScanPageProps
     const hasAssignment = Boolean(assignedEvent)
 
     return (
-        <div className="mx-auto max-w-2xl px-4 py-6">
+        <div className="mx-auto w-full max-w-2xl px-4 py-6">
             {/* Header with Navigation to Manual Search (only when assigned) */}
             <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
-                    <h1 className="font-display text-xl font-bold text-foreground">
+                    <h1 className="m-0 font-display text-xl font-bold tracking-tight text-foreground">
                         Entrance Scanner
                     </h1>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="mt-0.5 text-xs text-muted-foreground">
                         Scan attendee QR token or test checkpoint scenarios
                     </p>
                 </div>

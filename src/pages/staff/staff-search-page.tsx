@@ -22,28 +22,33 @@ export function StaffSearchPage({ eventId = DEFAULT_EVENT_ID }: StaffSearchPageP
     const assignedEvent = assignedEvents?.[0]
 
     return (
-        <div className="mx-auto max-w-5xl px-4 py-6">
-            <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+        <div className="mx-auto w-full max-w-5xl px-4 py-6">
+            <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                 <div className="flex items-start gap-3">
                     <Button
                         variant="outline"
                         size="icon-sm"
                         aria-label="Back to scanner"
                         nativeButton={false}
+                        className="mt-0.5 shrink-0"
                         render={<Link to="/staff" />}
                     >
                         <ArrowLeftIcon className="size-4" aria-hidden="true" />
                     </Button>
                     <div>
-                        <h1 className="font-display text-xl font-bold text-foreground">
+                        <h1 className="m-0 font-display text-xl font-bold tracking-tight text-foreground">
                             Manual Check-in
                         </h1>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="mt-0.5 text-sm text-muted-foreground">
                             Find an attendee by name or email when their QR code is unavailable.
                         </p>
                     </div>
                 </div>
-                {assignedEvent && <WalkInModal eventId={assignedEvent.id} />}
+                {assignedEvent && (
+                    <div className="shrink-0">
+                        <WalkInModal eventId={assignedEvent.id} />
+                    </div>
+                )}
             </div>
 
             {isAssignmentLoading && (
