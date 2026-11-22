@@ -10,7 +10,7 @@ type Variables = {
 export function useUpdateOrganizerStatus() {
     return useApiMutation(
         ({ id, status }: Variables) => updateOrganizerStatus(id, status),
-        [qk.adminListOrganizersPrefix()],
+        [qk.adminListOrganizersPrefix(), qk.listAuditLogEntries()],
         'Organizer status updated',
     );
 }

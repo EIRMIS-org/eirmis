@@ -34,6 +34,7 @@ import { GuestInvitationsPage } from '@/pages/guest/guest-invitations-page'
 import { InvitationDetailPage } from '@/pages/guest/invitation-detail-page'
 import { AdminSettingsPage } from '@/pages/admin/admin-settings-page'
 import { AdminVerificationQueuePage } from '@/pages/admin/admin-verification-queue-page'
+import { AdminAuditLogPage } from '@/pages/admin/admin-audit-log-page'
 
 const Styleguide = lazy(() => import('@/Styleguide'))
 
@@ -122,6 +123,10 @@ export const router = createBrowserRouter([
       {
         path: "admin/settings",
         element: <AdminSettingsPage />,
+      },
+      {
+        path: "admin/audit-log",
+        element: <AdminAuditLogPage />,
       },
     ],
   },
