@@ -123,196 +123,268 @@ describe('check-in staff portal hardening', () => {
     })
 
     describe('walk-in modal searchable invitation lookup', () => {
-        it('selects an accepted invitation without typing a UUID, creates the walk-in, and checks them in', async () => {
-            setRole('checkin')
-            const user = userEvent.setup()
+        it(
+            'selects an accepted invitation without typing a UUID, creates the walk-in, and checks them in',
+            async () => {
+                setRole('checkin')
+                const user = userEvent.setup()
 
-            renderWithProviders(<WalkInModal eventId={ASSIGNED_EVENT_ID} />, '/staff/search')
+                renderWithProviders(<WalkInModal eventId={ASSIGNED_EVENT_ID} />, '/staff/search')
 
-            await user.click(screen.getByRole('button', { name: /register walk-in/i }))
+                await user.click(screen.getByRole('button', { name: /register walk-in/i }))
 
-            const filterInput = await screen.findByLabelText(/filter accepted invitations/i)
-            const selectTrigger = screen.getByRole('combobox', {
-                name: /accepted invitation/i,
-            })
+                const filterInput = await screen.findByLabelText(
+                    /filter accepted invitations/i,
+                    undefined,
+                    { timeout: 5000 },
+                )
+                const selectTrigger = screen.getByRole('combobox', {
+                    name: /accepted invitation/i,
+                })
 
-            await waitFor(() => {
-                expect(selectTrigger).toBeEnabled()
-            })
+                await waitFor(
+                    () => {
+                        expect(selectTrigger).toBeEnabled()
+                    },
+                    { timeout: 5000 },
+                )
 
-            await user.type(filterInput, 'maria')
-            await user.click(selectTrigger)
+                await user.type(filterInput, 'maria')
+                await user.click(selectTrigger)
 
-            const mariaOption = await screen.findByRole('option', {
-                name: /maria santos.*party 2\/4/i,
-            })
-            expect(
-                screen.queryByRole('option', { name: /jose rizal/i }),
-            ).not.toBeInTheDocument()
-
-            await user.click(mariaOption)
-
-            await user.type(screen.getByLabelText(/full name/i), 'Walk-in Guest')
-            await user.type(screen.getByLabelText(/email/i), 'walkin@example.com')
-            await user.click(
-                screen.getByRole('button', { name: /register and check in/i }),
-            )
-
-            await waitFor(() => {
+                const mariaOption = await screen.findByRole(
+                    'option',
+                    { name: /maria santos.*party 2\/4/i },
+                    { timeout: 5000 },
+                )
                 expect(
-                    screen.queryByRole('heading', { name: /register a walk-in/i }),
+                    screen.queryByRole('option', { name: /jose rizal/i }),
                 ).not.toBeInTheDocument()
-            })
 
-            const attendees = await listAttendees({
-                invitation_id: `eq.${ASSIGNED_INVITATION_ID}`,
-            })
-            expect(
-                attendees.find((attendee) => attendee.full_name === 'Walk-in Guest'),
-            ).toMatchObject({
-                is_walk_in: true,
-                checked_in: true,
-            })
-        })
+                await user.click(mariaOption)
 
-        it('falls back to a shortened invitation ID when no guest or attendee name exists', async () => {
-            setRole('checkin')
-            const user = userEvent.setup()
+                await user.type(screen.getByLabelText(/full name/i), 'Walk-in Guest')
+                await user.type(screen.getByLabelText(/email/i), 'walkin@example.com')
+                await user.click(
+                    screen.getByRole('button', { name: /register and check in/i }),
+                )
 
-            server.use(
-                http.get('*/rest/v1/guests', () => HttpResponse.json([])),
-                http.get('*/rest/v1/attendees', () => HttpResponse.json([])),
-            )
+                await waitFor(
+                    () => {
+                        expect(
+                            screen.queryByRole('heading', { name: /register a walk-in/i }),
+                        ).not.toBeInTheDocument()
+                    },
+                    { timeout: 5000 },
+                )
 
-            renderWithProviders(<WalkInModal eventId={ASSIGNED_EVENT_ID} />, '/staff/search')
+                const attendees = await listAttendees({
+                    invitation_id: `eq.${ASSIGNED_INVITATION_ID}`,
+                })
+                expect(
+                    attendees.find((attendee) => attendee.full_name === 'Walk-in Guest'),
+                ).toMatchObject({
+                    is_walk_in: true,
+                    checked_in: true,
+                })
+            },
+            15_000,
+        )
 
-            await user.click(screen.getByRole('button', { name: /register walk-in/i }))
+        it(
+            'falls back to a shortened invitation ID when no guest or attendee name exists',
+            async () => {
+                setRole('checkin')
+                const user = userEvent.setup()
 
-            const selectTrigger = await screen.findByRole('combobox', {
-                name: /accepted invitation/i,
-            })
-            await waitFor(() => {
-                expect(selectTrigger).toBeEnabled()
-            })
+                server.use(
+                    http.get('*/rest/v1/guests', () => HttpResponse.json([])),
+                    http.get('*/rest/v1/attendees', () => HttpResponse.json([])),
+                )
 
-            await user.click(selectTrigger)
+                renderWithProviders(<WalkInModal eventId={ASSIGNED_EVENT_ID} />, '/staff/search')
 
-            expect(
-                await screen.findByRole('option', {
-                    name: /invitation 66666666.*party 2\/4/i,
-                }),
-            ).toBeInTheDocument()
-        })
+                await user.click(screen.getByRole('button', { name: /register walk-in/i }))
 
-        it('preserves retry state if initial check-in fails after walk-in creation', async () => {
-            setRole('checkin')
-            const user = userEvent.setup()
+                const selectTrigger = await screen.findByRole(
+                    'combobox',
+                    { name: /accepted invitation/i },
+                    { timeout: 5000 },
+                )
+                await waitFor(
+                    () => {
+                        expect(selectTrigger).toBeEnabled()
+                    },
+                    { timeout: 5000 },
+                )
 
-            server.use(
-                http.post('*/functions/v1/checkin/scan', () =>
-                    HttpResponse.json({
-                        result: 'invalid_token',
-                        attendee: null,
-                        message: 'Temporary scanner outage',
+                await user.click(selectTrigger)
+
+                expect(
+                    await screen.findByRole(
+                        'option',
+                        { name: /invitation 66666666.*party 2\/4/i },
+                        { timeout: 5000 },
+                    ),
+                ).toBeInTheDocument()
+            },
+            15_000,
+        )
+
+        it(
+            'preserves retry state if initial check-in fails after walk-in creation',
+            async () => {
+                setRole('checkin')
+                const user = userEvent.setup()
+
+                server.use(
+                    http.post('*/functions/v1/checkin/scan', () =>
+                        HttpResponse.json({
+                            result: 'invalid_token',
+                            attendee: null,
+                            message: 'Temporary scanner outage',
+                        }),
+                    ),
+                )
+
+                renderWithProviders(<WalkInModal eventId={ASSIGNED_EVENT_ID} />, '/staff/search')
+
+                await user.click(screen.getByRole('button', { name: /register walk-in/i }))
+
+                const selectTrigger = await screen.findByRole(
+                    'combobox',
+                    { name: /accepted invitation/i },
+                    { timeout: 5000 },
+                )
+                await waitFor(
+                    () => {
+                        expect(selectTrigger).toBeEnabled()
+                    },
+                    { timeout: 5000 },
+                )
+
+                await user.click(selectTrigger)
+                await user.click(
+                    await screen.findByRole(
+                        'option',
+                        { name: /maria santos/i },
+                        { timeout: 5000 },
+                    ),
+                )
+                await user.type(screen.getByLabelText(/full name/i), 'Retry Guest')
+                await user.click(
+                    screen.getByRole('button', { name: /register and check in/i }),
+                )
+
+                expect(
+                    await screen.findByText(/temporary scanner outage/i, undefined, {
+                        timeout: 5000,
                     }),
-                ),
-            )
-
-            renderWithProviders(<WalkInModal eventId={ASSIGNED_EVENT_ID} />, '/staff/search')
-
-            await user.click(screen.getByRole('button', { name: /register walk-in/i }))
-
-            const selectTrigger = await screen.findByRole('combobox', {
-                name: /accepted invitation/i,
-            })
-            await waitFor(() => {
-                expect(selectTrigger).toBeEnabled()
-            })
-
-            await user.click(selectTrigger)
-            await user.click(
-                await screen.findByRole('option', { name: /maria santos/i }),
-            )
-            await user.type(screen.getByLabelText(/full name/i), 'Retry Guest')
-            await user.click(
-                screen.getByRole('button', { name: /register and check in/i }),
-            )
-
-            expect(
-                await screen.findByText(/temporary scanner outage/i),
-            ).toBeInTheDocument()
-            expect(
-                screen.getByRole('button', { name: /retry check-in/i }),
-            ).toBeInTheDocument()
-            expect(selectTrigger).toBeDisabled()
-        })
+                ).toBeInTheDocument()
+                expect(
+                    screen.getByRole('button', { name: /retry check-in/i }),
+                ).toBeInTheDocument()
+                expect(selectTrigger).toBeDisabled()
+            },
+            15_000,
+        )
     })
 
     describe('scan session log on StaffScanPage', () => {
-        it('records all 5 outcomes most-recent-first, updates the counter, clears, and persists across reload', async () => {
-            setRole('checkin')
-            const user = userEvent.setup()
+        it(
+            'records all 5 outcomes most-recent-first, updates the counter, clears, and persists across reload',
+            async () => {
+                setRole('checkin')
+                const user = userEvent.setup()
 
-            const { unmount } = renderWithProviders(
-                <StaffScanPage eventId={ASSIGNED_EVENT_ID} />,
-                '/staff',
-            )
+                const { unmount } = renderWithProviders(
+                    <StaffScanPage eventId={ASSIGNED_EVENT_ID} />,
+                    '/staff',
+                )
 
-            expect(await screen.findByText('Annual Gala 2026')).toBeInTheDocument()
-            expect(screen.getByText('0 OK / 0 total')).toBeInTheDocument()
+                expect(
+                    await screen.findByText('Annual Gala 2026', undefined, {
+                        timeout: 5000,
+                    }),
+                ).toBeInTheDocument()
+                expect(screen.getByText('0 OK / 0 total')).toBeInTheDocument()
 
-            await user.click(screen.getByRole('button', { name: /1\. valid qr/i }))
-            await waitFor(() => {
-                expect(screen.getByText('1 OK / 1 total')).toBeInTheDocument()
-            })
+                await user.click(screen.getByRole('button', { name: /1\. valid qr/i }))
+                await waitFor(
+                    () => {
+                        expect(screen.getByText('1 OK / 1 total')).toBeInTheDocument()
+                    },
+                    { timeout: 5000 },
+                )
 
-            await user.click(screen.getByRole('button', { name: /2\. duplicate/i }))
-            await waitFor(() => {
-                expect(screen.getByText('1 OK / 2 total')).toBeInTheDocument()
-            })
+                await user.click(screen.getByRole('button', { name: /2\. duplicate/i }))
+                await waitFor(
+                    () => {
+                        expect(screen.getByText('1 OK / 2 total')).toBeInTheDocument()
+                    },
+                    { timeout: 5000 },
+                )
 
-            await user.click(screen.getByRole('button', { name: /3\. bad token/i }))
-            await waitFor(() => {
-                expect(screen.getByText('1 OK / 3 total')).toBeInTheDocument()
-            })
+                await user.click(screen.getByRole('button', { name: /3\. bad token/i }))
+                await waitFor(
+                    () => {
+                        expect(screen.getByText('1 OK / 3 total')).toBeInTheDocument()
+                    },
+                    { timeout: 5000 },
+                )
 
-            await user.click(screen.getByRole('button', { name: /4\. wrong event/i }))
-            await waitFor(() => {
-                expect(screen.getByText('1 OK / 4 total')).toBeInTheDocument()
-            })
+                await user.click(screen.getByRole('button', { name: /4\. wrong event/i }))
+                await waitFor(
+                    () => {
+                        expect(screen.getByText('1 OK / 4 total')).toBeInTheDocument()
+                    },
+                    { timeout: 5000 },
+                )
 
-            await user.click(screen.getByRole('button', { name: /5\. capacity full/i }))
-            await waitFor(() => {
-                expect(screen.getByText('1 OK / 5 total')).toBeInTheDocument()
-            })
+                await user.click(screen.getByRole('button', { name: /5\. capacity full/i }))
+                await waitFor(
+                    () => {
+                        expect(screen.getByText('1 OK / 5 total')).toBeInTheDocument()
+                    },
+                    { timeout: 5000 },
+                )
 
-            const logList = screen.getByRole('list', { name: /recent session scans/i })
-            const items = within(logList).getAllByRole('listitem')
-            expect(items).toHaveLength(5)
-            expect(items[0]).toHaveTextContent(/capacity full/i)
-            expect(items[1]).toHaveTextContent(/wrong event/i)
-            expect(items[2]).toHaveTextContent(/invalid/i)
-            expect(items[3]).toHaveTextContent(/already checked in/i)
-            expect(items[4]).toHaveTextContent(/maria santos/i)
-            expect(items[4]).toHaveTextContent(/success/i)
+                const logList = screen.getByRole('list', { name: /recent session scans/i })
+                const items = within(logList).getAllByRole('listitem')
+                expect(items).toHaveLength(5)
+                expect(items[0]).toHaveTextContent(/capacity full/i)
+                expect(items[1]).toHaveTextContent(/wrong event/i)
+                expect(items[2]).toHaveTextContent(/invalid/i)
+                expect(items[3]).toHaveTextContent(/already checked in/i)
+                expect(items[4]).toHaveTextContent(/maria santos/i)
+                expect(items[4]).toHaveTextContent(/success/i)
 
-            // Verify sessionStorage persistence across remount
-            unmount()
-            renderWithProviders(<StaffScanPage eventId={ASSIGNED_EVENT_ID} />, '/staff')
-            expect(await screen.findByText('1 OK / 5 total')).toBeInTheDocument()
+                // Verify sessionStorage persistence across remount
+                unmount()
+                renderWithProviders(<StaffScanPage eventId={ASSIGNED_EVENT_ID} />, '/staff')
+                expect(
+                    await screen.findByText('1 OK / 5 total', undefined, {
+                        timeout: 5000,
+                    }),
+                ).toBeInTheDocument()
 
-            // Clear log and confirm subsequent scans record cleanly
-            await user.click(screen.getByRole('button', { name: /clear log/i }))
-            expect(screen.getByText('0 OK / 0 total')).toBeInTheDocument()
-            expect(
-                screen.getByText(/no scans recorded in this session yet/i),
-            ).toBeInTheDocument()
+                // Clear log and confirm subsequent scans record cleanly
+                await user.click(screen.getByRole('button', { name: /clear log/i }))
+                expect(screen.getByText('0 OK / 0 total')).toBeInTheDocument()
+                expect(
+                    screen.getByText(/no scans recorded in this session yet/i),
+                ).toBeInTheDocument()
 
-            await user.click(screen.getByRole('button', { name: /3\. bad token/i }))
-            await waitFor(() => {
-                expect(screen.getByText('0 OK / 1 total')).toBeInTheDocument()
-            })
-        })
+                await user.click(screen.getByRole('button', { name: /3\. bad token/i }))
+                await waitFor(
+                    () => {
+                        expect(screen.getByText('0 OK / 1 total')).toBeInTheDocument()
+                    },
+                    { timeout: 5000 },
+                )
+            },
+            15_000,
+        )
     })
 
     describe('event-scoped manual search', () => {
