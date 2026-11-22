@@ -6,6 +6,7 @@ import { useAdminOrganizers } from '../hooks/use-admin-organizers'
 import { useUpdateOrganizerStatus } from '../hooks/use-update-organizer-status'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
     Dialog,
     DialogContent,
@@ -25,6 +26,9 @@ import {
 
 const PAGE_SIZE = 20
 
+/** Contract-defined OrganizerStatus values (`contract/components/schemas/Enums.yaml`). */
+const STATUS_FILTERS: readonly OrganizerStatus[] = ['pending', 'active'] as const
+
 const statusLabels: Record<OrganizerStatus, string> = {
     pending: 'Pending',
     active: 'Active',
@@ -32,10 +36,14 @@ const statusLabels: Record<OrganizerStatus, string> = {
 
 const statusVariants: Record<
     OrganizerStatus,
-    'warning' | 'success' | 'destructive'
+    'warning' | 'success'
 > = {
     pending: 'warning',
     active: 'success',
+}
+
+function isOrganizerStatus(value: string | null): value is OrganizerStatus {
+    return value === 'pending' || value === 'active'
 }
 
 function targetStatus(status: OrganizerStatus): OrganizerStatus | undefined {
@@ -52,23 +60,39 @@ function formatDate(value: string) {
 
 export function OrganizerVerificationQueue() {
     const [searchParams, setSearchParams] = useSearchParams()
+    const rawStatus = searchParams.get('status')
+    const statusFilter: OrganizerStatus = isOrganizerStatus(rawStatus)
+        ? rawStatus
+        : 'pending'
     const parsedPage = Number(searchParams.get('page') ?? '0')
     const page = Number.isInteger(parsedPage) && parsedPage >= 0 ? parsedPage : 0
     const [pendingChange, setPendingChange] = useState<{
         organizer: OrganizerProfile
         status: OrganizerStatus
     } | null>(null)
-    const organizersQuery = useAdminOrganizers(page, '')
+    const organizersQuery = useAdminOrganizers(page, `eq.${statusFilter}`)
     const updateStatus = useUpdateOrganizerStatus()
     const organizers = organizersQuery.data ?? []
+
+    function updateQueryParams(nextStatus: OrganizerStatus, nextPage: number) {
+        const next: Record<string, string> = {}
+        if (nextStatus !== 'pending') next.status = nextStatus
+        if (nextPage > 0) next.page = String(nextPage)
+        setSearchParams(next)
+    }
+
+    function handleStatusChange(nextStatus: OrganizerStatus) {
+        if (nextStatus === statusFilter) return
+        updateQueryParams(nextStatus, 0)
+    }
+
+    function setPage(nextPage: number) {
+        updateQueryParams(statusFilter, Math.max(0, nextPage))
+    }
 
     function requestStatusChange(organizer: OrganizerProfile) {
         const status = targetStatus(organizer.status)
         if (status) setPendingChange({ organizer, status })
-    }
-
-    function setPage(nextPage: number) {
-        setSearchParams(nextPage === 0 ? {} : { page: String(nextPage) })
     }
 
     function confirmStatusChange() {
@@ -80,12 +104,12 @@ export function OrganizerVerificationQueue() {
     }
 
     return (
-        <main className="flex-1">
+        <main id="main-content" className="flex-1">
             <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:py-12">
                 <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary">
-                            <ShieldCheck className="size-4" />
+                            <ShieldCheck className="size-4" aria-hidden="true" />
                             Admin access boundary
                         </div>
                         <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground">
@@ -97,23 +121,111 @@ export function OrganizerVerificationQueue() {
                         </p>
                     </div>
                     <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-xs text-muted-foreground">
-                        Profiles only · Page {page + 1}
+                        {statusLabels[statusFilter]} profiles · Page {page + 1}
                     </div>
                 </div>
 
-                <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-                    {organizersQuery.isPending ? (
-                        <QueueMessage>Loading organizer profiles...</QueueMessage>
-                    ) : organizersQuery.isError ? (
-                        <QueueMessage>
-                            We could not load organizer profiles. Try again.
-                        </QueueMessage>
-                    ) : organizers.length === 0 ? (
-                        <QueueMessage>
-                            No organizer profiles are available on this page. Event
-                            and guest data is not part of the admin view.
-                        </QueueMessage>
-                    ) : (
+                <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            Status
+                        </span>
+                        <div
+                            role="group"
+                            aria-label="Filter by organizer status"
+                            className="inline-flex items-center gap-1 rounded-xl border border-border bg-surface p-1"
+                        >
+                            {STATUS_FILTERS.map((status) => {
+                                const isSelected = statusFilter === status
+                                return (
+                                    <Button
+                                        key={status}
+                                        type="button"
+                                        size="sm"
+                                        variant={isSelected ? 'primary' : 'ghost'}
+                                        aria-pressed={isSelected}
+                                        onClick={() => handleStatusChange(status)}
+                                    >
+                                        {statusLabels[status]}
+                                    </Button>
+                                )
+                            })}
+                        </div>
+                    </div>
+                </div>
+
+                {organizersQuery.isPending ? (
+                    <section
+                        aria-label="Loading organizer profiles"
+                        className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
+                    >
+                        <div className="grid grid-cols-4 gap-4 border-b border-border px-5 py-4">
+                            {[1, 2, 3, 4].map((col) => (
+                                <Skeleton key={col} className="h-4 w-24" />
+                            ))}
+                        </div>
+                        {[1, 2, 3, 4].map((row) => (
+                            <div
+                                key={row}
+                                className="grid grid-cols-4 gap-4 border-b border-border px-5 py-5 last:border-0"
+                            >
+                                <div className="space-y-2">
+                                    <Skeleton className="h-4 w-36" />
+                                    <Skeleton className="h-3 w-44" />
+                                </div>
+                                <Skeleton className="h-6 w-20" />
+                                <Skeleton className="h-4 w-28" />
+                                <Skeleton className="ml-auto h-8 w-24" />
+                            </div>
+                        ))}
+                    </section>
+                ) : organizersQuery.isError ? (
+                    <section
+                        role="alert"
+                        className="rounded-2xl border border-error-border bg-error-bg p-6"
+                    >
+                        <h2 className="font-heading text-lg font-semibold text-error">
+                            Organizer profiles could not be loaded
+                        </h2>
+                        <p className="mt-1 text-sm text-error">
+                            {organizersQuery.error instanceof Error
+                                ? organizersQuery.error.message
+                                : 'Please try again.'}
+                        </p>
+                        <Button
+                            className="mt-4"
+                            variant="outline"
+                            onClick={() => void organizersQuery.refetch()}
+                            disabled={organizersQuery.isFetching}
+                        >
+                            {organizersQuery.isFetching ? 'Retrying…' : 'Retry'}
+                        </Button>
+                    </section>
+                ) : organizers.length === 0 ? (
+                    <section className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
+                        <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-primary-subtle text-primary">
+                            <ShieldCheck aria-hidden="true" className="size-6" />
+                        </div>
+                        <h2 className="font-heading text-xl font-semibold text-foreground">
+                            No {statusLabels[statusFilter].toLowerCase()} organizer profiles
+                        </h2>
+                        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+                            No {statusLabels[statusFilter].toLowerCase()} organizer
+                            profiles are available on page {page + 1}. Event and guest
+                            data is not part of the admin view.
+                        </p>
+                        {page > 0 && (
+                            <Button
+                                className="mt-4"
+                                variant="outline"
+                                onClick={() => setPage(0)}
+                            >
+                                Back to page 1
+                            </Button>
+                        )}
+                    </section>
+                ) : (
+                    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -144,30 +256,30 @@ export function OrganizerVerificationQueue() {
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <Button
-                                                    size="sm"
-                                                    variant={
-                                                        organizer.status === 'active'
-                                                            ? 'destructive'
-                                                            : 'primary'
-                                                    }
-                                                    onClick={() => requestStatusChange(organizer)}
-                                                >
-                                                    {organizer.status === 'active' ? (
-                                                        <X data-icon="inline-start" />
-                                                    ) : (
-                                                        <Check data-icon="inline-start" />
-                                                    )}
-                                                    {organizer.status === 'active'
-                                                        ? 'Revoke'
-                                                        : 'Approve'}
-                                                </Button>
+                                                size="sm"
+                                                variant={
+                                                    organizer.status === 'active'
+                                                        ? 'destructive'
+                                                        : 'primary'
+                                                }
+                                                onClick={() => requestStatusChange(organizer)}
+                                            >
+                                                {organizer.status === 'active' ? (
+                                                    <X data-icon="inline-start" />
+                                                ) : (
+                                                    <Check data-icon="inline-start" />
+                                                )}
+                                                {organizer.status === 'active'
+                                                    ? 'Revoke'
+                                                    : 'Approve'}
+                                            </Button>
                                         </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
-                    )}
-                </div>
+                    </div>
+                )}
 
                 <div className="mt-5 flex items-center justify-between">
                     <Button
@@ -183,7 +295,12 @@ export function OrganizerVerificationQueue() {
                     <Button
                         variant="outline"
                         size="sm"
-                        disabled={organizers.length < PAGE_SIZE || organizersQuery.isFetching}
+                        disabled={
+                            organizersQuery.isPending ||
+                            organizersQuery.isError ||
+                            organizers.length < PAGE_SIZE ||
+                            organizersQuery.isFetching
+                        }
                         onClick={() => setPage(page + 1)}
                     >
                         Next
@@ -231,13 +348,5 @@ export function OrganizerVerificationQueue() {
                 </DialogContent>
             </Dialog>
         </main>
-    )
-}
-
-function QueueMessage({ children }: { children: string }) {
-    return (
-        <div className="px-6 py-16 text-center text-sm text-muted-foreground">
-            {children}
-        </div>
     )
 }
