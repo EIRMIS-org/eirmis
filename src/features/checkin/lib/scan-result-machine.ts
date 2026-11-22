@@ -114,3 +114,121 @@ export function scanResultReducer(
     }
 }
 
+export type ScanLogOutcome = Exclude<ScanStatus, 'idle' | 'resolving'>
+
+export interface ScanSessionLogEntry {
+    id: string
+    scannedAt: string
+    subject: string
+    ticketCode?: string
+    outcome: ScanLogOutcome
+    message?: string
+}
+
+export interface ScanSessionState {
+    current: ScanResultData
+    log: ScanSessionLogEntry[]
+}
+
+export type ScanSessionAction =
+    | ScanMachineAction
+    | { type: 'SESSION_LOG_APPEND'; entry: ScanSessionLogEntry }
+    | { type: 'SESSION_LOG_CLEAR' }
+
+export const initialScanSessionState: ScanSessionState = {
+    current: initialScanState,
+    log: [],
+}
+
+const TERMINAL_SCAN_OUTCOMES: ReadonlySet<ScanStatus> = new Set<ScanLogOutcome>([
+    'success',
+    'already-checked-in',
+    'invalid-token',
+    'wrong-event',
+    'capacity-full',
+])
+
+export function isScanLogOutcome(status: ScanStatus): status is ScanLogOutcome {
+    return TERMINAL_SCAN_OUTCOMES.has(status)
+}
+
+function generateLogEntryId(): string {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID()
+    }
+    return `scan-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+}
+
+export function createScanLogEntry(
+    result: ScanResultData,
+    id?: string,
+): ScanSessionLogEntry | null {
+    if (!isScanLogOutcome(result.status)) {
+        return null
+    }
+
+    const subject =
+        result.attendeeName?.trim() ||
+        result.ticketCode?.trim() ||
+        'Unknown token'
+
+    return {
+        id: id ?? generateLogEntryId(),
+        scannedAt: result.scannedAt || new Date().toLocaleTimeString(),
+        subject,
+        ticketCode: result.ticketCode,
+        outcome: result.status,
+        message: result.message,
+    }
+}
+
+/**
+ * Pure additive session reducer combining the untouched scanResultReducer
+ * with a most-recent-first session log of resolved scan outcomes.
+ */
+export function scanSessionReducer(
+    state: ScanSessionState,
+    action: ScanSessionAction,
+): ScanSessionState {
+    if (action.type === 'SESSION_LOG_CLEAR') {
+        return {
+            ...state,
+            log: [],
+        }
+    }
+
+    if (action.type === 'SESSION_LOG_APPEND') {
+        return {
+            ...state,
+            log: [action.entry, ...state.log],
+        }
+    }
+
+    const nextCurrent = scanResultReducer(state.current, action)
+    const entry = createScanLogEntry(nextCurrent)
+
+    if (!entry) {
+        return {
+            ...state,
+            current: nextCurrent,
+        }
+    }
+
+    return {
+        current: nextCurrent,
+        log: [entry, ...state.log],
+    }
+}
+
+export function countScanSessionLog(
+    log: readonly ScanSessionLogEntry[],
+): { ok: number; total: number } {
+    let ok = 0
+    for (const entry of log) {
+        if (entry.outcome === 'success') {
+            ok += 1
+        }
+    }
+    return { ok, total: log.length }
+}
+
