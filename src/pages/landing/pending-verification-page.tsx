@@ -1,6 +1,7 @@
 import { Clock } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { useSession } from '@/app/providers/use-session'
 
 export function PendingVerificationPage() {
@@ -40,9 +41,7 @@ export function PendingVerificationPage() {
           events and invitations.
         </p>
         <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:justify-center">
-          <Button asChild>
-            <Link to="/">Back to home</Link>
-          </Button>
+          <Link to="/" className={cn(buttonVariants())}>Back to home</Link>
           <Button type="button" variant="outline" onClick={handleSignOut}>
             Sign out
           </Button>

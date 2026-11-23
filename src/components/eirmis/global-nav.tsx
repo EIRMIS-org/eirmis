@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Menu, LogIn, Layers, ChevronDown, Check, LogOut } from 'lucide-react'
+import { Menu, LogIn, Layers, ChevronDown, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   DropdownMenu,
