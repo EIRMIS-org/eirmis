@@ -1,6 +1,7 @@
 export * from './attendee'
 export * from './checkin-assignment'
 export * from './event'
+export * from './guest-profile'
 export * from './headcount-request'
 export * from './invitation'
 export * from './invitation-design'

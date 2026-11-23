@@ -32,6 +32,7 @@ import { AdminLayout } from '@/pages/admin/admin-layout'
 import { DocsPage } from '@/pages/shared/docs-page'
 import { GuestInvitationsPage } from '@/pages/guest/guest-invitations-page'
 import { InvitationDetailPage } from '@/pages/guest/invitation-detail-page'
+import { GuestProfilePage } from '@/pages/guest/guest-profile-page'
 import { AdminSettingsPage } from '@/pages/admin/admin-settings-page'
 import { AdminVerificationQueuePage } from '@/pages/admin/admin-verification-queue-page'
 
@@ -87,6 +88,7 @@ export const router = createBrowserRouter([
     ),
     children: [
       { path: 'guest', element: <GuestInvitationsPage /> },
+      { path: 'guest/profile', element: <GuestProfilePage /> },
       {
         path: 'guest/invitations/:invitationId',
         element: <InvitationDetailPage />,

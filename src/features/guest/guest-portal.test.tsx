@@ -12,6 +12,7 @@ import type { Attendee, Invitation } from '@/lib/api'
 import { resetMockCheckInState } from '@/mocks/handlers'
 import { server } from '@/mocks/server'
 import { GuestInvitationsPage } from '@/pages/guest/guest-invitations-page'
+import { GuestProfilePage } from '@/pages/guest/guest-profile-page'
 import { InvitationDetailPage } from '@/pages/guest/invitation-detail-page'
 import { RosterEditor } from './components/roster-editor'
 import { RsvpSection } from './components/rsvp-section'
@@ -150,6 +151,23 @@ afterAll(() => {
 })
 
 describe('Guest Portal (Task 08)', () => {
+  it('renders the guest profile and saves the full name via mock PATCH', async () => {
+    const user = userEvent.setup()
+    renderWithProviders(<GuestProfilePage />)
+
+    const nameInput = await screen.findByLabelText(/Full name/i)
+    expect(nameInput).toHaveValue('Maria Santos')
+    expect(screen.getByLabelText(/Email/i)).toHaveValue('guest@example.com')
+
+    await user.clear(nameInput)
+    await user.type(nameInput, 'Maria Santos-Cruz')
+    await user.click(screen.getByRole('button', { name: /Save profile/i }))
+
+    expect(
+      await screen.findByText('Profile updated successfully.'),
+    ).toBeInTheDocument()
+  })
+
   it('renders my-invitations list with loading, success, empty, and error states', async () => {
     const first = renderWithProviders(<GuestInvitationsPage />)
 
@@ -334,6 +352,56 @@ describe('Guest Portal (Task 08)', () => {
     ).not.toBeDisabled()
   })
 
+  it('shows a below-ceiling request-more-slots affordance and opens the modal', async () => {
+    const user = userEvent.setup()
+    server.use(
+      http.get('*/rest/v1/attendees', () =>
+        HttpResponse.json(ROSTER_ATTENDEES.slice(0, 2)),
+      ),
+      http.get('*/rest/v1/headcount_increase_requests', () =>
+        HttpResponse.json([]),
+      ),
+    )
+
+    renderWithProviders(<RosterEditor invitation={BASE_INVITATION} />)
+
+    expect(
+      await screen.findByText(/Your party has 2 of 4 slots used/i),
+    ).toBeInTheDocument()
+    await user.click(
+      screen.getByRole('button', { name: /Request more slots/i }),
+    )
+    expect(await screen.findByRole('dialog')).toBeInTheDocument()
+  })
+
+  it('adds an attendee without exposing an invitation UUID field', async () => {
+    const user = userEvent.setup()
+    server.use(
+      http.get('*/rest/v1/attendees', () =>
+        HttpResponse.json(ROSTER_ATTENDEES.slice(0, 2)),
+      ),
+    )
+
+    renderWithProviders(<RosterEditor invitation={BASE_INVITATION} />)
+    await user.click(await screen.findByRole('button', { name: /Add Member/i }))
+
+    const dialog = await screen.findByRole('dialog')
+    expect(within(dialog).queryByLabelText(/invitation/i)).not.toBeInTheDocument()
+    expect(within(dialog).queryByText(/invitation_id/i)).not.toBeInTheDocument()
+
+    await user.type(
+      within(dialog).getByLabelText(/Full name/i),
+      'Luna Reyes',
+    )
+    await user.click(
+      within(dialog).getByRole('button', { name: /Submit Attendee/i }),
+    )
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+  })
+
   it('renders wallet-style QR passes for approved attendees and marks pass used after staff scan', async () => {
     server.use(
       http.get('*/rest/v1/attendees', () =>
@@ -368,6 +436,61 @@ describe('Guest Portal (Task 08)', () => {
     ).toBeInTheDocument()
     expect(
       await screen.findByText('signed-qr-token-sample'),
+    ).toBeInTheDocument()
+    expect(
+      (await screen.findAllByRole('heading', { name: 'Annual Gala 2026' })).length,
+    ).toBeGreaterThan(0)
+    expect(screen.getByText(/Grand Ballroom · Cebu City/i)).toBeInTheDocument()
+  })
+
+  it('shows declined and waitlisted invitation explanations', async () => {
+    server.use(
+      http.get('*/rest/v1/invitations', () =>
+        HttpResponse.json([
+          { ...BASE_INVITATION, status: 'declined' },
+        ]),
+      ),
+    )
+
+    renderWithProviders(
+      <Routes>
+        <Route
+          path="/guest/invitations/:invitationId"
+          element={<InvitationDetailPage />}
+        />
+      </Routes>,
+      [`/guest/invitations/${BASE_INVITATION.id}`],
+    )
+
+    expect(
+      await screen.findByText('You declined this invitation'),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Change RSVP/i })).toBeInTheDocument()
+
+    cleanup()
+    server.use(
+      http.get('*/rest/v1/invitations', () =>
+        HttpResponse.json([
+          { ...BASE_INVITATION, status: 'waitlisted', party_size: 0 },
+        ]),
+      ),
+    )
+
+    renderWithProviders(
+      <Routes>
+        <Route
+          path="/guest/invitations/:invitationId"
+          element={<InvitationDetailPage />}
+        />
+      </Routes>,
+      [`/guest/invitations/${BASE_INVITATION.id}`],
+    )
+
+    expect(
+      await screen.findByText('You are on the waitlist'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/organizer may promote you/i),
     ).toBeInTheDocument()
   })
 })
