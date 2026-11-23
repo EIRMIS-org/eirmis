@@ -10,7 +10,7 @@
  */
 
 import { Outlet, useNavigate } from 'react-router-dom'
-import { useSession } from '@/app/providers/session-context'
+import { useSession } from '@/app/providers/use-session'
 import type { AuthenticatedRole } from '@/app/providers/session-profiles'
 import { GlobalNav } from '@/components/eirmis/global-nav'
 

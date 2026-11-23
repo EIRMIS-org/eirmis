@@ -17,29 +17,16 @@
  * lands.
  */
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { setRole, type Role } from '@/lib/api'
 import {
     SESSION_PROFILES,
     isAuthenticatedRole,
     type AuthenticatedRole,
-    type SessionProfile,
 } from './session-profiles'
+import { SessionContext, type Session } from './use-session'
 
-export interface Session {
-    /** Active mock identity. */
-    role: Role
-    /** Name/email/initials for the session pill; null when signed out. */
-    profile: SessionProfile | null
-    /** True when the role is anything other than `public`. */
-    isAuthenticated: boolean
-    /** Mock SSO / magic-link sign-in: switches the active identity. */
-    signIn: (role: AuthenticatedRole) => void
-    /** Back to `public`; clears the profile and persisted role. */
-    signOut: () => void
-}
-
-const SessionContext = createContext<Session | null>(null)
+export type { Session } from './use-session'
 
 const STORAGE_KEY = 'eirmis.session.role'
 
@@ -104,16 +91,4 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     )
 
     return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>
-}
-
-export function useSession(): Session {
-    const session = useContext(SessionContext)
-    if (!session) {
-        throw new Error(
-            'useSession() must be used within a <SessionProvider>. ' +
-            'Wrap your component tree with <AppProviders> (which includes SessionProvider) ' +
-            'before calling useSession().',
-        )
-    }
-    return session
 }

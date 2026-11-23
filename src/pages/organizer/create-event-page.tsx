@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Controller, useForm, type FieldPath } from 'react-hook-form'
+import { Controller, useForm, useWatch, type Control, type FieldPath } from 'react-hook-form'
 import { ArrowLeft, ArrowRight, Check, ChevronLeft } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import type { EventCreate } from '@/lib/api'
@@ -46,6 +46,107 @@ function FieldError({ message }: { message?: string }) {
   return <p className="mt-1 text-xs text-error" role="alert">{message}</p>
 }
 
+function CreateEventReviewStep({
+  control,
+  formError,
+}: {
+  control: Control<EventFormInput, unknown, EventCreate>
+  formError?: string
+}) {
+  const [
+    title,
+    slug,
+    capacity,
+    visibilityMode,
+    startsAt,
+    endsAt,
+    rsvpDeadline,
+    venueName,
+    city,
+    description,
+  ] = useWatch({
+    control,
+    name: [
+      'title',
+      'slug',
+      'capacity',
+      'visibility_mode',
+      'starts_at',
+      'ends_at',
+      'rsvp_deadline',
+      'venue_name',
+      'city',
+      'description',
+    ],
+  })
+
+  return (
+    <section aria-labelledby="review-heading" className="space-y-5">
+      <div>
+        <h2 id="review-heading" className="font-heading text-xl font-semibold">
+          Review your event
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Check the details before creating this draft event.
+        </p>
+      </div>
+      <dl className="grid gap-4 rounded-xl bg-muted/50 p-4 sm:grid-cols-2">
+        <div>
+          <dt className="text-xs font-medium text-muted-foreground">Event</dt>
+          <dd className="mt-1 font-semibold text-foreground">{title || 'Not set'}</dd>
+          <dd className="text-sm text-muted-foreground">/register/{slug || 'not-set'}</dd>
+        </div>
+        <div>
+          <dt className="text-xs font-medium text-muted-foreground">Capacity</dt>
+          <dd className="mt-1 font-semibold text-foreground">
+            {capacity ? Number(capacity).toLocaleString() : 'Not set'} seats
+          </dd>
+          <dd className="text-sm text-muted-foreground">
+            {visibilityMode === 'invite_only' ? 'Invite only' : 'Open registration'}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs font-medium text-muted-foreground">Starts</dt>
+          <dd className="mt-1 text-sm text-foreground">
+            {startsAt ? new Date(startsAt).toLocaleString() : 'Not set'}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs font-medium text-muted-foreground">Ends</dt>
+          <dd className="mt-1 text-sm text-foreground">
+            {endsAt ? new Date(endsAt).toLocaleString() : 'Not set'}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs font-medium text-muted-foreground">RSVP deadline</dt>
+          <dd className="mt-1 text-sm text-foreground">
+            {rsvpDeadline ? new Date(rsvpDeadline).toLocaleString() : 'Not set'}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs font-medium text-muted-foreground">Location</dt>
+          <dd className="mt-1 text-sm text-foreground">
+            {[venueName, city].filter(Boolean).join(', ') || 'Not set'}
+          </dd>
+        </div>
+        {description && (
+          <div className="sm:col-span-2">
+            <dt className="text-xs font-medium text-muted-foreground">Description</dt>
+            <dd className="mt-1 whitespace-pre-wrap text-sm text-foreground">
+              {description}
+            </dd>
+          </div>
+        )}
+      </dl>
+      {formError && (
+        <p className="rounded-lg border border-error-border bg-error-bg px-3 py-2 text-sm text-error" role="alert">
+          {formError}
+        </p>
+      )}
+    </section>
+  )
+}
+
 export function CreateEventPage() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -59,7 +160,6 @@ export function CreateEventPage() {
     handleSubmit,
     register,
     trigger,
-    watch,
   } = useForm<EventFormInput, unknown, EventCreate>({
     resolver: eventCreateResolver,
     defaultValues: {
@@ -80,8 +180,6 @@ export function CreateEventPage() {
       status: 'draft',
     },
   })
-
-  const values = watch()
 
   function setStep(nextStep: number) {
     setFormError(undefined)
@@ -395,69 +493,7 @@ export function CreateEventPage() {
           )}
 
           {step === 4 && (
-            <section aria-labelledby="review-heading" className="space-y-5">
-              <div>
-                <h2 id="review-heading" className="font-heading text-xl font-semibold">
-                  Review your event
-                </h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Check the details before creating this draft event.
-                </p>
-              </div>
-              <dl className="grid gap-4 rounded-xl bg-muted/50 p-4 sm:grid-cols-2">
-                <div>
-                  <dt className="text-xs font-medium text-muted-foreground">Event</dt>
-                  <dd className="mt-1 font-semibold text-foreground">{values.title || 'Not set'}</dd>
-                  <dd className="text-sm text-muted-foreground">/register/{values.slug || 'not-set'}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium text-muted-foreground">Capacity</dt>
-                  <dd className="mt-1 font-semibold text-foreground">
-                    {values.capacity ? Number(values.capacity).toLocaleString() : 'Not set'} seats
-                  </dd>
-                  <dd className="text-sm text-muted-foreground">
-                    {values.visibility_mode === 'invite_only' ? 'Invite only' : 'Open registration'}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium text-muted-foreground">Starts</dt>
-                  <dd className="mt-1 text-sm text-foreground">
-                    {values.starts_at ? new Date(values.starts_at).toLocaleString() : 'Not set'}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium text-muted-foreground">Ends</dt>
-                  <dd className="mt-1 text-sm text-foreground">
-                    {values.ends_at ? new Date(values.ends_at).toLocaleString() : 'Not set'}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium text-muted-foreground">RSVP deadline</dt>
-                  <dd className="mt-1 text-sm text-foreground">
-                    {values.rsvp_deadline ? new Date(values.rsvp_deadline).toLocaleString() : 'Not set'}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium text-muted-foreground">Location</dt>
-                  <dd className="mt-1 text-sm text-foreground">
-                    {[values.venue_name, values.city].filter(Boolean).join(', ') || 'Not set'}
-                  </dd>
-                </div>
-                {values.description && (
-                  <div className="sm:col-span-2">
-                    <dt className="text-xs font-medium text-muted-foreground">Description</dt>
-                    <dd className="mt-1 whitespace-pre-wrap text-sm text-foreground">
-                      {values.description}
-                    </dd>
-                  </div>
-                )}
-              </dl>
-              {formError && (
-                <p className="rounded-lg border border-error-border bg-error-bg px-3 py-2 text-sm text-error" role="alert">
-                  {formError}
-                </p>
-              )}
-            </section>
+            <CreateEventReviewStep control={control} formError={formError} />
           )}
 
           <footer className="flex flex-wrap justify-between gap-3 border-t border-border pt-5">

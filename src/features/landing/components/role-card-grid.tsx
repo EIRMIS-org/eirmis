@@ -7,7 +7,7 @@ import {
 import { useNavigate } from 'react-router-dom'
 import { SolutionCard } from '@/components/eirmis/portal-cards'
 import { SsoButton } from '@/components/eirmis/sso-button'
-import { useSession } from '@/app/providers/session-context'
+import { useSession } from '@/app/providers/use-session'
 import type { AuthenticatedRole } from '@/app/providers/session-profiles'
 
 const roleCards: {

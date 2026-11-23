@@ -13,10 +13,10 @@
  * wrong-role users get the shared 403 screen.
  */
 
-import { lazy, Suspense } from 'react'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter } from 'react-router-dom'
 import { RoleGuard } from './role-guard'
 import { NotFoundPage } from './not-found-page'
+import { StyleguideRoute } from './styleguide-route'
 import { LandingLayout } from '@/pages/landing/landing-layout'
 import { LandingPage } from '@/pages/landing/landing-page'
 import { OrganizerLayout } from '@/pages/organizer/organizer-layout'
@@ -37,8 +37,6 @@ import { AdminSettingsPage } from '@/pages/admin/admin-settings-page'
 import { AdminVerificationQueuePage } from '@/pages/admin/admin-verification-queue-page'
 import { AdminAuditLogPage } from '@/pages/admin/admin-audit-log-page'
 
-const Styleguide = lazy(() => import('@/Styleguide'))
-
 export const router = createBrowserRouter([
   // ── Public: landing (task 06 fills the outlet) ────────────────────────
   {
@@ -56,14 +54,7 @@ export const router = createBrowserRouter([
 
   // ── Public: migrated from App.tsx ─────────────────────────────────────
   { path: "/docs", element: <DocsPage /> },
-  {
-    path: "/styleguide",
-    element: (
-      <Suspense fallback={<p>Loading style guide...</p>}>
-        <Styleguide />
-      </Suspense>
-    ),
-  },
+  { path: "/styleguide", element: <StyleguideRoute /> },
 
   // ── Organizer portal (task 07) ────────────────────────────────────────
   {
@@ -136,8 +127,3 @@ export const router = createBrowserRouter([
   // ── 404 catch-all ─────────────────────────────────────────────────────
   { path: "*", element: <NotFoundPage /> },
 ])
-
-/** App entry renders this — keeps App.tsx a one-liner. */
-export function AppRouter() {
-  return <RouterProvider router={router} />
-}
