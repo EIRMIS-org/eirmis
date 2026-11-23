@@ -1,5 +1,5 @@
 import { ArrowDown, ArrowRight } from 'lucide-react'
-import heroEventImage from '../../../mockup-plan/assets/hero-carousel-1.jpg'
+import { HeroCarousel } from './components/hero-carousel'
 import { Button } from '@/components/ui/button'
 import { PublicEventDiscovery } from '@/features/landing/components/public-event-discovery'
 import { RoleCardGrid } from '@/features/landing/components/role-card-grid'
@@ -58,27 +58,7 @@ export function LandingPage() {
                 </div>
               </div>
             </div>
-            <div className="relative mt-10 overflow-hidden rounded-3xl border border-white/15 bg-slate-800 shadow-2xl sm:mt-14">
-              <img
-                src={heroEventImage}
-                alt="A celebration prepared for an evening event"
-                className="h-56 w-full object-cover sm:h-80 lg:h-[26rem]"
-              />
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/5 to-transparent"
-              />
-              <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-end justify-between gap-3 sm:bottom-7 sm:left-7 sm:right-7">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-teal-200">
-                    EIRMIS · Event operations
-                  </p>
-                  <p className="mt-1 font-heading text-lg font-bold text-white sm:text-2xl">
-                    Every guest experience, thoughtfully connected.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <HeroCarousel />
           </div>
         </section>
 
