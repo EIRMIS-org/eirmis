@@ -1,6 +1,6 @@
 import { usePublicGallery } from '@/features/landing/hooks/use-public-gallery'
 import type { Event } from '@/lib/api'
-import heroEventImage from '../../../../mockup-plan/assets/hero-carousel-1.jpg'
+import heroEventImage from '@/assets/hero-carousel-1.webp'
 import {
   Dialog,
   DialogContent,
