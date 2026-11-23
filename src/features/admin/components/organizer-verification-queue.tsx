@@ -1,11 +1,12 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Check, ChevronLeft, ChevronRight, ShieldCheck, X } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, Search, ShieldCheck, X } from 'lucide-react'
 import type { OrganizerProfile, OrganizerStatus } from '@/lib/api'
 import { useAdminOrganizers } from '../hooks/use-admin-organizers'
 import { useUpdateOrganizerStatus } from '../hooks/use-update-organizer-status'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
     Dialog,
@@ -66,13 +67,33 @@ export function OrganizerVerificationQueue() {
         : 'pending'
     const parsedPage = Number(searchParams.get('page') ?? '0')
     const page = Number.isInteger(parsedPage) && parsedPage >= 0 ? parsedPage : 0
+    // Filter and page live in the URL so views are shareable; search is intentionally
+    // ephemeral per-visit component state scoped to the currently fetched page.
+    const [prevStatusFilter, setPrevStatusFilter] = useState(statusFilter)
+    const [searchQuery, setSearchQuery] = useState('')
+    if (prevStatusFilter !== statusFilter) {
+        setPrevStatusFilter(statusFilter)
+        setSearchQuery('')
+    }
     const [pendingChange, setPendingChange] = useState<{
         organizer: OrganizerProfile
         status: OrganizerStatus
     } | null>(null)
     const organizersQuery = useAdminOrganizers(page, `eq.${statusFilter}`)
     const updateStatus = useUpdateOrganizerStatus()
-    const organizers = organizersQuery.data ?? []
+    const organizers = useMemo(
+        () => organizersQuery.data ?? [],
+        [organizersQuery.data],
+    )
+    const normalizedQuery = searchQuery.trim().toLowerCase()
+    const filteredOrganizers = useMemo(() => {
+        if (!normalizedQuery) return organizers
+        return organizers.filter((organizer) =>
+            [organizer.full_name, organizer.email]
+                .filter(Boolean)
+                .some((value) => value.toLowerCase().includes(normalizedQuery)),
+        )
+    }, [organizers, normalizedQuery])
 
     function updateQueryParams(nextStatus: OrganizerStatus, nextPage: number) {
         const next: Record<string, string> = {}
@@ -83,6 +104,7 @@ export function OrganizerVerificationQueue() {
 
     function handleStatusChange(nextStatus: OrganizerStatus) {
         if (nextStatus === statusFilter) return
+        setSearchQuery('')
         updateQueryParams(nextStatus, 0)
     }
 
@@ -125,7 +147,7 @@ export function OrganizerVerificationQueue() {
                     </div>
                 </div>
 
-                <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                     <div className="flex items-center gap-2">
                         <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                             Status
@@ -150,6 +172,53 @@ export function OrganizerVerificationQueue() {
                                     </Button>
                                 )
                             })}
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                        {!organizersQuery.isPending && !organizersQuery.isError && (
+                            <p
+                                aria-live="polite"
+                                className="text-xs text-muted-foreground"
+                            >
+                                {organizers.length}{' '}
+                                {organizers.length === 1 ? 'organizer' : 'organizers'}
+                                {normalizedQuery
+                                    ? ` (${filteredOrganizers.length} matching)`
+                                    : ''}
+                            </p>
+                        )}
+                        <div
+                            role="search"
+                            aria-label="Search organizer verification queue"
+                            className="relative w-full sm:w-72"
+                        >
+                            <Search
+                                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+                                aria-hidden="true"
+                            />
+                            <Input
+                                type="search"
+                                value={searchQuery}
+                                onChange={(event) => setSearchQuery(event.target.value)}
+                                aria-label="Search organizers by name or email"
+                                placeholder="Search by name or email…"
+                                autoComplete="off"
+                                autoCorrect="off"
+                                autoCapitalize="none"
+                                spellCheck={false}
+                                className="pr-9 pl-9 [&::-webkit-search-cancel-button]:appearance-none"
+                            />
+                            {searchQuery && (
+                                <button
+                                    type="button"
+                                    onClick={() => setSearchQuery('')}
+                                    aria-label="Clear organizer search"
+                                    className="absolute top-1/2 right-2.5 -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                >
+                                    <X className="size-3.5" aria-hidden="true" />
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -224,6 +293,23 @@ export function OrganizerVerificationQueue() {
                             </Button>
                         )}
                     </section>
+                ) : filteredOrganizers.length === 0 ? (
+                    <section className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
+                        <h2 className="font-heading text-lg font-semibold text-foreground">
+                            No matching organizers
+                        </h2>
+                        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+                            No organizers on page {page + 1} matched &ldquo;
+                            {searchQuery.trim()}&rdquo;.
+                        </p>
+                        <Button
+                            className="mt-4"
+                            variant="outline"
+                            onClick={() => setSearchQuery('')}
+                        >
+                            Clear search
+                        </Button>
+                    </section>
                 ) : (
                     <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
                         <Table>
@@ -236,7 +322,7 @@ export function OrganizerVerificationQueue() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {organizers.map((organizer) => (
+                                {filteredOrganizers.map((organizer) => (
                                     <TableRow key={organizer.id}>
                                         <TableCell>
                                             <div className="font-medium text-foreground">
