@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { SessionProvider } from '@/app/providers/session-context'
 import { setRole } from '@/lib/api'
 import { resetMockOrganizerState } from '@/mocks/handlers'
@@ -59,6 +59,7 @@ beforeAll(() => {
 
 afterEach(() => {
     cleanup()
+    vi.restoreAllMocks()
     window.localStorage.removeItem('eirmis.session.role')
     resetMockOrganizerState()
     server.resetHandlers()
@@ -122,6 +123,95 @@ describe('Admin Portal', () => {
                     }),
                 ).getByRole('link', { name: /settings/i }),
             ).toHaveAttribute('aria-current', 'page')
+        })
+
+        it('renders the pending-count badge with accessible name, hides it at 0, and stays silent on error', async () => {
+            server.use(
+                http.get('*/rest/v1/organizer_profiles', () =>
+                    HttpResponse.json([
+                        {
+                            id: '11111111-1111-1111-1111-000000000001',
+                            email: 'one@example.com',
+                            full_name: 'Pending One',
+                            status: 'pending',
+                            created_at: '2026-09-01T08:00:00+08:00',
+                            updated_at: '2026-09-01T08:00:00+08:00',
+                        },
+                        {
+                            id: '11111111-1111-1111-1111-000000000002',
+                            email: 'two@example.com',
+                            full_name: 'Pending Two',
+                            status: 'pending',
+                            created_at: '2026-09-02T08:00:00+08:00',
+                            updated_at: '2026-09-02T08:00:00+08:00',
+                        },
+                        {
+                            id: '11111111-1111-1111-1111-000000000003',
+                            email: 'three@example.com',
+                            full_name: 'Pending Three',
+                            status: 'pending',
+                            created_at: '2026-09-03T08:00:00+08:00',
+                            updated_at: '2026-09-03T08:00:00+08:00',
+                        },
+                    ]),
+                ),
+            )
+
+            renderAdminApp('/admin/audit-log')
+
+            const nav = await screen.findByRole('navigation', {
+                name: /admin portal navigation/i,
+            })
+            const queueLink = await within(nav).findByRole('link', {
+                name: 'Verification queue, 3 pending',
+            })
+            expect(within(queueLink).getByText('3')).toBeInTheDocument()
+
+            // Zero pending hides the badge and omits the pending suffix from the accessible name
+            cleanup()
+            server.use(
+                http.get('*/rest/v1/organizer_profiles', () =>
+                    HttpResponse.json([]),
+                ),
+            )
+            renderAdminApp('/admin/audit-log')
+            await screen.findByText('organizer.verified')
+
+            const emptyNav = screen.getByRole('navigation', {
+                name: /admin portal navigation/i,
+            })
+            const emptyQueueLink = within(emptyNav).getByRole('link', {
+                name: 'Verification queue',
+            })
+            expect(within(emptyQueueLink).queryByText('0')).not.toBeInTheDocument()
+
+            // Error state stays silent in the nav (no alert, no badge)
+            cleanup()
+            server.use(
+                http.get('*/rest/v1/organizer_profiles', () =>
+                    HttpResponse.json(
+                        {
+                            code: 'INTERNAL_ERROR',
+                            message: 'Queue unavailable',
+                            details: null,
+                            hint: null,
+                        },
+                        { status: 500 },
+                    ),
+                ),
+            )
+            renderAdminApp('/admin/audit-log')
+            await screen.findByText('organizer.verified')
+
+            const errorNav = screen.getByRole('navigation', {
+                name: /admin portal navigation/i,
+            })
+            expect(
+                within(errorNav).getByRole('link', {
+                    name: 'Verification queue',
+                }),
+            ).toBeInTheDocument()
+            expect(within(errorNav).queryByRole('alert')).not.toBeInTheDocument()
         })
     })
 
@@ -219,6 +309,74 @@ describe('Admin Portal', () => {
             expect(
                 await screen.findByText(/no audit log entries yet/i),
             ).toBeInTheDocument()
+        })
+
+        it('exports the filtered audit log entries as CSV with expected columns and filename', async () => {
+            const user = userEvent.setup()
+            let capturedBlob: Blob | null = null
+            vi.spyOn(URL, 'createObjectURL').mockImplementation((obj) => {
+                capturedBlob = obj as Blob
+                return 'blob:audit-csv'
+            })
+            const revokeSpy = vi
+                .spyOn(URL, 'revokeObjectURL')
+                .mockImplementation(() => {})
+            let downloadedFilename = ''
+            vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(
+                function (this: HTMLAnchorElement) {
+                    downloadedFilename = this.download
+                },
+            )
+
+            renderAdminApp('/admin/audit-log')
+
+            const exportButton = screen.getByRole('button', {
+                name: /export csv/i,
+            })
+            expect(exportButton).toBeDisabled()
+
+            expect(
+                await screen.findByText('organizer.verified'),
+            ).toBeInTheDocument()
+            expect(exportButton).toBeEnabled()
+
+            // Filter to a single entry and export
+            const filterInput = screen.getByRole('searchbox', {
+                name: /filter audit log by actor or action/i,
+            })
+            await user.type(filterInput, 'organizer.verified')
+            await user.click(exportButton)
+
+            expect(downloadedFilename).toMatch(
+                /^eirmis-audit-log-\d{4}-\d{2}-\d{2}\.csv$/,
+            )
+            expect(revokeSpy).toHaveBeenCalledWith('blob:audit-csv')
+            expect(capturedBlob).not.toBeNull()
+
+            const csvText = await capturedBlob!.text()
+            const lines = csvText.trim().split('\r\n')
+            expect(lines).toHaveLength(2)
+            expect(lines[0]).toBe(
+                'Timestamp,Actor Type,Actor ID,Action,Entity Type,Entity ID,Summary,Reason',
+            )
+            expect(lines[1]).toContain('2026-12-10T09:15:00+08:00')
+            expect(lines[1]).toContain('Admin')
+            expect(lines[1]).toContain('22222222-2222-2222-2222-222222222222')
+            expect(lines[1]).toContain('organizer.verified')
+            expect(lines[1]).toContain('organizer_profile')
+            expect(lines[1]).toContain('11111111-1111-1111-1111-111111111111')
+            expect(lines[1]).toContain(
+                'Completed identity and domain verification · status: pending → active',
+            )
+            expect(lines[1]).toContain(
+                'Completed identity and domain verification',
+            )
+            expect(csvText).not.toContain('attendee.approved')
+
+            // Zero filtered entries disables Export CSV
+            await user.clear(filterInput)
+            await user.type(filterInput, 'nonexistent-audit-query')
+            expect(exportButton).toBeDisabled()
         })
     })
 
@@ -466,6 +624,85 @@ describe('Admin Portal', () => {
                     name: /no pending organizer profiles/i,
                 }),
             ).toBeInTheDocument()
+        })
+
+        it('searches current-page organizers by name and email, updates result count, and resets on status filter change', async () => {
+            const user = userEvent.setup()
+            const { router } = renderAdminApp('/admin')
+
+            expect(
+                await screen.findByText('Jomari Barrera'),
+            ).toBeInTheDocument()
+            expect(screen.getByText('20 organizers')).toBeInTheDocument()
+
+            const searchLandmark = screen.getByRole('search', {
+                name: /search organizer verification queue/i,
+            })
+            const searchInput = within(searchLandmark).getByRole('searchbox', {
+                name: /search organizers by name or email/i,
+            })
+
+            // Filter by name
+            await user.type(searchInput, 'Jomari')
+            expect(screen.getByText('Jomari Barrera')).toBeInTheDocument()
+            expect(screen.queryByText('Organizer 01')).not.toBeInTheDocument()
+            expect(
+                screen.getByText('20 organizers (1 matching)'),
+            ).toBeInTheDocument()
+            // Search stays ephemeral (not written to URL params)
+            expect(router.state.location.search).toBe('')
+
+            // Clear and filter by email
+            await user.click(
+                within(searchLandmark).getByRole('button', {
+                    name: /clear organizer search/i,
+                }),
+            )
+            expect(screen.getByText('20 organizers')).toBeInTheDocument()
+
+            await user.type(searchInput, 'organizer05@example.com')
+            expect(screen.getByText('Organizer 05')).toBeInTheDocument()
+            expect(screen.queryByText('Jomari Barrera')).not.toBeInTheDocument()
+            expect(
+                screen.getByText('20 organizers (1 matching)'),
+            ).toBeInTheDocument()
+
+            // Non-matching query displays empty search state with Clear search button
+            await user.clear(searchInput)
+            await user.type(searchInput, 'no-matching-organizer-xyz')
+            expect(
+                screen.getByText('20 organizers (0 matching)'),
+            ).toBeInTheDocument()
+            expect(
+                screen.getByRole('heading', { name: /no matching organizers/i }),
+            ).toBeInTheDocument()
+            await user.click(
+                screen.getByRole('button', { name: /clear search/i }),
+            )
+            expect(screen.getByText('Jomari Barrera')).toBeInTheDocument()
+
+            // Switching status filter resets the search input
+            await user.type(searchInput, 'Jomari')
+            expect(searchInput).toHaveValue('Jomari')
+            const filterGroup = screen.getByRole('group', {
+                name: /filter by organizer status/i,
+            })
+            await user.click(
+                within(filterGroup).getByRole('button', { name: /^active$/i }),
+            )
+            expect(searchInput).toHaveValue('')
+            expect(router.state.location.search).toBe('?status=active')
+
+            // Navigating status via browser history (Back) also resets the search input
+            await user.type(searchInput, 'Active')
+            expect(searchInput).toHaveValue('Active')
+            await act(async () => {
+                await router.navigate(-1)
+            })
+            await waitFor(() => {
+                expect(router.state.location.search).toBe('')
+                expect(searchInput).toHaveValue('')
+            })
         })
     })
 
