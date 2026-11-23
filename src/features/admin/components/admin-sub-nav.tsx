@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { ScrollText, Settings, ShieldCheck } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useAdminOrganizers } from '../hooks/use-admin-organizers'
 
 const ADMIN_NAV_ITEMS = [
     {
@@ -24,30 +25,58 @@ const ADMIN_NAV_ITEMS = [
 ] as const
 
 export function AdminSubNav() {
+    const pendingQuery = useAdminOrganizers(0, 'eq.pending')
+    const pendingCount = pendingQuery.isSuccess ? pendingQuery.data.length : 0
+
     return (
         <div className="border-b border-border bg-surface/60">
             <nav
                 aria-label="Admin portal navigation"
                 className="mx-auto flex max-w-7xl items-center gap-1 overflow-x-auto px-4 py-2.5 sm:px-6"
             >
-                {ADMIN_NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
-                    <NavLink
-                        key={to}
-                        to={to}
-                        end={end}
-                        className={({ isActive }) =>
-                            cn(
-                                'inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
-                                isActive
-                                    ? 'border border-primary/25 bg-primary/10 text-primary shadow-2xs'
-                                    : 'border border-transparent text-muted-foreground hover:bg-muted hover:text-foreground',
-                            )
-                        }
-                    >
-                        <Icon className="size-3.5" aria-hidden="true" />
-                        <span>{label}</span>
-                    </NavLink>
-                ))}
+                {ADMIN_NAV_ITEMS.map(({ to, label, icon: Icon, end }) => {
+                    const showPendingBadge = to === '/admin' && pendingCount > 0
+                    return (
+                        <NavLink
+                            key={to}
+                            to={to}
+                            end={end}
+                            aria-label={
+                                showPendingBadge
+                                    ? `${label}, ${pendingCount} pending`
+                                    : undefined
+                            }
+                            className={({ isActive }) =>
+                                cn(
+                                    'inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
+                                    isActive
+                                        ? 'border border-primary/25 bg-primary/10 text-primary shadow-2xs'
+                                        : 'border border-transparent text-muted-foreground hover:bg-muted hover:text-foreground',
+                                )
+                            }
+                        >
+                            {({ isActive }) => (
+                                <>
+                                    <Icon className="size-3.5" aria-hidden="true" />
+                                    <span>{label}</span>
+                                    {showPendingBadge && (
+                                        <span
+                                            aria-hidden="true"
+                                            className={cn(
+                                                'rounded-full px-1.5 py-0.5 text-[10px] font-bold',
+                                                isActive
+                                                    ? 'bg-primary text-primary-foreground'
+                                                    : 'bg-primary/10 text-primary',
+                                            )}
+                                        >
+                                            {pendingCount}
+                                        </span>
+                                    )}
+                                </>
+                            )}
+                        </NavLink>
+                    )
+                })}
             </nav>
         </div>
     )
