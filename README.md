@@ -99,7 +99,7 @@ EIRMIS centralizes event creation, guest list management, invitation delivery, R
 | CI/CD | GitHub Actions |
 | Project Management | GitHub Issues, Milestones, Projects (board), Pull Requests |
 | Hosting | Vercel (static SPA build) + hosted Supabase project (database/auth/storage/realtime) |
-| Node | 20.x (pin via `.nvmrc`) |
+| Node | 22.x LTS (`>=22.13.0`, pin via `.nvmrc`) |
 | Package manager | npm — one lockfile (`package-lock.json`); do not introduce a second package manager |
 
 ### Contract-First Convention
@@ -122,13 +122,26 @@ EIRMIS leans on this boundary hard, because it has four differently-trusted clie
 
 ### Prerequisites
 
-- Node.js 20.x (`nvm use`)
+- Node.js 22.x LTS (`>=22.13.0`; `nvm use` — pinned in `.nvmrc`)
 - npm — the canonical package manager for this project; commit only `package-lock.json`
 - Docker (for local Supabase)
 - A Supabase project (Database, Auth, Storage, Realtime enabled), remote for staging/production
 - A Google Cloud OAuth client for organizer/admin Google Sign-In — a standard OAuth consent screen is sufficient; no Google Workspace domain restriction is required or configured
 - A Resend account/API key, also configured as Supabase Auth's custom SMTP provider (Supabase dashboard → Auth → SMTP Settings)
 - A file-scanning API key (e.g. VirusTotal) for HTML invitation validation
+
+### Local setup
+
+EIRMIS tests (`npm run test`) require **Node 22.13+** (Node 22 LTS, pinned in `.nvmrc`). The test toolchain (`vitest@5.1.0`, `msw@3.0.3`, `jsdom@29.1.1`) uses Node 22+ APIs (`Set.prototype.intersection`, `Map.groupBy`) — running on Node 20 fails all MSW-backed suites, and older/mismatched Node installs can fail all 19 suites with `"Vitest failed to find the runner"` / `"Cannot read properties of undefined (reading 'config')"`. A `pretest` script checks your active Node version and exits early with a clear reminder if it is below `22.13.0`.
+
+- **Windows (`nvm-windows`):** *(install `nvm-windows` to a space-free path like `C:\nvm`)*
+  ```powershell
+  nvm install 22 && nvm use 22
+  ```
+- **macOS / Linux (`nvm`):**
+  ```bash
+  nvm install && nvm use
+  ```
 
 ### Environment Variables
 
@@ -811,6 +824,15 @@ SQL migrations live in `supabase/migrations/`, one logical change per file, name
 - Multi-file HTML invitations with external/bundled assets (e.g. a zip of HTML + images) — v1 requires a single self-contained file.
 - Video or animated invitation formats.
 - Partial approval of headcount-increase requests (v1 is approve-in-full or reject).
+
+### Deferred to M5 (from the M4 audit)
+
+- Global 401/session-expiry handling and post-login redirect memory
+- Request cancellation (`AbortController`) in the API client
+- Offline detection and queued-action retry
+- End-to-end tests for the RSVP → approve → scan flow
+- i18n / RTL (strings are hardcoded English; `Intl` is already used for dates)
+- Error reporting service hookup (the `TODO(M5)` in `src/app/errors/error-boundary.tsx:34`)
 
 ---
 
