@@ -1,0 +1,21 @@
+C:\Users\hp\OneDrive\Documents\Nocerale Angel\EIRMIS\eirmis>docker logs supabase_auth_eirmis --tail 10
+{"event":"templatemailer_reloader_template_update","level":"info","mail_type":"magic_link","msg":"mailer: reloaded template type: magic_link","time":"2026-11-06T14:17:10Z"}
+{"event":"templatemailer_reloader_template_update","level":"info","mail_type":"reauthentication","msg":"mailer: reloaded template type: reauthentication","time":"2026-11-06T14:17:10Z"}
+{"event":"templatemailer_reloader_template_update","level":"info","mail_type":"password_changed_notification","msg":"mailer: reloaded template type: password_changed_notification","time":"2026-11-06T14:17:10Z"}
+{"event":"templatemailer_reloader_template_update","level":"info","mail_type":"email_changed_notification","msg":"mailer: reloaded template type: email_changed_notification","time":"2026-11-06T14:17:10Z"}
+{"event":"templatemailer_reloader_template_update","level":"info","mail_type":"phone_changed_notification","msg":"mailer: reloaded template type: phone_changed_notification","time":"2026-11-06T14:17:10Z"}
+{"event":"templatemailer_reloader_template_update","level":"info","mail_type":"identity_linked_notification","msg":"mailer: reloaded template type: identity_linked_notification","time":"2026-11-06T14:17:10Z"}
+{"event":"templatemailer_reloader_template_update","level":"info","mail_type":"identity_unlinked_notification","msg":"mailer: reloaded template type: identity_unlinked_notification","time":"2026-11-06T14:17:10Z"}
+{"event":"templatemailer_reloader_template_update","level":"info","mail_type":"mfa_factor_enrolled_notification","msg":"mailer: reloaded template type: mfa_factor_enrolled_notification","time":"2026-11-06T14:17:10Z"}
+{"level":"info","msg":"Request received external host in X-Forwarded-Host or Host headers, but the values have not been added to GOTRUE_MAILER_EXTERNAL_HOSTS and will not be used. To suppress this message add the host, or sanitize the headers before the request reaches Auth.","time":"2026-11-06T14:20:41Z","x_forwarded_host":"127.0.0.1","x_forwarded_proto":"http"}
+{"component":"api","duration":14037008,"error":"error finding user: sql: Scan error on column index 3, name \"confirmation_token\": converting NULL to string is unsupported","error_code":"unexpected_failure","grant_type":"password","level":"error","method":"POST","msg":"request completed","path":"/token","referer":"http://127.0.0.1:3000","remote_addr":"172.18.0.1","request_id":"d105f57d-ca76-4d15-b9b0-2feb1564cf36","status":500,"time":"2026-11-06T14:20:41Z"}
+
+C:\Users\hp\OneDrive\Documents\Nocerale Angel\EIRMIS\eirmis>git branch --show-current
+feat/backend-core-functionality
+
+C:\Users\hp\OneDrive\Documents\Nocerale Angel\EIRMIS\eirmis>git rev-parse --short HEAD
+4e1df11
+
+C:\Users\hp\OneDrive\Documents\Nocerale Angel\EIRMIS\eirmis>findstr /i "confirmation_token" supabase\seed.sql
+
+C:\Users\hp\OneDrive\Documents\Nocerale Angel\EIRMIS\eirmis>

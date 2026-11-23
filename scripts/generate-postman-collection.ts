@@ -21,14 +21,14 @@ const UUID = {
   ADMIN:        '22222222-2222-2222-2222-222222222222',
   GUEST:        '33333333-3333-3333-3333-333333333333',
   CHECKIN_STAFF:'44444444-4444-4444-4444-444444444444',
-  EVENT:        '55555555-5555-5555-5555-555555555555',
-  INVITATION:   '66666666-6666-6666-6666-666666666666',
-  ATTENDEE:     '77777777-7777-7777-7777-777777777777',
-  ASSIGNMENT:   '88888888-8888-8888-8888-888888888888',
-  REMINDER:     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-  HIR:          'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
-  DESIGN:       'cccccccc-cccc-cccc-cccc-cccccccccccc',
-  IMAGE:        'dddddddd-dddd-dddd-dddd-dddddddddddd',
+  EVENT:        '55555555-5555-5555-5555-555555555551',
+  INVITATION:   '66666666-6666-6666-6666-666666666665',
+  ATTENDEE:     '77777777-7777-7777-7777-777777777774',
+  ASSIGNMENT:   '88888888-8888-8888-8888-888888888882',
+  REMINDER:     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa3',
+  HIR:          'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb1',
+  DESIGN:       'cccccccc-cccc-cccc-cccc-ccccccccccc1',
+  IMAGE:        'dddddddd-dddd-dddd-dddd-ddddddddddd2',
 };
 
 function parseUrl(rawUrl: string) {
@@ -66,10 +66,17 @@ interface RequestDefinition {
 }
 
 function buildItem(def: RequestDefinition) {
-  const headerList: Array<{ key: string; value: string; type: string }> = [];
+  const headerList: Array<{ key: string; value: string; type: string }> = [
+    {
+      key: 'apikey',
+      value: '{{anonKey}}',
+      type: 'text',
+    },
+  ];
 
   if (def.headers) {
     for (const [k, v] of Object.entries(def.headers)) {
+      if (k.toLowerCase() === 'apikey') continue;
       headerList.push({
         key: k,
         value: v,
@@ -163,10 +170,10 @@ const publicRequests: RequestDefinition[] = [
     name: 'Register for Open-Registration Event',
     description: 'Public self-registration handled by Supabase Edge Function.',
     method: 'POST',
-    url: '{{baseUrl}}/functions/v1/register',
+    url: '{{baseUrl}}/functions/v1/register-public',
     body: {
       event_id: '{{eventId}}',
-      email: 'newguest@example.com',
+      email: 'newguest-{{$timestamp}}@example.com',
       full_name: 'Juan dela Cruz',
     },
     tests: [
@@ -195,7 +202,7 @@ const organizerSubfolders = [
         headers: { Prefer: 'return=representation' },
         body: {
           title: 'Annual Gala 2026',
-          slug: 'annual-gala-2026',
+          slug: 'annual-gala-2026-{{$timestamp}}',
           description: 'A celebration of achievements and milestones.',
           starts_at: '2026-12-15T18:00:00+08:00',
           ends_at: '2026-12-15T22:00:00+08:00',
@@ -205,8 +212,8 @@ const organizerSubfolders = [
           city: 'Cebu City',
           capacity: 500,
           rsvp_deadline: '2026-12-01T23:59:59+08:00',
-          visibility_mode: 'invite_only',
-          status: 'draft',
+          visibility_mode: 'open_registration',
+          status: 'published',
         },
         tests: [
           'pm.test("Event created (201 Created)", function () {',
@@ -214,6 +221,7 @@ const organizerSubfolders = [
           '    var json = pm.response.json();',
           '    if (Array.isArray(json) && json[0]?.id) {',
           '        pm.collectionVariables.set("eventId", json[0].id);',
+          '        pm.environment.set("eventId", json[0].id);',
           '    }',
           '});',
         ],
@@ -254,7 +262,7 @@ const organizerSubfolders = [
         headers: { Prefer: 'return=representation' },
         body: {
           event_id: '{{eventId}}',
-          days_before_event: 7,
+          days_before_event: 14,
           send_time_of_day: '09:00',
           enabled: true,
         },
@@ -264,6 +272,7 @@ const organizerSubfolders = [
           '    var json = pm.response.json();',
           '    if (Array.isArray(json) && json[0]?.id) {',
           '        pm.collectionVariables.set("reminderId", json[0].id);',
+          '        pm.environment.set("reminderId", json[0].id);',
           '    }',
           '});',
         ],
@@ -314,6 +323,7 @@ const organizerSubfolders = [
           '    var json = pm.response.json();',
           '    if (Array.isArray(json) && json[0]?.id) {',
           '        pm.collectionVariables.set("invitationId", json[0].id);',
+          '        pm.environment.set("invitationId", json[0].id);',
           '    }',
           '});',
         ],
@@ -393,6 +403,11 @@ const organizerSubfolders = [
         method: 'POST' as const,
         url: '{{baseUrl}}/functions/v1/invitation-html',
         isFormData: true,
+        tests: [
+          'pm.test("HTML upload validated (200 OK or 503 when external scanner not configured locally)", function () {',
+          '    pm.expect(pm.response.code).to.be.oneOf([200, 503]);',
+          '});',
+        ],
       },
       {
         name: 'List Gallery Images',
@@ -409,7 +424,7 @@ const organizerSubfolders = [
         body: {
           event_id: '{{eventId}}',
           storage_path: 'designs/{{eventId}}/gallery/001.jpg',
-          sort_order: 1,
+          sort_order: 10,
           caption: 'Welcome to the Annual Gala',
         },
         tests: [
@@ -418,6 +433,7 @@ const organizerSubfolders = [
           '    var json = pm.response.json();',
           '    if (Array.isArray(json) && json[0]?.id) {',
           '        pm.collectionVariables.set("imageId", json[0].id);',
+          '        pm.environment.set("imageId", json[0].id);',
           '    }',
           '});',
         ],
@@ -463,7 +479,7 @@ const organizerSubfolders = [
         headers: { Prefer: 'return=representation' },
         body: {
           event_id: '{{eventId}}',
-          staff_email: 'staff@example.com',
+          staff_email: 'staff-{{$timestamp}}@example.com',
         },
         tests: [
           'pm.test("Staff assigned (201 Created)", function () {',
@@ -471,6 +487,7 @@ const organizerSubfolders = [
           '    var json = pm.response.json();',
           '    if (Array.isArray(json) && json[0]?.id) {',
           '        pm.collectionVariables.set("assignmentId", json[0].id);',
+          '        pm.environment.set("assignmentId", json[0].id);',
           '    }',
           '});',
         ],
@@ -507,7 +524,7 @@ const organizerSubfolders = [
         method: 'POST' as const,
         url: '{{baseUrl}}/functions/v1/qr-bundle',
         body: {
-          invitation_id: '{{invitationId}}',
+          event_id: '{{eventId}}',
         },
       },
       {
@@ -634,6 +651,7 @@ const guestRequests: RequestDefinition[] = [
       '    var json = pm.response.json();',
       '    if (Array.isArray(json) && json[0]?.id) {',
       '        pm.collectionVariables.set("attendeeId", json[0].id);',
+      '        pm.environment.set("attendeeId", json[0].id);',
       '    }',
       '});',
     ],
@@ -671,6 +689,7 @@ const guestRequests: RequestDefinition[] = [
       '    var json = pm.response.json();',
       '    if (json.id) {',
       '        pm.collectionVariables.set("hirId", json.id);',
+      '        pm.environment.set("hirId", json.id);',
       '    }',
       '});',
     ],
@@ -692,6 +711,11 @@ const checkinStaffRequests: RequestDefinition[] = [
     body: {
       qr_token: 'eyJhbGciOiJIUzI1NiJ9.attendee-token-payload.signature',
     },
+    tests: [
+      'pm.test("QR scan processed (200 OK or 422 for static placeholder token)", function () {',
+      '    pm.expect(pm.response.code).to.be.oneOf([200, 422]);',
+      '});',
+    ],
   },
 ];
 
@@ -830,21 +854,26 @@ function createSupabaseEnvironment() {
     name: 'EIRMIS — Local Supabase (54321)',
     values: [
       { key: 'baseUrl', value: 'http://127.0.0.1:54321', enabled: true },
-      { key: 'anonKey', value: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.local-supabase-anon-key', enabled: true },
+      {
+        key: 'anonKey',
+        value:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0',
+        enabled: true,
+      },
       { key: 'organizerToken', value: 'your-organizer-jwt', enabled: true },
       { key: 'adminToken', value: 'your-admin-jwt', enabled: true },
       { key: 'guestToken', value: 'your-guest-jwt', enabled: true },
       { key: 'checkinToken', value: 'your-checkin-staff-jwt', enabled: true },
-      { key: 'eventId', value: UUID.EVENT, enabled: true },
-      { key: 'invitationId', value: UUID.INVITATION, enabled: true },
+      { key: 'eventId', value: '55555555-5555-5555-5555-555555555551', enabled: true },
+      { key: 'invitationId', value: '66666666-6666-6666-6666-666666666665', enabled: true },
       { key: 'guestId', value: UUID.GUEST, enabled: true },
-      { key: 'attendeeId', value: UUID.ATTENDEE, enabled: true },
+      { key: 'attendeeId', value: '77777777-7777-7777-7777-777777777774', enabled: true },
       { key: 'organizerId', value: UUID.ORGANIZER, enabled: true },
       { key: 'adminId', value: UUID.ADMIN, enabled: true },
-      { key: 'assignmentId', value: UUID.ASSIGNMENT, enabled: true },
-      { key: 'reminderId', value: UUID.REMINDER, enabled: true },
-      { key: 'hirId', value: UUID.HIR, enabled: true },
-      { key: 'imageId', value: UUID.IMAGE, enabled: true },
+      { key: 'assignmentId', value: '88888888-8888-8888-8888-888888888882', enabled: true },
+      { key: 'reminderId', value: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa3', enabled: true },
+      { key: 'hirId', value: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb1', enabled: true },
+      { key: 'imageId', value: 'dddddddd-dddd-dddd-dddd-ddddddddddd2', enabled: true },
     ],
     _postman_variable_scope: 'environment',
   };

@@ -322,5 +322,5 @@ paths:
     $ref: './paths/functions.yaml#/~1functions~1v1~1reminders~1dispatch'
   /functions/v1/waitlist/promote:
     $ref: './paths/functions.yaml#/~1functions~1v1~1waitlist~1promote'
-  /functions/v1/register:
-    $ref: './paths/functions.yaml#/~1functions~1v1~1register'
+  /functions/v1/register-public:
+    $ref: './paths/functions.yaml#/~1functions~1v1~1register-public'

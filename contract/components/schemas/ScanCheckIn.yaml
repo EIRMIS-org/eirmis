@@ -9,6 +9,10 @@ ScanCheckInRequest:
     qr_token: eyJhbGciOiJIUzI1NiJ9.attendee-token-payload.signature
   required: [qr_token]
   properties:
+    event_id:
+      type: string
+      format: uuid
+      description: Selected scanner event. When provided, must match the signed event claim or the scan returns 422.
     qr_token:
       type: string
       description: The signed QR token scanned from the attendee's QR code.
@@ -21,7 +25,8 @@ ScanCheckInResponse:
     - `accepted`         — first-time successful check-in.
     - `already_checked_in` — attendee was previously checked in (re-scan/re-entry).
       The organizer UI should surface this distinctly from an error.
-    - `invalid_token`    — the token is malformed, expired, or not found.
+    - `invalid_token`    — the signed token does not resolve to an approved attendee.
+    Malformed, expired, or tampered tokens are rejected with HTTP 422.
   example:
     result: accepted
     attendee:
@@ -50,7 +55,10 @@ ScanCheckInResponse:
       description: Check-in processing result status.
       example: accepted
     attendee:
-      $ref: './Attendee.yaml#/Attendee'
+      anyOf:
+        - $ref: './Attendee.yaml#/Attendee'
+        - type: 'null'
+      description: Null when the signed token does not resolve to an approved attendee.
     checked_in_at:
       type: ['string', 'null']
       format: date-time
