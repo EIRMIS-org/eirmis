@@ -1,6 +1,8 @@
 import { useId, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { useSession } from '@/app/providers/use-session'
 import { ApiError } from '@/lib/api'
 import type { RegisterPublicRequest } from '@/lib/api'
 import { FormRow, registerPublicResolver } from '@/lib/forms'
@@ -16,6 +18,8 @@ export function PublicRegistrationForm({
   eventTitle,
 }: PublicRegistrationFormProps) {
   const idPrefix = useId()
+  const navigate = useNavigate()
+  const { signIn } = useSession()
   const registration = useRegisterPublicGuest()
   const [submitted, setSubmitted] = useState(false)
   const [formError, setFormError] = useState<string>()
@@ -57,6 +61,11 @@ export function PublicRegistrationForm({
     }
   }
 
+  function handleSignInAsGuest() {
+    signIn('guest')
+    navigate('/guest')
+  }
+
   if (submitted) {
     return (
       <div
@@ -69,8 +78,18 @@ export function PublicRegistrationForm({
         </p>
         <p className="mt-1 text-xs leading-relaxed text-foreground">
           Your mock registration for <strong>{eventTitle}</strong> was
-          successful.
+          successful. Check your email — your invitation is on its way.
         </p>
+        <div className="mt-3">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleSignInAsGuest}
+          >
+            Sign in as guest
+          </Button>
+        </div>
       </div>
     )
   }
@@ -119,7 +138,7 @@ export function PublicRegistrationForm({
         disabled={registration.isPending}
         aria-busy={registration.isPending}
       >
-        {registration.isPending ? 'Submittingâ€¦' : 'Register for this event'}
+        {registration.isPending ? 'Submitting…' : 'Register for this event'}
       </Button>
     </form>
   )
