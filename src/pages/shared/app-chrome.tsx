@@ -1,12 +1,12 @@
 /**
  * src/pages/shared/app-chrome.tsx
  *
- * Task 04 — Routing & Role Guards (M4 Frontend Week 1)
+ * Task 04 - Routing & Role Guards (M4 Frontend Week 1)
  *
  * Shared portal chrome: the global nav wired to the session context and
  * the router, with an empty <Outlet /> below. Every layout shell
- * (landing + 4 portals) renders this with its own `activePortal` id;
- * portal tasks (06–10) fill the outlet and never touch the router.
+ * (landing + 4 portals) renders this with its own activePortal id;
+ * portal tasks (06-10) fill the outlet and never touch the router.
  */
 
 import { useEffect } from 'react'
@@ -24,7 +24,7 @@ const PORTAL_ROUTES: Record<string, string> = {
 }
 
 export interface AppChromeProps {
-    /** Which nav item is highlighted (`hub` | `organizer` | `guest` | `staff` | `admin`). */
+    /** Which nav item is highlighted (hub | organizer | guest | staff | admin). */
     activePortal: string
 }
 

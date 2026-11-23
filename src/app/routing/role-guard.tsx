@@ -1,16 +1,16 @@
 /**
  * src/app/routing/role-guard.tsx
  *
- * Task 04 — Routing & Role Guards (M4 Frontend Week 1)
+ * Task 04 - Routing & Role Guards (M4 Frontend Week 1)
  *
  * Declarative authorization for portal routes. Wrap a portal layout in
- * `<RoleGuard allow={['organizer']}>` and unauthenticated visitors are
+ * <RoleGuard allow={['organizer']}> and unauthenticated visitors are
  * bounced to the landing page while authenticated users with the wrong
  * role see the shared 403 screen.
  *
- * Guards are pure UI — no API calls, no navigation side effects beyond
+ * Guards are pure UI - no API calls, no navigation side effects beyond
  * the redirect. Pages decide where to go after sign-in; the guard only
- * decides *whether* content renders.
+ * decides whether content renders.
  */
 
 import type { ReactNode } from 'react'

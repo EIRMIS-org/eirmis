@@ -126,7 +126,7 @@ export function HeroCarousel() {
         <div className="pointer-events-none absolute bottom-4 left-4 right-4 z-20 flex flex-wrap items-end justify-between gap-3 sm:bottom-7 sm:left-7 sm:right-7">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-teal-200">
-              EIRMIS · Event operations
+              EIRMIS - Event operations
             </p>
             <p className="mt-1 font-heading text-lg font-bold text-white sm:text-2xl">
               Every guest experience, thoughtfully connected.

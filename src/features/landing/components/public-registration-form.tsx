@@ -78,7 +78,7 @@ export function PublicRegistrationForm({
         </p>
         <p className="mt-1 text-xs leading-relaxed text-foreground">
           Your mock registration for <strong>{eventTitle}</strong> was
-          successful. Check your email — your invitation is on its way.
+          successful. Check your email - your invitation is on its way.
         </p>
         <div className="mt-3">
           <Button
@@ -138,7 +138,7 @@ export function PublicRegistrationForm({
         disabled={registration.isPending}
         aria-busy={registration.isPending}
       >
-        {registration.isPending ? 'Submitting…' : 'Register for this event'}
+        {registration.isPending ? 'Submitting...' : 'Register for this event'}
       </Button>
     </form>
   )
