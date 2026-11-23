@@ -15,7 +15,7 @@
 
 import type { ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
-import { useSession } from '@/app/providers/session-context'
+import { useSession } from '@/app/providers/use-session'
 import type { Role } from '@/lib/api'
 import { ForbiddenPage } from './forbidden-page'
 

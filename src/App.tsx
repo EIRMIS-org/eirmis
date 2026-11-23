@@ -9,7 +9,7 @@
  * into real routes (task 04).
  */
 
-import { AppRouter } from '@/app/routing/router'
+import { AppRouter } from '@/app/routing/app-router'
 
 function App() {
   return <AppRouter />
