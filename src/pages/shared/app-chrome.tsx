@@ -1,20 +1,20 @@
 /**
  * src/pages/shared/app-chrome.tsx
  *
- * Task 04 â€” Routing & Role Guards (M4 Frontend Week 1)
+ * Task 04 — Routing & Role Guards (M4 Frontend Week 1)
  *
  * Shared portal chrome: the global nav wired to the session context and
  * the router, with an empty <Outlet /> below. Every layout shell
  * (landing + 4 portals) renders this with its own `activePortal` id;
- * portal tasks (06â€“10) fill the outlet and never touch the router.
+ * portal tasks (06–10) fill the outlet and never touch the router.
  */
 
-import { Outlet, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useSession } from '@/app/providers/use-session'
-import type { AuthenticatedRole } from '@/app/providers/session-profiles'
 import { GlobalNav } from '@/components/eirmis/global-nav'
 
-/** Portal nav ids â†’ the routes Task 04 owns. */
+/** Portal nav ids -> the routes Task 04 owns. */
 const PORTAL_ROUTES: Record<string, string> = {
     hub: '/',
     organizer: '/organizer',
@@ -23,21 +23,27 @@ const PORTAL_ROUTES: Record<string, string> = {
     staff: '/staff',
 }
 
-const IDENTITY_ROUTES: Record<AuthenticatedRole, string> = {
-    organizer: '/organizer',
-    admin: '/admin',
-    guest: '/guest',
-    checkin: '/staff',
-}
-
 export interface AppChromeProps {
     /** Which nav item is highlighted (`hub` | `organizer` | `guest` | `staff` | `admin`). */
     activePortal: string
 }
 
 export function AppChrome({ activePortal }: AppChromeProps) {
+    const { pathname, hash } = useLocation()
     const navigate = useNavigate()
-    const { role, profile, isAuthenticated, signIn, signOut } = useSession()
+    const { role, profile, isAuthenticated, signOut } = useSession()
+
+    useEffect(() => {
+        if (hash) {
+            const targetId = hash.slice(1)
+            const el = document.getElementById(targetId)
+            if (el) {
+                el.scrollIntoView()
+                return
+            }
+        }
+        window.scrollTo(0, 0)
+    }, [pathname, hash])
 
     return (
         <div className="flex min-h-screen flex-col bg-background">

@@ -9,6 +9,7 @@ import { SolutionCard } from '@/components/eirmis/portal-cards'
 import { SsoButton } from '@/components/eirmis/sso-button'
 import { useSession } from '@/app/providers/use-session'
 import type { AuthenticatedRole } from '@/app/providers/session-profiles'
+import { REDIRECT_STORAGE_KEY } from '@/app/routing/role-guard'
 
 const roleCards: {
   role: AuthenticatedRole

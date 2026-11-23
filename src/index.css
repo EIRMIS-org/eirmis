@@ -373,3 +373,16 @@
     background: var(--muted);
   }
 }
+@media (prefers-reduced-motion: reduce) {
+  .animate-in,
+  [class*="animate-in"] {
+    animation: none !important;
+  }
+
+  .transition-transform,
+  [class*="hover:-translate-y-"],
+  [class*="hover:scale-"] {
+    transform: none !important;
+    transition-property: opacity, color, background-color, border-color, box-shadow !important;
+  }
+}
