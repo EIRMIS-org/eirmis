@@ -17,6 +17,7 @@ import { useUpdateAttendee } from '@/features/guest/hooks/use-update-attendee'
 
 export interface ResubmitAttendeeModalProps {
   attendee: Attendee | null
+  invitationId: string
   open: boolean
   onOpenChange: (open: boolean) => void
   onResubmitted?: (attendee: Attendee) => void
@@ -24,6 +25,7 @@ export interface ResubmitAttendeeModalProps {
 
 export function ResubmitAttendeeModal({
   attendee,
+  invitationId,
   open,
   onOpenChange,
   onResubmitted,
@@ -59,7 +61,7 @@ export function ResubmitAttendeeModal({
         ...updated,
         ...values,
         id: attendee.id,
-        invitation_id: attendee.invitation_id,
+        invitation_id: invitationId,
         is_primary: attendee.is_primary,
         status: 'pending',
         review_reason: null,

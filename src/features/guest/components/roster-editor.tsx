@@ -244,6 +244,24 @@ export function RosterEditor({ invitation }: { invitation: Invitation }) {
             </div>
           )}
 
+          {!isAtCeiling && isAccepted && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/70 px-3.5 py-3 text-xs">
+              <p className="text-muted-foreground">
+                Your party has {attendees.length} of {invitation.max_party_size}{' '}
+                slots used.
+              </p>
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                className="h-auto px-0"
+                onClick={() => setIsHeadcountOpen(true)}
+              >
+                Request more slots
+              </Button>
+            </div>
+          )}
+
           {latestHeadcountRequest && (
             <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/80 bg-muted/30 p-3.5 text-xs">
               <div className="space-y-0.5">
@@ -293,6 +311,7 @@ export function RosterEditor({ invitation }: { invitation: Invitation }) {
 
       <ResubmitAttendeeModal
         attendee={resubmitTarget}
+        invitationId={invitation.id}
         open={Boolean(resubmitTarget)}
         onOpenChange={(open) => {
           if (!open) setResubmitTarget(null)

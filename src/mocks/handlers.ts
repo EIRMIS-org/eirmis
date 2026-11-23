@@ -550,13 +550,29 @@ export const handlers = [
     // ═══ PostgREST: guests ═══
     http.get('*/rest/v1/guests', ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
-        return jsonList(mockGuests);
+        const authUserId = new URL(request.url).searchParams.get('auth_user_id');
+        if (authUserId?.startsWith('eq.')) {
+            return jsonList(
+                mockGuests.filter((guest) => guest.auth_user_id === authUserId.slice(3)),
+            );
+        }
+        return jsonList(filterByEq(request, mockGuests, 'id'));
     }),
 
     http.patch('*/rest/v1/guests', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
         const body = (await request.json()) as Partial<Guest>;
-        return HttpResponse.json({ ...exampleGuest, ...body });
+        const id = new URL(request.url).searchParams.get('id')?.replace(/^eq\./, '');
+        const target = mockGuests.find((guest) => guest.id === id) ?? mockGuests[0] ?? exampleGuest;
+        const updated: Guest = {
+            ...target,
+            ...body,
+            updated_at: new Date().toISOString(),
+        };
+        mockGuests = mockGuests.map((guest) =>
+            guest.id === updated.id ? updated : guest,
+        );
+        return HttpResponse.json(updated);
     }),
 
     // ═══ PostgREST: invitations ═══
