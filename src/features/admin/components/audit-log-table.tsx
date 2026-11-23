@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
-import { ScrollText, Search, X } from 'lucide-react'
+import { Download, ScrollText, Search, X } from 'lucide-react'
 import { useListAuditLogEntries } from '@/features/organizer/hooks/use-list-audit-log-entries'
+import { downloadCSV } from '@/lib/csv-export'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -84,6 +85,17 @@ function buildEntrySummary(entry: AuditEntry): string {
     return '—'
 }
 
+const AUDIT_CSV_HEADERS = [
+    'Timestamp',
+    'Actor Type',
+    'Actor ID',
+    'Action',
+    'Entity Type',
+    'Entity ID',
+    'Summary',
+    'Reason',
+] as const
+
 export function AuditLogTable() {
     const [filterText, setFilterText] = useState('')
     const auditQuery = useListAuditLogEntries()
@@ -115,6 +127,22 @@ export function AuditLogTable() {
             return haystack.includes(normalizedQuery)
         })
     }, [sortedEntries, normalizedQuery])
+
+    function handleExportCsv() {
+        if (filteredEntries.length === 0) return
+        const rows = filteredEntries.map((entry) => [
+            entry.created_at,
+            ACTOR_LABELS[entry.actor_type],
+            entry.actor_id ?? '',
+            entry.action,
+            entry.entity_type,
+            entry.entity_id,
+            buildEntrySummary(entry),
+            entry.reason ?? '',
+        ])
+        // downloadCSV automatically appends -YYYY-MM-DD.csv
+        downloadCSV('eirmis-audit-log', AUDIT_CSV_HEADERS, rows)
+    }
 
     return (
         <main id="main-content" className="flex-1">
@@ -167,6 +195,22 @@ export function AuditLogTable() {
                             </button>
                         )}
                     </div>
+
+                    {/* Kept disabled (rather than hidden) when loading, errored, or empty to avoid toolbar layout shift. */}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleExportCsv}
+                        disabled={
+                            auditQuery.isPending ||
+                            auditQuery.isError ||
+                            filteredEntries.length === 0
+                        }
+                    >
+                        <Download data-icon="inline-start" aria-hidden="true" />
+                        Export CSV
+                    </Button>
                 </div>
 
                 {auditQuery.isPending ? (
