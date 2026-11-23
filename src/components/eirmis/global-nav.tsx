@@ -2,10 +2,6 @@ import * as React from 'react'
 import { Menu, LogIn, Layers, ChevronDown, Check, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
-  SESSION_ROLE_OPTIONS,
-  type AuthenticatedRole,
-} from '@/app/providers/session-profiles'
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -20,7 +16,7 @@ import {
 import { DEFAULT_PORTALS, type PortalItem } from './portal-constants'
 
 function getIdentityLabel(role?: string): string | undefined {
-  return SESSION_ROLE_OPTIONS.find((option) => option.role === role)?.label ?? role
+  return role
 }
 
 export interface GlobalNavProps {
@@ -28,7 +24,6 @@ export interface GlobalNavProps {
   onPortalSelect?: (id: string) => void
   portals?: PortalItem[]
   user?: UserSession | null
-  onIdentitySwitch?: (role: AuthenticatedRole) => void
   onSignOut?: () => void
   onSignIn?: () => void
   brandTitle?: string
@@ -46,11 +41,10 @@ export function GlobalNav({
   onPortalSelect,
   portals = DEFAULT_PORTALS,
   user = null,
-  onIdentitySwitch,
   onSignOut,
   onSignIn,
   brandTitle = 'EIRMIS',
-  badgeText = 'PRODUCTION PREVIEW',
+  badgeText,
   onBrandClick,
   sticky = true,
   className,
@@ -150,22 +144,11 @@ export function GlobalNav({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-52">
                   <DropdownMenuLabel>
-                    {onIdentitySwitch ? 'Switch identity' : 'Signed in'}
+                    'Signed in'
                     <span className="mt-0.5 block truncate font-normal text-muted-foreground">
                       {user.name}
                     </span>
                   </DropdownMenuLabel>
-                  {onIdentitySwitch && SESSION_ROLE_OPTIONS.map((option) => (
-                    <DropdownMenuItem
-                      key={option.role}
-                      onClick={() => onIdentitySwitch?.(option.role)}
-                    >
-                      <span className="flex-1">{option.label}</span>
-                      {user.role === option.role && (
-                        <Check className="size-3.5 text-primary" aria-hidden="true" />
-                      )}
-                    </DropdownMenuItem>
-                  ))}
                   {onSignOut && (
                     <>
                       <DropdownMenuSeparator />
@@ -217,7 +200,6 @@ export function GlobalNav({
         onPortalSelect={onPortalSelect}
         portals={portals}
         user={user}
-        onIdentitySwitch={onIdentitySwitch}
         onSignOut={onSignOut}
         onSignIn={onSignIn}
       />

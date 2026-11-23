@@ -45,10 +45,6 @@ export function AppChrome({ activePortal }: AppChromeProps) {
                 activePortal={activePortal}
                 onPortalSelect={(id) => navigate(PORTAL_ROUTES[id] ?? '/')}
                 onBrandClick={() => navigate('/')}
-                onIdentitySwitch={(nextRole) => {
-                    signIn(nextRole)
-                    navigate(IDENTITY_ROUTES[nextRole])
-                }}
                 user={
                     isAuthenticated && profile
                         ? {

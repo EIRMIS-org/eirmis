@@ -78,9 +78,6 @@ export function LandingPage() {
                     Every guest experience, thoughtfully connected.
                   </p>
                 </div>
-                <span className="rounded-full border border-white/25 bg-black/25 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur-sm">
-                  M4 interactive preview
-                </span>
               </div>
             </div>
           </div>

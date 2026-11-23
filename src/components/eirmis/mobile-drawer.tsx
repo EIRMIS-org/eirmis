@@ -2,10 +2,6 @@ import * as React from 'react'
 import { X, LogOut, LogIn, ChevronRight, Layers, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
-  SESSION_ROLE_OPTIONS,
-  type AuthenticatedRole,
-} from '@/app/providers/session-profiles'
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -19,7 +15,7 @@ const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 function getIdentityLabel(role?: string): string | undefined {
-  return SESSION_ROLE_OPTIONS.find((option) => option.role === role)?.label ?? role
+  return role
 }
 
 export interface UserSession {
@@ -38,7 +34,6 @@ export interface MobileDrawerProps {
   onPortalSelect?: (id: string) => void
   portals?: PortalItem[]
   user?: UserSession | null
-  onIdentitySwitch?: (role: AuthenticatedRole) => void
   onSignOut?: () => void
   onSignIn?: () => void
   className?: string
@@ -53,7 +48,6 @@ export function MobileDrawer({
   onPortalSelect,
   portals = DEFAULT_PORTALS,
   user = null,
-  onIdentitySwitch,
   onSignOut,
   onSignIn,
   className,
@@ -237,22 +231,8 @@ export function MobileDrawer({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="min-w-52">
                 <DropdownMenuLabel>
-                  {onIdentitySwitch ? 'Switch identity' : 'Signed in'}
+                  'Signed in'
                 </DropdownMenuLabel>
-                {onIdentitySwitch && SESSION_ROLE_OPTIONS.map((option) => (
-                  <DropdownMenuItem
-                    key={option.role}
-                    onClick={() => {
-                      onIdentitySwitch?.(option.role)
-                      onClose()
-                    }}
-                  >
-                    <span className="flex-1">{option.label}</span>
-                    {user.role === option.role && (
-                      <Check className="size-3.5 text-primary" aria-hidden="true" />
-                    )}
-                  </DropdownMenuItem>
-                ))}
                 {onSignOut && (
                   <>
                     <DropdownMenuSeparator />
