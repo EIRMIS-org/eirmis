@@ -1,4 +1,5 @@
 import { ArrowDown, ArrowRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { HeroCarousel } from './components/hero-carousel'
 import { Button } from '@/components/ui/button'
 import { PublicEventDiscovery } from '@/features/landing/components/public-event-discovery'
@@ -86,6 +87,14 @@ export function LandingPage() {
               </p>
             </div>
             <RoleCardGrid />
+            <div className="mt-6 flex justify-end">
+              <Link
+                to="/pending-verification"
+                className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                View pending verification screen
+              </Link>
+            </div>
           </div>
         </section>
 
