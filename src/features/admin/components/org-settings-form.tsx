@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import type { z } from 'zod'
 import { Save, Loader2 } from 'lucide-react'
+import type { OrgSettings } from '@/lib/api'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -33,7 +34,22 @@ const COMMON_TIMEZONES = [
   { value: 'Australia/Sydney', label: 'Australia/Sydney (AEST/AEDT)' },
 ]
 
-export function OrgSettingsForm() {
+export interface OrgSettingsFormProps {
+  onDirtyChange?: (isDirty: boolean) => void
+}
+
+function toFormValues(settings: Partial<OrgSettings>): z.input<typeof orgSettingsUpdateSchema> {
+  return {
+    org_name: settings.org_name ?? '',
+    default_timezone: settings.default_timezone ?? 'Asia/Manila',
+    default_capacity_ceiling: settings.default_capacity_ceiling ?? 150,
+    sender_domain: settings.sender_domain ?? 'invites.eirmis.org',
+    malware_sandbox_enabled: settings.malware_sandbox_enabled ?? true,
+    self_registration_gate_enabled: settings.self_registration_gate_enabled ?? true,
+  }
+}
+
+export function OrgSettingsForm({ onDirtyChange }: OrgSettingsFormProps = {}) {
   const { data: rawData, isLoading, isError } = useOrgSettings()
   const { mutate: updateSettings, isPending } = useUpdateOrgSettings()
 
@@ -65,19 +81,31 @@ export function OrgSettingsForm() {
 
   React.useEffect(() => {
     if (settings) {
-      reset({
-        org_name: settings.org_name ?? '',
-        default_timezone: settings.default_timezone ?? 'Asia/Manila',
-        default_capacity_ceiling: settings.default_capacity_ceiling ?? 150,
-        sender_domain: settings.sender_domain ?? 'invites.eirmis.org',
-        malware_sandbox_enabled: settings.malware_sandbox_enabled ?? true,
-        self_registration_gate_enabled: settings.self_registration_gate_enabled ?? true,
-      })
+      reset(toFormValues(settings))
     }
   }, [settings, reset])
 
+  React.useEffect(() => {
+    onDirtyChange?.(isDirty)
+  }, [isDirty, onDirtyChange])
+
+  React.useEffect(() => {
+    if (!isDirty) return
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [isDirty])
+
   const onSubmit = (values: OrgSettingsUpdate) => {
-    updateSettings(values)
+    updateSettings(values, {
+      onSuccess: (updated) => {
+        const next = Array.isArray(updated) ? updated[0] : updated
+        reset(toFormValues(next ?? values))
+      },
+    })
   }
 
   if (isLoading) {
@@ -234,7 +262,14 @@ export function OrgSettingsForm() {
       </SettingsSection>
 
       {/* Save Button */}
-      <div className="flex justify-end pt-4 border-t">
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t">
+        <div>
+          {isDirty && (
+            <p role="status" className="text-xs font-medium text-warning">
+              You have unsaved changes.
+            </p>
+          )}
+        </div>
         <Button
           type="submit"
           disabled={isPending || !isDirty}
