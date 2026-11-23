@@ -6,9 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
+    "pretest": "node -e \"const [major, minor] = process.versions.node.split('.').map(Number); if (major < 22 || (major === 22 && minor < 13)) { console.error('EIRMIS tests require Node >=22.13.0 (Node 22 LTS recommended, pinned in .nvmrc) — you are running ' + process.version + '. See Local setup in README.md.'); process.exit(1); }\"",
     "test": "vitest run",
     "test:watch": "vitest",
     "check:seed": "node scripts/check-seed-pii.js",
@@ -22,6 +23,9 @@
     "contract:postman": "tsx scripts/generate-postman-collection.ts",
     "db:types": "supabase gen types typescript --local > src/lib/supabase/database.types.ts",
     "functions:serve": "supabase functions serve"
+  },
+  "engines": {
+    "node": ">=22.13.0"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
