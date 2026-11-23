@@ -83,7 +83,7 @@ export function GlobalNav({
               aria-label={`${brandTitle} — Go to home`}
               className="flex items-center gap-2.5 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <div className="flex size-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-indigo-900 text-white shadow-xs transition-transform hover:scale-105">
+              <div className="flex size-8 items-center justify-center rounded-xl bg-primary text-white shadow-xs transition-transform hover:scale-105">
                 <Layers className="size-4.5" aria-hidden="true" />
               </div>
               <span className="font-heading text-base font-extrabold tracking-tight text-foreground">
@@ -128,7 +128,7 @@ export function GlobalNav({
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="hidden sm:flex items-center gap-2.5 rounded-full border border-border bg-surface py-1 pr-2.5 pl-1.5 shadow-xs hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1">
-                  <span className="flex size-6 items-center justify-center rounded-full bg-gradient-to-br from-primary to-indigo-900 text-[10px] font-bold text-white shadow-xs">
+                  <span className="flex size-6 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white shadow-xs">
                     {user.initials || user.name.slice(0, 2).toUpperCase()}
                   </span>
                   <span className="max-w-[120px] truncate text-xs font-semibold text-foreground">

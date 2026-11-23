@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowRight, Sparkles } from 'lucide-react'
+import { ArrowDown, ArrowRight } from 'lucide-react'
 import heroEventImage from '../../../mockup-plan/assets/hero-carousel-1.jpg'
 import { Button } from '@/components/ui/button'
 import { PublicEventDiscovery } from '@/features/landing/components/public-event-discovery'
@@ -17,7 +17,6 @@ export function LandingPage() {
             <div className="grid items-end gap-8 lg:grid-cols-[1.05fr_0.75fr] lg:gap-16">
               <div>
                 <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-teal-300">
-                  <Sparkles className="size-3.5" aria-hidden="true" />
                   Auditable event orchestration
                 </p>
                 <h1 className="mt-5 max-w-3xl font-heading text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">

@@ -1705,7 +1705,7 @@ export default function Styleguide() {
                     <div className="mt-2.5 w-72 max-w-full rounded-2xl border border-border bg-surface shadow-md overflow-hidden">
                       <div className="flex h-12 items-center justify-between border-b border-border px-4">
                         <div className="flex items-center gap-2">
-                          <div className="flex size-6 items-center justify-center rounded-md bg-gradient-to-br from-primary to-indigo-900 text-white shadow-xs">
+                          <div className="flex size-6 items-center justify-center rounded-md bg-primary text-white shadow-xs">
                             <span className="text-[10px] font-bold">E</span>
                           </div>
                           <span className="font-heading font-bold text-xs text-foreground">Menu</span>
@@ -3355,7 +3355,7 @@ export default function Styleguide() {
                   <div className="flex flex-wrap items-center gap-4">
                     {/* Full Pill */}
                     <div className="flex items-center gap-2 rounded-full border border-border bg-surface py-1 px-3 shadow-xs hover:border-border-hover transition-all cursor-pointer">
-                      <div className="flex size-7 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-indigo-900 text-xs font-bold text-white shadow-2xs">
+                      <div className="flex size-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white shadow-2xs">
                         SJ
                       </div>
                       <span className="text-xs font-semibold text-foreground">Sarah Jenkins</span>
@@ -3378,7 +3378,7 @@ export default function Styleguide() {
                     {/* Mobile Condensed Variant */}
                     <div className="flex items-center gap-2">
                       <div
-                        className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-indigo-900 text-xs font-bold text-white shadow-xs cursor-pointer hover:scale-105 transition-transform"
+                        className="flex size-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-white shadow-xs cursor-pointer hover:scale-105 transition-transform"
                         title="Sarah Jenkins (Organizer)"
                       >
                         SJ

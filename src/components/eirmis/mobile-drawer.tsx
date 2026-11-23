@@ -149,7 +149,7 @@ export function MobileDrawer({
         {/* Drawer Header */}
         <div className="flex h-14 items-center justify-between border-b border-border px-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex size-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-indigo-900 text-white shadow-xs">
+            <div className="flex size-7 items-center justify-center rounded-lg bg-primary text-white shadow-xs">
               <Layers className="size-4" aria-hidden="true" />
             </div>
             <h2
@@ -213,7 +213,7 @@ export function MobileDrawer({
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger className="flex w-full items-center gap-2.5 rounded-xl border border-border bg-muted/40 p-2.5 text-left hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-indigo-900 text-[11px] font-bold text-white shadow-xs">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white shadow-xs">
                   {user.initials || user.name.slice(0, 2).toUpperCase()}
                 </span>
                 <span className="min-w-0 flex-1">
