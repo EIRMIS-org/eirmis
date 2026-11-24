@@ -1,3 +1,4 @@
+
 Attendee:
   type: object
   description: >
@@ -123,7 +124,7 @@ AttendeeCreate:
       example: Jose Santos
     email:
       type: ['string', 'null']
-      description: Optional contact email for this attendee (receives QR code and notifications).
+      description: Optional contact email address for the attendee.
       example: jose.santos@example.com
 
 AttendeeUpdate:
@@ -149,12 +150,16 @@ AttendeeDecisionRequest:
   type: object
   description: >
     Request body for the `decideAttendee` Edge Function.
-    Approve or reject an individual attendee. Approved attendees receive a
-    signed `qr_token`. Approval performs a capacity soft-check and records an
-    audit entry. A capacity-over-limit approval is audited as an override.
+    Approve or reject an individual attendee. Approval performs an atomic
+    event-capacity check. If approval would exceed capacity, the organizer
+    must explicitly set `override_capacity` to true and provide a non-empty
+    reason. A capacity override is only valid for an approval. The Edge
+    Function validates these conditional requirements before invoking
+    the transactional database operation.
   example:
     decision: approve
-    reason: Verified team member
+    override_capacity: false
+    reason: null
   required: [decision]
   properties:
     decision:
@@ -162,17 +167,26 @@ AttendeeDecisionRequest:
       enum: [approve, reject]
       description: Organizer's decision to approve or reject this attendee registration.
       example: approve
+    override_capacity:
+      type: boolean
+      default: false
+      description: >
+        Explicitly authorizes approval beyond event capacity. Defaults to false.
+        Cannot be true when decision is reject.
+      example: false
     reason:
       type: ['string', 'null']
-      description: Organizer's optional note on the decision, stored in the audit log.
-      example: Verified team member
+      description: >
+        Organizer's optional decision note. A non-empty reason is mandatory
+        whenever override_capacity is true. Stored in review_reason and audit_log_entries.
+      example: null
 
 AttendeeDecisionResponse:
   type: object
   description: >
     Response from the `decideAttendee` Edge Function. Includes the updated
-    attendee state. If the decision pushed the event over capacity, `capacity_warning`
-    is `true` and the organizer's audited override is recorded.
+    attendee state. If the decision used an explicit over-capacity override,
+    `capacity_warning` is true and the override is recorded in `audit_log_entries`.
   example:
     attendee:
       id: 77777777-7777-7777-7777-777777777777
@@ -198,7 +212,7 @@ AttendeeDecisionResponse:
     capacity_warning:
       type: boolean
       description: >
-        `true` when this approval caused the event's approved-attendee count to exceed
-        `events.capacity`. The approval still proceeded (soft check) and the override
-        is recorded in `audit_log_entries`.
+        `true` when an approval used the explicit override because it would
+        cause the event's approved-attendee count to exceed `events.capacity`.
+        The override is recorded in `audit_log_entries`.
       example: false
