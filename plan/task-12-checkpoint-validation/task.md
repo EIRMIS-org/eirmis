@@ -5,7 +5,7 @@
 | **Order** | Final — after all portal tasks (06–10) |
 | **Owner** | Whole team (lead facilitates; each dev validates their portal) |
 | **Lane** | Gate — blocked by ALL of 06, 07, 08, 09, 10 |
-| **Branch** | Validation happens on the milestone branch `feat/m4-frontend` (all portal PRs merged into it first). The milestone branch is the only path to `develop`: `feat/<task-branch>` → `feat/m4-frontend` → `develop` |
+| **Branch** | Validation happens on the integrated week branch |
 
 ---
 
