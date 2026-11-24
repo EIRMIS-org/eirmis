@@ -2,6 +2,7 @@ import * as React from 'react'
 import { X, LogOut, LogIn, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import eirmisLogo from '@/assets/eirmis_logo.png'
+import eirmisLogoDark from '@/assets/eirmis_logo_darkmode.png'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -153,7 +154,12 @@ export function MobileDrawer({
             <img
               src={eirmisLogo}
               alt=""
-              className="h-6 w-auto"
+              className="h-6 w-auto dark:hidden"
+            />
+            <img
+              src={eirmisLogoDark}
+              alt=""
+              className="hidden h-6 w-auto dark:block"
             />
             <h2
               id={titleId}

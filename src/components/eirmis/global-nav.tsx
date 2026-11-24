@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Menu, LogIn, ChevronDown, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import eirmisLogo from '@/assets/eirmis_logo.png'
+import eirmisLogoDark from '@/assets/eirmis_logo_darkmode.png'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -84,10 +85,16 @@ export function GlobalNav({
               aria-label={`${brandTitle} — Go to home`}
               className="flex items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
+              {/* Light logo in light mode, dark-mode variant in dark mode. */}
               <img
                 src={eirmisLogo}
                 alt=""
-                className="h-7 w-auto sm:h-8"
+                className="h-7 w-auto sm:h-8 dark:hidden"
+              />
+              <img
+                src={eirmisLogoDark}
+                alt=""
+                className="hidden h-7 w-auto sm:h-8 dark:block"
               />
             </button>
             {badgeText && (
