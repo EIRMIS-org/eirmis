@@ -1,6 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { resolveResendFrom, resolveResendTo } from "../_shared/resend.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -251,8 +250,8 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: resolveResendFrom(resendFromEmail),
-        to: [resolveResendTo(organizer.email, resolveResendFrom(resendFromEmail))],
+        from: resendFromEmail,
+        to: [organizer.email],
         subject: `New headcount request for ${event.title}`,
         text: [
           `${guest.full_name} has submitted a headcount increase request for ${event.title}.`,

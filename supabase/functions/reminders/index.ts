@@ -1,1 +1,0 @@
-import "./dispatch/index.ts";

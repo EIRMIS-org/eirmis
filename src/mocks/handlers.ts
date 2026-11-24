@@ -573,7 +573,7 @@ export const handlers = [
     }),
 
     // ═══ Edge Functions ═══
-    http.post('*/functions/v1/register-public', async ({ request }) => {
+    http.post('*/functions/v1/register', async ({ request }) => {
         const body = (await request.json()) as Record<string, unknown>;
         if (!body.email || !body.event_id) {
             return HttpResponse.json(
@@ -620,17 +620,12 @@ export const handlers = [
         });
     }),
 
-    http.post('*/functions/v1/headcount-requests/:id/decision', async ({ request, params }) => {
+    http.post('*/functions/v1/headcount-requests/:id/decision', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
-        const body = (await request.json()) as { decision?: string; reason?: string | null };
-        const id = typeof params.id === 'string' ? params.id : exampleHir.id;
+        const body = (await request.json()) as { decision?: string };
         return HttpResponse.json({
             ...exampleHir,
-            id,
             status: body.decision === 'approve' ? ('approved' as const) : ('rejected' as const),
-            reviewed_by: UUID.ORGANIZER,
-            reviewed_at: new Date().toISOString(),
-            review_reason: body.reason ?? null,
         });
     }),
 
@@ -645,10 +640,7 @@ export const handlers = [
 
     http.post('*/functions/v1/checkin/scan', async ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
-        const body = (await request.json()) as { qr_token?: string; event_id?: string };
-        if (body.event_id !== undefined && body.event_id.toLowerCase() !== UUID.EVENT) {
-            return HttpResponse.json(errorBody('EVENT_MISMATCH', 'QR token belongs to a different event.'), { status: 422 });
-        }
+        const body = (await request.json()) as { qr_token?: string };
         if (body.qr_token === 'invalid.token') {
             return HttpResponse.json(errorBody('SCAN_403', 'QR token signature invalid'), { status: 403 });
         }
