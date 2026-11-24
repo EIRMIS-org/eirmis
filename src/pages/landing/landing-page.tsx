@@ -1,6 +1,7 @@
 import { ArrowDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { PublicEventDiscovery } from '@/features/landing/components/public-event-discovery'
+import { AuditTrailSection } from './components/audit-trail-section'
 import { HeroBackdrop } from './components/hero-backdrop'
 import { HeroSignInCard } from './components/hero-signin-card'
 
@@ -45,13 +46,15 @@ export function LandingPage() {
           </div>
         </section>
 
+        <AuditTrailSection />
+
         <PublicEventDiscovery />
       </main>
 
       <footer className="border-t border-border bg-surface py-6">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 text-[11px] text-muted-foreground sm:px-6">
           <span>EIRMIS &middot; Auditable event orchestration</span>
-          <span>Mock preview &middot; Public event discovery</span>
+          <span>&copy; 2026 EIRMIS</span>
         </div>
       </footer>
     </>
