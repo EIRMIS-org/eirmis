@@ -14,15 +14,6 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useSession } from '@/app/providers/use-session'
 import { GlobalNav } from '@/components/eirmis/global-nav'
 
-/** Portal nav ids -> the routes Task 04 owns. */
-const PORTAL_ROUTES: Record<string, string> = {
-    hub: '/',
-    organizer: '/organizer',
-    admin: '/admin',
-    guest: '/guest',
-    staff: '/staff',
-}
-
 export interface AppChromeProps {
     /** Which nav item is highlighted (hub | organizer | guest | staff | admin). */
     activePortal: string
@@ -47,9 +38,10 @@ export function AppChrome({ activePortal }: AppChromeProps) {
 
     return (
         <div className="flex min-h-screen flex-col bg-background">
+            {/* portals=[] hides the role switcher; roles are chosen on the landing page. */}
             <GlobalNav
                 activePortal={activePortal}
-                onPortalSelect={(id) => navigate(PORTAL_ROUTES[id] ?? '/')}
+                portals={[]}
                 onBrandClick={() => navigate('/')}
                 user={
                     isAuthenticated && profile

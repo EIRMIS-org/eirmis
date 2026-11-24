@@ -97,31 +97,33 @@ export function GlobalNav({
             )}
           </div>
 
-          {/* Desktop Navigation Links */}
-          <nav
-            aria-label="Primary"
-            className="hidden md:flex items-center gap-1 overflow-x-auto scrollbar-none py-1"
-          >
-            {portals.map((portal) => {
-              const isActive = activePortal === portal.id
-              return (
-                <button
-                  key={portal.id}
-                  type="button"
-                  aria-current={isActive ? 'page' : undefined}
-                  onClick={() => onPortalSelect?.(portal.id)}
-                  className={cn(
-                    'rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
-                    isActive
-                      ? 'border border-primary/25 bg-primary/10 text-primary font-bold shadow-2xs'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                  )}
-                >
-                  {portal.label}
-                </button>
-              )
-            })}
-          </nav>
+          {/* Desktop Navigation Links (omitted when no portals are provided) */}
+          {portals.length > 0 && (
+            <nav
+              aria-label="Primary"
+              className="hidden md:flex items-center gap-1 overflow-x-auto scrollbar-none py-1"
+            >
+              {portals.map((portal) => {
+                const isActive = activePortal === portal.id
+                return (
+                  <button
+                    key={portal.id}
+                    type="button"
+                    aria-current={isActive ? 'page' : undefined}
+                    onClick={() => onPortalSelect?.(portal.id)}
+                    className={cn(
+                      'rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
+                      isActive
+                        ? 'border border-primary/25 bg-primary/10 text-primary font-bold shadow-2xs'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    )}
+                  >
+                    {portal.label}
+                  </button>
+                )
+              })}
+            </nav>
+          )}
 
           {/* Right Session Pill & Mobile Hamburger */}
           <div className="flex items-center gap-2 shrink-0">
