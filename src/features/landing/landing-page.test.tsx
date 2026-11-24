@@ -50,7 +50,11 @@ function mockMatchMedia(matchesReducedMotion: boolean) {
     dispatchEvent: () => true,
   }
 
-  vi.spyOn(window, 'matchMedia').mockImplementation(() => mediaQueryList as unknown as MediaQueryList)
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    configurable: true,
+    value: vi.fn(() => mediaQueryList as unknown as MediaQueryList),
+  })
   return mediaQueryList
 }
 
@@ -171,13 +175,21 @@ describe('HeroCarousel behavior', () => {
     const tabs = screen.getAllByRole('tab')
 
     act(() => {
-      fireEvent.focus(carousel)
+      carousel.focus()
+      fireEvent.focusIn(carousel, { relatedTarget: outsideButton })
+    })
+
+    act(() => {
       vi.advanceTimersByTime(6500)
     })
     expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
 
     act(() => {
-      fireEvent.blur(carousel, { relatedTarget: outsideButton })
+      outsideButton.focus()
+      fireEvent.focusOut(carousel, { relatedTarget: outsideButton })
+    })
+
+    act(() => {
       vi.advanceTimersByTime(6000)
     })
     expect(tabs[1]).toHaveAttribute('aria-selected', 'true')
