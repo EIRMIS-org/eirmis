@@ -20,6 +20,7 @@ import { StyleguideRoute } from './styleguide-route'
 import { LandingLayout } from '@/pages/landing/landing-layout'
 import { LandingPage } from '@/pages/landing/landing-page'
 import { PendingVerificationPage } from '@/pages/landing/pending-verification-page'
+import { PublicEventPage } from '@/pages/landing/public-event-page'
 import { OrganizerLayout } from '@/pages/organizer/organizer-layout'
 import { EventsPage } from '@/pages/organizer/events-page'
 import { CreateEventPage } from '@/pages/organizer/create-event-page'
@@ -53,6 +54,11 @@ export const router = createBrowserRouter([
       {
         path: 'pending-verification',
         element: <PendingVerificationPage />,
+      },
+      {
+        // Public registration entry point per the contract's /register/:slug flow.
+        path: 'register/:slug',
+        element: <PublicEventPage />,
       },
     ],
   },

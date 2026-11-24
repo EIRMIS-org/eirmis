@@ -73,26 +73,27 @@ describe('LandingPage accessibility', () => {
     expect(main.contains(footer)).toBe(false)
   })
 
-  it('opens the public event drawer from an event card and returns focus on Escape', async () => {
+  it('navigates to the event registration page from an event card', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<LandingPage />)
+    renderWithProviders(
+      <>
+        <LocationProbe />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/register/:slug" element={<div>Registration page</div>} />
+        </Routes>
+      </>,
+      ['/']
+    )
 
     const eventsList = await screen.findByRole('list')
-    const eventButtons = within(eventsList).getAllByRole('button')
-    expect(eventButtons.length).toBeGreaterThan(0)
+    const eventLinks = within(eventsList).getAllByRole('link')
+    expect(eventLinks.length).toBeGreaterThan(0)
 
-    const firstCardBtn = eventButtons[0]
-    await user.click(firstCardBtn)
+    await user.click(eventLinks[0])
 
-    const dialog = await screen.findByRole('dialog')
-    expect(within(dialog).getByRole('heading', { name: 'Register your interest' })).toBeInTheDocument()
-
-    await user.keyboard('{Escape}')
     await waitFor(() => {
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    })
-    await waitFor(() => {
-      expect(firstCardBtn).toHaveFocus()
+      expect(screen.getByTestId('location-path')).toHaveTextContent('/register/annual-gala-2026')
     })
   })
 })

@@ -1,27 +1,19 @@
-import { useRef, useState } from 'react'
-import { CalendarDays, MapPin } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useDiscoverPublicEvents } from '@/features/landing/hooks/use-discover-public-events'
 import type { Event } from '@/lib/api'
 import heroEventImage from '@/assets/hero-carousel-1.webp'
-import { PublicEventDrawer } from './public-event-drawer'
 
-function EventCard({
-  event,
-  onSelect,
-}: {
-  event: Event
-  onSelect: (event: Event, trigger: HTMLButtonElement) => void
-}) {
+function EventCard({ event }: { event: Event }) {
   const startDate = new Date(event.starts_at)
 
   return (
     <article className="overflow-hidden rounded-2xl border border-border/80 bg-surface shadow-xs transition-shadow hover:shadow-md focus-within:shadow-md">
-      <button
-        type="button"
+      <Link
+        to={`/register/${event.slug}`}
         className="block w-full rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
-        onClick={(e) => onSelect(event, e.currentTarget)}
       >
         <div className="relative aspect-[16/9] overflow-hidden bg-muted">
           <img
@@ -51,29 +43,13 @@ function EventCard({
               'Location to be announced'}
           </p>
         </div>
-      </button>
+      </Link>
     </article>
   )
 }
 
 export function PublicEventDiscovery() {
   const eventsQuery = useDiscoverPublicEvents()
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
-  const triggerRef = useRef<HTMLButtonElement | null>(null)
-
-  const handleSelectEvent = (event: Event, trigger: HTMLButtonElement) => {
-    triggerRef.current = trigger
-    setSelectedEvent(event)
-  }
-
-  const handleDrawerOpenChange = (open: boolean) => {
-    if (!open) {
-      setSelectedEvent(null)
-      const returnTarget = triggerRef.current
-      triggerRef.current = null
-      queueMicrotask(() => returnTarget?.focus())
-    }
-  }
 
   return (
     <section
@@ -149,7 +125,7 @@ export function PublicEventDiscovery() {
           </div>
         ) : (eventsQuery.data?.length ?? 0) === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-surface/70 px-6 py-14 text-center">
-            <CalendarDays
+            <MapPin
               className="mx-auto size-8 text-muted-foreground"
               aria-hidden="true"
             />
@@ -164,23 +140,12 @@ export function PublicEventDiscovery() {
           <ul className="grid list-none gap-4 p-0 sm:grid-cols-2">
             {eventsQuery.data?.map((event) => (
               <li key={event.id}>
-                <EventCard
-                  event={event}
-                  onSelect={handleSelectEvent}
-                />
+                <EventCard event={event} />
               </li>
             ))}
           </ul>
         )}
       </div>
-
-      {selectedEvent && (
-        <PublicEventDrawer
-          event={selectedEvent}
-          open
-          onOpenChange={handleDrawerOpenChange}
-        />
-      )}
     </section>
   )
 }
