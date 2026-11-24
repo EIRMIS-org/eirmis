@@ -61,6 +61,7 @@ describe('LandingPage accessibility', () => {
     const h2s = screen.getAllByRole('heading', { level: 2 })
     expect(h2s.map((h) => h.textContent)).toEqual([
       'Sign in to EIRMIS',
+      'Every step leaves a record',
       'Events open to everyone',
     ])
 
@@ -86,9 +87,13 @@ describe('LandingPage accessibility', () => {
       ['/']
     )
 
-    const eventsList = await screen.findByRole('list')
-    const eventLinks = within(eventsList).getAllByRole('link')
-    expect(eventLinks.length).toBeGreaterThan(0)
+    const eventsSection = await screen.findByRole('region', { name: 'Events open to everyone' })
+    // Wait for events to load (skeletons to be replaced by actual event cards with links)
+    await waitFor(() => {
+      const links = within(eventsSection).getAllByRole('link')
+      expect(links.length).toBeGreaterThan(0)
+    })
+    const eventLinks = within(eventsSection).getAllByRole('link')
 
     await user.click(eventLinks[0])
 
