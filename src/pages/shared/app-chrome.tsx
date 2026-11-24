@@ -53,7 +53,8 @@ export function AppChrome({ activePortal }: AppChromeProps) {
                         : null
                 }
                 onSignOut={isAuthenticated ? () => signOut() : undefined}
-                onSignIn={() => navigate('/')}
+                // Land on the hero sign-in card, not just the top of the page.
+                onSignIn={() => navigate('/#sign-in')}
             />
             <Outlet />
         </div>

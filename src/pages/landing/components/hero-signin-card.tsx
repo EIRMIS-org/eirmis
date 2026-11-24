@@ -111,7 +111,10 @@ export function HeroSignInCard() {
     }
 
     return (
-        <div className="rounded-2xl bg-white p-6 shadow-2xl sm:p-7">
+        <div
+            id="sign-in"
+            className="scroll-mt-20 rounded-2xl bg-white p-6 shadow-2xl sm:p-7"
+        >
             <h2 className="font-heading text-lg font-extrabold tracking-tight text-slate-900">
                 Sign in to EIRMIS
             </h2>
