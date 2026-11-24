@@ -1,11 +1,18 @@
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useMyInvitations } from '@/features/guest/hooks/use-my-invitations'
 import { InvitationCard } from '@/features/guest/components/invitation-card'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useDiscoverPublicEvents } from '@/features/landing/hooks/use-discover-public-events'
 
 export function GuestInvitationsPage() {
   const invitations = useMyInvitations()
+  const events = useDiscoverPublicEvents()
+  const eventsById = useMemo(
+    () => new Map((events.data ?? []).map((event) => [event.id, event])),
+    [events.data],
+  )
 
   if (invitations.isLoading) {
     return (
@@ -52,6 +59,8 @@ export function GuestInvitationsPage() {
             <InvitationCard
               key={invitation.id}
               invitation={invitation}
+              event={eventsById.get(invitation.event_id)}
+              loadingEvent={events.isLoading}
             />
           ))}
         </div>

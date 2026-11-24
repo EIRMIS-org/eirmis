@@ -149,19 +149,19 @@ describe('check-in staff portal hardening', () => {
                     { timeout: 5000 },
                 )
 
-                await user.type(filterInput, 'maria')
+                await user.type(filterInput, 'jordan')
                 await user.click(selectTrigger)
 
-                const mariaOption = await screen.findByRole(
+                const guestOption = await screen.findByRole(
                     'option',
-                    { name: /maria santos.*party 2\/4/i },
+                    { name: /jordan cruz.*party 2\/4/i },
                     { timeout: 5000 },
                 )
                 expect(
                     screen.queryByRole('option', { name: /jose rizal/i }),
                 ).not.toBeInTheDocument()
 
-                await user.click(mariaOption)
+                await user.click(guestOption)
 
                 await user.type(screen.getByLabelText(/full name/i), 'Walk-in Guest')
                 await user.type(screen.getByLabelText(/email/i), 'walkin@example.com')
@@ -267,7 +267,7 @@ describe('check-in staff portal hardening', () => {
                 await user.click(
                     await screen.findByRole(
                         'option',
-                        { name: /maria santos/i },
+                        { name: /jordan cruz/i },
                         { timeout: 5000 },
                     ),
                 )

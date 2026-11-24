@@ -4,11 +4,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
 import userEvent from '@testing-library/user-event'
-import { http, HttpResponse } from 'msw'
+import { delay, http, HttpResponse } from 'msw'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { toast } from 'sonner'
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { SessionProvider } from '@/app/providers/session-context'
-import type { Attendee, Invitation } from '@/lib/api'
+import type { Attendee, Guest, Invitation } from '@/lib/api'
 import { resetMockCheckInState } from '@/mocks/handlers'
 import { server } from '@/mocks/server'
 import { GuestInvitationsPage } from '@/pages/guest/guest-invitations-page'
@@ -17,6 +18,13 @@ import { InvitationDetailPage } from '@/pages/guest/invitation-detail-page'
 import { RosterEditor } from './components/roster-editor'
 import { RsvpSection } from './components/rsvp-section'
 import { WalletPassView } from './components/wallet-pass-view'
+
+vi.mock('sonner', () => ({
+  toast: {
+    error: vi.fn(),
+    success: vi.fn(),
+  },
+}))
 
 const BASE_INVITATION: Invitation = {
   id: '66666666-6666-6666-6666-666666666666',
@@ -142,6 +150,7 @@ beforeAll(() => {
 
 afterEach(() => {
   cleanup()
+  vi.clearAllMocks()
   resetMockCheckInState()
   server.resetHandlers()
 })
@@ -151,16 +160,53 @@ afterAll(() => {
 })
 
 describe('Guest Portal (Task 08)', () => {
+  it('scopes the profile request to the signed-in mock guest', async () => {
+    const expectedFilter = 'eq.33333333-3333-3333-3333-333333333333'
+    let receivedFilter: string | null = null
+    const scopedGuest: Guest = {
+      id: '33333333-3333-3333-3333-333333333333',
+      email: 'jordan.cruz@example.com',
+      full_name: 'Jordan Cruz',
+      auth_user_id: '33333333-3333-3333-3333-333333333333',
+      created_at: '2026-09-05T08:00:00+08:00',
+      updated_at: '2026-09-05T08:00:00+08:00',
+    }
+    const unrelatedGuest: Guest = {
+      ...scopedGuest,
+      id: '33333333-3333-3333-3333-333333333334',
+      email: 'unrelated@example.com',
+      full_name: 'Unrelated Guest',
+      auth_user_id: '33333333-3333-3333-3333-333333333334',
+    }
+
+    server.use(
+      http.get('*/rest/v1/guests', ({ request }) => {
+        receivedFilter = new URL(request.url).searchParams.get('auth_user_id')
+        return HttpResponse.json(
+          receivedFilter === expectedFilter
+            ? [scopedGuest]
+            : [unrelatedGuest, scopedGuest],
+        )
+      }),
+    )
+
+    renderWithProviders(<GuestProfilePage />)
+
+    expect(await screen.findByDisplayValue('Jordan Cruz')).toBeInTheDocument()
+    expect(receivedFilter).toBe(expectedFilter)
+    expect(screen.queryByDisplayValue('Unrelated Guest')).not.toBeInTheDocument()
+  })
+
   it('renders the guest profile and saves the full name via mock PATCH', async () => {
     const user = userEvent.setup()
     renderWithProviders(<GuestProfilePage />)
 
     const nameInput = await screen.findByLabelText(/Full name/i)
-    expect(nameInput).toHaveValue('Maria Santos')
-    expect(screen.getByLabelText(/Email/i)).toHaveValue('guest@example.com')
+    expect(nameInput).toHaveValue('Jordan Cruz')
+    expect(screen.getByLabelText(/Email/i)).toHaveValue('jordan.cruz@example.com')
 
     await user.clear(nameInput)
-    await user.type(nameInput, 'Maria Santos-Cruz')
+    await user.type(nameInput, 'Jordan A. Cruz')
     await user.click(screen.getByRole('button', { name: /Save profile/i }))
 
     expect(
@@ -171,7 +217,17 @@ describe('Guest Portal (Task 08)', () => {
   it('renders my-invitations list with loading, success, empty, and error states', async () => {
     const first = renderWithProviders(<GuestInvitationsPage />)
 
-    expect(await screen.findByText('Your invitation')).toBeInTheDocument()
+    expect(await screen.findByText('Annual Gala 2026')).toBeInTheDocument()
+    expect(
+      screen.getByText(/Tuesday, December 15, 2026 at 6:00 PM/i),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Grand Ballroom · Cebu City')).toBeInTheDocument()
+    expect(
+      screen.queryByText(['Your', 'invitation'].join(' ')),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByText(['Open to view', 'event details'].join(' ')),
+    ).not.toBeInTheDocument()
     expect(screen.getByText('Accepted')).toBeInTheDocument()
     first.unmount()
 
@@ -202,6 +258,43 @@ describe('Guest Portal (Task 08)', () => {
       await screen.findByText('We could not load your invitations.'),
     ).toBeInTheDocument()
     errorRender.unmount()
+  })
+
+  it('opens an invitation while event discovery is still pending', async () => {
+    const user = userEvent.setup()
+    let release!: () => void
+    const pending = new Promise<void>((resolve) => { release = resolve })
+    server.use(http.get('*/rest/v1/events', async () => {
+      await pending
+      return HttpResponse.json([])
+    }))
+
+    try {
+      renderWithProviders(
+        <Routes>
+          <Route path="/guest" element={<GuestInvitationsPage />} />
+          <Route path={`/guest/invitations/${BASE_INVITATION.id}`} element={<p>Opened invitation</p>} />
+        </Routes>,
+      )
+      await user.click(await screen.findByRole('button', { name: 'Open invitation' }))
+      expect(await screen.findByText('Opened invitation')).toBeInTheDocument()
+    } finally {
+      release()
+    }
+  })
+
+  it('keeps invitations usable when public event details are unavailable', async () => {
+    server.use(
+      http.get('*/rest/v1/events', () => HttpResponse.json([])),
+    )
+
+    renderWithProviders(<GuestInvitationsPage />)
+
+    expect(await screen.findAllByText('Invitation')).not.toHaveLength(0)
+    expect(await screen.findByText('Event details unavailable')).toBeInTheDocument()
+    expect(
+      screen.getAllByRole('button', { name: 'Open invitation' }),
+    ).not.toHaveLength(0)
   })
 
   it('persists RSVP accept/decline via MSW and displays 422 validation errors inline', async () => {
@@ -420,6 +513,77 @@ describe('Guest Portal (Task 08)', () => {
     expect(screen.getByText(/Pass Used • Checked In/i)).toBeInTheDocument()
   })
 
+  it('emails the invitation QR bundle with pending and success feedback', async () => {
+    const user = userEvent.setup()
+    let requestBody: unknown
+    server.use(
+      http.get('*/rest/v1/attendees', () =>
+        HttpResponse.json(ROSTER_ATTENDEES),
+      ),
+      http.post('*/functions/v1/qr-bundle', async ({ request }) => {
+        requestBody = await request.json()
+        await delay(100)
+        return HttpResponse.json({
+          dispatched_count: 1,
+          invitation_ids: [BASE_INVITATION.id],
+        })
+      }),
+    )
+
+    renderWithProviders(<WalletPassView invitation={BASE_INVITATION} />)
+
+    await user.click(
+      await screen.findByRole('button', { name: 'Email me my QR pass' }),
+    )
+    expect(screen.getByRole('button', { name: 'Preparing…' })).toBeDisabled()
+
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith('QR pass sent to your email')
+    })
+    expect(requestBody).toEqual({ invitation_id: BASE_INVITATION.id })
+  })
+
+  it('shows an inline QR email error and retries the same invitation', async () => {
+    const user = userEvent.setup()
+    let attempts = 0
+    server.use(
+      http.get('*/rest/v1/attendees', () =>
+        HttpResponse.json(ROSTER_ATTENDEES),
+      ),
+      http.post('*/functions/v1/qr-bundle', async ({ request }) => {
+        attempts += 1
+        const body = (await request.json()) as { invitation_id?: string }
+        expect(body.invitation_id).toBe(BASE_INVITATION.id)
+        if (attempts === 1) {
+          return HttpResponse.json(
+            { code: '500', message: 'Dispatch failed', details: null, hint: null },
+            { status: 500 },
+          )
+        }
+        return HttpResponse.json({
+          dispatched_count: 1,
+          invitation_ids: [BASE_INVITATION.id],
+        })
+      }),
+    )
+
+    renderWithProviders(<WalletPassView invitation={BASE_INVITATION} />)
+
+    await user.click(
+      await screen.findByRole('button', { name: 'Email me my QR pass' }),
+    )
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'We couldn’t confirm delivery. Check your inbox before resending your QR pass.',
+    )
+
+    expect(screen.queryByRole('button', { name: 'Email me my QR pass' })).toBeNull()
+    await user.click(screen.getByRole('button', { name: 'Resend QR pass' }))
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith('QR pass sent to your email')
+    })
+    expect(attempts).toBe(2)
+  })
+
   it('renders the full InvitationDetailPage integrating RSVP, RosterEditor, and WalletPassView', async () => {
     renderWithProviders(
       <Routes>
@@ -432,15 +596,37 @@ describe('Guest Portal (Task 08)', () => {
     )
 
     expect(
-      await screen.findByRole('heading', { name: 'Your RSVP' }),
+      await screen.findByRole('heading', { level: 1, name: 'Annual Gala 2026' }),
     ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Your RSVP' }),
+    ).toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     expect(
       await screen.findByText('signed-qr-token-sample'),
     ).toBeInTheDocument()
-    expect(
-      (await screen.findAllByRole('heading', { name: 'Annual Gala 2026' })).length,
-    ).toBeGreaterThan(0)
     expect(screen.getByText(/Grand Ballroom · Cebu City/i)).toBeInTheDocument()
+  })
+
+  it('keeps one page heading when invitation event details are unavailable', async () => {
+    server.use(
+      http.get('*/rest/v1/events', () => HttpResponse.json([])),
+    )
+
+    renderWithProviders(
+      <Routes>
+        <Route
+          path="/guest/invitations/:invitationId"
+          element={<InvitationDetailPage />}
+        />
+      </Routes>,
+      [`/guest/invitations/${BASE_INVITATION.id}`],
+    )
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Invitation' }),
+    ).toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
   })
 
   it('shows declined and waitlisted invitation explanations', async () => {

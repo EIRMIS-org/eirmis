@@ -1,8 +1,9 @@
-import { QrCodeIcon } from 'lucide-react'
+import { MailIcon, QrCodeIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Event, Invitation } from '@/lib/api'
 import { WalletPass } from '@/components/eirmis/wallet-pass'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -13,6 +14,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { useListAttendees } from '@/features/organizer/hooks/use-list-attendees'
 import { useListEvents } from '@/features/organizer/hooks/use-list-events'
+import { useDispatchQr } from '@/features/guest/hooks/use-dispatch-qr'
 
 type InvitationMaybeWithEvent = Invitation & {
   events?: Event
@@ -44,6 +46,7 @@ export function WalletPassView({
 }) {
   const attendeesQuery = useListAttendees({ invitation_id: invitation.id })
   const eventsQuery = useListEvents()
+  const dispatchQr = useDispatchQr()
 
   const event =
     invitation.events ??
@@ -91,6 +94,13 @@ export function WalletPassView({
   const eventName = event?.title ?? 'Annual Gala 2026'
   const eventDate = formatEventDate(event)
   const eventLocation = formatEventLocation(event)
+  const emailQrPass = () => {
+    dispatchQr.mutate(invitation.id, {
+      onSuccess: () => {
+        toast.success('QR pass sent to your email')
+      },
+    })
+  }
 
   return (
     <section aria-label="Entry passes" className="space-y-4">
@@ -125,6 +135,7 @@ export function WalletPassView({
               )}
             </div>
             <WalletPass
+              className="[&>div:last-child]:hidden"
               eventName={eventName}
               eventDate={eventDate}
               eventLocation={eventLocation}
@@ -137,15 +148,36 @@ export function WalletPassView({
                     : 'Party Member'
               }
               ticketCode={attendee.qr_token ?? undefined}
-              onAddToWallet={() =>
-                toast.success(`Added ${attendee.full_name}'s pass to Wallet`)
-              }
-              onDownload={() =>
-                toast.success(`Saved PDF pass for ${attendee.full_name}`)
-              }
             />
           </div>
         ))}
+      </div>
+
+      <div className="space-y-3">
+        {!dispatchQr.isError && <Button
+          type="button"
+          className="w-full"
+          disabled={dispatchQr.isPending}
+          onClick={emailQrPass}
+        >
+          <MailIcon aria-hidden="true" />
+          {dispatchQr.isPending ? 'Preparing…' : 'Email me my QR pass'}
+        </Button>}
+        {dispatchQr.isError && (
+          <div className="space-y-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3">
+            <p role="alert" className="text-sm text-destructive">
+              We couldn’t confirm delivery. Check your inbox before resending your QR pass.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={emailQrPass}
+            >
+              Resend QR pass
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   )
