@@ -9,10 +9,35 @@
  * into real routes (task 04).
  */
 
+import { useEffect, useRef } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { useSession } from '@/app/providers/use-session'
 import { AppRouter } from '@/app/routing/app-router'
 
+export function SessionCacheGuard() {
+  const { role } = useSession()
+  const queryClient = useQueryClient()
+  const previousRoleRef = useRef(role)
+
+  useEffect(() => {
+    const previousRole = previousRoleRef.current
+    previousRoleRef.current = role
+
+    if (previousRole !== 'public' && role === 'public') {
+      queryClient.clear()
+    }
+  }, [queryClient, role])
+
+  return null
+}
+
 function App() {
-  return <AppRouter />
+  return (
+    <>
+      <SessionCacheGuard />
+      <AppRouter />
+    </>
+  )
 }
 
 export default App
