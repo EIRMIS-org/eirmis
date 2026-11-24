@@ -154,7 +154,7 @@ export function WalletPassView({
       </div>
 
       <div className="space-y-3">
-        <Button
+        {!dispatchQr.isError && <Button
           type="button"
           className="w-full"
           disabled={dispatchQr.isPending}
@@ -162,11 +162,11 @@ export function WalletPassView({
         >
           <MailIcon aria-hidden="true" />
           {dispatchQr.isPending ? 'Preparing…' : 'Email me my QR pass'}
-        </Button>
+        </Button>}
         {dispatchQr.isError && (
           <div className="space-y-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3">
             <p role="alert" className="text-sm text-destructive">
-              We could not email your QR pass. Please try again.
+              We couldn’t confirm delivery. Check your inbox before resending your QR pass.
             </p>
             <Button
               type="button"
@@ -174,7 +174,7 @@ export function WalletPassView({
               size="sm"
               onClick={emailQrPass}
             >
-              Try again
+              Resend QR pass
             </Button>
           </div>
         )}

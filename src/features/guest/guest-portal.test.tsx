@@ -550,10 +550,11 @@ describe('Guest Portal (Task 08)', () => {
       await screen.findByRole('button', { name: 'Email me my QR pass' }),
     )
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'We could not email your QR pass. Please try again.',
+      'We couldn’t confirm delivery. Check your inbox before resending your QR pass.',
     )
 
-    await user.click(screen.getByRole('button', { name: 'Try again' }))
+    expect(screen.queryByRole('button', { name: 'Email me my QR pass' })).toBeNull()
+    await user.click(screen.getByRole('button', { name: 'Resend QR pass' }))
     await waitFor(() => {
       expect(toast.success).toHaveBeenCalledWith('QR pass sent to your email')
     })
