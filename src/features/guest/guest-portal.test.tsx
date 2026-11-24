@@ -202,11 +202,11 @@ describe('Guest Portal (Task 08)', () => {
     renderWithProviders(<GuestProfilePage />)
 
     const nameInput = await screen.findByLabelText(/Full name/i)
-    expect(nameInput).toHaveValue('Maria Santos')
-    expect(screen.getByLabelText(/Email/i)).toHaveValue('guest@example.com')
+    expect(nameInput).toHaveValue('Jordan Cruz')
+    expect(screen.getByLabelText(/Email/i)).toHaveValue('jordan.cruz@example.com')
 
     await user.clear(nameInput)
-    await user.type(nameInput, 'Maria Santos-Cruz')
+    await user.type(nameInput, 'Jordan A. Cruz')
     await user.click(screen.getByRole('button', { name: /Save profile/i }))
 
     expect(
