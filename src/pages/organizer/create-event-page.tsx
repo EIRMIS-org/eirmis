@@ -5,10 +5,19 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import type { EventCreate } from '@/lib/api'
 import { ApiError } from '@/lib/api'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { useCreateEvent } from '@/features/organizer/hooks/use-create-event'
+import { useUnsavedChangesGuard } from '@/features/organizer/hooks/use-unsaved-changes-guard'
 import { eventCreateResolver } from '@/lib/forms'
 import { eventCreateSchema } from '@/lib/forms/schemas/event'
 import { z } from 'zod'
@@ -147,16 +156,21 @@ function CreateEventReviewStep({
   )
 }
 
+type PendingNavigation =
+  | { type: 'step'; step: number }
+  | { type: 'leave' }
+
 export function CreateEventPage() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [formError, setFormError] = useState<string>()
+  const [pendingNav, setPendingNav] = useState<PendingNavigation | null>(null)
   const createEvent = useCreateEvent()
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
   const step = getStep(searchParams)
   const {
     control,
-    formState: { errors },
+    formState: { errors, isDirty, dirtyFields },
     handleSubmit,
     register,
     trigger,
@@ -181,7 +195,15 @@ export function CreateEventPage() {
     },
   })
 
-  function setStep(nextStep: number) {
+  useUnsavedChangesGuard(isDirty)
+
+  const currentStepFields = STEP_FIELDS[step] ?? []
+  const isCurrentStepDirty =
+    isDirty &&
+    (currentStepFields.length === 0 ||
+      currentStepFields.some((field) => Boolean(dirtyFields[field])))
+
+  function applyStep(nextStep: number) {
     setFormError(undefined)
     setSearchParams((current) => {
       const next = new URLSearchParams(current)
@@ -190,9 +212,36 @@ export function CreateEventPage() {
     })
   }
 
+  function setStep(nextStep: number) {
+    if (isCurrentStepDirty || isDirty) {
+      setPendingNav({ type: 'step', step: nextStep })
+      return
+    }
+    applyStep(nextStep)
+  }
+
+  function handleBackToEvents() {
+    if (isDirty) {
+      setPendingNav({ type: 'leave' })
+      return
+    }
+    navigate('/organizer')
+  }
+
+  function confirmPendingNavigation() {
+    if (!pendingNav) return
+    const target = pendingNav
+    setPendingNav(null)
+    if (target.type === 'leave') {
+      navigate('/organizer')
+    } else {
+      applyStep(target.step)
+    }
+  }
+
   async function goNext() {
     if (step < 4 && (await trigger(STEP_FIELDS[step]))) {
-      setStep(step + 1)
+      applyStep(step + 1)
     }
   }
 
@@ -215,7 +264,7 @@ export function CreateEventPage() {
       <Button
         variant="ghost"
         className="mb-5 -ml-3"
-        onClick={() => navigate('/organizer')}
+        onClick={handleBackToEvents}
       >
         <ChevronLeft aria-hidden="true" />
         Back to events
@@ -496,19 +545,26 @@ export function CreateEventPage() {
             <CreateEventReviewStep control={control} formError={formError} />
           )}
 
-          <footer className="flex flex-wrap justify-between gap-3 border-t border-border pt-5">
-            {step > 1 ? (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setStep(step - 1)}
-              >
-                <ArrowLeft aria-hidden="true" />
-                Previous
-              </Button>
-            ) : (
-              <span />
-            )}
+          <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
+            <div className="flex items-center gap-3">
+              {step > 1 ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setStep(step - 1)}
+                >
+                  <ArrowLeft aria-hidden="true" />
+                  Previous
+                </Button>
+              ) : (
+                <span />
+              )}
+              {isDirty && (
+                <p role="status" className="text-xs font-medium text-warning">
+                  You have unsaved changes.
+                </p>
+              )}
+            </div>
             {step < 4 ? (
               <Button type="button" onClick={() => void goNext()}>
                 Continue
@@ -523,6 +579,40 @@ export function CreateEventPage() {
           </footer>
         </form>
       </section>
+
+      <Dialog
+        open={Boolean(pendingNav)}
+        onOpenChange={(open) => {
+          if (!open) setPendingNav(null)
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Leave with unsaved changes?</DialogTitle>
+            <DialogDescription>
+              {pendingNav?.type === 'leave'
+                ? 'You have unsaved changes in this event wizard. Leaving now will discard your draft progress.'
+                : 'You have unsaved changes on this step. Are you sure you want to navigate to another step?'}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setPendingNav(null)}
+            >
+              Stay on step
+            </Button>
+            <Button
+              type="button"
+              variant={pendingNav?.type === 'leave' ? 'destructive' : 'default'}
+              onClick={confirmPendingNavigation}
+            >
+              {pendingNav?.type === 'leave' ? 'Leave without saving' : 'Continue to step'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   )
 }
