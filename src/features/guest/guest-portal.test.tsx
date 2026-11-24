@@ -4,9 +4,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
 import userEvent from '@testing-library/user-event'
-import { http, HttpResponse } from 'msw'
+import { delay, http, HttpResponse } from 'msw'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { toast } from 'sonner'
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { SessionProvider } from '@/app/providers/session-context'
 import type { Attendee, Guest, Invitation } from '@/lib/api'
 import { resetMockCheckInState } from '@/mocks/handlers'
@@ -17,6 +18,13 @@ import { InvitationDetailPage } from '@/pages/guest/invitation-detail-page'
 import { RosterEditor } from './components/roster-editor'
 import { RsvpSection } from './components/rsvp-section'
 import { WalletPassView } from './components/wallet-pass-view'
+
+vi.mock('sonner', () => ({
+  toast: {
+    error: vi.fn(),
+    success: vi.fn(),
+  },
+}))
 
 const BASE_INVITATION: Invitation = {
   id: '66666666-6666-6666-6666-666666666666',
@@ -142,6 +150,7 @@ beforeAll(() => {
 
 afterEach(() => {
   cleanup()
+  vi.clearAllMocks()
   resetMockCheckInState()
   server.resetHandlers()
 })
@@ -477,6 +486,76 @@ describe('Guest Portal (Task 08)', () => {
       screen.getByText('EIRMIS-QR-0002-CRISOSTOMO-IBARRA'),
     ).toBeInTheDocument()
     expect(screen.getByText(/Pass Used • Checked In/i)).toBeInTheDocument()
+  })
+
+  it('emails the invitation QR bundle with pending and success feedback', async () => {
+    const user = userEvent.setup()
+    let requestBody: unknown
+    server.use(
+      http.get('*/rest/v1/attendees', () =>
+        HttpResponse.json(ROSTER_ATTENDEES),
+      ),
+      http.post('*/functions/v1/qr-bundle', async ({ request }) => {
+        requestBody = await request.json()
+        await delay(100)
+        return HttpResponse.json({
+          dispatched_count: 1,
+          invitation_ids: [BASE_INVITATION.id],
+        })
+      }),
+    )
+
+    renderWithProviders(<WalletPassView invitation={BASE_INVITATION} />)
+
+    await user.click(
+      await screen.findByRole('button', { name: 'Email me my QR pass' }),
+    )
+    expect(screen.getByRole('button', { name: 'Preparing…' })).toBeDisabled()
+
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith('QR pass sent to your email')
+    })
+    expect(requestBody).toEqual({ invitation_id: BASE_INVITATION.id })
+  })
+
+  it('shows an inline QR email error and retries the same invitation', async () => {
+    const user = userEvent.setup()
+    let attempts = 0
+    server.use(
+      http.get('*/rest/v1/attendees', () =>
+        HttpResponse.json(ROSTER_ATTENDEES),
+      ),
+      http.post('*/functions/v1/qr-bundle', async ({ request }) => {
+        attempts += 1
+        const body = (await request.json()) as { invitation_id?: string }
+        expect(body.invitation_id).toBe(BASE_INVITATION.id)
+        if (attempts === 1) {
+          return HttpResponse.json(
+            { code: '500', message: 'Dispatch failed', details: null, hint: null },
+            { status: 500 },
+          )
+        }
+        return HttpResponse.json({
+          dispatched_count: 1,
+          invitation_ids: [BASE_INVITATION.id],
+        })
+      }),
+    )
+
+    renderWithProviders(<WalletPassView invitation={BASE_INVITATION} />)
+
+    await user.click(
+      await screen.findByRole('button', { name: 'Email me my QR pass' }),
+    )
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'We could not email your QR pass. Please try again.',
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Try again' }))
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith('QR pass sent to your email')
+    })
+    expect(attempts).toBe(2)
   })
 
   it('renders the full InvitationDetailPage integrating RSVP, RosterEditor, and WalletPassView', async () => {
