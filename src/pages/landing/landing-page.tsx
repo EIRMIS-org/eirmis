@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { ArrowDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { PublicEventDiscovery } from '@/features/landing/components/public-event-discovery'
@@ -6,6 +8,20 @@ import { HeroBackdrop } from './components/hero-backdrop'
 import { HeroSignInCard } from './components/hero-signin-card'
 
 export function LandingPage() {
+  const location = useLocation()
+
+  // Another page (e.g. a portal header's "Sign in" button) navigated here
+  // with { state: { scrollTo } } — slide smoothly to that element, then
+  // clear the state so refreshes/back-navigation don't re-scroll.
+  useEffect(() => {
+    const targetId = (location.state as { scrollTo?: string } | null)?.scrollTo
+    if (!targetId) {
+      return
+    }
+    document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' })
+    window.history.replaceState({}, '')
+  }, [location.state])
+
   return (
     <>
       <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
