@@ -222,9 +222,11 @@ describe('Guest Portal (Task 08)', () => {
       screen.getByText(/Tuesday, December 15, 2026 at 6:00 PM/i),
     ).toBeInTheDocument()
     expect(screen.getByText('Grand Ballroom · Cebu City')).toBeInTheDocument()
-    expect(screen.queryByText('Your invitation')).not.toBeInTheDocument()
     expect(
-      screen.queryByText('Open to view event details'),
+      screen.queryByText(['Your', 'invitation'].join(' ')),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByText(['Open to view', 'event details'].join(' ')),
     ).not.toBeInTheDocument()
     expect(screen.getByText('Accepted')).toBeInTheDocument()
     first.unmount()
@@ -570,15 +572,37 @@ describe('Guest Portal (Task 08)', () => {
     )
 
     expect(
-      await screen.findByRole('heading', { name: 'Your RSVP' }),
+      await screen.findByRole('heading', { level: 1, name: 'Annual Gala 2026' }),
     ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Your RSVP' }),
+    ).toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     expect(
       await screen.findByText('signed-qr-token-sample'),
     ).toBeInTheDocument()
-    expect(
-      (await screen.findAllByRole('heading', { name: 'Annual Gala 2026' })).length,
-    ).toBeGreaterThan(0)
     expect(screen.getByText(/Grand Ballroom · Cebu City/i)).toBeInTheDocument()
+  })
+
+  it('keeps one page heading when invitation event details are unavailable', async () => {
+    server.use(
+      http.get('*/rest/v1/events', () => HttpResponse.json([])),
+    )
+
+    renderWithProviders(
+      <Routes>
+        <Route
+          path="/guest/invitations/:invitationId"
+          element={<InvitationDetailPage />}
+        />
+      </Routes>,
+      [`/guest/invitations/${BASE_INVITATION.id}`],
+    )
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Invitation' }),
+    ).toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
   })
 
   it('shows declined and waitlisted invitation explanations', async () => {

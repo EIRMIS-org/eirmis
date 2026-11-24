@@ -102,7 +102,7 @@ export function RosterEditor({ invitation }: { invitation: Invitation }) {
               <span>Party Roster</span>
             </CardTitle>
             <CardDescription>
-              Your invitation ceiling is{' '}
+              Your party ceiling is{' '}
               <strong className="font-semibold text-foreground">
                 {invitation.max_party_size}
               </strong>{' '}

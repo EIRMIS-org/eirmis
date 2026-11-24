@@ -56,14 +56,13 @@ export function InvitationDetailPage() {
       <Link to="/guest" className="text-sm font-medium text-primary hover:underline">
         ← Back to invitations
       </Link>
-      <h1 className="text-2xl font-semibold">Your RSVP</h1>
       <Card>
         <CardContent className="space-y-2 p-5">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Invitation details
           </p>
           <h1 className="text-2xl font-semibold">
-            {event?.title ?? 'Your invitation'}
+            {event?.title ?? 'Invitation'}
           </h1>
           {event && (
             <div className="space-y-1 text-sm text-muted-foreground">
@@ -81,6 +80,8 @@ export function InvitationDetailPage() {
           )}
         </CardContent>
       </Card>
+
+      <h2 className="text-xl font-semibold">Your RSVP</h2>
 
       {invitation.status === 'declined' && (
         <section
