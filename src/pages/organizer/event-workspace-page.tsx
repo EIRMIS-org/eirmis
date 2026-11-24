@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ActivityTab } from "@/features/organizer/components/activity-tab";
 import { ApprovalsTab } from "@/features/organizer/components/approvals-tab";
+import { AttendanceTab } from "@/features/organizer/components/attendance-tab";
 import { CheckInTab } from "@/features/organizer/components/checkin-tab";
 import { EditEventDialog } from "@/features/organizer/components/edit-event-dialog";
 import { GuestsTab } from "@/features/organizer/components/guests-tab";
@@ -26,6 +27,7 @@ import type { Event } from "@/lib/api";
 
 const TAB_VALUES = [
   "guests",
+  "attendance",
   "approvals",
   "qr",
   "reminders",
@@ -241,6 +243,7 @@ export function EventWorkspacePage() {
         >
           <TabsList className="flex flex-wrap">
             <TabsTrigger value="guests">Guests</TabsTrigger>
+            <TabsTrigger value="attendance">Attendance</TabsTrigger>
             <TabsTrigger value="approvals">Approvals</TabsTrigger>
             <TabsTrigger value="qr">QR dispatch</TabsTrigger>
             <TabsTrigger value="reminders">Reminders</TabsTrigger>
@@ -251,6 +254,10 @@ export function EventWorkspacePage() {
 
           <TabsContent value="guests" className="space-y-4">
             <GuestsTab eventId={eventId ?? ""} />
+          </TabsContent>
+
+          <TabsContent value="attendance" className="space-y-4">
+            <AttendanceTab eventId={eventId ?? ""} />
           </TabsContent>
 
           <TabsContent value="approvals" className="space-y-4">
