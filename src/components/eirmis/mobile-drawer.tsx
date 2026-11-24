@@ -1,6 +1,7 @@
 import * as React from 'react'
-import { X, LogOut, LogIn, ChevronRight, Layers } from 'lucide-react'
+import { X, LogOut, LogIn, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import eirmisLogo from '@/assets/eirmis_logo.png'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -149,9 +150,11 @@ export function MobileDrawer({
         {/* Drawer Header */}
         <div className="flex h-14 items-center justify-between border-b border-border px-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex size-7 items-center justify-center rounded-lg bg-primary text-white shadow-xs">
-              <Layers className="size-4" aria-hidden="true" />
-            </div>
+            <img
+              src={eirmisLogo}
+              alt=""
+              className="h-6 w-auto"
+            />
             <h2
               id={titleId}
               className="m-0 font-heading font-extrabold text-sm tracking-tight text-foreground"

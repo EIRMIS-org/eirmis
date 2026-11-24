@@ -1,6 +1,7 @@
 import * as React from 'react'
-import { Menu, LogIn, Layers, ChevronDown, LogOut } from 'lucide-react'
+import { Menu, LogIn, ChevronDown, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import eirmisLogo from '@/assets/eirmis_logo.png'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -81,14 +82,13 @@ export function GlobalNav({
               type="button"
               onClick={onBrandClick}
               aria-label={`${brandTitle} — Go to home`}
-              className="flex items-center gap-2.5 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="flex items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <div className="flex size-8 items-center justify-center rounded-xl bg-primary text-white shadow-xs transition-transform hover:scale-105">
-                <Layers className="size-4.5" aria-hidden="true" />
-              </div>
-              <span className="font-heading text-base font-extrabold tracking-tight text-foreground">
-                {brandTitle}
-              </span>
+              <img
+                src={eirmisLogo}
+                alt=""
+                className="h-7 w-auto sm:h-8"
+              />
             </button>
             {badgeText && (
               <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary select-none">
