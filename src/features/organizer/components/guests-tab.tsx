@@ -1,7 +1,16 @@
-import { AlertCircle, Pencil, Plus, RefreshCw } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  AlertCircle,
+  Download,
+  Pencil,
+  Plus,
+  RefreshCw,
+  Search,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,6 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -32,18 +42,40 @@ import { useListGuests } from "@/features/organizer/hooks/use-list-guests";
 import { useListInvitations } from "@/features/organizer/hooks/use-list-invitations";
 import { useUpdateInvitation } from "@/features/organizer/hooks/use-update-invitation";
 import type { Invitation, InvitationOrganizerUpdate } from "@/lib/api";
+import { qk } from "@/lib/api/query-keys";
+import { downloadCSV } from "@/lib/csv-export";
 import { FormRow, invitationOrganizerUpdateResolver } from "@/lib/forms";
 import { invitationOrganizerUpdateSchema } from "@/lib/forms/schemas/invitation";
 import { AddInvitationDialog } from "./add-invitation-dialog";
 
 type InvitationEditInput = z.input<typeof invitationOrganizerUpdateSchema>;
 
+const GUESTS_CSV_HEADERS = ["Name", "Email", "Status", "Max party"] as const;
+
+function statusVariant(status?: Invitation["status"] | "not invited") {
+  switch (status) {
+    case "accepted":
+      return "success" as const;
+    case "pending":
+    case "waitlisted":
+      return "warning" as const;
+    case "tentative":
+      return "info" as const;
+    case "declined":
+      return "secondary" as const;
+    default:
+      return "outline" as const;
+  }
+}
+
 export interface GuestsTabProps {
   eventId: string;
 }
 
 export function GuestsTab({ eventId }: GuestsTabProps) {
+  const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [editingInvitation, setEditingInvitation] =
     useState<Invitation | null>(null);
 
@@ -73,27 +105,88 @@ export function GuestsTab({ eventId }: GuestsTabProps) {
 
   const handleEditSubmit = (values: InvitationOrganizerUpdate) => {
     if (!editingInvitation) return;
+    const targetId = editingInvitation.id;
     updateInvitation.mutate(
       {
-        id: editingInvitation.id,
+        id: targetId,
         body: values,
       },
       {
-        onSuccess: () => {
+        onSuccess: (updated) => {
+          queryClient.setQueriesData<Invitation[]>(
+            { queryKey: qk.listInvitationsPrefix() },
+            (current) =>
+              current?.map((item) =>
+                item.id === targetId
+                  ? { ...item, ...(updated ?? {}), ...values }
+                  : item,
+              ),
+          );
           setEditingInvitation(null);
         },
       },
     );
   };
 
-  const guests = guestsQuery.data ?? [];
-  const invitations = invitationsQuery.data ?? [];
-  const invitationByGuestId = new Map(
-    invitations.map((invitation) => [invitation.guest_id, invitation]),
+  const guests = useMemo(() => guestsQuery.data ?? [], [guestsQuery.data]);
+  const invitations = useMemo(
+    () => invitationsQuery.data ?? [],
+    [invitationsQuery.data],
   );
-  const eventGuests = guests.filter((guest) =>
-    invitationByGuestId.has(guest.id),
+
+  const invitationByGuestId = useMemo(
+    () =>
+      new Map(
+        invitations.map((invitation) => [invitation.guest_id, invitation]),
+      ),
+    [invitations],
   );
+
+  const guestsByGuestId = useMemo(
+    () => new Map(guests.map((guest) => [guest.id, guest])),
+    [guests],
+  );
+
+  const eventGuests = useMemo(
+    () => guests.filter((guest) => invitationByGuestId.has(guest.id)),
+    [guests, invitationByGuestId],
+  );
+
+  const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
+  const hasSearchFilter = Boolean(normalizedQuery);
+
+  const filteredGuests = useMemo(() => {
+    if (!normalizedQuery) return eventGuests;
+    return eventGuests.filter((guest) =>
+      [guest.full_name, guest.email]
+        .filter(Boolean)
+        .some((value) => value?.toLocaleLowerCase().includes(normalizedQuery)),
+    );
+  }, [eventGuests, normalizedQuery]);
+
+  const filteredInvitations = useMemo(() => {
+    if (!normalizedQuery) return invitations;
+    return invitations.filter((invitation) => {
+      const guest = guestsByGuestId.get(invitation.guest_id);
+      return [guest?.full_name, guest?.email]
+        .filter(Boolean)
+        .some((value) => value?.toLocaleLowerCase().includes(normalizedQuery));
+    });
+  }, [invitations, guestsByGuestId, normalizedQuery]);
+
+  const handleExportCsv = () => {
+    if (filteredGuests.length === 0) return;
+    const rows = filteredGuests.map((guest) => {
+      const invitation = invitationByGuestId.get(guest.id);
+      return [
+        guest.full_name ?? "Guest",
+        guest.email ?? "No email",
+        invitation?.status ?? "not invited",
+        invitation?.max_party_size ?? 1,
+      ];
+    });
+    downloadCSV(`event-${eventId}-guests`, GUESTS_CSV_HEADERS, rows);
+  };
 
   const renderGuestsState = () => {
     if (guestsQuery.isPending) {
@@ -144,8 +237,9 @@ export function GuestsTab({ eventId }: GuestsTabProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {eventGuests.map((guest) => {
+          {filteredGuests.map((guest) => {
             const invitation = invitationByGuestId.get(guest.id);
+            const status = invitation?.status ?? "not invited";
 
             return (
               <TableRow key={guest.id}>
@@ -153,11 +247,23 @@ export function GuestsTab({ eventId }: GuestsTabProps) {
                   {guest.full_name ?? "Guest"}
                 </TableCell>
                 <TableCell>{guest.email ?? "No email"}</TableCell>
-                <TableCell>{invitation?.status ?? "not invited"}</TableCell>
+                <TableCell>
+                  <Badge variant={statusVariant(status)}>{status}</Badge>
+                </TableCell>
                 <TableCell>{invitation?.max_party_size ?? 1}</TableCell>
               </TableRow>
             );
           })}
+          {filteredGuests.length === 0 && (
+            <TableRow>
+              <TableCell
+                colSpan={4}
+                className="h-24 text-center text-muted-foreground"
+              >
+                No guests match your search.
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     );
@@ -193,7 +299,6 @@ export function GuestsTab({ eventId }: GuestsTabProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Invitation</TableHead>
             <TableHead>Guest</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Max party</TableHead>
@@ -201,27 +306,48 @@ export function GuestsTab({ eventId }: GuestsTabProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {invitations.map((invitation) => (
-            <TableRow key={invitation.id}>
-              <TableCell className="font-medium text-foreground">
-                {invitation.id.slice(0, 8)}
-              </TableCell>
-              <TableCell>{invitation.guest_id ?? "Unknown guest"}</TableCell>
-              <TableCell>{invitation.status ?? "pending"}</TableCell>
-              <TableCell>{invitation.max_party_size ?? 1}</TableCell>
-              <TableCell className="text-right">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setEditingInvitation(invitation)}
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                  Edit
-                </Button>
+          {filteredInvitations.map((invitation) => {
+            const guest = guestsByGuestId.get(invitation.guest_id);
+            const status = invitation.status ?? "pending";
+
+            return (
+              <TableRow key={invitation.id}>
+                <TableCell>
+                  <div className="font-medium text-foreground">
+                    {guest?.full_name ?? "Guest"}
+                  </div>
+                  <div className="mt-0.5 font-mono text-xs text-muted-foreground">
+                    {invitation.id.slice(0, 8)}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge variant={statusVariant(status)}>{status}</Badge>
+                </TableCell>
+                <TableCell>{invitation.max_party_size ?? 1}</TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setEditingInvitation(invitation)}
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                    Edit
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+          {filteredInvitations.length === 0 && (
+            <TableRow>
+              <TableCell
+                colSpan={4}
+                className="h-24 text-center text-muted-foreground"
+              >
+                No invitations match your search.
               </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     );
@@ -230,19 +356,65 @@ export function GuestsTab({ eventId }: GuestsTabProps) {
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-3">
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
           <div>
             <CardTitle>Guest roster</CardTitle>
             <CardDescription>
               People invited to this event and their current status.
             </CardDescription>
+            {!guestsQuery.isPending && !guestsQuery.isError && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                {eventGuests.length}{" "}
+                {eventGuests.length === 1 ? "guest" : "guests"}
+                {hasSearchFilter ? ` (${filteredGuests.length} matching)` : ""}
+              </p>
+            )}
           </div>
-          <Button onClick={() => setIsDialogOpen(true)}>
-            <Plus className="h-4 w-4" />
-            Add Invitation
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleExportCsv}
+              disabled={
+                guestsQuery.isPending ||
+                guestsQuery.isError ||
+                filteredGuests.length === 0
+              }
+            >
+              <Download className="h-4 w-4" />
+              Export CSV
+            </Button>
+            <Button onClick={() => setIsDialogOpen(true)}>
+              <Plus className="h-4 w-4" />
+              Add Invitation
+            </Button>
+          </div>
         </CardHeader>
-        <CardContent>{renderGuestsState()}</CardContent>
+        <CardContent className="space-y-4">
+          <div
+            role="search"
+            aria-label="Filter event guests"
+            className="relative"
+          >
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <Input
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search by name or email"
+              aria-label="Search guests by name or email"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="none"
+              spellCheck={false}
+              className="pl-9"
+            />
+          </div>
+          {renderGuestsState()}
+        </CardContent>
       </Card>
 
       <Card>
