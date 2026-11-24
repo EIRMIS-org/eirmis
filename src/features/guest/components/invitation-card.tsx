@@ -16,9 +16,11 @@ const statusLabels: Record<Invitation['status'], string> = {
 export function InvitationCard({
   invitation,
   event,
+  loadingEvent = false,
 }: {
   invitation: Invitation
   event?: Event
+  loadingEvent?: boolean
 }) {
   const navigate = useNavigate()
   const formattedDate = event
@@ -46,7 +48,7 @@ export function InvitationCard({
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <CalendarDaysIcon className="size-4 shrink-0" aria-hidden="true" />
-            <span>{formattedDate ?? 'Event details unavailable'}</span>
+            <span>{formattedDate ?? (loadingEvent ? 'Loading event details…' : 'Event details unavailable')}</span>
           </div>
           {location && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">

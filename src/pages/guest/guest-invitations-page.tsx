@@ -14,7 +14,7 @@ export function GuestInvitationsPage() {
     [events.data],
   )
 
-  if (invitations.isLoading || events.isLoading) {
+  if (invitations.isLoading) {
     return (
       <main className="mx-auto w-full max-w-lg space-y-4 p-4">
         <Skeleton className="h-8 w-40" />
@@ -60,6 +60,7 @@ export function GuestInvitationsPage() {
               key={invitation.id}
               invitation={invitation}
               event={eventsById.get(invitation.event_id)}
+              loadingEvent={events.isLoading}
             />
           ))}
         </div>

@@ -260,6 +260,29 @@ describe('Guest Portal (Task 08)', () => {
     errorRender.unmount()
   })
 
+  it('opens an invitation while event discovery is still pending', async () => {
+    const user = userEvent.setup()
+    let release!: () => void
+    const pending = new Promise<void>((resolve) => { release = resolve })
+    server.use(http.get('*/rest/v1/events', async () => {
+      await pending
+      return HttpResponse.json([])
+    }))
+
+    try {
+      renderWithProviders(
+        <Routes>
+          <Route path="/guest" element={<GuestInvitationsPage />} />
+          <Route path={`/guest/invitations/${BASE_INVITATION.id}`} element={<p>Opened invitation</p>} />
+        </Routes>,
+      )
+      await user.click(await screen.findByRole('button', { name: 'Open invitation' }))
+      expect(await screen.findByText('Opened invitation')).toBeInTheDocument()
+    } finally {
+      release()
+    }
+  })
+
   it('keeps invitations usable when public event details are unavailable', async () => {
     server.use(
       http.get('*/rest/v1/events', () => HttpResponse.json([])),
@@ -268,7 +291,7 @@ describe('Guest Portal (Task 08)', () => {
     renderWithProviders(<GuestInvitationsPage />)
 
     expect(await screen.findAllByText('Invitation')).not.toHaveLength(0)
-    expect(screen.getAllByText('Event details unavailable')).not.toHaveLength(0)
+    expect(await screen.findByText('Event details unavailable')).toBeInTheDocument()
     expect(
       screen.getAllByRole('button', { name: 'Open invitation' }),
     ).not.toHaveLength(0)
