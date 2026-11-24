@@ -1,4 +1,5 @@
 import { Link, useParams } from 'react-router-dom'
+import { UserIcon } from 'lucide-react'
 import { useMyInvitations } from '@/features/guest/hooks/use-my-invitations'
 import { RosterEditor } from '@/features/guest/components/roster-editor'
 import { RsvpSection } from '@/features/guest/components/rsvp-section'
@@ -53,9 +54,18 @@ export function InvitationDetailPage() {
 
   return (
     <main className="mx-auto w-full max-w-lg space-y-6 p-4">
-      <Link to="/guest" className="text-sm font-medium text-primary hover:underline">
-        ← Back to invitations
-      </Link>
+      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <Link to="/guest" className="text-sm font-medium text-primary hover:underline">
+          ← Back to invitations
+        </Link>
+        <Link
+          to="/guest/profile"
+          className="inline-flex h-8 items-center gap-1.5 rounded-2xl border border-border px-3 text-sm font-medium hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          <UserIcon className="size-3.5" aria-hidden="true" />
+          <span>Profile</span>
+        </Link>
+      </header>
       <Card>
         <CardContent className="space-y-2 p-5">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">

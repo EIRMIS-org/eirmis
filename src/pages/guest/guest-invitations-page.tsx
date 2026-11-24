@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { UserIcon } from 'lucide-react'
 import { useMyInvitations } from '@/features/guest/hooks/use-my-invitations'
 import { InvitationCard } from '@/features/guest/components/invitation-card'
 import { Button } from '@/components/ui/button'
@@ -42,9 +43,18 @@ export function GuestInvitationsPage() {
 
   return (
     <main className="mx-auto w-full max-w-lg space-y-6 p-4">
-      <header>
-        <p className="text-sm font-medium text-muted-foreground">Guest portal</p>
-        <h1 className="text-2xl font-semibold">My invitations</h1>
+      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Guest portal</p>
+          <h1 className="text-2xl font-semibold">My invitations</h1>
+        </div>
+        <Link
+          to="/guest/profile"
+          className="inline-flex h-8 items-center gap-1.5 rounded-2xl border border-border px-3 text-sm font-medium hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          <UserIcon className="size-3.5" aria-hidden="true" />
+          <span>Profile</span>
+        </Link>
       </header>
       {invitationList.length === 0 ? (
         <section className="rounded-2xl border border-dashed p-6 text-center">
