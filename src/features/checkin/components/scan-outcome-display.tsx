@@ -32,10 +32,13 @@ export function ScanOutcomeDisplay({
 
     if (data.status === 'resolving') {
         return (
-            <div className="flex items-center justify-center gap-3 rounded-2xl border border-border bg-surface p-6 shadow-xs">
+            <div
+                role="status"
+                className="flex items-center justify-center gap-3 rounded-2xl border border-border bg-surface p-6 shadow-xs"
+            >
                 <div className="size-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                 <span className="text-sm font-medium text-foreground">
-                    Calling POST /functions/v1/checkin/scan...
+                    Verifying ticket…
                 </span>
             </div>
         )
