@@ -1,6 +1,8 @@
 import * as React from 'react'
-import { Menu, LogIn, Layers, ChevronDown, LogOut } from 'lucide-react'
+import { Menu, LogIn, ChevronDown, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import eirmisLogo from '@/assets/eirmis_logo.png'
+import eirmisLogoDark from '@/assets/eirmis_logo_darkmode.png'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -81,14 +83,19 @@ export function GlobalNav({
               type="button"
               onClick={onBrandClick}
               aria-label={`${brandTitle} — Go to home`}
-              className="flex items-center gap-2.5 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="flex items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <div className="flex size-8 items-center justify-center rounded-xl bg-primary text-white shadow-xs transition-transform hover:scale-105">
-                <Layers className="size-4.5" aria-hidden="true" />
-              </div>
-              <span className="font-heading text-base font-extrabold tracking-tight text-foreground">
-                {brandTitle}
-              </span>
+              {/* Light logo in light mode, dark-mode variant in dark mode. */}
+              <img
+                src={eirmisLogo}
+                alt=""
+                className="h-7 w-auto sm:h-8 dark:hidden"
+              />
+              <img
+                src={eirmisLogoDark}
+                alt=""
+                className="hidden h-7 w-auto sm:h-8 dark:block"
+              />
             </button>
             {badgeText && (
               <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary select-none">
@@ -97,31 +104,33 @@ export function GlobalNav({
             )}
           </div>
 
-          {/* Desktop Navigation Links */}
-          <nav
-            aria-label="Primary"
-            className="hidden md:flex items-center gap-1 overflow-x-auto scrollbar-none py-1"
-          >
-            {portals.map((portal) => {
-              const isActive = activePortal === portal.id
-              return (
-                <button
-                  key={portal.id}
-                  type="button"
-                  aria-current={isActive ? 'page' : undefined}
-                  onClick={() => onPortalSelect?.(portal.id)}
-                  className={cn(
-                    'rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
-                    isActive
-                      ? 'border border-primary/25 bg-primary/10 text-primary font-bold shadow-2xs'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                  )}
-                >
-                  {portal.label}
-                </button>
-              )
-            })}
-          </nav>
+          {/* Desktop Navigation Links (omitted when no portals are provided) */}
+          {portals.length > 0 && (
+            <nav
+              aria-label="Primary"
+              className="hidden md:flex items-center gap-1 overflow-x-auto scrollbar-none py-1"
+            >
+              {portals.map((portal) => {
+                const isActive = activePortal === portal.id
+                return (
+                  <button
+                    key={portal.id}
+                    type="button"
+                    aria-current={isActive ? 'page' : undefined}
+                    onClick={() => onPortalSelect?.(portal.id)}
+                    className={cn(
+                      'rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
+                      isActive
+                        ? 'border border-primary/25 bg-primary/10 text-primary font-bold shadow-2xs'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    )}
+                  >
+                    {portal.label}
+                  </button>
+                )
+              })}
+            </nav>
+          )}
 
           {/* Right Session Pill & Mobile Hamburger */}
           <div className="flex items-center gap-2 shrink-0">

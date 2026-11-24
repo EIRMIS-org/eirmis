@@ -14,22 +14,14 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useSession } from '@/app/providers/use-session'
 import { GlobalNav } from '@/components/eirmis/global-nav'
 
-/** Portal nav ids -> the routes Task 04 owns. */
-const PORTAL_ROUTES: Record<string, string> = {
-    hub: '/',
-    organizer: '/organizer',
-    admin: '/admin',
-    guest: '/guest',
-    staff: '/staff',
-}
-
 export interface AppChromeProps {
     /** Which nav item is highlighted (hub | organizer | guest | staff | admin). */
     activePortal: string
 }
 
 export function AppChrome({ activePortal }: AppChromeProps) {
-    const { pathname, hash } = useLocation()
+    const location = useLocation()
+    const { pathname, hash } = location
     const navigate = useNavigate()
     const { role, profile, isAuthenticated, signOut } = useSession()
 
@@ -42,14 +34,20 @@ export function AppChrome({ activePortal }: AppChromeProps) {
                 return
             }
         }
+        // A child page requested the scroll target (e.g. the landing
+        // sign-in card slides into view) — don't jump to the top.
+        if (location.state && typeof location.state === 'object' && 'scrollTo' in location.state) {
+            return
+        }
         window.scrollTo(0, 0)
-    }, [pathname, hash])
+    }, [pathname, hash, location.state])
 
     return (
         <div className="flex min-h-screen flex-col bg-background">
+            {/* portals=[] hides the role switcher; roles are chosen on the landing page. */}
             <GlobalNav
                 activePortal={activePortal}
-                onPortalSelect={(id) => navigate(PORTAL_ROUTES[id] ?? '/')}
+                portals={[]}
                 onBrandClick={() => navigate('/')}
                 user={
                     isAuthenticated && profile
@@ -61,7 +59,9 @@ export function AppChrome({ activePortal }: AppChromeProps) {
                         : null
                 }
                 onSignOut={isAuthenticated ? () => signOut() : undefined}
-                onSignIn={() => navigate('/')}
+                // Go to the landing page; it slides to the sign-in card
+                // (router state, so the URL stays clean at "/").
+                onSignIn={() => navigate('/', { state: { scrollTo: 'sign-in' } })}
             />
             <Outlet />
         </div>

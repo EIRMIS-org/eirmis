@@ -1,35 +1,34 @@
-import { useRef, useState } from 'react'
-import { CalendarDays, MapPin, Sparkles } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useDiscoverPublicEvents } from '@/features/landing/hooks/use-discover-public-events'
 import type { Event } from '@/lib/api'
 import heroEventImage from '@/assets/hero-carousel-1.webp'
-import { PublicEventDrawer } from './public-event-drawer'
 
-function EventCard({
-  event,
-  onSelect,
-}: {
-  event: Event
-  onSelect: (event: Event, trigger: HTMLButtonElement) => void
-}) {
+function EventCard({ event }: { event: Event }) {
+  const startDate = new Date(event.starts_at)
+
   return (
-    <article className="overflow-hidden rounded-2xl border border-border/80 bg-surface shadow-xs transition-all hover:-translate-y-1 hover:shadow-md focus-within:-translate-y-1 focus-within:shadow-md">
-      <button
-        type="button"
+    <article className="overflow-hidden rounded-2xl border border-border/80 bg-surface shadow-xs transition-shadow hover:shadow-md focus-within:shadow-md">
+      <Link
+        to={`/register/${event.slug}`}
         className="block w-full rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
-        onClick={(e) => onSelect(event, e.currentTarget)}
       >
         <div className="relative aspect-[16/9] overflow-hidden bg-muted">
           <img
             src={event.cover_image_url || heroEventImage}
             alt=""
-            className="size-full object-cover transition-transform duration-300 hover:scale-105"
+            className="size-full object-cover"
           />
-          <span className="absolute left-3 top-3 rounded-full border border-white/30 bg-black/55 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-sm">
-            Open registration
-          </span>
+          <div className="absolute left-3 top-3 flex size-12 flex-col items-center justify-center rounded-lg bg-white text-center shadow-md">
+            <span className="text-[9px] font-bold uppercase tracking-wider text-teal-700">
+              {startDate.toLocaleDateString(undefined, { month: 'short' })}
+            </span>
+            <span className="text-base font-extrabold leading-none text-slate-900">
+              {startDate.getDate()}
+            </span>
+          </div>
         </div>
         <div className="p-4">
           <h3 className="font-heading text-base font-bold text-foreground">
@@ -38,43 +37,19 @@ function EventCard({
           <p className="mt-1 line-clamp-2 min-h-9 text-xs leading-relaxed text-muted-foreground">
             {event.description || 'Join us for this upcoming event.'}
           </p>
-          <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-[11px] text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5">
-              <CalendarDays className="size-3.5 text-primary" aria-hidden="true" />
-              {new Date(event.starts_at).toLocaleDateString(undefined, {
-                dateStyle: 'medium',
-              })}
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <MapPin className="size-3.5 text-primary" aria-hidden="true" />
-              {[event.venue_name, event.city].filter(Boolean).join(', ') ||
-                'Location to be announced'}
-            </span>
-          </div>
+          <p className="mt-4 inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <MapPin className="size-3.5 text-primary" aria-hidden="true" />
+            {[event.venue_name, event.city].filter(Boolean).join(', ') ||
+              'Location to be announced'}
+          </p>
         </div>
-      </button>
+      </Link>
     </article>
   )
 }
 
 export function PublicEventDiscovery() {
   const eventsQuery = useDiscoverPublicEvents()
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
-  const triggerRef = useRef<HTMLButtonElement | null>(null)
-
-  const handleSelectEvent = (event: Event, trigger: HTMLButtonElement) => {
-    triggerRef.current = trigger
-    setSelectedEvent(event)
-  }
-
-  const handleDrawerOpenChange = (open: boolean) => {
-    if (!open) {
-      setSelectedEvent(null)
-      const returnTarget = triggerRef.current
-      triggerRef.current = null
-      queueMicrotask(() => returnTarget?.focus())
-    }
-  }
 
   return (
     <section
@@ -85,13 +60,9 @@ export function PublicEventDiscovery() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
-              <Sparkles className="size-3.5" aria-hidden="true" />
-              Discover
-            </p>
             <h2
               id="public-events-heading"
-              className="mt-2 font-heading text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl"
+              className="font-heading text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl"
             >
               Events open to everyone
             </h2>
@@ -112,10 +83,10 @@ export function PublicEventDiscovery() {
         {eventsQuery.isPending ? (
           <div
             aria-busy="true"
-            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            className="grid gap-4 sm:grid-cols-2"
           >
             <span className="sr-only">Loading public events…</span>
-            {Array.from({ length: 3 }, (_, index) => (
+            {Array.from({ length: 4 }, (_, index) => (
               <div
                 key={index}
                 className="overflow-hidden rounded-2xl border border-border bg-surface"
@@ -154,7 +125,7 @@ export function PublicEventDiscovery() {
           </div>
         ) : (eventsQuery.data?.length ?? 0) === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-surface/70 px-6 py-14 text-center">
-            <CalendarDays
+            <MapPin
               className="mx-auto size-8 text-muted-foreground"
               aria-hidden="true"
             />
@@ -166,26 +137,15 @@ export function PublicEventDiscovery() {
             </p>
           </div>
         ) : (
-          <ul className="grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid list-none gap-4 p-0 sm:grid-cols-2">
             {eventsQuery.data?.map((event) => (
               <li key={event.id}>
-                <EventCard
-                  event={event}
-                  onSelect={handleSelectEvent}
-                />
+                <EventCard event={event} />
               </li>
             ))}
           </ul>
         )}
       </div>
-
-      {selectedEvent && (
-        <PublicEventDrawer
-          event={selectedEvent}
-          open
-          onOpenChange={handleDrawerOpenChange}
-        />
-      )}
     </section>
   )
 }
