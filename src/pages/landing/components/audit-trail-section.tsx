@@ -1,32 +1,45 @@
-import { MailCheck, ShieldCheck, ScanLine } from 'lucide-react'
+import landingInvitation from '@/assets/landing_invitation.webp'
+import landingQr from '@/assets/landing_qr.webp'
+import landingRsvp from '@/assets/landing_rsvp.webp'
 
 const PROOF_STEPS = [
     {
-        icon: MailCheck,
         step: '01',
         title: 'Invitation sent',
         description:
             'The organizer dispatches invitations; every send is logged with a timestamp and recipient.',
+        image: landingInvitation,
+        alt: 'Illustration of a guest holding up an envelope sealed with a heart',
+        width: 1120,
+        height: 1120,
     },
     {
-        icon: ShieldCheck,
         step: '02',
         title: 'RSVP approved',
         description:
             'Guests respond online; the organizer approves, waitlists, or declines — each decision recorded.',
+        image: landingRsvp,
+        alt: 'Illustration of a guest giving a thumbs-up next to an approved shield badge',
+        width: 1120,
+        height: 1120,
     },
     {
-        icon: ScanLine,
         step: '03',
         title: 'QR scanned at the door',
         description:
             'One pass per guest, verified in real time. Entrance counts stay reconciled with the approved list.',
+        image: landingQr,
+        alt: 'Illustration of a guest scanning a QR pass with a phone at the entrance',
+        width: 1120,
+        height: 1493,
     },
 ]
 
 /**
  * Proof section: a three-step visual of the invitation → RSVP → check-in
- * pipeline, emphasizing the audit trail recorded at each step.
+ * pipeline, emphasizing the audit trail recorded at each step. Each step is
+ * a full-width row with the illustration alternating sides on desktop
+ * (left, right, left) and stacking image-first on mobile.
  */
 export function AuditTrailSection() {
     return (
@@ -47,32 +60,50 @@ export function AuditTrailSection() {
                     data, not memory.
                 </p>
 
-                <ol className="mt-10 grid list-none gap-8 p-0 md:grid-cols-3 md:gap-6">
+                <ol className="mt-10 list-none space-y-12 p-0 sm:space-y-16">
                     {PROOF_STEPS.map((step, index) => {
-                        const Icon = step.icon
+                        const imageRight = index % 2 === 1
 
                         return (
-                            <li key={step.step} className="relative">
-                                {index < PROOF_STEPS.length - 1 && (
-                                    <div
-                                        aria-hidden="true"
-                                        className="absolute left-12 top-6 hidden h-px w-[calc(100%-3rem)] border-t border-dashed border-border md:block"
+                            <li
+                                key={step.step}
+                                className="grid items-center gap-4 md:grid-cols-2 md:gap-8"
+                            >
+                                <div
+                                    className={
+                                        imageRight
+                                            ? 'flex justify-center md:order-2 md:justify-start'
+                                            : 'flex justify-center md:justify-end'
+                                    }
+                                >
+                                    <img
+                                        src={step.image}
+                                        alt={step.alt}
+                                        width={step.width}
+                                        height={step.height}
+                                        loading="lazy"
+                                        decoding="async"
+                                        className="h-auto max-h-64 w-auto max-w-full sm:max-h-80 md:max-h-[22rem]"
                                     />
-                                )}
-                                <div className="flex items-center gap-3">
-                                    <span className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-primary-border bg-primary-subtle text-primary">
-                                        <Icon className="size-5" aria-hidden="true" />
-                                    </span>
-                                    <span className="font-heading text-xs font-bold tracking-widest text-muted-foreground">
+                                </div>
+                                <div
+                                    className={
+                                        imageRight ? 'md:order-1 md:text-right' : undefined
+                                    }
+                                >
+                                    <span className="inline-flex items-center rounded-full border border-primary-border bg-primary-subtle px-3 py-1 font-heading text-xs font-bold tracking-widest text-primary">
                                         {step.step}
                                     </span>
+                                    <h3 className="mt-3 font-heading text-lg font-bold text-foreground sm:text-xl">
+                                        {step.title}
+                                    </h3>
+                                    <p
+                                        className={`mt-2 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base ${imageRight ? 'md:ml-auto' : ''
+                                            }`}
+                                    >
+                                        {step.description}
+                                    </p>
                                 </div>
-                                <h3 className="mt-4 font-heading text-base font-bold text-foreground">
-                                    {step.title}
-                                </h3>
-                                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                                    {step.description}
-                                </p>
                             </li>
                         )
                     })}
