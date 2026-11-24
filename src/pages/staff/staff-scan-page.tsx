@@ -3,37 +3,36 @@
  *
  * Task 09 — Check-in Staff Portal (Index Route: /staff)
  *
- * Scoped scanning screen satisfying Steps 1-3 plus check-in hardening:
- * 1. Assigned-event header via useAssignedEvent (with actionable empty-assignment guidance).
- * 2. Scan-result state machine + session scan log (persisted in sessionStorage).
- * 3. Wires useScanCheckIn → machine transitions; 5 simulate buttons that hit the API.
+ * Scoped scanning screen:
+ * 1. Assigned event derived from `checkin_assignments` via `useMyAssignment`
+ *    (handles zero, one, or many active assignments).
+ * 2. Read-only attendance summary panel (expected vs. checked-in vs. capacity).
+ * 3. Scan-result state machine + capped session scan log (persisted in sessionStorage).
  */
 
-import { useEffect, useMemo, useReducer } from 'react'
+import { useEffect, useReducer } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AlertCircleIcon, SearchIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { AssignedEventHeader } from '@/features/checkin/components/assigned-event-header'
+import { AssignmentPicker } from '@/features/checkin/components/assignment-picker'
+import { AttendanceSummary } from '@/features/checkin/components/attendance-summary'
 import { ScanOutcomeDisplay } from '@/features/checkin/components/scan-outcome-display'
 import { ScanSessionLog } from '@/features/checkin/components/scan-session-log'
 import { ScanSimulator } from '@/features/checkin/components/scan-simulator'
 import { useAssignedEvent } from '@/features/checkin/hooks/use-assigned-event'
+import { useAttendanceSummary } from '@/features/checkin/hooks/use-attendance-summary'
+import { useMyAssignment } from '@/features/checkin/hooks/use-my-assignment'
 import {
+    capScanSessionLog,
     initialScanSessionState,
     isScanLogOutcome,
     scanSessionReducer,
     type ScanSessionLogEntry,
     type ScanSessionState,
 } from '@/features/checkin/lib/scan-result-machine'
-import { useListAttendees } from '@/features/organizer/hooks/use-list-attendees'
-import { useListInvitations } from '@/features/organizer/hooks/use-list-invitations'
-
-const DEFAULT_EVENT_ID = '55555555-5555-5555-5555-555555555555'
-
-export interface StaffScanPageProps {
-    eventId?: string
-}
 
 function getSessionLogStorageKey(eventId: string): string {
     return `eirmis:staff-scan-log:${eventId}`
@@ -63,14 +62,14 @@ function loadInitialScanSessionState(storageKey: string): ScanSessionState {
         if (!Array.isArray(parsed)) return initialScanSessionState
         return {
             ...initialScanSessionState,
-            log: parsed.filter(isValidLogEntry),
+            log: capScanSessionLog(parsed.filter(isValidLogEntry)),
         }
     } catch {
         return initialScanSessionState
     }
 }
 
-export function StaffScanPage({ eventId = DEFAULT_EVENT_ID }: StaffScanPageProps) {
+function ScanWorkspace({ eventId }: { eventId: string }) {
     const navigate = useNavigate()
     const storageKey = getSessionLogStorageKey(eventId)
     const [sessionState, dispatch] = useReducer(
@@ -78,26 +77,6 @@ export function StaffScanPage({ eventId = DEFAULT_EVENT_ID }: StaffScanPageProps
         storageKey,
         loadInitialScanSessionState,
     )
-
-    const {
-        data: assignedEvents,
-        isLoading: isAssignmentLoading,
-        isError: isAssignmentError,
-    } = useAssignedEvent(eventId)
-    const assignedEvent = assignedEvents?.[0]
-
-    const invitationsQuery = useListInvitations({ event_id: `eq.${assignedEvent?.id ?? eventId}` })
-    const { data: attendees = [] } = useListAttendees()
-
-    const checkedInCount = useMemo(() => {
-        const invitationIds = new Set(
-            (invitationsQuery.data ?? []).map((invitation) => invitation.id),
-        )
-        return attendees.filter(
-            (attendee) =>
-                attendee.checked_in && invitationIds.has(attendee.invitation_id),
-        ).length
-    }, [attendees, invitationsQuery.data])
 
     useEffect(() => {
         if (typeof window === 'undefined') return
@@ -111,21 +90,85 @@ export function StaffScanPage({ eventId = DEFAULT_EVENT_ID }: StaffScanPageProps
         }
     }, [sessionState.log, storageKey])
 
-    const hasAssignment = Boolean(assignedEvent)
+    return (
+        <>
+            {/* Viewfinder visual */}
+            <Card className="mb-4 overflow-hidden border-border bg-slate-950 p-6 text-white shadow-card">
+                <CardContent className="flex flex-col items-center justify-center p-0 py-4">
+                    <div className="relative flex size-36 items-center justify-center rounded-xl border-2 border-dashed border-sky-400/80 bg-slate-900/60">
+                        <div className="size-16 rounded-lg border border-sky-500/40" />
+                        <span className="absolute -bottom-6 font-mono text-[11px] text-slate-400">
+                            {sessionState.current.status === 'resolving'
+                                ? 'Verifying ticket…'
+                                : 'Reticle active'}
+                        </span>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Token input + dev-only presets */}
+            <ScanSimulator
+                dispatch={dispatch}
+                isResolving={sessionState.current.status === 'resolving'}
+            />
+
+            {/* Scan-result state machine UI */}
+            <ScanOutcomeDisplay
+                data={sessionState.current}
+                onReset={() => dispatch({ type: 'SCAN_RESET' })}
+                onManualSearch={() => {
+                    navigate('/staff/search')
+                }}
+            />
+
+            {/* Running session scan log */}
+            <ScanSessionLog
+                entries={sessionState.log}
+                onClear={() => dispatch({ type: 'SESSION_LOG_CLEAR' })}
+            />
+        </>
+    )
+}
+
+export function StaffScanPage() {
+    const assignment = useMyAssignment()
+    const activeEventId =
+        assignment.status === 'single'
+            ? assignment.eventId
+            : assignment.status === 'multiple'
+              ? (assignment.eventId ?? undefined)
+              : undefined
+
+    const {
+        data: assignedEvents,
+        isLoading: isEventLoading,
+        isError: isEventError,
+    } = useAssignedEvent(activeEventId)
+    const assignedEvent = assignedEvents?.[0]
+
+    const attendance = useAttendanceSummary(assignedEvent?.id)
+
+    const isLoading =
+        assignment.status === 'loading' || (Boolean(activeEventId) && isEventLoading)
+    const showNoAssignment =
+        assignment.status === 'none' ||
+        (Boolean(activeEventId) && !isEventLoading && (isEventError || !assignedEvent))
+    const needsSelection =
+        assignment.status === 'multiple' && assignment.eventId === null
 
     return (
         <div className="mx-auto w-full max-w-2xl px-4 py-6">
-            {/* Header with Navigation to Manual Search (only when assigned) */}
+            {/* Header with Navigation to Manual Search (only when an assigned event is active) */}
             <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
                     <h1 className="m-0 font-display text-xl font-bold tracking-tight text-foreground">
                         Entrance Scanner
                     </h1>
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                        Scan attendee QR token or test checkpoint scenarios
+                        Scan or paste an attendee QR token
                     </p>
                 </div>
-                {hasAssignment && (
+                {assignedEvent && (
                     <div className="flex gap-2">
                         <Button
                             variant="outline"
@@ -140,11 +183,30 @@ export function StaffScanPage({ eventId = DEFAULT_EVENT_ID }: StaffScanPageProps
                 )}
             </div>
 
-            {isAssignmentLoading && (
-                <AssignedEventHeader eventId={eventId} checkedInCount={0} />
+            {assignment.status === 'multiple' && (
+                <AssignmentPicker
+                    assignments={assignment.assignments}
+                    selectedEventId={assignment.eventId}
+                    onSelect={assignment.select}
+                />
             )}
 
-            {!isAssignmentLoading && (isAssignmentError || !assignedEvent) && (
+            {isLoading && (
+                <div className="mb-4 space-y-3">
+                    <Skeleton className="h-20 w-full rounded-xl" />
+                    <Skeleton className="h-16 w-full rounded-xl" />
+                </div>
+            )}
+
+            {needsSelection && (
+                <Card role="status" className="border-border/80 p-6 shadow-xs">
+                    <CardContent className="p-0 text-sm text-muted-foreground">
+                        Choose an event above to start checking in attendees.
+                    </CardContent>
+                </Card>
+            )}
+
+            {!isLoading && showNoAssignment && (
                 <Card
                     role="status"
                     className="border-warning-border bg-warning-bg/40 p-6 shadow-xs"
@@ -169,49 +231,19 @@ export function StaffScanPage({ eventId = DEFAULT_EVENT_ID }: StaffScanPageProps
 
             {assignedEvent && (
                 <>
-                    {/* Step 1: Assigned-event header */}
                     <AssignedEventHeader
                         eventId={assignedEvent.id}
-                        checkedInCount={checkedInCount}
+                        checkedInCount={attendance.checkedIn}
                     />
-
-                    {/* Simulated Viewfinder Visual from Mockup Contract */}
-                    <Card className="mb-4 overflow-hidden border-border bg-slate-950 p-6 text-white shadow-card">
-                        <CardContent className="flex flex-col items-center justify-center p-0 py-4">
-                            <div className="relative flex size-36 items-center justify-center rounded-xl border-2 border-dashed border-sky-400/80 bg-slate-900/60">
-                                <div className="size-16 rounded-lg border border-sky-500/40" />
-                                <span className="absolute -bottom-6 font-mono text-[11px] text-slate-400">
-                                    {sessionState.current.status === 'resolving'
-                                        ? 'Verifying payload...'
-                                        : 'Reticle active'}
-                                </span>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Step 3: Wire useScanCheckIn → machine transitions; simulation buttons hitting API */}
-                    <ScanSimulator
-                        dispatch={dispatch}
-                        isResolving={sessionState.current.status === 'resolving'}
+                    <AttendanceSummary
+                        eventId={assignedEvent.id}
+                        capacity={assignedEvent.capacity}
                     />
-
-                    {/* Step 2: Scan-result state machine UI states via scan-result.tsx */}
-                    <ScanOutcomeDisplay
-                        data={sessionState.current}
-                        onReset={() => dispatch({ type: 'SCAN_RESET' })}
-                        onManualSearch={() => {
-                            navigate('/staff/search')
-                        }}
-                    />
-
-                    {/* Running session scan log */}
-                    <ScanSessionLog
-                        entries={sessionState.log}
-                        onClear={() => dispatch({ type: 'SESSION_LOG_CLEAR' })}
-                    />
+                    <ScanWorkspace key={assignedEvent.id} eventId={assignedEvent.id} />
                 </>
             )}
         </div>
     )
 }
+
 export default StaffScanPage

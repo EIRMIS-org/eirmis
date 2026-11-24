@@ -3,23 +3,36 @@ import { AlertCircleIcon, ArrowLeftIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { AssignmentPicker } from '@/features/checkin/components/assignment-picker'
+import { AttendanceSummary } from '@/features/checkin/components/attendance-summary'
 import { ManualSearchTable } from '@/features/checkin/components/manual-search-table'
 import { WalkInModal } from '@/features/checkin/components/walk-in-modal'
 import { useAssignedEvent } from '@/features/checkin/hooks/use-assigned-event'
+import { useMyAssignment } from '@/features/checkin/hooks/use-my-assignment'
 
-const DEFAULT_EVENT_ID = '55555555-5555-5555-5555-555555555555'
+export function StaffSearchPage() {
+    const assignment = useMyAssignment()
+    const activeEventId =
+        assignment.status === 'single'
+            ? assignment.eventId
+            : assignment.status === 'multiple'
+              ? (assignment.eventId ?? undefined)
+              : undefined
 
-export interface StaffSearchPageProps {
-    eventId?: string
-}
-
-export function StaffSearchPage({ eventId = DEFAULT_EVENT_ID }: StaffSearchPageProps) {
     const {
         data: assignedEvents,
-        isLoading: isAssignmentLoading,
-        isError: isAssignmentError,
-    } = useAssignedEvent(eventId)
+        isLoading: isEventLoading,
+        isError: isEventError,
+    } = useAssignedEvent(activeEventId)
     const assignedEvent = assignedEvents?.[0]
+
+    const isLoading =
+        assignment.status === 'loading' || (Boolean(activeEventId) && isEventLoading)
+    const showNoAssignment =
+        assignment.status === 'none' ||
+        (Boolean(activeEventId) && !isEventLoading && (isEventError || !assignedEvent))
+    const needsSelection =
+        assignment.status === 'multiple' && assignment.eventId === null
 
     return (
         <div className="mx-auto w-full max-w-5xl px-4 py-6">
@@ -51,14 +64,30 @@ export function StaffSearchPage({ eventId = DEFAULT_EVENT_ID }: StaffSearchPageP
                 )}
             </div>
 
-            {isAssignmentLoading && (
+            {assignment.status === 'multiple' && (
+                <AssignmentPicker
+                    assignments={assignment.assignments}
+                    selectedEventId={assignment.eventId}
+                    onSelect={assignment.select}
+                />
+            )}
+
+            {isLoading && (
                 <div className="space-y-3">
                     <Skeleton className="h-12 w-full" />
                     <Skeleton className="h-40 w-full" />
                 </div>
             )}
 
-            {!isAssignmentLoading && (isAssignmentError || !assignedEvent) && (
+            {needsSelection && (
+                <Card role="status" className="border-border/80 p-6 shadow-xs">
+                    <CardContent className="p-0 text-sm text-muted-foreground">
+                        Choose an event above to search attendees.
+                    </CardContent>
+                </Card>
+            )}
+
+            {!isLoading && showNoAssignment && (
                 <Card
                     role="status"
                     className="border-warning-border bg-warning-bg/40 p-6 shadow-xs"
@@ -81,7 +110,15 @@ export function StaffSearchPage({ eventId = DEFAULT_EVENT_ID }: StaffSearchPageP
                 </Card>
             )}
 
-            {assignedEvent && <ManualSearchTable eventId={assignedEvent.id} />}
+            {assignedEvent && (
+                <>
+                    <AttendanceSummary
+                        eventId={assignedEvent.id}
+                        capacity={assignedEvent.capacity}
+                    />
+                    <ManualSearchTable eventId={assignedEvent.id} />
+                </>
+            )}
         </div>
     )
 }
