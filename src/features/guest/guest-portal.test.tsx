@@ -171,7 +171,15 @@ describe('Guest Portal (Task 08)', () => {
   it('renders my-invitations list with loading, success, empty, and error states', async () => {
     const first = renderWithProviders(<GuestInvitationsPage />)
 
-    expect(await screen.findByText('Your invitation')).toBeInTheDocument()
+    expect(await screen.findByText('Annual Gala 2026')).toBeInTheDocument()
+    expect(
+      screen.getByText(/Tuesday, December 15, 2026 at 6:00 PM/i),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Grand Ballroom · Cebu City')).toBeInTheDocument()
+    expect(screen.queryByText('Your invitation')).not.toBeInTheDocument()
+    expect(
+      screen.queryByText('Open to view event details'),
+    ).not.toBeInTheDocument()
     expect(screen.getByText('Accepted')).toBeInTheDocument()
     first.unmount()
 
@@ -202,6 +210,20 @@ describe('Guest Portal (Task 08)', () => {
       await screen.findByText('We could not load your invitations.'),
     ).toBeInTheDocument()
     errorRender.unmount()
+  })
+
+  it('keeps invitations usable when public event details are unavailable', async () => {
+    server.use(
+      http.get('*/rest/v1/events', () => HttpResponse.json([])),
+    )
+
+    renderWithProviders(<GuestInvitationsPage />)
+
+    expect(await screen.findAllByText('Invitation')).not.toHaveLength(0)
+    expect(screen.getAllByText('Event details unavailable')).not.toHaveLength(0)
+    expect(
+      screen.getAllByRole('button', { name: 'Open invitation' }),
+    ).not.toHaveLength(0)
   })
 
   it('persists RSVP accept/decline via MSW and displays 422 validation errors inline', async () => {
