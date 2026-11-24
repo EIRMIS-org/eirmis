@@ -16,13 +16,11 @@ import { useScanCheckIn } from '@/features/checkin/hooks/use-scan-check-in'
 import { useListAttendees } from '@/features/organizer/hooks/use-list-attendees'
 import { useListInvitations } from '@/features/organizer/hooks/use-list-invitations'
 
-const DEFAULT_EVENT_ID = '55555555-5555-5555-5555-555555555555'
-
 export interface ManualSearchTableProps {
-    eventId?: string
+    eventId: string
 }
 
-export function ManualSearchTable({ eventId = DEFAULT_EVENT_ID }: ManualSearchTableProps) {
+export function ManualSearchTable({ eventId }: ManualSearchTableProps) {
     const [query, setQuery] = useState('')
     const invitationsQuery = useListInvitations({ event_id: `eq.${eventId}` })
     const attendeesQuery = useListAttendees()

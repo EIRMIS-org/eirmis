@@ -774,7 +774,24 @@ export const handlers = [
     // ═══ PostgREST: checkin_assignments ═══
     http.get('*/rest/v1/checkin_assignments', ({ request }) => {
         if (!hasAuth(request)) return unauthorized();
-        return jsonList(filterByEq(request, mockCheckInAssignments, 'event_id'));
+        // RLS mirror (contract/paths/organizer.yaml listCheckInAssignments):
+        // check-in staff see only their own active assignment rows; no event_id filter required.
+        const isCheckinStaff =
+            request.headers.get('Authorization') === 'Bearer fake-checkin-staff-jwt';
+        let visible = isCheckinStaff
+            ? mockCheckInAssignments.filter(
+                  (assignment) =>
+                      assignment.auth_user_id === UUID.CHECKIN_STAFF &&
+                      assignment.status === 'active',
+              )
+            : mockCheckInAssignments;
+        const authUserId = new URL(request.url).searchParams.get('auth_user_id');
+        if (authUserId?.startsWith('eq.')) {
+            visible = visible.filter(
+                (assignment) => assignment.auth_user_id === authUserId.slice(3),
+            );
+        }
+        return jsonList(filterByEq(request, visible, 'event_id'));
     }),
 
     http.post('*/rest/v1/checkin_assignments', async ({ request }) => {

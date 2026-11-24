@@ -6,19 +6,36 @@ import '@testing-library/jest-dom/vitest'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { MemoryRouter } from 'react-router-dom'
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
-import { listAttendees, setRole, type Attendee, type Invitation } from '@/lib/api'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+    listAttendees,
+    listCheckInAssignments,
+    setRole,
+    type Attendee,
+    type Event,
+    type Invitation,
+} from '@/lib/api'
 import { resetMockCheckInState } from '@/mocks/handlers'
 import { server } from '@/mocks/server'
 import { StaffScanPage } from '@/pages/staff/staff-scan-page'
 import { StaffSearchPage } from '@/pages/staff/staff-search-page'
+import { AttendanceSummary } from './components/attendance-summary'
+import { ScanOutcomeDisplay } from './components/scan-outcome-display'
+import { ScanSimulator } from './components/scan-simulator'
 import { WalkInModal } from './components/walk-in-modal'
+import { ATTENDANCE_REFETCH_INTERVAL_MS } from './hooks/use-attendance-summary'
+import {
+    SELECTED_ASSIGNMENT_STORAGE_KEY,
+    type CheckInAssignment,
+} from './hooks/use-my-assignment'
 import {
     countScanSessionLog,
     initialScanSessionState,
     initialScanState,
+    MAX_SCAN_SESSION_LOG_ENTRIES,
     scanResultReducer,
     scanSessionReducer,
+    type ScanSessionLogEntry,
 } from './lib/scan-result-machine'
 
 const ASSIGNED_EVENT_ID = '55555555-5555-5555-5555-555555555555'
@@ -34,17 +51,25 @@ function renderWithProviders(ui: React.ReactElement, initialRoute = '/staff') {
         },
     })
 
-    return render(
-        <QueryClientProvider client={queryClient}>
-            <MemoryRouter initialEntries={[initialRoute]}>{ui}</MemoryRouter>
-        </QueryClientProvider>,
-    )
+    return {
+        queryClient,
+        ...render(
+            <QueryClientProvider client={queryClient}>
+                <MemoryRouter initialEntries={[initialRoute]}>{ui}</MemoryRouter>
+            </QueryClientProvider>,
+        ),
+    }
 }
 
 describe('check-in staff portal hardening', () => {
     beforeAll(() => server.listen())
 
+    beforeEach(() => {
+        setRole('checkin')
+    })
+
     afterEach(() => {
+        vi.unstubAllEnvs()
         cleanup()
         window.sessionStorage.clear()
         resetMockCheckInState()
@@ -297,10 +322,7 @@ describe('check-in staff portal hardening', () => {
                 setRole('checkin')
                 const user = userEvent.setup()
 
-                const { unmount } = renderWithProviders(
-                    <StaffScanPage eventId={ASSIGNED_EVENT_ID} />,
-                    '/staff',
-                )
+                const { unmount } = renderWithProviders(<StaffScanPage />, '/staff')
 
                 expect(
                     await screen.findByText('Annual Gala 2026', undefined, {
@@ -361,7 +383,7 @@ describe('check-in staff portal hardening', () => {
 
                 // Verify sessionStorage persistence across remount
                 unmount()
-                renderWithProviders(<StaffScanPage eventId={ASSIGNED_EVENT_ID} />, '/staff')
+                renderWithProviders(<StaffScanPage />, '/staff')
                 expect(
                     await screen.findByText('1 OK / 5 total', undefined, {
                         timeout: 5000,
@@ -491,10 +513,7 @@ describe('check-in staff portal hardening', () => {
                 }),
             )
 
-            renderWithProviders(
-                <StaffSearchPage eventId={ASSIGNED_EVENT_ID} />,
-                '/staff/search',
-            )
+            renderWithProviders(<StaffSearchPage />, '/staff/search')
 
             expect(await screen.findByText('Maria Santos')).toBeInTheDocument()
             expect(screen.getByText('1 attendee for this event')).toBeInTheDocument()
@@ -510,15 +529,31 @@ describe('check-in staff portal hardening', () => {
         })
     })
 
-    describe('empty-assignment guidance', () => {
-        it('renders actionable guidance and hides the manual search link when no event is assigned', async () => {
+    describe('assignment-derived event (zero / one / many)', () => {
+        it('derives the assigned event from checkin_assignments when staff has one active assignment', async () => {
+            setRole('checkin')
+
+            renderWithProviders(<StaffScanPage />, '/staff')
+
+            expect(
+                await screen.findByText('Annual Gala 2026', undefined, { timeout: 5000 }),
+            ).toBeInTheDocument()
+            expect(
+                screen.getByRole('button', { name: /manual search/i }),
+            ).toHaveAttribute('href', '/staff/search')
+            expect(
+                screen.getByRole('region', { name: /attendance summary/i }),
+            ).toBeInTheDocument()
+        })
+
+        it('renders actionable guidance and hides the manual search link when staff has zero assignments', async () => {
             setRole('checkin')
 
             server.use(
-                http.get('*/rest/v1/events', () => HttpResponse.json([])),
+                http.get('*/rest/v1/checkin_assignments', () => HttpResponse.json([])),
             )
 
-            renderWithProviders(<StaffScanPage eventId={ASSIGNED_EVENT_ID} />, '/staff')
+            renderWithProviders(<StaffScanPage />, '/staff')
 
             expect(
                 await screen.findByText(
@@ -526,8 +561,386 @@ describe('check-in staff portal hardening', () => {
                 ),
             ).toBeInTheDocument()
             expect(
-                screen.queryByRole('link', { name: /manual search/i }),
+                screen.queryByRole('button', { name: /manual search/i }),
             ).not.toBeInTheDocument()
+        })
+
+        it('renders actionable guidance when an assignment exists but the event record cannot be loaded', async () => {
+            setRole('checkin')
+
+            server.use(
+                http.get('*/rest/v1/events', () => HttpResponse.json([])),
+            )
+
+            renderWithProviders(<StaffScanPage />, '/staff')
+
+            expect(
+                await screen.findByText(
+                    /no check-in assignment found for your account — ask an organizer to assign you to an event/i,
+                ),
+            ).toBeInTheDocument()
+            expect(
+                screen.queryByRole('button', { name: /manual search/i }),
+            ).not.toBeInTheDocument()
+        })
+
+        it(
+            'shows an assignment picker when staff has multiple active assignments and persists the selection',
+            async () => {
+                setRole('checkin')
+                const user = userEvent.setup()
+
+                const assignments: CheckInAssignment[] = [
+                    {
+                        id: '88888888-8888-8888-8888-888888888888',
+                        event_id: ASSIGNED_EVENT_ID,
+                        staff_email: 'staff@example.com',
+                        auth_user_id: '44444444-4444-4444-4444-444444444444',
+                        invited_by: '11111111-1111-1111-1111-111111111111',
+                        status: 'active',
+                        created_at: '2026-12-10T08:00:00+08:00',
+                        updated_at: '2026-12-10T08:00:00+08:00',
+                    },
+                    {
+                        id: '88888888-8888-8888-8888-888888888899',
+                        event_id: OTHER_EVENT_ID,
+                        staff_email: 'staff@example.com',
+                        auth_user_id: '44444444-4444-4444-4444-444444444444',
+                        invited_by: '11111111-1111-1111-1111-111111111111',
+                        status: 'active',
+                        created_at: '2026-12-10T08:00:00+08:00',
+                        updated_at: '2026-12-10T08:00:00+08:00',
+                    },
+                ]
+
+                const events: Event[] = [
+                    {
+                        id: ASSIGNED_EVENT_ID,
+                        organizer_id: '11111111-1111-1111-1111-111111111111',
+                        title: 'Annual Gala 2026',
+                        slug: 'annual-gala-2026',
+                        description: null,
+                        starts_at: '2026-12-15T18:00:00+08:00',
+                        ends_at: '2026-12-15T22:00:00+08:00',
+                        event_timezone: 'Asia/Manila',
+                        venue_name: 'Grand Ballroom',
+                        address: '123 Rizal Avenue',
+                        city: 'Cebu City',
+                        capacity: 500,
+                        rsvp_deadline: null,
+                        visibility_mode: 'open_registration',
+                        status: 'published',
+                        deleted_at: null,
+                        created_at: '2026-09-01T08:00:00+08:00',
+                        updated_at: '2026-09-10T12:30:00+08:00',
+                    },
+                    {
+                        id: OTHER_EVENT_ID,
+                        organizer_id: '11111111-1111-1111-1111-111111111111',
+                        title: 'Regional Summit 2026',
+                        slug: 'regional-summit-2026',
+                        description: null,
+                        starts_at: '2026-12-20T09:00:00+08:00',
+                        ends_at: '2026-12-20T17:00:00+08:00',
+                        event_timezone: 'Asia/Manila',
+                        venue_name: 'Convention Center',
+                        address: '456 Osmena Blvd',
+                        city: 'Cebu City',
+                        capacity: 300,
+                        rsvp_deadline: null,
+                        visibility_mode: 'invite_only',
+                        status: 'published',
+                        deleted_at: null,
+                        created_at: '2026-09-01T08:00:00+08:00',
+                        updated_at: '2026-09-10T12:30:00+08:00',
+                    },
+                ]
+
+                server.use(
+                    http.get('*/rest/v1/checkin_assignments', () =>
+                        HttpResponse.json(assignments),
+                    ),
+                    http.get('*/rest/v1/events', ({ request }) => {
+                        const idFilter = new URL(request.url).searchParams.get('id')
+                        const filtered = idFilter?.startsWith('eq.')
+                            ? events.filter((event) => event.id === idFilter.slice(3))
+                            : events
+                        return HttpResponse.json(filtered)
+                    }),
+                )
+
+                const { unmount } = renderWithProviders(<StaffScanPage />, '/staff')
+
+                expect(
+                    await screen.findByText(/choose an event above to start checking in/i),
+                ).toBeInTheDocument()
+                expect(
+                    screen.queryByRole('link', { name: /manual search/i }),
+                ).not.toBeInTheDocument()
+
+                const trigger = screen.getByRole('combobox', { name: /assigned event/i })
+                await user.click(trigger)
+
+                const summitOption = await screen.findByRole('option', {
+                    name: /regional summit 2026/i,
+                })
+                expect(
+                    screen.getByRole('option', { name: /annual gala 2026/i }),
+                ).toBeInTheDocument()
+
+                await user.click(summitOption)
+
+                expect(
+                    await screen.findByRole('heading', { name: 'Regional Summit 2026' }),
+                ).toBeInTheDocument()
+                expect(
+                    window.sessionStorage.getItem(SELECTED_ASSIGNMENT_STORAGE_KEY),
+                ).toBe(OTHER_EVENT_ID)
+
+                // Verify persistence across remount
+                unmount()
+                renderWithProviders(<StaffScanPage />, '/staff')
+
+                expect(
+                    await screen.findByRole('heading', { name: 'Regional Summit 2026' }),
+                ).toBeInTheDocument()
+            },
+            15_000,
+        )
+
+        it('scopes GET /rest/v1/checkin_assignments to the signed-in checkin staff in MSW', async () => {
+            setRole('checkin')
+            const staffAssignments = await listCheckInAssignments()
+            expect(staffAssignments).toHaveLength(1)
+            expect(staffAssignments[0]).toMatchObject({
+                event_id: ASSIGNED_EVENT_ID,
+                auth_user_id: '44444444-4444-4444-4444-444444444444',
+                status: 'active',
+            })
+
+            setRole('organizer')
+            const organizerAssignments = await listCheckInAssignments(ASSIGNED_EVENT_ID)
+            expect(organizerAssignments).toHaveLength(1)
+            expect(organizerAssignments[0]?.event_id).toBe(ASSIGNED_EVENT_ID)
+        })
+    })
+
+    describe('attendance summary panel', () => {
+        it('renders expected vs checked-in vs capacity from mock data and configures 30s refetch', async () => {
+            setRole('checkin')
+
+            const baseInvitation: Invitation = {
+                id: ASSIGNED_INVITATION_ID,
+                event_id: ASSIGNED_EVENT_ID,
+                guest_id: '33333333-3333-3333-3333-333333333333',
+                status: 'accepted',
+                max_party_size: 4,
+                party_size: 2,
+                checked_in_count: 1,
+                dietary_preference: null,
+                special_requests: null,
+                invited_by: '11111111-1111-1111-1111-111111111111',
+                invited_at: '2026-10-01T09:00:00+08:00',
+                responded_at: '2026-10-05T14:30:00+08:00',
+                waitlisted_at: null,
+                created_at: '2026-10-01T09:00:00+08:00',
+                updated_at: '2026-10-05T14:30:00+08:00',
+            }
+            const secondAcceptedId = '66666666-6666-6666-6666-666666666677'
+            const declinedId = '66666666-6666-6666-6666-666666666688'
+
+            const invitations: Invitation[] = [
+                baseInvitation,
+                { ...baseInvitation, id: secondAcceptedId, party_size: 3 },
+                { ...baseInvitation, id: declinedId, status: 'declined', party_size: 4 },
+            ]
+
+            const baseAttendee: Attendee = {
+                id: '77777777-7777-7777-7777-777777777771',
+                invitation_id: ASSIGNED_INVITATION_ID,
+                full_name: 'Maria Santos',
+                email: 'maria@example.com',
+                is_primary: true,
+                status: 'approved',
+                submitted_at: '2026-10-05T14:00:00+08:00',
+                reviewed_by: '11111111-1111-1111-1111-111111111111',
+                reviewed_at: '2026-10-06T09:00:00+08:00',
+                review_reason: null,
+                qr_token: 'tok-a',
+                checked_in: true,
+                checked_in_at: '2026-12-15T18:05:00+08:00',
+                checked_in_by: '44444444-4444-4444-4444-444444444444',
+                is_walk_in: false,
+            }
+            const attendees: Attendee[] = [
+                baseAttendee,
+                {
+                    ...baseAttendee,
+                    id: '77777777-7777-7777-7777-777777777772',
+                    invitation_id: secondAcceptedId,
+                    checked_in: true,
+                },
+                {
+                    ...baseAttendee,
+                    id: '77777777-7777-7777-7777-777777777773',
+                    invitation_id: secondAcceptedId,
+                    checked_in: false,
+                    checked_in_at: null,
+                },
+                // Different event — must not be counted
+                {
+                    ...baseAttendee,
+                    id: '77777777-7777-7777-7777-777777777774',
+                    invitation_id: OTHER_INVITATION_ID,
+                    checked_in: true,
+                },
+            ]
+
+            server.use(
+                http.get('*/rest/v1/invitations', () => HttpResponse.json(invitations)),
+                http.get('*/rest/v1/attendees', () => HttpResponse.json(attendees)),
+            )
+
+            const { queryClient } = renderWithProviders(
+                <AttendanceSummary eventId={ASSIGNED_EVENT_ID} capacity={500} />,
+                '/staff',
+            )
+
+            const region = await screen.findByRole('region', {
+                name: /attendance summary/i,
+            })
+
+            await waitFor(() => {
+                expect(within(region).getByText('5')).toBeInTheDocument()
+            })
+            expect(within(region).getByText('Expected')).toBeInTheDocument()
+            expect(within(region).getByText('Checked-in')).toBeInTheDocument()
+            expect(within(region).getByText('2')).toBeInTheDocument()
+            expect(within(region).getByText('Capacity')).toBeInTheDocument()
+            expect(within(region).getByText('500')).toBeInTheDocument()
+
+            expect(ATTENDANCE_REFETCH_INTERVAL_MS).toBe(30_000)
+            const cachedQueries = queryClient.getQueryCache().getAll()
+            const invitationsQuery = cachedQueries.find(
+                (q) => q.queryKey[0] === 'listInvitations',
+            )
+            const attendeesQuery = cachedQueries.find(
+                (q) => q.queryKey[0] === 'listAttendees',
+            )
+            expect(
+                (invitationsQuery?.options as { refetchInterval?: number } | undefined)
+                    ?.refetchInterval,
+            ).toBe(30_000)
+            expect(
+                (attendeesQuery?.options as { refetchInterval?: number } | undefined)
+                    ?.refetchInterval,
+            ).toBe(30_000)
+        })
+    })
+
+    describe('de-demoed scan flow', () => {
+        it('shows "Verifying ticket…" in the resolving state without leaking endpoint paths', () => {
+            renderWithProviders(
+                <ScanOutcomeDisplay
+                    data={{ status: 'resolving', ticketCode: 'tok-1' }}
+                    onReset={vi.fn()}
+                />,
+                '/staff',
+            )
+
+            expect(screen.getByText('Verifying ticket…')).toBeInTheDocument()
+            expect(screen.queryByText(/functions\/v1/i)).not.toBeInTheDocument()
+            expect(screen.queryByText(/calling post/i)).not.toBeInTheDocument()
+        })
+
+        it('hides scenario preset buttons when import.meta.env.DEV is falsy while keeping token input', () => {
+            // Confirm dev presets are visible in default dev/test env
+            const firstRender = renderWithProviders(
+                <ScanSimulator dispatch={vi.fn()} isResolving={false} />,
+                '/staff',
+            )
+            expect(
+                screen.getByRole('button', { name: /1\. valid qr/i }),
+            ).toBeInTheDocument()
+            firstRender.unmount()
+
+            // Stub DEV false to simulate production build behavior
+            vi.stubEnv('DEV', false)
+            renderWithProviders(
+                <ScanSimulator dispatch={vi.fn()} isResolving={false} />,
+                '/staff',
+            )
+
+            expect(
+                screen.getByPlaceholderText(/paste or enter signed qr token/i),
+            ).toBeInTheDocument()
+            expect(screen.getByRole('button', { name: /^scan$/i })).toBeInTheDocument()
+            expect(
+                screen.queryByRole('button', { name: /1\. valid qr/i }),
+            ).not.toBeInTheDocument()
+            expect(
+                screen.queryByRole('button', { name: /2\. duplicate/i }),
+            ).not.toBeInTheDocument()
+            expect(
+                screen.queryByRole('button', { name: /3\. bad token/i }),
+            ).not.toBeInTheDocument()
+            expect(
+                screen.queryByRole('button', { name: /4\. wrong event/i }),
+            ).not.toBeInTheDocument()
+            expect(
+                screen.queryByRole('button', { name: /5\. capacity full/i }),
+            ).not.toBeInTheDocument()
+        })
+    })
+
+    describe('session log cap', () => {
+        it('trims oldest entries when appending past the cap in scanSessionReducer', () => {
+            let state = initialScanSessionState
+            const totalToAppend = MAX_SCAN_SESSION_LOG_ENTRIES + 5
+
+            for (let i = 1; i <= totalToAppend; i += 1) {
+                state = scanSessionReducer(state, {
+                    type: 'SESSION_LOG_APPEND',
+                    entry: {
+                        id: `entry-${i}`,
+                        scannedAt: '18:00:00',
+                        subject: `Guest ${i}`,
+                        outcome: 'success',
+                    },
+                })
+            }
+
+            expect(state.log).toHaveLength(MAX_SCAN_SESSION_LOG_ENTRIES)
+            expect(state.log[0]?.id).toBe(`entry-${totalToAppend}`)
+            expect(state.log[MAX_SCAN_SESSION_LOG_ENTRIES - 1]?.id).toBe('entry-6')
+        })
+
+        it('trims oversized persisted session logs to the cap on load', async () => {
+            setRole('checkin')
+
+            const oversized: ScanSessionLogEntry[] = Array.from(
+                { length: MAX_SCAN_SESSION_LOG_ENTRIES + 50 },
+                (_, idx) => ({
+                    id: `persisted-${idx + 1}`,
+                    scannedAt: '18:00:00',
+                    subject: `Persisted Guest ${idx + 1}`,
+                    outcome: 'invalid-token',
+                }),
+            )
+            window.sessionStorage.setItem(
+                `eirmis:staff-scan-log:${ASSIGNED_EVENT_ID}`,
+                JSON.stringify(oversized),
+            )
+
+            renderWithProviders(<StaffScanPage />, '/staff')
+
+            expect(
+                await screen.findByText(
+                    `0 OK / ${MAX_SCAN_SESSION_LOG_ENTRIES} total`,
+                    undefined,
+                    { timeout: 5000 },
+                ),
+            ).toBeInTheDocument()
         })
     })
 })

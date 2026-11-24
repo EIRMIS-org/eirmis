@@ -140,6 +140,17 @@ export const initialScanSessionState: ScanSessionState = {
     log: [],
 }
 
+/** Upper bound on persisted session-log entries (B-03). Oldest entries are dropped. */
+export const MAX_SCAN_SESSION_LOG_ENTRIES = 200
+
+export function capScanSessionLog(
+    log: readonly ScanSessionLogEntry[],
+): ScanSessionLogEntry[] {
+    return log.length > MAX_SCAN_SESSION_LOG_ENTRIES
+        ? log.slice(0, MAX_SCAN_SESSION_LOG_ENTRIES)
+        : [...log]
+}
+
 const TERMINAL_SCAN_OUTCOMES: ReadonlySet<ScanStatus> = new Set<ScanLogOutcome>([
     'success',
     'already-checked-in',
@@ -200,7 +211,7 @@ export function scanSessionReducer(
     if (action.type === 'SESSION_LOG_APPEND') {
         return {
             ...state,
-            log: [action.entry, ...state.log],
+            log: capScanSessionLog([action.entry, ...state.log]),
         }
     }
 
@@ -216,7 +227,7 @@ export function scanSessionReducer(
 
     return {
         current: nextCurrent,
-        log: [entry, ...state.log],
+        log: capScanSessionLog([entry, ...state.log]),
     }
 }
 

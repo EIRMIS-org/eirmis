@@ -14,15 +14,12 @@ import { Card } from '@/components/ui/card'
 import { useAssignedEvent } from '@/features/checkin/hooks/use-assigned-event'
 
 interface AssignedEventHeaderProps {
-    eventId?: string
+    eventId: string
     checkedInCount?: number
 }
 
-// Fallback well-known event ID matching OpenAPI and MSW example
-const DEFAULT_EVENT_ID = '55555555-5555-5555-5555-555555555555'
-
 export function AssignedEventHeader({
-    eventId = DEFAULT_EVENT_ID,
+    eventId,
     checkedInCount = 0,
 }: AssignedEventHeaderProps) {
     const { data: events, isLoading, isError } = useAssignedEvent(eventId)

@@ -63,7 +63,6 @@ export function ScanSimulator({
                     if (tokenToScan.includes('wrong-event') || error.code === 'EVENT_MISMATCH_403') {
                         dispatch({
                             type: 'SCAN_FAILED_WRONG_EVENT',
-                            expectedEvent: 'Tech Forward Gala 2025',
                             message: error.message,
                         })
                     } else {
@@ -118,65 +117,67 @@ export function ScanSimulator({
                 </Button>
             </form>
 
-            {/* Checkpoint Demonstrable Simulation Controls - All hit POST /functions/v1/checkin/scan */}
-            <div className="mt-4 border-t border-dashed border-border pt-3">
-                <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="font-semibold text-foreground">Checkpoint Scenarios (Hits API):</span>
-                    <span className="text-[11px]">Edge Function contract test</span>
+            {/* Dev-only scan seeds: tree-shaken out of production builds (A-17). */}
+            {import.meta.env.DEV && (
+                <div className="mt-4 border-t border-dashed border-border pt-3">
+                    <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
+                        <span className="font-semibold text-foreground">Dev Scan Presets</span>
+                        <span className="text-[11px]">Dev-only scan seeds</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={isResolving}
+                            onClick={() => executeScan('signed-qr-token-sample')}
+                            className="text-xs text-success border-success-border hover:bg-success-bg/30"
+                        >
+                            1. Valid QR
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={isResolving}
+                            onClick={() => executeScan('simulate-duplicate')}
+                            className="text-xs text-warning border-warning-border hover:bg-warning-bg/30"
+                        >
+                            2. Duplicate
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={isResolving}
+                            onClick={() => executeScan('invalid.token')}
+                            className="text-xs text-error border-error-border hover:bg-error-bg/30"
+                        >
+                            3. Bad Token
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={isResolving}
+                            onClick={() => executeScan('simulate-wrong-event')}
+                            className="text-xs text-warning border-warning-border hover:bg-warning-bg/30"
+                        >
+                            4. Wrong Event
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={isResolving}
+                            onClick={() => executeScan('simulate-capacity-full')}
+                            className="col-span-2 sm:col-span-1 text-xs text-error border-error-border hover:bg-error-bg/30"
+                        >
+                            5. Capacity Full
+                        </Button>
+                    </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={isResolving}
-                        onClick={() => executeScan('signed-qr-token-sample')}
-                        className="text-xs text-success border-success-border hover:bg-success-bg/30"
-                    >
-                        1. Valid QR
-                    </Button>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={isResolving}
-                        onClick={() => executeScan('simulate-duplicate')}
-                        className="text-xs text-warning border-warning-border hover:bg-warning-bg/30"
-                    >
-                        2. Duplicate
-                    </Button>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={isResolving}
-                        onClick={() => executeScan('invalid.token')}
-                        className="text-xs text-error border-error-border hover:bg-error-bg/30"
-                    >
-                        3. Bad Token
-                    </Button>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={isResolving}
-                        onClick={() => executeScan('simulate-wrong-event')}
-                        className="text-xs text-warning border-warning-border hover:bg-warning-bg/30"
-                    >
-                        4. Wrong Event
-                    </Button>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={isResolving}
-                        onClick={() => executeScan('simulate-capacity-full')}
-                        className="col-span-2 sm:col-span-1 text-xs text-error border-error-border hover:bg-error-bg/30"
-                    >
-                        5. Capacity Full
-                    </Button>
-                </div>
-            </div>
+            )}
         </Card>
     )
 }
