@@ -373,6 +373,62 @@
     background: var(--muted);
   }
 }
+/* Landing hero backdrop: slow infinite crossfade, CSS-only (no JS timers).
+   The first slide is the static base layer; the rest fade in and out in
+   staggered 8s slots across a shared 32s cycle. Opacity-only animation so
+   it stays on the compositor. */
+.hero-backdrop-slide {
+  opacity: 0;
+}
+
+.hero-backdrop-slide:first-child {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-backdrop-slide + .hero-backdrop-slide {
+    animation: hero-backdrop-fade 32s linear infinite;
+  }
+
+  .hero-backdrop-slide:nth-child(2) {
+    animation-delay: 0s;
+  }
+
+  .hero-backdrop-slide:nth-child(3) {
+    animation-delay: 8s;
+  }
+
+  .hero-backdrop-slide:nth-child(4) {
+    animation-delay: 16s;
+  }
+
+  .hero-backdrop-slide:nth-child(5) {
+    animation-delay: 24s;
+  }
+}
+
+@keyframes hero-backdrop-fade {
+  0% {
+    opacity: 0;
+  }
+
+  6.25% {
+    opacity: 1;
+  }
+
+  18.75% {
+    opacity: 1;
+  }
+
+  25% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-in,
   [class*="animate-in"] {
