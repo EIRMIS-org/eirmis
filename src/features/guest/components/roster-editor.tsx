@@ -213,11 +213,11 @@ export function RosterEditor({ invitation }: { invitation: Invitation }) {
           {isAtCeiling && (
             <div
               role="status"
-              className="space-y-3 rounded-xl border border-amber-300/60 bg-amber-500/10 p-4 text-xs"
+              className="space-y-3 rounded-xl border border-warning-border bg-warning-bg p-4 text-xs"
             >
               <div className="flex items-start gap-2">
                 <AlertCircleIcon
-                  className="mt-0.5 size-4 shrink-0 text-amber-600"
+                  className="mt-0.5 size-4 shrink-0 text-warning"
                   aria-hidden="true"
                 />
                 <div className="space-y-1">

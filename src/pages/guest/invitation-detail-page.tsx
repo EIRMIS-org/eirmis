@@ -105,7 +105,7 @@ export function InvitationDetailPage() {
       {invitation.status === 'waitlisted' && (
         <section
           role="status"
-          className="rounded-2xl border border-amber-300/60 bg-amber-500/10 p-4"
+          className="rounded-2xl border border-warning-border bg-warning-bg p-4"
         >
           <h2 className="font-semibold">You are on the waitlist</h2>
           <p className="mt-1 text-sm text-muted-foreground">
