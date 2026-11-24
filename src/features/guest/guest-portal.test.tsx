@@ -8,7 +8,7 @@ import { http, HttpResponse } from 'msw'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { SessionProvider } from '@/app/providers/session-context'
-import type { Attendee, Invitation } from '@/lib/api'
+import type { Attendee, Guest, Invitation } from '@/lib/api'
 import { resetMockCheckInState } from '@/mocks/handlers'
 import { server } from '@/mocks/server'
 import { GuestInvitationsPage } from '@/pages/guest/guest-invitations-page'
@@ -151,6 +151,43 @@ afterAll(() => {
 })
 
 describe('Guest Portal (Task 08)', () => {
+  it('scopes the profile request to the signed-in mock guest', async () => {
+    const expectedFilter = 'eq.33333333-3333-3333-3333-333333333333'
+    let receivedFilter: string | null = null
+    const scopedGuest: Guest = {
+      id: '33333333-3333-3333-3333-333333333333',
+      email: 'jordan.cruz@example.com',
+      full_name: 'Jordan Cruz',
+      auth_user_id: '33333333-3333-3333-3333-333333333333',
+      created_at: '2026-09-05T08:00:00+08:00',
+      updated_at: '2026-09-05T08:00:00+08:00',
+    }
+    const unrelatedGuest: Guest = {
+      ...scopedGuest,
+      id: '33333333-3333-3333-3333-333333333334',
+      email: 'unrelated@example.com',
+      full_name: 'Unrelated Guest',
+      auth_user_id: '33333333-3333-3333-3333-333333333334',
+    }
+
+    server.use(
+      http.get('*/rest/v1/guests', ({ request }) => {
+        receivedFilter = new URL(request.url).searchParams.get('auth_user_id')
+        return HttpResponse.json(
+          receivedFilter === expectedFilter
+            ? [scopedGuest]
+            : [unrelatedGuest, scopedGuest],
+        )
+      }),
+    )
+
+    renderWithProviders(<GuestProfilePage />)
+
+    expect(await screen.findByDisplayValue('Jordan Cruz')).toBeInTheDocument()
+    expect(receivedFilter).toBe(expectedFilter)
+    expect(screen.queryByDisplayValue('Unrelated Guest')).not.toBeInTheDocument()
+  })
+
   it('renders the guest profile and saves the full name via mock PATCH', async () => {
     const user = userEvent.setup()
     renderWithProviders(<GuestProfilePage />)

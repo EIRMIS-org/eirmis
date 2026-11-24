@@ -4,8 +4,13 @@ import { Button } from '@/components/ui/button'
 import { GuestProfileForm } from '@/features/guest/components/guest-profile-form'
 import { useListGuests } from '@/features/organizer/hooks/use-list-guests'
 
+// M4 mock identity. Supabase Auth will provide this UUID when real sessions land.
+const MOCK_GUEST_AUTH_USER_ID = '33333333-3333-3333-3333-333333333333'
+
 export function GuestProfilePage() {
-  const guests = useListGuests()
+  const guests = useListGuests({
+    auth_user_id: `eq.${MOCK_GUEST_AUTH_USER_ID}`,
+  })
 
   if (guests.isLoading) {
     return (
