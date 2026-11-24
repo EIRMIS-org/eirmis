@@ -1,5 +1,5 @@
-import { ArrowDown, ArrowRight, Sparkles } from 'lucide-react'
-import heroEventImage from '../../../mockup-plan/assets/hero-carousel-1.jpg'
+import { ArrowDown, ArrowRight } from 'lucide-react'
+import { HeroCarousel } from './components/hero-carousel'
 import { Button } from '@/components/ui/button'
 import { PublicEventDiscovery } from '@/features/landing/components/public-event-discovery'
 import { RoleCardGrid } from '@/features/landing/components/role-card-grid'
@@ -17,7 +17,6 @@ export function LandingPage() {
             <div className="grid items-end gap-8 lg:grid-cols-[1.05fr_0.75fr] lg:gap-16">
               <div>
                 <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-teal-300">
-                  <Sparkles className="size-3.5" aria-hidden="true" />
                   Auditable event orchestration
                 </p>
                 <h1 className="mt-5 max-w-3xl font-heading text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
@@ -59,30 +58,7 @@ export function LandingPage() {
                 </div>
               </div>
             </div>
-            <div className="relative mt-10 overflow-hidden rounded-3xl border border-white/15 bg-slate-800 shadow-2xl sm:mt-14">
-              <img
-                src={heroEventImage}
-                alt="A celebration prepared for an evening event"
-                className="h-56 w-full object-cover sm:h-80 lg:h-[26rem]"
-              />
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/5 to-transparent"
-              />
-              <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-end justify-between gap-3 sm:bottom-7 sm:left-7 sm:right-7">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-teal-200">
-                    EIRMIS · Event operations
-                  </p>
-                  <p className="mt-1 font-heading text-lg font-bold text-white sm:text-2xl">
-                    Every guest experience, thoughtfully connected.
-                  </p>
-                </div>
-                <span className="rounded-full border border-white/25 bg-black/25 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur-sm">
-                  M4 interactive preview
-                </span>
-              </div>
-            </div>
+            <HeroCarousel />
           </div>
         </section>
 
@@ -118,8 +94,8 @@ export function LandingPage() {
 
       <footer className="border-t border-border bg-surface py-6">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 text-[11px] text-muted-foreground sm:px-6">
-          <span>EIRMIS · Auditable event orchestration</span>
-          <span>Mock preview · Public event discovery</span>
+          <span>EIRMIS Â· Auditable event orchestration</span>
+          <span>Mock preview Â· Public event discovery</span>
         </div>
       </footer>
     </>

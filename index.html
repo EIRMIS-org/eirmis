@@ -5,6 +5,17 @@
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      M5 CSP note: Update `connect-src` with the real Supabase origin
+      (https://<project>.supabase.co + wss:// for realtime) and `img-src`
+      with the Supabase storage origin before shipping production headers.
+      `frame-ancestors` is intentionally omitted from <meta> and belongs in HTTP headers.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; connect-src 'self' http://127.0.0.1:4010 http://localhost:4010; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'"
+    />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>eirmis</title>
   </head>
   <body>

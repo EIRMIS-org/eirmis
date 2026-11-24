@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useDiscoverPublicEvents } from '@/features/landing/hooks/use-discover-public-events'
 import type { Event } from '@/lib/api'
-import heroEventImage from '../../../../mockup-plan/assets/hero-carousel-1.jpg'
+import heroEventImage from '@/assets/hero-carousel-1.webp'
 import { PublicEventDrawer } from './public-event-drawer'
 
 function EventCard({

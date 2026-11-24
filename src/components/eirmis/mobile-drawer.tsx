@@ -1,10 +1,6 @@
 import * as React from 'react'
-import { X, LogOut, LogIn, ChevronRight, Layers, Check } from 'lucide-react'
+import { X, LogOut, LogIn, ChevronRight, Layers } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import {
-  SESSION_ROLE_OPTIONS,
-  type AuthenticatedRole,
-} from '@/app/providers/session-profiles'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +15,7 @@ const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 function getIdentityLabel(role?: string): string | undefined {
-  return SESSION_ROLE_OPTIONS.find((option) => option.role === role)?.label ?? role
+  return role
 }
 
 export interface UserSession {
@@ -38,7 +34,6 @@ export interface MobileDrawerProps {
   onPortalSelect?: (id: string) => void
   portals?: PortalItem[]
   user?: UserSession | null
-  onIdentitySwitch?: (role: AuthenticatedRole) => void
   onSignOut?: () => void
   onSignIn?: () => void
   className?: string
@@ -53,7 +48,6 @@ export function MobileDrawer({
   onPortalSelect,
   portals = DEFAULT_PORTALS,
   user = null,
-  onIdentitySwitch,
   onSignOut,
   onSignIn,
   className,
@@ -155,7 +149,7 @@ export function MobileDrawer({
         {/* Drawer Header */}
         <div className="flex h-14 items-center justify-between border-b border-border px-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex size-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-indigo-900 text-white shadow-xs">
+            <div className="flex size-7 items-center justify-center rounded-lg bg-primary text-white shadow-xs">
               <Layers className="size-4" aria-hidden="true" />
             </div>
             <h2
@@ -219,7 +213,7 @@ export function MobileDrawer({
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger className="flex w-full items-center gap-2.5 rounded-xl border border-border bg-muted/40 p-2.5 text-left hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-indigo-900 text-[11px] font-bold text-white shadow-xs">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white shadow-xs">
                   {user.initials || user.name.slice(0, 2).toUpperCase()}
                 </span>
                 <span className="min-w-0 flex-1">
@@ -227,7 +221,7 @@ export function MobileDrawer({
                     {user.name}
                   </span>
                   {user.role && (
-                    <span className="inline-block rounded-full bg-primary/10 px-1.5 py-0.2 text-[9px] font-bold uppercase tracking-wider text-primary">
+                    <span className="inline-block rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">
                       {getIdentityLabel(user.role)}
                     </span>
                   )}
@@ -237,22 +231,8 @@ export function MobileDrawer({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="min-w-52">
                 <DropdownMenuLabel>
-                  {onIdentitySwitch ? 'Switch identity' : 'Signed in'}
+                  'Signed in'
                 </DropdownMenuLabel>
-                {onIdentitySwitch && SESSION_ROLE_OPTIONS.map((option) => (
-                  <DropdownMenuItem
-                    key={option.role}
-                    onClick={() => {
-                      onIdentitySwitch?.(option.role)
-                      onClose()
-                    }}
-                  >
-                    <span className="flex-1">{option.label}</span>
-                    {user.role === option.role && (
-                      <Check className="size-3.5 text-primary" aria-hidden="true" />
-                    )}
-                  </DropdownMenuItem>
-                ))}
                 {onSignOut && (
                   <>
                     <DropdownMenuSeparator />

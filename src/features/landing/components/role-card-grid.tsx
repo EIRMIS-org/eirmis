@@ -9,6 +9,7 @@ import { SolutionCard } from '@/components/eirmis/portal-cards'
 import { SsoButton } from '@/components/eirmis/sso-button'
 import { useSession } from '@/app/providers/use-session'
 import type { AuthenticatedRole } from '@/app/providers/session-profiles'
+import { REDIRECT_STORAGE_KEY } from '@/app/routing/role-guard'
 
 const roleCards: {
   role: AuthenticatedRole
@@ -93,8 +94,20 @@ export function RoleCardGrid() {
                   primary={card.role === 'organizer' || card.role === 'admin'}
                   className="static after:absolute after:inset-0 after:content-['']"
                   onClick={() => {
+                    let nextDestination = card.destination
+                    try {
+                      const saved = window.sessionStorage.getItem(REDIRECT_STORAGE_KEY)
+                      if (saved) {
+                        window.sessionStorage.removeItem(REDIRECT_STORAGE_KEY)
+                        if (saved.startsWith('/') && !saved.startsWith('//')) {
+                          nextDestination = saved
+                        }
+                      }
+                    } catch {
+                      // Ignore sessionStorage errors.
+                    }
                     signIn(card.role)
-                    navigate(card.destination)
+                    navigate(nextDestination)
                   }}
                 />
               </div>
