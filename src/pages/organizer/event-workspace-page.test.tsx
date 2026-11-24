@@ -85,4 +85,14 @@ describe("EventWorkspacePage", () => {
 
     expect(await screen.findByText("Reminder schedules")).toBeInTheDocument();
   });
+
+  it("reaches the attendance dashboard tab via ?tab=attendance", async () => {
+    setRole("organizer");
+    renderWorkspace(`/organizer/events/${EVENT_ID}?tab=attendance`);
+
+    expect(await screen.findByText("Check-in feed")).toBeInTheDocument();
+    expect(
+      await screen.findByTestId("attendance-expected-count"),
+    ).toHaveTextContent("2");
+  });
 });
