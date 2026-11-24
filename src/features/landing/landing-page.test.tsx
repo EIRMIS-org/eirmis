@@ -60,7 +60,7 @@ describe('LandingPage accessibility', () => {
 
     const h2s = screen.getAllByRole('heading', { level: 2 })
     expect(h2s.map((h) => h.textContent)).toEqual([
-      'Event Guest',
+      'Sign in to EIRMIS',
       'Events open to everyone',
     ])
 
@@ -123,10 +123,7 @@ describe('Redirect memory across RoleGuard and LandingPage', () => {
     })
     expect(window.sessionStorage.getItem(REDIRECT_STORAGE_KEY)).toBe('/organizer/events?tab=guests')
 
-    await user.click(screen.getByRole('button', { name: 'Organizer' }))
-    await user.type(screen.getByLabelText('Email address'), 'organizer@example.com')
-    await user.type(screen.getByLabelText('Password'), 'hunter2-secret')
-    await user.click(screen.getByRole('button', { name: 'Sign in' }))
+    await user.click(screen.getByRole('button', { name: /Continue as Organizer/i }))
 
     await waitFor(() => {
       expect(screen.getByTestId('location-path')).toHaveTextContent('/organizer/events?tab=guests')
@@ -152,10 +149,33 @@ describe('Redirect memory across RoleGuard and LandingPage', () => {
       ['/']
     )
 
-    await user.click(screen.getByRole('button', { name: 'Organizer' }))
-    await user.type(screen.getByLabelText('Email address'), 'organizer@example.com')
-    await user.type(screen.getByLabelText('Password'), 'hunter2-secret')
-    await user.click(screen.getByRole('button', { name: 'Sign in' }))
+    await user.click(screen.getByRole('button', { name: /Continue as Organizer/i }))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('location-path')).toHaveTextContent('/organizer')
+    })
+    expect(window.sessionStorage.getItem(REDIRECT_STORAGE_KEY)).toBeNull()
+  })
+
+  it('ignores a stale redirect saved for a different portal instead of landing on 403', async () => {
+    const user = userEvent.setup()
+    // An earlier unauthenticated visit to /admin saved this redirect; the
+    // user now signs in as Organizer from the landing card.
+    window.sessionStorage.setItem(REDIRECT_STORAGE_KEY, '/admin')
+
+    renderWithProviders(
+      <>
+        <LocationProbe />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/organizer" element={<div>Organizer Home</div>} />
+          <Route path="/admin" element={<div>Admin Home</div>} />
+        </Routes>
+      </>,
+      ['/']
+    )
+
+    await user.click(screen.getByRole('button', { name: /Continue as Organizer/i }))
 
     await waitFor(() => {
       expect(screen.getByTestId('location-path')).toHaveTextContent('/organizer')
