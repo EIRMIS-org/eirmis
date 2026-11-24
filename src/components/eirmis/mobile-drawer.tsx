@@ -221,7 +221,7 @@ export function MobileDrawer({
                     {user.name}
                   </span>
                   {user.role && (
-                    <span className="inline-block rounded-full bg-primary/10 px-1.5 py-0.2 text-[9px] font-bold uppercase tracking-wider text-primary">
+                    <span className="inline-block rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">
                       {getIdentityLabel(user.role)}
                     </span>
                   )}

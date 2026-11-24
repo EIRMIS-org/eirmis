@@ -1,13 +1,15 @@
 // @vitest-environment jsdom
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { SessionProvider } from '@/app/providers/session-context'
+import { REDIRECT_STORAGE_KEY, RoleGuard } from '@/app/routing/role-guard'
 import { server } from '@/mocks/server'
+import { HeroCarousel } from '@/pages/landing/components/hero-carousel'
 import { LandingPage } from '@/pages/landing/landing-page'
 import { PublicRegistrationForm } from './components/public-registration-form'
 
@@ -16,6 +18,9 @@ beforeAll(() => {
 })
 
 afterEach(() => {
+  vi.useRealTimers()
+  vi.restoreAllMocks()
+  window.sessionStorage.clear()
   server.resetHandlers()
   cleanup()
 })
@@ -24,7 +29,37 @@ afterAll(() => {
   server.close()
 })
 
-function renderWithProviders(ui: React.ReactElement) {
+function mockMatchMedia(matchesReducedMotion: boolean) {
+  const listeners = new Set<() => void>()
+  const mediaQueryList = {
+    matches: matchesReducedMotion,
+    media: '(prefers-reduced-motion: reduce)',
+    onchange: null,
+    addEventListener: (_event: string, listener: () => void) => {
+      listeners.add(listener)
+    },
+    removeEventListener: (_event: string, listener: () => void) => {
+      listeners.delete(listener)
+    },
+    addListener: (listener: () => void) => {
+      listeners.add(listener)
+    },
+    removeListener: (listener: () => void) => {
+      listeners.delete(listener)
+    },
+    dispatchEvent: () => true,
+  }
+
+  vi.spyOn(window, 'matchMedia').mockImplementation(() => mediaQueryList as unknown as MediaQueryList)
+  return mediaQueryList
+}
+
+function LocationProbe() {
+  const location = useLocation()
+  return <div data-testid="location-path">{`${location.pathname}${location.search}${location.hash}`}</div>
+}
+
+function renderWithProviders(ui: React.ReactElement, initialEntries: string[] = ['/']) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -35,7 +70,7 @@ function renderWithProviders(ui: React.ReactElement) {
   return render(
     <QueryClientProvider client={queryClient}>
       <SessionProvider>
-        <MemoryRouter>{ui}</MemoryRouter>
+        <MemoryRouter initialEntries={initialEntries}>{ui}</MemoryRouter>
       </SessionProvider>
     </QueryClientProvider>
   )
@@ -87,6 +122,128 @@ describe('LandingPage accessibility', () => {
     await waitFor(() => {
       expect(firstCardBtn).toHaveFocus()
     })
+  })
+})
+
+describe('HeroCarousel behavior', () => {
+  it('changes the active slide with ArrowRight and ArrowLeft keyboard navigation', () => {
+    mockMatchMedia(false)
+    render(<HeroCarousel />)
+
+    const carousel = screen.getByRole('region', { name: /Event moments/i })
+    const tabs = screen.getAllByRole('tab')
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
+
+    fireEvent.keyDown(carousel, { key: 'ArrowRight' })
+    expect(tabs[1]).toHaveAttribute('aria-selected', 'true')
+
+    fireEvent.keyDown(carousel, { key: 'ArrowLeft' })
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('does not auto-advance when prefers-reduced-motion: reduce is set', () => {
+    mockMatchMedia(true)
+    vi.useFakeTimers()
+    render(<HeroCarousel />)
+
+    const tabs = screen.getAllByRole('tab')
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
+
+    act(() => {
+      vi.advanceTimersByTime(15000)
+    })
+
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('pauses auto-advance on focus and resumes after focus leaves the carousel', () => {
+    mockMatchMedia(false)
+    vi.useFakeTimers()
+    render(
+      <div>
+        <HeroCarousel />
+        <button type="button">Outside button</button>
+      </div>
+    )
+
+    const carousel = screen.getByRole('region', { name: /Event moments/i })
+    const outsideButton = screen.getByRole('button', { name: 'Outside button' })
+    const tabs = screen.getAllByRole('tab')
+
+    act(() => {
+      fireEvent.focus(carousel)
+      vi.advanceTimersByTime(6500)
+    })
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
+
+    act(() => {
+      fireEvent.blur(carousel, { relatedTarget: outsideButton })
+      vi.advanceTimersByTime(6000)
+    })
+    expect(tabs[1]).toHaveAttribute('aria-selected', 'true')
+  })
+})
+
+describe('Redirect memory across RoleGuard and LandingPage', () => {
+  it('persists attempted guarded route and restores/clears it on sign-in', async () => {
+    const user = userEvent.setup()
+    renderWithProviders(
+      <>
+        <LocationProbe />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route
+            path="/organizer/events"
+            element={
+              <RoleGuard allow={['organizer']}>
+                <div>Organizer Events Workspace</div>
+              </RoleGuard>
+            }
+          />
+        </Routes>
+      </>,
+      ['/organizer/events?tab=guests']
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('location-path')).toHaveTextContent('/')
+    })
+    expect(window.sessionStorage.getItem(REDIRECT_STORAGE_KEY)).toBe('/organizer/events?tab=guests')
+
+    const signInButton = screen.getByRole('button', { name: /Continue as Organizer/i })
+    await user.click(signInButton)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('location-path')).toHaveTextContent('/organizer/events?tab=guests')
+    })
+    expect(window.sessionStorage.getItem(REDIRECT_STORAGE_KEY)).toBeNull()
+  })
+
+  it('ignores malicious protocol-relative redirect targets like //evil.com', async () => {
+    const user = userEvent.setup()
+    window.sessionStorage.setItem(REDIRECT_STORAGE_KEY, '//evil.com')
+
+    renderWithProviders(
+      <>
+        <LocationProbe />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/organizer" element={<div>Organizer Home</div>} />
+          <Route path="/admin" element={<div>Admin Home</div>} />
+          <Route path="/guest" element={<div>Guest Home</div>} />
+          <Route path="/staff" element={<div>Staff Home</div>} />
+        </Routes>
+      </>,
+      ['/']
+    )
+
+    const signInButton = screen.getByRole('button', { name: /Continue as Organizer/i })
+    await user.click(signInButton)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('location-path')).toHaveTextContent('/organizer')
+    })
+    expect(window.sessionStorage.getItem(REDIRECT_STORAGE_KEY)).toBeNull()
   })
 })
 
