@@ -7,6 +7,9 @@ import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { MemoryRouter } from "react-router-dom";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
+import { SessionCacheGuard } from "@/App";
+import { SessionProvider } from "@/app/providers/session-context";
+import { useSession } from "@/app/providers/use-session";
 import { setRole } from "@/lib/api";
 import { resetMockOrganizerState } from "@/mocks/handlers";
 import { server } from "@/mocks/server";
@@ -90,5 +93,60 @@ describe("OrganizerSettingsPage", () => {
         "No organizer profile record was found for this account.",
       ),
     ).toBeInTheDocument();
+  });
+
+  it("warns on beforeunload and displays unsaved changes indicator while dirty", async () => {
+    setRole("organizer");
+    const user = userEvent.setup();
+    renderSettingsPage();
+
+    const nameInput = await screen.findByLabelText(/display name/i);
+    await user.type(nameInput, " Jr.");
+
+    expect(screen.getByText("You have unsaved changes.")).toBeInTheDocument();
+
+    const unloadEvent = new Event("beforeunload", { cancelable: true });
+    window.dispatchEvent(unloadEvent);
+    expect(unloadEvent.defaultPrevented).toBe(true);
+  });
+
+  it("clears the query cache when signing out to public role", async () => {
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(["organizer-secret"], { count: 42 });
+
+    function SignOutHarness() {
+      const { role, signIn, signOut } = useSession();
+      return (
+        <div>
+          <span data-testid="active-role">{role}</span>
+          <button type="button" onClick={() => signIn("organizer")}>
+            Sign in organizer
+          </button>
+          <button type="button" onClick={() => signOut()}>
+            Sign out
+          </button>
+        </div>
+      );
+    }
+
+    const user = userEvent.setup();
+    render(
+      <QueryClientProvider client={queryClient}>
+        <SessionProvider>
+          <SessionCacheGuard />
+          <SignOutHarness />
+        </SessionProvider>
+      </QueryClientProvider>,
+    );
+
+    await user.click(screen.getByRole("button", { name: /sign in organizer/i }));
+    expect(screen.getByTestId("active-role")).toHaveTextContent("organizer");
+    expect(queryClient.getQueryData(["organizer-secret"])).toEqual({
+      count: 42,
+    });
+
+    await user.click(screen.getByRole("button", { name: /sign out/i }));
+    expect(screen.getByTestId("active-role")).toHaveTextContent("public");
+    expect(queryClient.getQueryData(["organizer-secret"])).toBeUndefined();
   });
 });
