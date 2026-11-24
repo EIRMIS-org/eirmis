@@ -31,10 +31,8 @@ import {
     FormRow,
 } from '@/lib/forms'
 
-const DEFAULT_EVENT_ID = '55555555-5555-5555-5555-555555555555'
-
 export interface WalkInModalProps {
-    eventId?: string
+    eventId: string
 }
 
 interface InvitationOption {
@@ -43,7 +41,7 @@ interface InvitationOption {
     searchText: string
 }
 
-export function WalkInModal({ eventId = DEFAULT_EVENT_ID }: WalkInModalProps) {
+export function WalkInModal({ eventId }: WalkInModalProps) {
     const [open, setOpen] = useState(false)
     const [invitationFilter, setInvitationFilter] = useState('')
     const [createdAttendee, setCreatedAttendee] = useState<Attendee | null>(null)

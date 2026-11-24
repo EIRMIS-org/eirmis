@@ -520,10 +520,11 @@ export function deleteInvitationImage(id: string): Promise<void> {
 
 /** GET /rest/v1/checkin_assignments — list check-in staff assignments. */
 export function listCheckInAssignments(
-    eventId: string,
+    eventId?: string,
 ): Promise<ListOk<operations['listCheckInAssignments']>> {
     return request('GET', '/rest/v1/checkin_assignments', {
-        query: { event_id: `eq.${eventId}` },
+        // Staff callers omit eventId: RLS scopes rows to the caller's auth_user_id.
+        query: eventId ? { event_id: `eq.${eventId}` } : undefined,
     });
 }
 
