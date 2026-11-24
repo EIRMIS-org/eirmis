@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
   ArrowUpCircle,
@@ -34,6 +35,7 @@ import { useListHeadcountRequests } from "@/features/organizer/hooks/use-list-he
 import { useListInvitations } from "@/features/organizer/hooks/use-list-invitations";
 import { usePromoteWaitlist } from "@/features/organizer/hooks/use-promote-waitlist";
 import type { Attendee, HeadcountIncreaseRequest } from "@/lib/api";
+import { qk } from "@/lib/api/query-keys";
 
 interface ApprovalsTabProps {
   eventId: string;
@@ -46,6 +48,7 @@ interface OverrideState {
 }
 
 export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
+  const queryClient = useQueryClient();
   const invitationsQuery = useListInvitations({ event_id: `eq.${eventId}` });
   const attendeesQuery = useListAttendees();
   const headcountQuery = useListHeadcountRequests({ status: "pending" });
@@ -107,6 +110,43 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
     [headcountQuery.data, invitationIds],
   );
 
+  const submitAttendeeDecision = (
+    attendee: Attendee,
+    decision: "approve" | "reject",
+    reason: string | null,
+  ) => {
+    const nextStatus: Attendee["status"] =
+      decision === "approve" ? "approved" : "rejected";
+
+    decideAttendee.mutate(
+      {
+        id: attendee.id,
+        body: {
+          decision,
+          reason,
+        },
+      },
+      {
+        onSuccess: (response) => {
+          queryClient.setQueriesData<Attendee[]>(
+            { queryKey: qk.listAttendeesPrefix() },
+            (current) =>
+              current?.map((item) =>
+                item.id === attendee.id
+                  ? {
+                      ...item,
+                      ...(response?.attendee ?? {}),
+                      status: nextStatus,
+                      review_reason: reason,
+                    }
+                  : item,
+              ),
+          );
+        },
+      },
+    );
+  };
+
   const requestDecision = (
     attendee: Attendee,
     decision: "approve" | "reject",
@@ -120,26 +160,18 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
       return;
     }
 
-    decideAttendee.mutate({
-      id: attendee.id,
-      body: {
-        decision,
-        reason: reason || null,
-      },
-    });
+    submitAttendeeDecision(attendee, decision, reason || null);
   };
 
   const confirmOverride = () => {
     if (!overrideTarget) return;
 
     const reason = reviewReasonById[overrideTarget.attendee.id]?.trim();
-    decideAttendee.mutate({
-      id: overrideTarget.attendee.id,
-      body: {
-        decision: overrideTarget.decision,
-        reason: reason || null,
-      },
-    });
+    submitAttendeeDecision(
+      overrideTarget.attendee,
+      overrideTarget.decision,
+      reason || null,
+    );
     setOverrideTarget(null);
   };
 
@@ -147,15 +179,37 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
     request: HeadcountIncreaseRequest,
     decision: "approve" | "reject",
   ) => {
-    const reason = headcountReasonById[request.id]?.trim();
+    const reason = headcountReasonById[request.id]?.trim() || null;
+    const nextStatus: HeadcountIncreaseRequest["status"] =
+      decision === "approve" ? "approved" : "rejected";
 
-    decideHeadcountRequest.mutate({
-      id: request.id,
-      body: {
-        decision,
-        reason: reason || null,
+    decideHeadcountRequest.mutate(
+      {
+        id: request.id,
+        body: {
+          decision,
+          reason,
+        },
       },
-    });
+      {
+        onSuccess: (updated) => {
+          queryClient.setQueriesData<HeadcountIncreaseRequest[]>(
+            { queryKey: qk.listHeadcountRequestsPrefix() },
+            (current) =>
+              current?.map((item) =>
+                item.id === request.id
+                  ? {
+                      ...item,
+                      ...(updated ?? {}),
+                      status: nextStatus,
+                      review_reason: reason,
+                    }
+                  : item,
+              ),
+          );
+        },
+      },
+    );
   };
 
   const handleConfirmPromote = () => {

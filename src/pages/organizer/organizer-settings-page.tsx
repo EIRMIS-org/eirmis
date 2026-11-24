@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useListOrganizerProfile } from "@/features/organizer/hooks/use-list-organizer-profile";
+import { useUnsavedChangesGuard } from "@/features/organizer/hooks/use-unsaved-changes-guard";
 import { useUpdateOrganizerProfile } from "@/features/organizer/hooks/use-update-organizer-profile";
 import { FormRow, organizerProfileUpdateResolver } from "@/lib/forms";
 import { organizerProfileUpdateSchema } from "@/lib/forms/schemas/organizer-profile";
@@ -57,12 +58,21 @@ export function OrganizerSettingsPage() {
     reset({ full_name: profile.full_name });
   }, [profile, reset]);
 
+  useUnsavedChangesGuard(isDirty);
+
   const onSubmit = (values: ProfileFormOutput) => {
     if (!profile) return;
-    updateProfile.mutate({
-      id: profile.id,
-      body: { full_name: values.full_name },
-    });
+    updateProfile.mutate(
+      {
+        id: profile.id,
+        body: { full_name: values.full_name },
+      },
+      {
+        onSuccess: (updated) => {
+          reset({ full_name: updated?.full_name ?? values.full_name });
+        },
+      },
+    );
   };
 
   return (
@@ -162,11 +172,18 @@ export function OrganizerSettingsPage() {
                 {...register("full_name")}
               />
 
-              <div className="flex items-center justify-between border-t border-border pt-4">
-                <p className="text-xs text-muted-foreground">
-                  Account created{" "}
-                  {new Date(profile.created_at).toLocaleDateString()}
-                </p>
+              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">
+                    Account created{" "}
+                    {new Date(profile.created_at).toLocaleDateString()}
+                  </p>
+                  {isDirty && (
+                    <p role="status" className="text-xs font-medium text-warning">
+                      You have unsaved changes.
+                    </p>
+                  )}
+                </div>
                 <Button
                   type="submit"
                   disabled={
