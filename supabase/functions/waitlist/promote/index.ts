@@ -1,6 +1,10 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { resolveResendFrom, resolveResendTo } from "../../_shared/resend.ts";
+import {
+  processPromotedInvitations,
+  type PromotedInvitationRow,
+} from "./post-promotion.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -148,53 +152,28 @@ serve(async (req) => {
       return jsonResponse({ error: "Failed to promote waitlisted invitations." }, 500);
     }
 
-    const promotedInvitations: Array<{
-      id: string;
-      event_id: string;
-      guest_id: string;
-    }> = Array.isArray(promotedRows) ? promotedRows : [];
-    const promotedInvitationIds: string[] = [];
-    const auditEntries: Array<{
-      actor_type: "system" | "organizer";
-      actor_id: string | null;
-      action: string;
-      entity_type: string;
-      entity_id: string;
-      new_value: Record<string, unknown>;
-    }> = [];
+    const promotedInvitations: PromotedInvitationRow[] = Array.isArray(promotedRows)
+      ? promotedRows
+      : [];
 
-    for (const invitation of promotedInvitations) {
-      if (
-        !isUuid(invitation.id) ||
-        !isUuid(invitation.event_id) ||
-        !isUuid(invitation.guest_id)
-      ) {
-        console.error("Invalid promoted invitation row returned by promote_waitlist_fifo.");
-        return jsonResponse({ error: "Failed to load promoted invitation details." }, 500);
-      }
+    const summary = await processPromotedInvitations(promotedInvitations, {
+      actorType: isServiceRoleRequest ? "system" : "organizer",
+      actorId,
 
-      const { data: guest, error: guestError } = await serviceClient
-        .from("guests")
-        .select("email")
-        .eq("id", invitation.guest_id)
-        .maybeSingle();
+      async fetchGuestEmail(guestId) {
+        const { data: guest, error } = await serviceClient
+          .from("guests")
+          .select("email")
+          .eq("id", guestId)
+          .maybeSingle();
 
-      if (guestError || !guest) {
-        console.error("Error fetching promoted invitation guest:", guestError?.message ?? "Guest not found.");
-        return jsonResponse({ error: "Failed to load promoted invitation guest." }, 500);
-      }
+        if (error) {
+          return { email: null, error };
+        }
+        return { email: guest?.email ?? null, error: null };
+      },
 
-      promotedInvitationIds.push(invitation.id);
-
-      const guestEmail = guest.email;
-
-      if (!guestEmail) {
-        console.error(`Invitation ${invitation.id} has no guest email for notification.`);
-        return jsonResponse({ error: "Promoted invitation is missing guest email." }, 500);
-      }
-
-      let providerMessageId: string | null = null;
-      try {
+      async sendPromotionEmail(guestEmail) {
         const emailResponse = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
@@ -209,65 +188,26 @@ serve(async (req) => {
           }),
         });
 
-        const emailResult = await emailResponse.json();
+        const emailResult = await emailResponse.json().catch(() => null);
         if (!emailResponse.ok || typeof emailResult?.id !== "string") {
           throw new Error(`Resend returned non-OK response: ${emailResponse.status}`);
         }
 
-        providerMessageId = emailResult.id;
-      } catch (error) {
-        console.error("Failed to send waitlist promotion email:", error);
-        await serviceClient.from("email_logs").insert({
-          event_id: invitation.event_id,
-          invitation_id: invitation.id,
-          recipient_email: guestEmail,
-          type: "waitlist_promoted",
-          status: "failed",
-        });
-        return jsonResponse({ error: "Promotion succeeded but email dispatch failed." }, 500);
-      }
+        return { providerMessageId: emailResult.id };
+      },
 
-      const { error: emailLogError } = await serviceClient.from("email_logs").insert({
-        event_id: invitation.event_id,
-        invitation_id: invitation.id,
-        recipient_email: guestEmail,
-        type: "waitlist_promoted",
-        status: "sent",
-        provider_message_id: providerMessageId,
-        sent_at: new Date().toISOString(),
-      });
+      async insertEmailLog(entry) {
+        const { error } = await serviceClient.from("email_logs").insert(entry);
+        return { error };
+      },
 
-      if (emailLogError) {
-        console.error("Failed to log waitlist promotion email:", emailLogError.message);
-        return jsonResponse({ error: "Promotion succeeded but email logging failed." }, 500);
-      }
+      async insertAuditLog(entry) {
+        const { error } = await serviceClient.from("audit_log_entries").insert(entry);
+        return { error };
+      },
+    });
 
-      auditEntries.push({
-        actor_type: isServiceRoleRequest ? "system" : "organizer",
-        actor_id: actorId,
-        action: "waitlist.promoted",
-        entity_type: "invitation",
-        entity_id: invitation.id,
-        new_value: {
-          event_id: invitation.event_id,
-          guest_email: guestEmail,
-          provider_message_id: providerMessageId,
-        },
-      });
-    }
-
-    if (auditEntries.length > 0) {
-      const { error: auditError } = await serviceClient.from("audit_log_entries").insert(auditEntries);
-      if (auditError) {
-        console.error("Failed to write waitlist promotion audit log:", auditError.message);
-        return jsonResponse({ error: "Promotion succeeded but audit logging failed." }, 500);
-      }
-    }
-
-    return jsonResponse({
-      promoted_count: promotedInvitationIds.length,
-      promoted_invitation_ids: promotedInvitationIds,
-    }, 200);
+    return jsonResponse(summary, 200);
   } catch (error) {
     console.error("Unexpected waitlist promotion error:", error);
     return jsonResponse(
