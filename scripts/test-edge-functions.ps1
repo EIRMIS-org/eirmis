@@ -292,7 +292,7 @@ if ($WEBHOOK_SECRET) {
   Test "webhook reachable without a Supabase JWT" -Path "/html-scan-callback" -Headers @{ "x-scanner-signature" = "sha256=$sig" } -Body $cbUnknown -Status 404 -Match "NOT_FOUND" `
     -Note "External scanners send no Supabase JWT. Needs [functions.html-scan-callback] verify_jwt = false in config.toml."
   Test "hard-coded test signature rejected when secret is set" -Path "/html-scan-callback" -Headers ($H_ANON + @{ "x-scanner-signature" = "test-signature" }) -Body $cbUnknown -Status 401 -Match "signature" `
-    -Note "SECURITY: verifyHmacSignature() accepts 'test-signature'/'sha256-hmac-hash' even when SCANNER_WEBHOOK_SECRET is set, so anyone can forge scan results."
+    -Note "Hard-coded test signatures must always be rejected (401 when secret is set; 500 FUNCTION_NOT_CONFIGURED when SCANNER_WEBHOOK_SECRET is unset)."
 } else {
   Skip "HMAC signature cases" "SCANNER_WEBHOOK_SECRET not found in supabase/.env.local"
 }
