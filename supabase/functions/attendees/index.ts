@@ -2,6 +2,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { signQrToken } from "../_shared/qr-token.ts";
+import { runPostDecisionDispatch } from "./post-decision.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -418,132 +419,98 @@ serve(async (req) => {
   }
 
   // --------------------------------------------------------------------------
-  // 12. Preserve the existing QR-bundle behavior.
+  // 12. Post-decision notification and QR-bundle dispatch.
   //
-  // When an attendee is approved and no pending attendees remain,
-  // request the QR bundle for the entire invitation.
+  // After either an approval or rejection, once no pending attendees remain:
+  //   - Queue the batched `attendee_status_update` email log.
+  //   - Request the QR bundle if the invitation has at least one approved attendee.
   // --------------------------------------------------------------------------
 
-  if (decision === "approve") {
-    const { count: pendingCount, error: pendingError } = await serviceClient
-      .from("attendees")
-      .select("id", { count: "exact", head: true })
-      .eq("invitation_id", updatedAttendee.invitation_id)
-      .eq("status", "pending");
+  const postDecision = await runPostDecisionDispatch(
+    updatedAttendee.invitation_id,
+    {
+      async countPendingAttendees(invitationId) {
+        const { count, error } = await serviceClient
+          .from("attendees")
+          .select("id", { count: "exact", head: true })
+          .eq("invitation_id", invitationId)
+          .eq("status", "pending");
+        return { count, error };
+      },
 
-    if (pendingError) {
-      console.error(
-        "Failed to count pending attendees:",
-        pendingError.message,
-      );
+      async countApprovedAttendees(invitationId) {
+        const { count, error } = await serviceClient
+          .from("attendees")
+          .select("id", { count: "exact", head: true })
+          .eq("invitation_id", invitationId)
+          .eq("status", "approved");
+        return { count, error };
+      },
 
-      return jsonResponse(
-        {
-          error: "Decision saved, but failed to check remaining attendees.",
-          attendee: updatedAttendee,
-          capacity_warning: capacityWarning,
-        },
-        500,
-      );
-    }
-
-    if (pendingCount === 0) {
-      const { data: notificationContext, error: notificationContextError } =
-        await serviceClient
+      async fetchNotificationRecipient(invitationId) {
+        const { data, error } = await serviceClient
           .from("invitations")
           .select("event_id, guests!inner(email)")
-          .eq("id", updatedAttendee.invitation_id)
+          .eq("id", invitationId)
           .single();
 
-      if (notificationContextError || !notificationContext) {
-        console.error(
-          "Failed to fetch attendee notification recipient:",
-          notificationContextError?.message ?? "No invitation returned.",
-        );
-        return jsonResponse({
-          error: "Decision saved, but notification could not be queued.",
-          attendee: updatedAttendee,
-          capacity_warning: capacityWarning,
-        }, 500);
-      }
+        if (error || !data) {
+          return { data: null, error };
+        }
 
-      const guest = Array.isArray(notificationContext.guests)
-        ? notificationContext.guests[0]
-        : notificationContext.guests;
-      const { error: notificationError } = await serviceClient
-        .from("email_logs")
-        .insert({
-          event_id: notificationContext.event_id,
-          invitation_id: updatedAttendee.invitation_id,
-          recipient_email: guest.email,
+        const guest = Array.isArray(data.guests) ? data.guests[0] : data.guests;
+        if (!guest?.email) {
+          return { data: null, error: { message: "Guest email is missing." } };
+        }
+
+        return {
+          data: {
+            event_id: data.event_id,
+            recipient_email: guest.email,
+          },
+          error: null,
+        };
+      },
+
+      async queueStatusUpdateEmail({ event_id, invitation_id, recipient_email }) {
+        const { error } = await serviceClient.from("email_logs").insert({
+          event_id,
+          invitation_id,
+          recipient_email,
           type: "attendee_status_update",
           status: "queued",
         });
+        return { error };
+      },
 
-      if (notificationError) {
-        console.error(
-          "Failed to queue attendee status notification:",
-          notificationError.message,
-        );
-        return jsonResponse({
-          error: "Decision saved, but notification could not be queued.",
-          attendee: updatedAttendee,
-          capacity_warning: capacityWarning,
-        }, 500);
-      }
-
-      try {
-        const invokeQrBundle = () =>
-          fetch(
-            `${supabaseUrl.replace(/\/$/, "")}/functions/v1/qr-bundle`,
-            {
-              method: "POST",
-              headers: {
-                Authorization: authorization,
-                apikey: supabaseAnonKey,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                invitation_id: updatedAttendee.invitation_id,
-              }),
-            },
-          );
-
-        let qrBundleResponse = await invokeQrBundle();
-        if (qrBundleResponse.status === 503 || qrBundleResponse.status === 546) {
-          qrBundleResponse = await invokeQrBundle();
-        }
-
-        if (!qrBundleResponse.ok) {
-          const responseBody = await qrBundleResponse.text();
-
-          console.error(
-            `QR bundle request failed (${qrBundleResponse.status}):`,
-            responseBody,
-          );
-
-          return jsonResponse(
-            {
-              error: "Decision saved, but the QR bundle request failed.",
-              attendee: updatedAttendee,
-              capacity_warning: capacityWarning,
-            },
-            502,
-          );
-        }
-      } catch (error) {
-        console.error("Failed to request QR bundle:", error);
-
-        return jsonResponse(
+      invokeQrBundle(invitationId) {
+        return fetch(
+          `${supabaseUrl.replace(/\/$/, "")}/functions/v1/qr-bundle`,
           {
-            error: "Decision saved, but the QR bundle request failed.",
-            attendee: updatedAttendee,
-            capacity_warning: capacityWarning,
+            method: "POST",
+            headers: {
+              Authorization: authorization,
+              apikey: supabaseAnonKey,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              invitation_id: invitationId,
+            }),
           },
-          502,
         );
-      }
-    }
+      },
+    },
+  );
+
+  if (!postDecision.ok) {
+    return jsonResponse(
+      {
+        error: postDecision.error,
+        attendee: updatedAttendee,
+        capacity_warning: capacityWarning,
+      },
+      postDecision.status,
+    );
   }
 
   // --------------------------------------------------------------------------
