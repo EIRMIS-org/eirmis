@@ -129,58 +129,30 @@ serve(async (req) => {
       }
     }
 
-    const { data: eventData, error: eventError } = await serviceClient
-      .from("events")
-      .select("capacity")
-      .eq("id", eventId)
-      .maybeSingle();
-
-    if (eventError) {
-      console.error("Error fetching event capacity:", eventError.message);
-      return jsonResponse({ error: "Failed to load event capacity." }, 500);
-    }
-
-    if (!eventData || eventData.capacity == null) {
-      return jsonResponse({ error: "Event capacity not found." }, 404);
-    }
-
-    const { data: approvedInvitations, error: headcountError } = await serviceClient
-      .from("invitations")
-      .select("party_size")
-      .eq("event_id", eventId)
-      .eq("status", "accepted");
-
-    if (headcountError) {
-      console.error("Error calculating approved headcount:", headcountError.message);
-      return jsonResponse({ error: "Failed to calculate approved headcount." }, 500);
-    }
-
-    const totalApprovedPartySize = (approvedInvitations ?? []).reduce(
-      (sum, invitation) => sum + Number(invitation.party_size ?? 0),
-      0,
-    );
-
-    const headroom = Number(eventData.capacity) - totalApprovedPartySize;
-    if (headroom <= 0) {
-      return jsonResponse({ promoted_count: 0, promoted_invitation_ids: [] }, 200);
-    }
-
-    const effectiveMaxPromotions = Math.min(maxPromotions, headroom);
     const { data: promotedRows, error: promoteError } = await serviceClient.rpc(
-      "promote_waitlist_atomic",
+      "promote_waitlist_fifo",
       {
         p_event_id: eventId,
-        p_headroom: headroom,
-        p_max_promote: effectiveMaxPromotions,
+        p_max_promotions: maxPromotions,
       },
     );
 
     if (promoteError) {
+      if (
+        promoteError.code === "P0002" ||
+        promoteError.message?.includes("EVENT_NOT_FOUND")
+      ) {
+        return jsonResponse({ error: "Event not found." }, 404);
+      }
       console.error("Failed to promote waitlisted invitations:", promoteError.message);
       return jsonResponse({ error: "Failed to promote waitlisted invitations." }, 500);
     }
 
-    const promotedInvitations = Array.isArray(promotedRows) ? promotedRows : [];
+    const promotedInvitations: Array<{
+      id: string;
+      event_id: string;
+      guest_id: string;
+    }> = Array.isArray(promotedRows) ? promotedRows : [];
     const promotedInvitationIds: string[] = [];
     const auditEntries: Array<{
       actor_type: "system" | "organizer";
@@ -191,15 +163,13 @@ serve(async (req) => {
       new_value: Record<string, unknown>;
     }> = [];
 
-    for (const row of promotedInvitations) {
-      const { data: invitation, error: invitationError } = await serviceClient
-        .from("invitations")
-        .select("id, event_id, guest_id")
-        .eq("id", row.id)
-        .maybeSingle();
-
-      if (invitationError || !invitation) {
-        console.error("Error fetching promoted invitation details:", invitationError?.message ?? "unknown");
+    for (const invitation of promotedInvitations) {
+      if (
+        !isUuid(invitation.id) ||
+        !isUuid(invitation.event_id) ||
+        !isUuid(invitation.guest_id)
+      ) {
+        console.error("Invalid promoted invitation row returned by promote_waitlist_fifo.");
         return jsonResponse({ error: "Failed to load promoted invitation details." }, 500);
       }
 

@@ -26,13 +26,14 @@
 --  21. A non-positive promotion limit is rejected.
 --  22. A nonexistent event is rejected.
 --  23. A NULL event ID is rejected.
+--  24. Legacy promote_waitlist_atomic function has been removed.
 --
 -- Test data is isolated and rolled back at the end.
 -- =============================================================================
 
 BEGIN;
 
-SELECT plan(24);
+SELECT plan(25);
 
 
 -- =============================================================================
@@ -659,6 +660,16 @@ SELECT throws_ok(
     '22023',
     'EVENT_ID_REQUIRED',
     'promotion rejects a NULL event ID'
+);
+
+
+-- =============================================================================
+-- TEST 25: LEGACY PROMOTE_WAITLIST_ATOMIC REMOVED
+-- =============================================================================
+
+SELECT ok(
+    to_regprocedure('public.promote_waitlist_atomic(uuid,integer,integer)') IS NULL,
+    'legacy promote_waitlist_atomic RPC is removed'
 );
 
 
