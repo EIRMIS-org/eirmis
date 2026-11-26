@@ -427,7 +427,7 @@ Deno.test("handleQrBundleRequest enforces 401, 403, preserves valid tokens, and 
         if (match && bodyJson.qr_token) {
           updatedTokens[match[1]] = bodyJson.qr_token;
         }
-        return new Response(JSON.stringify([]), {
+        return new Response(JSON.stringify(match ? [{ id: match[1] }] : []), {
           status: 200,
           headers: { "Content-Type": "application/json" },
         });
@@ -699,5 +699,198 @@ Deno.test("handleQrBundleRequest enforces 401, 403, preserves valid tokens, and 
     );
   } finally {
     globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("handleQrBundleRequest rejects non-accepted single invitations and aborts when declined before token persistence", async () => {
+  Deno.env.set("SUPABASE_URL", "http://supabase.mock");
+  Deno.env.set("SUPABASE_ANON_KEY", "anon-key");
+  Deno.env.set("SUPABASE_SERVICE_ROLE_KEY", "service-role-key");
+  Deno.env.set("RESEND_API_KEY", "resend-api-key");
+  Deno.env.set("QR_SIGNING_SECRET", QR_SIGNING_SECRET);
+
+  let invitationStatus = "declined";
+  let invitationFetchCount = 0;
+  let declineOnSecondCheck = false;
+  let patchMatchesApprovedRow = true;
+  let attendeePatchCalls = 0;
+  let resendCalls = 0;
+  let lastAttendeePatchUrl = "";
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    const urlStr = typeof input === "string"
+      ? input
+      : input instanceof URL
+      ? input.toString()
+      : input.url;
+    const method = (init?.method ?? "GET").toUpperCase();
+
+    if (urlStr.includes("/auth/v1/user")) {
+      return new Response(
+        JSON.stringify({ id: ORGANIZER_ID, email: "org@eirmis.local" }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+    if (urlStr.includes("/rest/v1/organizer_profiles")) {
+      return new Response(
+        JSON.stringify({ id: ORGANIZER_ID, status: "active" }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+    if (urlStr.includes("/rest/v1/events")) {
+      return new Response(
+        JSON.stringify({
+          id: EVENT_ID,
+          organizer_id: ORGANIZER_ID,
+          title: "Eligibility Gala",
+          starts_at: "2026-12-01T18:00:00Z",
+          venue_name: "Hall A",
+          address: "1 Main St",
+          city: "Manila",
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+    if (urlStr.includes("/rest/v1/invitations")) {
+      invitationFetchCount++;
+      if (declineOnSecondCheck && invitationFetchCount >= 2) {
+        invitationStatus = "declined";
+      }
+      if (urlStr.includes(`id=eq.${INVITATION_ID}`)) {
+        return new Response(
+          JSON.stringify({
+            id: INVITATION_ID,
+            event_id: EVENT_ID,
+            guest_id: GUEST_ID,
+            status: invitationStatus,
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response(
+        JSON.stringify(
+          invitationStatus === "accepted"
+            ? [{
+              id: INVITATION_ID,
+              event_id: EVENT_ID,
+              guest_id: GUEST_ID,
+              status: "accepted",
+            }]
+            : [],
+        ),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+    if (urlStr.includes("/rest/v1/guests")) {
+      return new Response(
+        JSON.stringify({
+          id: GUEST_ID,
+          full_name: "Alice Primary",
+          email: "alice@example.com",
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+    if (urlStr.includes("/rest/v1/attendees") && method === "GET") {
+      return new Response(
+        JSON.stringify([{
+          id: ATTENDEE_1_ID,
+          invitation_id: INVITATION_ID,
+          full_name: "Alice Primary",
+          email: "alice@example.com",
+          is_primary: true,
+          status: "approved",
+          qr_token: null,
+        }]),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+    if (urlStr.includes("/rest/v1/attendees") && method === "PATCH") {
+      attendeePatchCalls++;
+      lastAttendeePatchUrl = urlStr;
+      return new Response(
+        JSON.stringify(patchMatchesApprovedRow ? [{ id: ATTENDEE_1_ID }] : []),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+    if (urlStr.includes("/rest/v1/email_logs") && method === "GET") {
+      return new Response(JSON.stringify([]), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (urlStr.includes("api.resend.com/emails")) {
+      resendCalls++;
+      return new Response(JSON.stringify({ id: "resend-unexpected" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    throw new Error(`Unexpected fetch: ${method} ${urlStr}`);
+  };
+
+  try {
+    // 1. Invitation-specific dispatch for a declined invitation -> 409, no token write, no email
+    const resDeclined = await handleQrBundleRequest(
+      new Request("http://localhost/functions/v1/qr-bundle", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer valid-org-jwt",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ invitation_id: INVITATION_ID }),
+      }),
+    );
+    assert(resDeclined.status === 409, `Expected 409 for declined invitation, got ${resDeclined.status}`);
+    assert((await resDeclined.json()).code === "INVITATION_NOT_ACCEPTED", "code is INVITATION_NOT_ACCEPTED");
+    assert(attendeePatchCalls === 0, "Must not persist tokens for declined invitation");
+    assert(resendCalls === 0, "Must not send email for declined invitation");
+
+    // 2. Overlapping decline during bulk dispatch: accepted on initial list, declined on recheck before token persistence
+    invitationStatus = "accepted";
+    invitationFetchCount = 0;
+    declineOnSecondCheck = true;
+    const resBulkOverlap = await handleQrBundleRequest(
+      new Request("http://localhost/functions/v1/qr-bundle", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer valid-org-jwt",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ event_id: EVENT_ID }),
+      }),
+    );
+    assert(resBulkOverlap.status === 200, `Expected 200 for bulk dispatch, got ${resBulkOverlap.status}`);
+    const bodyBulkOverlap = await resBulkOverlap.json();
+    assert(bodyBulkOverlap.dispatched_count === 0, "Declined invitation must be skipped in bulk dispatch");
+    assert(attendeePatchCalls === 0, "Must not persist token after overlapping decline");
+    assert(resendCalls === 0, "Must not email after overlapping decline");
+
+    // 3. Attendee no longer approved when persisting token (0 rows updated by conditional PATCH) -> 409, no email
+    invitationStatus = "accepted";
+    invitationFetchCount = 0;
+    declineOnSecondCheck = false;
+    patchMatchesApprovedRow = false;
+    const resAttendeeReset = await handleQrBundleRequest(
+      new Request("http://localhost/functions/v1/qr-bundle", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer valid-org-jwt",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ invitation_id: INVITATION_ID }),
+      }),
+    );
+    assert(resAttendeeReset.status === 409, `Expected 409 when attendee no longer approved, got ${resAttendeeReset.status}`);
+    assert(
+      lastAttendeePatchUrl.includes("status=eq.approved") &&
+        lastAttendeePatchUrl.includes(`invitation_id=eq.${INVITATION_ID}`),
+      "Token persistence PATCH must filter by status=approved and invitation_id",
+    );
+    assert(resendCalls === 0, "Must not send email when conditional token PATCH updates 0 rows");
+  } finally {
+    globalThis.fetch = originalFetch;
+    Deno.env.delete("QR_SIGNING_SECRET");
   }
 });

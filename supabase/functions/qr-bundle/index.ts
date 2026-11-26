@@ -543,6 +543,13 @@ export async function handleQrBundleRequest(req: Request): Promise<Response> {
 
   let invitations: InvitationRow[];
   if (singleInvitation) {
+    if (singleInvitation.status !== "accepted") {
+      return errorResponse(
+        "INVITATION_NOT_ACCEPTED",
+        "QR bundles can only be dispatched for accepted invitations.",
+        409,
+      );
+    }
     invitations = [singleInvitation];
   } else {
     const { data: eventInvitations, error: listInvError } =
@@ -698,6 +705,32 @@ export async function handleQrBundleRequest(req: Request): Promise<Response> {
     }[] = [];
 
     let tokenGenerationFailed = false;
+    let invitationNoLongerEligible = false;
+
+    const isInvitationStillAccepted = async (): Promise<
+      "accepted" | "ineligible" | "error"
+    > => {
+      const { data: currentInv, error: currentInvError } = await serviceSupabase
+        .from("invitations")
+        .select("id, status")
+        .eq("id", invitation.id)
+        .maybeSingle();
+
+      if (currentInvError) {
+        console.error(
+          `Failed to recheck invitation ${invitation.id} eligibility:`,
+          currentInvError.message,
+        );
+        return "error";
+      }
+
+      if (!currentInv || currentInv.status !== "accepted") {
+        return "ineligible";
+      }
+
+      return "accepted";
+    };
+
     for (const attendee of approvedAttendees) {
       const existingValidPayload = await verifyAndDecodeQrToken(
         attendee.qr_token,
@@ -711,6 +744,16 @@ export async function handleQrBundleRequest(req: Request): Promise<Response> {
 
       let tokenToUse = attendee.qr_token;
       if (!existingValidPayload || !tokenToUse) {
+        const eligibility = await isInvitationStillAccepted();
+        if (eligibility === "error") {
+          tokenGenerationFailed = true;
+          break;
+        }
+        if (eligibility === "ineligible") {
+          invitationNoLongerEligible = true;
+          break;
+        }
+
         tokenToUse = await signQrToken(
           {
             attendee_id: attendee.id,
@@ -720,17 +763,33 @@ export async function handleQrBundleRequest(req: Request): Promise<Response> {
           qrSigningSecret,
         );
 
-        const { error: updateTokenError } = await serviceSupabase
-          .from("attendees")
-          .update({ qr_token: tokenToUse })
-          .eq("id", attendee.id);
+        const { data: updatedAttendees, error: updateTokenError } =
+          await serviceSupabase
+            .from("attendees")
+            .update({ qr_token: tokenToUse })
+            .eq("id", attendee.id)
+            .eq("invitation_id", invitation.id)
+            .eq("status", "approved")
+            .select("id");
 
         if (updateTokenError) {
+          if (
+            updateTokenError.code === "P0001" &&
+            updateTokenError.message.includes("QR tokens can only be persisted")
+          ) {
+            invitationNoLongerEligible = true;
+            break;
+          }
           console.error(
             `Failed to persist qr_token for attendee ${attendee.id}:`,
             updateTokenError.message,
           );
           tokenGenerationFailed = true;
+          break;
+        }
+
+        if (!updatedAttendees || updatedAttendees.length === 0) {
+          invitationNoLongerEligible = true;
           break;
         }
       }
@@ -741,6 +800,26 @@ export async function handleQrBundleRequest(req: Request): Promise<Response> {
         is_primary: Boolean(attendee.is_primary),
         qr_token: tokenToUse,
       });
+    }
+
+    if (!tokenGenerationFailed && !invitationNoLongerEligible) {
+      const preSendEligibility = await isInvitationStillAccepted();
+      if (preSendEligibility === "error") {
+        tokenGenerationFailed = true;
+      } else if (preSendEligibility === "ineligible") {
+        invitationNoLongerEligible = true;
+      }
+    }
+
+    if (invitationNoLongerEligible) {
+      if (singleInvitation) {
+        return errorResponse(
+          "INVITATION_NOT_ACCEPTED",
+          "Invitation is no longer accepted or attendee is no longer approved for QR dispatch.",
+          409,
+        );
+      }
+      continue;
     }
 
     if (tokenGenerationFailed) {

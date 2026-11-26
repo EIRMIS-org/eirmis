@@ -8,7 +8,7 @@
 
 BEGIN;
 
-SELECT plan(90);
+SELECT plan(93);
 
 -- ---------------------------------------------------------------------------
 -- Fixtures
@@ -1342,6 +1342,47 @@ SELECT throws_ok(
     'P0001',
     NULL,
     'decide_headcount_request rejects approving a request on a declined invitation'
+);
+
+-- 91. service_role cannot persist qr_token on an approved Primary Attendee of a declined invitation.
+SELECT throws_ok(
+    $$UPDATE public.attendees
+      SET qr_token = 'pgtap-011-declined-primary-token'
+      WHERE invitation_id = 'ab300000-0000-4000-8000-000000000010'
+        AND is_primary IS TRUE$$,
+    'P0001',
+    'QR tokens can only be persisted for approved attendees on accepted invitations.',
+    'service_role cannot persist qr_token on an approved Primary Attendee of a declined invitation'
+);
+
+-- 92. service_role cannot persist qr_token on a pending Additional Attendee of an accepted invitation.
+INSERT INTO public.attendees (
+    id, invitation_id, full_name, email, is_primary, status
+) VALUES (
+    'ab400000-0000-4000-8000-000000000031',
+    'ab300000-0000-4000-8000-000000000001',
+    'pgTAP Pending QR Guard Attendee',
+    'pending-qr-guard@example.test',
+    false,
+    'pending'
+);
+
+SELECT throws_ok(
+    $$UPDATE public.attendees
+      SET qr_token = 'pgtap-011-pending-additional-token'
+      WHERE id = 'ab400000-0000-4000-8000-000000000031'$$,
+    'P0001',
+    'QR tokens can only be persisted for approved attendees on accepted invitations.',
+    'service_role cannot persist qr_token on a pending Additional Attendee of an accepted invitation'
+);
+
+-- 93. service_role can persist qr_token on an approved Primary Attendee of an accepted invitation.
+SELECT lives_ok(
+    $$UPDATE public.attendees
+      SET qr_token = 'pgtap-011-accepted-primary-token'
+      WHERE invitation_id = 'ab300000-0000-4000-8000-000000000001'
+        AND is_primary IS TRUE$$,
+    'service_role can persist qr_token on an approved Primary Attendee of an accepted invitation'
 );
 
 RESET ROLE;
