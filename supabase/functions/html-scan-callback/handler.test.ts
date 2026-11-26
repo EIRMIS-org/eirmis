@@ -8,11 +8,11 @@ import {
 const SUPABASE_URL = "https://example.supabase.co";
 const SERVICE_KEY = "test-service-role-key-secret";
 const WEBHOOK_SECRET = "super-secret-webhook-signing-key";
+const VALID_SCAN_ID = "22222222-2222-2222-2222-222222222222";
 
 const VALID_PAYLOAD = JSON.stringify({
-  scan_id: "scan-job-123",
+  scan_id: VALID_SCAN_ID,
   result: "clean",
-  event_id: "55555555-5555-5555-5555-555555555555",
 });
 
 function makeDesign(
@@ -67,9 +67,9 @@ describe("html-scan-callback handler", () => {
       findPendingDesign: vi
         .fn()
         .mockResolvedValue({ data: makeDesign(), error: null }),
-      findDesignByEventId: vi.fn().mockResolvedValue({ data: null, error: null }),
       moveToQuarantine: vi.fn().mockResolvedValue({ error: null }),
-      updateDesign: vi.fn().mockResolvedValue({ error: null }),
+      updateDesign: vi.fn().mockResolvedValue({ updated: true, error: null }),
+      updateStoragePath: vi.fn().mockResolvedValue({ error: null }),
       insertAuditLog: vi.fn().mockResolvedValue({ error: null }),
       notifyScanFailure: vi.fn().mockResolvedValue(undefined),
     };
@@ -135,6 +135,7 @@ describe("html-scan-callback handler", () => {
       expect(await res.json()).toEqual({ processed: true });
       expect(deps.updateDesign).toHaveBeenCalledWith(
         "11111111-1111-1111-1111-111111111111",
+        VALID_SCAN_ID,
         expect.objectContaining({ validation_status: "passed" }),
       );
     });
@@ -231,6 +232,135 @@ describe("html-scan-callback handler", () => {
       const res = await handler(makeRequest("", {}, "GET"));
       expect(res.status).toBe(405);
       expect(await res.json()).toMatchObject({ code: "METHOD_NOT_ALLOWED" });
+    });
+  });
+
+  describe("scan_id validation and lookup", () => {
+    it("rejects a non-UUID scan_id with 400 INVALID_REQUEST before querying", async () => {
+      const handler = createScanCallbackHandler(deps);
+      const body = JSON.stringify({
+        scan_id: "scan-job-123",
+        result: "clean",
+      });
+
+      const res = await handler(
+        makeRequest(body, { Authorization: `Bearer ${SERVICE_KEY}` }),
+      );
+      expect(res.status).toBe(400);
+      expect(await res.json()).toMatchObject({ code: "INVALID_REQUEST" });
+      expect(deps.findPendingDesign).not.toHaveBeenCalled();
+      expect(deps.updateDesign).not.toHaveBeenCalled();
+    });
+
+    it("looks up the pending design by scan_id and ignores event_id", async () => {
+      const handler = createScanCallbackHandler(deps);
+      const body = JSON.stringify({
+        scan_id: VALID_SCAN_ID,
+        result: "clean",
+        event_id: "99999999-9999-9999-9999-999999999999",
+      });
+
+      const res = await handler(
+        makeRequest(body, { Authorization: `Bearer ${SERVICE_KEY}` }),
+      );
+      expect(res.status).toBe(200);
+      expect(deps.findPendingDesign).toHaveBeenCalledWith(VALID_SCAN_ID);
+    });
+
+    it("returns 404 NOT_FOUND with no fallback when no pending design matches scan_id", async () => {
+      deps.findPendingDesign = vi
+        .fn()
+        .mockResolvedValue({ data: null, error: null });
+      const handler = createScanCallbackHandler(deps);
+      const body = JSON.stringify({
+        scan_id: VALID_SCAN_ID,
+        result: "clean",
+        event_id: "55555555-5555-5555-5555-555555555555",
+      });
+
+      const res = await handler(
+        makeRequest(body, { Authorization: `Bearer ${SERVICE_KEY}` }),
+      );
+      expect(res.status).toBe(404);
+      expect(await res.json()).toMatchObject({ code: "NOT_FOUND" });
+      expect(deps.findPendingDesign).toHaveBeenCalledWith(VALID_SCAN_ID);
+      expect(deps.updateDesign).not.toHaveBeenCalled();
+      expect(deps.insertAuditLog).not.toHaveBeenCalled();
+      expect(deps.notifyScanFailure).not.toHaveBeenCalled();
+    });
+
+    it("returns 404 NOT_FOUND and skips quarantine/audit/email when conditional update matches 0 rows (stale or concurrent)", async () => {
+      deps.updateDesign = vi
+        .fn()
+        .mockResolvedValue({ updated: false, error: null });
+      const handler = createScanCallbackHandler(deps);
+      const body = JSON.stringify({
+        scan_id: VALID_SCAN_ID,
+        result: "malicious",
+        notes: "Detected script payload",
+      });
+
+      const res = await handler(
+        makeRequest(body, { Authorization: `Bearer ${SERVICE_KEY}` }),
+      );
+      expect(res.status).toBe(404);
+      expect(await res.json()).toMatchObject({ code: "NOT_FOUND" });
+      expect(deps.updateDesign).toHaveBeenCalledWith(
+        "11111111-1111-1111-1111-111111111111",
+        VALID_SCAN_ID,
+        expect.objectContaining({ validation_status: "failed" }),
+      );
+      expect(deps.moveToQuarantine).not.toHaveBeenCalled();
+      expect(deps.updateStoragePath).not.toHaveBeenCalled();
+      expect(deps.insertAuditLog).not.toHaveBeenCalled();
+      expect(deps.notifyScanFailure).not.toHaveBeenCalled();
+    });
+
+    it("quarantines the HTML file, updates storage path, logs audit, and notifies organizer on malicious verdict", async () => {
+      const handler = createScanCallbackHandler(deps);
+      const body = JSON.stringify({
+        scan_id: VALID_SCAN_ID,
+        result: "malicious",
+        notes: "Trojan detected",
+      });
+
+      const res = await handler(
+        makeRequest(body, { Authorization: `Bearer ${SERVICE_KEY}` }),
+      );
+      expect(res.status).toBe(200);
+      expect(await res.json()).toEqual({ processed: true });
+      expect(deps.updateDesign).toHaveBeenCalledWith(
+        "11111111-1111-1111-1111-111111111111",
+        VALID_SCAN_ID,
+        expect.objectContaining({
+          validation_status: "failed",
+          validation_notes: "Trojan detected",
+          html_storage_path: "events/55555555/invite.html",
+        }),
+      );
+      expect(deps.moveToQuarantine).toHaveBeenCalledWith(
+        "events/55555555/invite.html",
+        "quarantine/events/55555555/invite.html",
+      );
+      expect(deps.updateStoragePath).toHaveBeenCalledWith(
+        "11111111-1111-1111-1111-111111111111",
+        VALID_SCAN_ID,
+        "quarantine/events/55555555/invite.html",
+      );
+      expect(deps.insertAuditLog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          new_value: expect.objectContaining({
+            validation_status: "failed",
+            scan_id: VALID_SCAN_ID,
+            storage_path: "quarantine/events/55555555/invite.html",
+          }),
+        }),
+      );
+      expect(deps.notifyScanFailure).toHaveBeenCalledWith({
+        eventId: "55555555-5555-5555-5555-555555555555",
+        scanId: VALID_SCAN_ID,
+        validationNotes: "Trojan detected",
+      });
     });
   });
 });

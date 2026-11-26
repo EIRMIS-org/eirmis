@@ -23,3 +23,11 @@ _Avoid_: Main guest, lead attendee
 **Additional Attendee**:
 A non-primary attendee submitted under an invitation who remains pending and consumes no event capacity until explicitly approved by the organizer.
 _Avoid_: Plus-one, companion, extra guest
+
+**HTML Invitation Design**:
+A self-contained HTML file uploaded as an event's invitation design that remains hidden from guests until it passes both structural validation and asynchronous malware scanning.
+_Avoid_: Custom HTML, HTML template
+
+**Scan Job**:
+A single malware-scanning submission tied to one uploaded HTML Invitation Design, whose verdict applies only while that upload is still the event's active pending design.
+_Avoid_: Scan request, validation run

@@ -16,7 +16,7 @@ serve(async (req) => {
   const scannerWebhookSecret = Deno.env.get("SCANNER_WEBHOOK_SECRET");
   const resendApiKey = Deno.env.get("RESEND_API_KEY");
   const resendFromEmail = Deno.env.get("RESEND_FROM_EMAIL");
-  const storageBucket = Deno.env.get("STORAGE_BUCKET_DESIGNS") || "invitations";
+  const storageBucket = "invitation-html";
 
   let serviceClient: ReturnType<typeof createClient> | null = null;
   const getServiceClient = () => {
@@ -31,31 +31,13 @@ serve(async (req) => {
     supabaseServiceRoleKey,
     scannerWebhookSecret,
 
-    async findPendingDesign(eventId) {
-      let designQuery = getServiceClient()
-        .from("invitation_designs")
-        .select("id, event_id, design_type, html_storage_path, validation_status")
-        .eq("design_type", "html");
-
-      if (eventId) {
-        designQuery = designQuery.eq("event_id", eventId);
-      }
-
-      const { data, error } = await designQuery
-        .eq("validation_status", "pending")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      return { data: (data as InvitationDesignRow | null) ?? null, error };
-    },
-
-    async findDesignByEventId(eventId) {
+    async findPendingDesign(scanId) {
       const { data, error } = await getServiceClient()
         .from("invitation_designs")
         .select("id, event_id, design_type, html_storage_path, validation_status")
-        .eq("event_id", eventId)
+        .eq("scan_id", scanId)
         .eq("design_type", "html")
+        .eq("validation_status", "pending")
         .maybeSingle();
 
       return { data: (data as InvitationDesignRow | null) ?? null, error };
@@ -68,11 +50,24 @@ serve(async (req) => {
       return { error };
     },
 
-    async updateDesign(id, update) {
-      const { error } = await getServiceClient()
+    async updateDesign(id, scanId, update) {
+      const { data, error } = await getServiceClient()
         .from("invitation_designs")
         .update(update)
-        .eq("id", id);
+        .eq("id", id)
+        .eq("scan_id", scanId)
+        .eq("validation_status", "pending")
+        .select("id")
+        .maybeSingle();
+      return { updated: Boolean(data), error };
+    },
+
+    async updateStoragePath(id, scanId, htmlStoragePath) {
+      const { error } = await getServiceClient()
+        .from("invitation_designs")
+        .update({ html_storage_path: htmlStoragePath })
+        .eq("id", id)
+        .eq("scan_id", scanId);
       return { error };
     },
 

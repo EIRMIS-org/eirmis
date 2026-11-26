@@ -112,6 +112,8 @@
         $ref: '../components/responses.yaml#/BadRequest'
       '401':
         $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
 
 /functions/v1/attendees/{id}/decision:
   post:
