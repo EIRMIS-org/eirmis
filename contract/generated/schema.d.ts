@@ -110,7 +110,7 @@ export interface paths {
         head?: never;
         /**
          * Update an invitation
-         * @description For organizers: update `max_party_size` or `status` on a guest's invitation. For guests: update RSVP `status`, `dietary_preference`, `special_requests`. The DB trigger blocks guest updates after the RSVP deadline.
+         * @description For organizers: update `max_party_size` or `status` on a guest's invitation. For guests: update RSVP `status`, `dietary_preference`, `special_requests` only (mutating `max_party_size`, cached counts, or provenance fields returns 403). Guest status transitions are enforced server-side: `waitlisted` may only transition to `declined`, `accepted` status is locked, and accepting while Event Capacity is full automatically routes the invitation to `waitlisted`. Blocked after the RSVP deadline or when the event is not `published`.
          */
         patch: operations["updateInvitation"];
         trace?: never;
@@ -1370,7 +1370,7 @@ export interface components {
             special_requests?: string | null;
         };
         /**
-         * @description Fields a guest may update on their own invitation via PATCH. Primarily used for RSVP status changes and logistics fields. Blocked by a DB trigger after the event's RSVP deadline.
+         * @description Fields a guest may update on their own invitation via PATCH (`status`, `dietary_preference`, `special_requests`). All other columns (including `max_party_size`, cached counts, and provenance timestamps) are rejected with 403. Allowed guest status transitions: `pending`/`tentative`/`declined` may transition to `accepted`, `declined`, or `tentative` (attempting `accepted` when Event Capacity is full automatically routes the invitation to `waitlisted` with `waitlisted_at` set); `waitlisted` may only transition to `declined`; `accepted` status is locked (logistics-only edits permitted). Blocked after the event's RSVP deadline or when the event is not `published`.
          * @example {
          *       "status": "accepted",
          *       "dietary_preference": "Vegetarian",
