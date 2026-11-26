@@ -17,7 +17,7 @@ The strict first-in, first-out advancement of a waitlisted invitation into accep
 _Avoid_: Waitlist bump, auto-approval
 
 **Waitlist Position**:
-A waitlisted invitation's place in the first-in, first-out queue for Waitlist Promotion. Opting out by declining forfeits the position so any subsequent re-entry starts at the back of the line.
+A waitlisted invitation's place in the first-in, first-out queue for Waitlist Promotion. Leaving the waitlist without being promoted forfeits the position so any subsequent re-entry starts at the back of the line.
 _Avoid_: Queue slot, waitlist rank
 
 **Primary Attendee**:

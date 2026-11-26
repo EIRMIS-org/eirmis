@@ -8,7 +8,7 @@
 
 BEGIN;
 
-SELECT plan(62);
+SELECT plan(72);
 
 -- ---------------------------------------------------------------------------
 -- Fixtures
@@ -839,6 +839,90 @@ SELECT is(
     true,
     'authenticated has EXECUTE privilege on fn_guard_guest_invitation_update'
 );
+
+SELECT is(
+    has_function_privilege('public', 'public.fn_sync_invitation_waitlisted_at()', 'EXECUTE'),
+    false,
+    'PUBLIC does not have EXECUTE privilege on fn_sync_invitation_waitlisted_at'
+);
+
+SELECT is(
+    has_function_privilege('anon', 'public.fn_sync_invitation_waitlisted_at()', 'EXECUTE'),
+    false,
+    'anon does not have EXECUTE privilege on fn_sync_invitation_waitlisted_at'
+);
+
+SELECT is(
+    has_function_privilege('authenticated', 'public.fn_sync_invitation_waitlisted_at()', 'EXECUTE'),
+    true,
+    'authenticated has EXECUTE privilege on fn_sync_invitation_waitlisted_at'
+);
+
+-- Organizer waitlist lifecycle transitions maintain waitlisted_at consistently.
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+    'request.jwt.claim.sub',
+    '11111111-1111-1111-1111-111111111111',
+    true
+);
+SELECT set_config(
+    'request.jwt.claims',
+    '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}',
+    true
+);
+
+SELECT lives_ok(
+    $$UPDATE public.invitations
+      SET status = 'declined'
+      WHERE id = 'ab300000-0000-4000-8000-000000000003'$$,
+    'organizer can transition a waitlisted invitation to declined'
+);
+
+SELECT is(
+    (SELECT waitlisted_at FROM public.invitations
+     WHERE id = 'ab300000-0000-4000-8000-000000000003'),
+    NULL::timestamptz,
+    'organizer waitlisted -> declined clears waitlisted_at'
+);
+
+SELECT lives_ok(
+    $$UPDATE public.invitations
+      SET status = 'waitlisted'
+      WHERE id = 'ab300000-0000-4000-8000-000000000003'$$,
+    'organizer can transition a declined invitation into waitlisted'
+);
+
+SELECT ok(
+    (SELECT waitlisted_at IS NOT NULL FROM public.invitations
+     WHERE id = 'ab300000-0000-4000-8000-000000000003'),
+    'organizer declined -> waitlisted stamps a fresh waitlisted_at'
+);
+
+UPDATE public.invitations
+SET status = 'accepted'
+WHERE id = 'ab300000-0000-4000-8000-000000000003';
+
+SELECT ok(
+    (SELECT waitlisted_at IS NOT NULL FROM public.invitations
+     WHERE id = 'ab300000-0000-4000-8000-000000000003'),
+    'waitlisted -> accepted preserves waitlisted_at as queue history'
+);
+
+SELECT lives_ok(
+    $$UPDATE public.invitations
+      SET status = 'declined'
+      WHERE id = 'ab300000-0000-4000-8000-000000000003'$$,
+    'organizer can transition an accepted invitation to declined'
+);
+
+SELECT is(
+    (SELECT waitlisted_at FROM public.invitations
+     WHERE id = 'ab300000-0000-4000-8000-000000000003'),
+    NULL::timestamptz,
+    'organizer accepted -> declined clears preserved waitlisted_at'
+);
+
+RESET ROLE;
 
 -- 50-51. service_role updates still bypass the SECURITY DEFINER guest guard.
 SET LOCAL ROLE service_role;
