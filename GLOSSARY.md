@@ -5,11 +5,11 @@ Event invitation, RSVP, capacity management, and attendee check-in domain.
 ## Language
 
 **Event Capacity**:
-The maximum number of approved attendees allowed across all invitations for an event.
+The maximum number of approved attendees on accepted invitations allowed for an event.
 _Avoid_: Capacity ceiling, seat limit, headroom
 
 **Approved Headcount**:
-The total number of currently approved attendees occupying seats for an event.
+The total number of approved attendees on accepted invitations currently occupying seats for an event.
 _Avoid_: Party size total, current count
 
 **Waitlist Promotion**:
@@ -21,7 +21,7 @@ A waitlisted invitation's place in the first-in, first-out queue for Waitlist Pr
 _Avoid_: Queue slot, waitlist rank
 
 **Primary Attendee**:
-The invited guest represented by an invitation, whose seat is reserved when the invitation is accepted or promoted from the waitlist.
+The invited guest represented by an invitation, whose seat is reserved while the invitation is accepted and released if the invitation is declined.
 _Avoid_: Main guest, lead attendee
 
 **Additional Attendee**:
