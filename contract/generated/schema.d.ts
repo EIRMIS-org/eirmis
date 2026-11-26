@@ -1315,7 +1315,7 @@ export interface components {
             responded_at?: string | null;
             /**
              * Format: date-time
-             * @description Timestamp when this invitation entered `waitlisted` status.
+             * @description Timestamp recording this invitation's current Waitlist Position in the FIFO queue. Stamped fresh on every transition into `waitlisted`, cleared to `null` on any transition to `pending`, `tentative`, or `declined` (forfeiting queue position), and preserved on Waitlist Promotion to `accepted` as queue history.
              * @example null
              */
             waitlisted_at?: string | null;
@@ -1370,7 +1370,7 @@ export interface components {
             special_requests?: string | null;
         };
         /**
-         * @description Fields a guest may update on their own invitation via PATCH (`status`, `dietary_preference`, `special_requests`). All other columns (including `max_party_size`, cached counts, and provenance timestamps) are rejected with 403. Allowed guest status transitions: `pending`/`tentative`/`declined` may transition to `accepted`, `declined`, or `tentative` (attempting `accepted` when Event Capacity is full automatically routes the invitation to `waitlisted` with `waitlisted_at` set); `waitlisted` may only transition to `declined`; `accepted` status is locked (logistics-only edits permitted). Blocked after the event's RSVP deadline or when the event is not `published`.
+         * @description Fields a guest may update on their own invitation via PATCH (`status`, `dietary_preference`, `special_requests`). All other columns (including `max_party_size`, cached counts, and provenance timestamps) are rejected with 403. Allowed guest status transitions: `pending`/`tentative`/`declined` may transition to `accepted`, `declined`, or `tentative` (attempting `accepted` when Event Capacity is full automatically routes the invitation to `waitlisted` with a fresh `waitlisted_at` at the back of the FIFO queue); `waitlisted` may only transition to `declined` (which clears `waitlisted_at` and forfeits Waitlist Position); `accepted` status is locked (logistics-only edits permitted). Blocked after the event's RSVP deadline or when the event is not `published`.
          * @example {
          *       "status": "accepted",
          *       "dietary_preference": "Vegetarian",
