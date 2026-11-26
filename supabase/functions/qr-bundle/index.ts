@@ -3,6 +3,13 @@ import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import QRCode from "npm:qrcode@1.5.4";
 import { PDFDocument, rgb, StandardFonts } from "npm:pdf-lib@1.17.1";
 import { resolveResendFrom, resolveResendTo } from "../_shared/resend.ts";
+import {
+  signQrToken,
+  verifyQrToken,
+  type QrTokenClaims,
+} from "../_shared/qr-token.ts";
+
+export { signQrToken, type QrTokenClaims };
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -13,13 +20,6 @@ const corsHeaders = {
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-export interface QrTokenPayload {
-  attendee_id: string;
-  event_id: string;
-  invitation_id: string;
-  issued_at: string;
-}
 
 interface AttendeeRow {
   id: string;
@@ -89,125 +89,25 @@ export function bytesToBase64(bytes: Uint8Array): string {
   return btoa(binary);
 }
 
-function base64UrlEncodeBytes(bytes: Uint8Array): string {
-  return bytesToBase64(bytes)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/g, "");
-}
-
-function base64UrlEncodeString(value: string): string {
-  return base64UrlEncodeBytes(new TextEncoder().encode(value));
-}
-
-function base64UrlDecodeToString(value: string): string {
-  const padded = value
-    .replace(/-/g, "+")
-    .replace(/_/g, "/")
-    .padEnd(Math.ceil(value.length / 4) * 4, "=");
-  const binary = atob(padded);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return new TextDecoder().decode(bytes);
-}
-
-async function importHmacKey(secret: string): Promise<CryptoKey> {
-  return await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign", "verify"],
-  );
-}
-
-export async function signQrToken(
-  payload: QrTokenPayload,
-  secret: string,
-): Promise<string> {
-  const headerB64 = base64UrlEncodeString(JSON.stringify({ alg: "HS256" }));
-  const payloadB64 = base64UrlEncodeString(
-    JSON.stringify({
-      attendee_id: payload.attendee_id,
-      event_id: payload.event_id,
-      invitation_id: payload.invitation_id,
-      issued_at: payload.issued_at,
-    }),
-  );
-  const signingInput = `${headerB64}.${payloadB64}`;
-  const key = await importHmacKey(secret);
-  const signatureBuffer = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    new TextEncoder().encode(signingInput),
-  );
-  const signatureB64 = base64UrlEncodeBytes(new Uint8Array(signatureBuffer));
-  return `${signingInput}.${signatureB64}`;
-}
-
 export async function verifyAndDecodeQrToken(
   token: string | null | undefined,
   expected: { attendee_id: string; event_id: string; invitation_id: string },
   secret: string,
-): Promise<QrTokenPayload | null> {
+): Promise<QrTokenClaims | null> {
   if (!token || typeof token !== "string") {
     return null;
   }
 
-  const parts = token.split(".");
-  if (parts.length !== 3) {
-    return null;
-  }
-
-  const [headerB64, payloadB64, signatureB64] = parts;
-  if (!headerB64 || !payloadB64 || !signatureB64) {
-    return null;
-  }
-
   try {
-    const signingInput = `${headerB64}.${payloadB64}`;
-    const key = await importHmacKey(secret);
-    const expectedSigBuffer = await crypto.subtle.sign(
-      "HMAC",
-      key,
-      new TextEncoder().encode(signingInput),
-    );
-    const expectedSigB64 = base64UrlEncodeBytes(
-      new Uint8Array(expectedSigBuffer),
-    );
-
-    if (expectedSigB64.length !== signatureB64.length) {
-      return null;
-    }
-    let mismatch = 0;
-    for (let i = 0; i < expectedSigB64.length; i++) {
-      mismatch |= expectedSigB64.charCodeAt(i) ^ signatureB64.charCodeAt(i);
-    }
-    if (mismatch !== 0) {
-      return null;
-    }
-
-    const decodedJson = JSON.parse(base64UrlDecodeToString(payloadB64));
+    const claims = await verifyQrToken(token, secret);
     if (
-      decodedJson === null ||
-      typeof decodedJson !== "object" ||
-      decodedJson.attendee_id !== expected.attendee_id ||
-      decodedJson.event_id !== expected.event_id ||
-      decodedJson.invitation_id !== expected.invitation_id ||
-      typeof decodedJson.issued_at !== "string" ||
-      !decodedJson.issued_at
+      claims.attendee_id !== expected.attendee_id ||
+      claims.event_id !== expected.event_id ||
+      claims.invitation_id !== expected.invitation_id
     ) {
       return null;
     }
-
-    return {
-      attendee_id: decodedJson.attendee_id,
-      event_id: decodedJson.event_id,
-      invitation_id: decodedJson.invitation_id,
-      issued_at: decodedJson.issued_at,
-    };
+    return claims;
   } catch {
     return null;
   }
@@ -435,13 +335,7 @@ export async function handleQrBundleRequest(req: Request): Promise<Response> {
   const resendFromEmail =
     Deno.env.get("RESEND_FROM_EMAIL") || "EIRMIS <noreply@eirmis.local>";
   const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  const qrHmacSecret =
-    Deno.env.get("QR_HMAC_SECRET") ||
-    Deno.env.get("QR_SIGNING_SECRET") ||
-    Deno.env.get("QR_TOKEN_SECRET") ||
-    Deno.env.get("HMAC_SECRET") ||
-    Deno.env.get("JWT_SECRET") ||
-    supabaseServiceRoleKey;
+  const qrSigningSecret = Deno.env.get("QR_SIGNING_SECRET")?.trim();
   const authorization = req.headers.get("Authorization");
 
   if (
@@ -449,7 +343,7 @@ export async function handleQrBundleRequest(req: Request): Promise<Response> {
     !supabaseAnonKey ||
     !resendApiKey ||
     !supabaseServiceRoleKey ||
-    !qrHmacSecret
+    !qrSigningSecret
   ) {
     console.error("QR bundle function is missing required configuration.");
     return errorResponse(
@@ -750,7 +644,7 @@ export async function handleQrBundleRequest(req: Request): Promise<Response> {
               event_id: invitation.event_id,
               invitation_id: invitation.id,
             },
-            qrHmacSecret,
+            qrSigningSecret,
           );
           if (!decoded) {
             allAttendeesAlreadyIssued = false;
@@ -811,20 +705,18 @@ export async function handleQrBundleRequest(req: Request): Promise<Response> {
           event_id: invitation.event_id,
           invitation_id: invitation.id,
         },
-        qrHmacSecret,
+        qrSigningSecret,
       );
 
       let tokenToUse = attendee.qr_token;
       if (!existingValidPayload || !tokenToUse) {
-        const issuedAt = new Date().toISOString();
         tokenToUse = await signQrToken(
           {
             attendee_id: attendee.id,
             event_id: invitation.event_id,
             invitation_id: invitation.id,
-            issued_at: issuedAt,
           },
-          qrHmacSecret,
+          qrSigningSecret,
         );
 
         const { error: updateTokenError } = await serviceSupabase
