@@ -8,7 +8,7 @@
 
 BEGIN;
 
-SELECT plan(45);
+SELECT plan(53);
 
 -- ---------------------------------------------------------------------------
 -- Fixtures
@@ -723,7 +723,7 @@ SELECT throws_ok(
     'guest cannot update an invitation on a soft-deleted published event'
 );
 
--- 43-44. Event organizer can still update max_party_size via PostgREST.
+-- 44-45. Event organizer can still update max_party_size via PostgREST.
 SELECT set_config(
     'request.jwt.claim.sub',
     '11111111-1111-1111-1111-111111111111',
@@ -749,6 +749,71 @@ SELECT is(
     'organizer max_party_size update is persisted'
 );
 
+-- ===========================================================================
+-- Slice 3: /rpc exposure closure & service_role bypass (46-51)
+-- ===========================================================================
+
 RESET ROLE;
+
+-- 46. Legacy SECURITY DEFINER capacity helper is dropped and not exposed via /rpc.
+SELECT is(
+    to_regprocedure('public.fn_check_guest_invitation_event_capacity(uuid, uuid, boolean)'),
+    NULL::regprocedure,
+    'fn_check_guest_invitation_event_capacity is removed and not exposed via /rpc'
+);
+
+-- 47-49. Trigger function EXECUTE is revoked from PUBLIC, anon, and authenticated.
+SELECT is(
+    has_function_privilege('public', 'public.fn_guard_guest_invitation_update()', 'EXECUTE'),
+    false,
+    'PUBLIC does not have EXECUTE privilege on fn_guard_guest_invitation_update'
+);
+
+SELECT is(
+    has_function_privilege('anon', 'public.fn_guard_guest_invitation_update()', 'EXECUTE'),
+    false,
+    'anon does not have EXECUTE privilege on fn_guard_guest_invitation_update'
+);
+
+SELECT is(
+    has_function_privilege('authenticated', 'public.fn_guard_guest_invitation_update()', 'EXECUTE'),
+    false,
+    'authenticated does not have EXECUTE privilege on fn_guard_guest_invitation_update'
+);
+
+-- 50-51. service_role updates still bypass the SECURITY DEFINER guest guard.
+SET LOCAL ROLE service_role;
+
+SELECT lives_ok(
+    $$UPDATE public.invitations
+      SET max_party_size = 9
+      WHERE id = 'ab300000-0000-4000-8000-000000000001'$$,
+    'service_role can update max_party_size bypassing the guest guard'
+);
+
+SELECT is(
+    (SELECT max_party_size FROM public.invitations
+     WHERE id = 'ab300000-0000-4000-8000-000000000001'),
+    9,
+    'service_role max_party_size update is persisted'
+);
+
+-- 52-53. DB owner updates still bypass the SECURITY DEFINER guest guard.
+RESET ROLE;
+
+SELECT lives_ok(
+    $$UPDATE public.invitations
+      SET max_party_size = 10
+      WHERE id = 'ab300000-0000-4000-8000-000000000001'$$,
+    'DB owner can update max_party_size bypassing the guest guard'
+);
+
+SELECT is(
+    (SELECT max_party_size FROM public.invitations
+     WHERE id = 'ab300000-0000-4000-8000-000000000001'),
+    10,
+    'DB owner max_party_size update is persisted'
+);
+
 SELECT * FROM finish();
 ROLLBACK;
