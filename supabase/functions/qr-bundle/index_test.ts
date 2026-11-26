@@ -5,6 +5,8 @@ import {
   signQrToken,
   verifyAndDecodeQrToken,
 } from "./index.ts";
+import { verifyQrToken } from "../_shared/qr-token.ts";
+import { createScanHandler } from "../checkin/scan/handler.ts";
 
 const EVENT_ID = "55555555-5555-5555-5555-555555555555";
 const INVITATION_ID = "66666666-6666-6666-6666-666666666666";
@@ -14,7 +16,8 @@ const OTHER_ORGANIZER_ID = "11111111-1111-1111-1111-111111111119";
 const GUEST_ID = "33333333-3333-3333-3333-333333333333";
 const ATTENDEE_1_ID = "77777777-7777-7777-7777-777777777771";
 const ATTENDEE_2_ID = "77777777-7777-7777-7777-777777777772";
-const HMAC_SECRET = "test-hmac-secret-key-256";
+const ATTENDEE_3_ID = "77777777-7777-7777-7777-777777777773";
+const QR_SIGNING_SECRET = "test-qr-signing-secret-key-256";
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) {
@@ -27,13 +30,12 @@ Deno.test("signQrToken and verifyAndDecodeQrToken round-trip and tamper resistan
     attendee_id: ATTENDEE_1_ID,
     event_id: EVENT_ID,
     invitation_id: INVITATION_ID,
-    issued_at: "2026-11-09T10:00:00.000Z",
   };
 
-  const token = await signQrToken(payload, HMAC_SECRET);
+  const token = await signQrToken(payload, QR_SIGNING_SECRET);
   assert(
-    token.startsWith("eyJhbGciOiJIUzI1NiJ9."),
-    "Token should start with HS256 header eyJhbGciOiJIUzI1NiJ9.",
+    token.startsWith("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."),
+    "Token should start with HS256 JWT header",
   );
 
   const verified = await verifyAndDecodeQrToken(
@@ -43,19 +45,17 @@ Deno.test("signQrToken and verifyAndDecodeQrToken round-trip and tamper resistan
       event_id: EVENT_ID,
       invitation_id: INVITATION_ID,
     },
-    HMAC_SECRET,
+    QR_SIGNING_SECRET,
   );
   assert(verified !== null, "Token should verify with matching secret and IDs");
   assert(verified.attendee_id === ATTENDEE_1_ID, "attendee_id matches");
   assert(verified.event_id === EVENT_ID, "event_id matches");
   assert(verified.invitation_id === INVITATION_ID, "invitation_id matches");
-  assert(
-    verified.issued_at === "2026-11-09T10:00:00.000Z",
-    "issued_at matches",
-  );
+  assert(Number.isInteger(verified.iat), "iat is an integer");
+  assert(Number.isInteger(verified.exp) && verified.exp > verified.iat, "exp > iat");
 
   // Tampered signature must fail
-  const tampered = token.slice(0, -2) + "ab";
+  const tampered = token.slice(0, -2) + (token.endsWith("ab") ? "cd" : "ab");
   const badSig = await verifyAndDecodeQrToken(
     tampered,
     {
@@ -63,7 +63,7 @@ Deno.test("signQrToken and verifyAndDecodeQrToken round-trip and tamper resistan
       event_id: EVENT_ID,
       invitation_id: INVITATION_ID,
     },
-    HMAC_SECRET,
+    QR_SIGNING_SECRET,
   );
   assert(badSig === null, "Tampered signature must return null");
 
@@ -75,7 +75,7 @@ Deno.test("signQrToken and verifyAndDecodeQrToken round-trip and tamper resistan
       event_id: "55555555-5555-5555-5555-555555555599",
       invitation_id: INVITATION_ID,
     },
-    HMAC_SECRET,
+    QR_SIGNING_SECRET,
   );
   assert(wrongEvent === null, "Mismatched event_id must return null");
 });
@@ -86,9 +86,8 @@ Deno.test("renderAttendeeQrAssets and buildQrBundleEmailHtml produce valid PDF a
       attendee_id: ATTENDEE_1_ID,
       event_id: EVENT_ID,
       invitation_id: INVITATION_ID,
-      issued_at: new Date().toISOString(),
     },
-    HMAC_SECRET,
+    QR_SIGNING_SECRET,
   );
 
   const { pdfBytes, passesWithPngBase64 } = await renderAttendeeQrAssets(
@@ -127,13 +126,65 @@ Deno.test("renderAttendeeQrAssets and buildQrBundleEmailHtml produce valid PDF a
   );
 });
 
-Deno.test("handleQrBundleRequest enforces 401, 403, and dispatches bundles with 200", async () => {
+Deno.test("handleQrBundleRequest fails closed when QR_SIGNING_SECRET is missing or blank", async () => {
+  Deno.env.set("SUPABASE_URL", "http://supabase.mock");
+  Deno.env.set("SUPABASE_ANON_KEY", "anon-key");
+  Deno.env.set("SUPABASE_SERVICE_ROLE_KEY", "service-role-key");
+  Deno.env.set("RESEND_API_KEY", "resend-api-key");
+  Deno.env.set("QR_HMAC_SECRET", "legacy-secret-must-be-ignored");
+
+  try {
+    Deno.env.delete("QR_SIGNING_SECRET");
+    const resMissing = await handleQrBundleRequest(
+      new Request("http://localhost/functions/v1/qr-bundle", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer valid-org-jwt",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ event_id: EVENT_ID }),
+      }),
+    );
+    assert(resMissing.status === 500, `Expected 500 when secret missing, got ${resMissing.status}`);
+    assert((await resMissing.json()).code === "FUNCTION_NOT_CONFIGURED", "code is FUNCTION_NOT_CONFIGURED");
+
+    Deno.env.set("QR_SIGNING_SECRET", "   ");
+    const resBlank = await handleQrBundleRequest(
+      new Request("http://localhost/functions/v1/qr-bundle", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer valid-org-jwt",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ event_id: EVENT_ID }),
+      }),
+    );
+    assert(resBlank.status === 500, `Expected 500 when secret blank, got ${resBlank.status}`);
+    assert((await resBlank.json()).code === "FUNCTION_NOT_CONFIGURED", "code is FUNCTION_NOT_CONFIGURED");
+  } finally {
+    Deno.env.delete("QR_HMAC_SECRET");
+    Deno.env.delete("QR_SIGNING_SECRET");
+  }
+});
+
+Deno.test("handleQrBundleRequest enforces 401, 403, preserves valid tokens, and emits tokens scannable by checkin/scan", async () => {
   Deno.env.set("SUPABASE_URL", "http://supabase.mock");
   Deno.env.set("SUPABASE_ANON_KEY", "anon-key");
   Deno.env.set("SUPABASE_SERVICE_ROLE_KEY", "service-role-key");
   Deno.env.set("RESEND_API_KEY", "resend-api-key");
   Deno.env.set("RESEND_FROM_EMAIL", "EIRMIS <tickets@eirmis.local>");
-  Deno.env.set("QR_HMAC_SECRET", HMAC_SECRET);
+  Deno.env.delete("QR_HMAC_SECRET");
+  Deno.env.set("QR_SIGNING_SECRET", QR_SIGNING_SECRET);
+
+  // Pre-issue a valid token for Attendee 3 (simulating attendees/index.ts on approval)
+  const existingValidToken = await signQrToken(
+    {
+      attendee_id: ATTENDEE_3_ID,
+      event_id: EVENT_ID,
+      invitation_id: INVITATION_ID,
+    },
+    QR_SIGNING_SECRET,
+  );
 
   // 1. Missing Authorization -> 401
   const res401 = await handleQrBundleRequest(
@@ -267,6 +318,17 @@ Deno.test("handleQrBundleRequest enforces 401, 403, and dispatches bundles with 
               submitted_at: "2026-10-06T10:00:00Z",
               reviewed_at: "2026-10-07T09:00:00Z",
             },
+            {
+              id: ATTENDEE_3_ID,
+              invitation_id: INVITATION_ID,
+              full_name: "Ana Reyes",
+              email: null,
+              is_primary: false,
+              status: "approved",
+              qr_token: updatedTokens[ATTENDEE_3_ID] ?? existingValidToken,
+              submitted_at: "2026-10-06T10:00:00Z",
+              reviewed_at: "2026-10-07T09:00:00Z",
+            },
           ]),
           { status: 200, headers: { "Content-Type": "application/json" } },
         );
@@ -371,12 +433,76 @@ Deno.test("handleQrBundleRequest enforces 401, 403, and dispatches bundles with 
       "invitation_ids should include INVITATION_ID",
     );
 
-    // Both attendees must now have valid signed HMAC-SHA256 tokens saved
+    // Attendees 1 & 2 get valid shared-format tokens; Attendee 3's valid token is NOT overwritten
     assert(Boolean(updatedTokens[ATTENDEE_1_ID]), "Attendee 1 token generated");
     assert(
       Boolean(updatedTokens[ATTENDEE_2_ID]),
       "Attendee 2 token regenerated from unsigned",
     );
+    assert(
+      updatedTokens[ATTENDEE_3_ID] === undefined,
+      "Attendee 3 valid token issued by attendees must not be overwritten",
+    );
+
+    // Cross-function compatibility: token signed by qr-bundle verifies in _shared/qr-token.ts and checkin/scan
+    const verifiedClaims = await verifyQrToken(
+      updatedTokens[ATTENDEE_1_ID],
+      QR_SIGNING_SECRET,
+    );
+    assert(verifiedClaims.attendee_id === ATTENDEE_1_ID, "shared verifyQrToken decodes attendee_id");
+    assert(verifiedClaims.event_id === EVENT_ID, "shared verifyQrToken decodes event_id");
+
+    const now = new Date();
+    const scanHandler = createScanHandler({
+      signingSecret: QR_SIGNING_SECRET,
+      now: () => now,
+      authenticate: () => Promise.resolve(ORGANIZER_ID),
+      resolveAttendee: (claims, rawToken) => {
+        if (claims.attendee_id === ATTENDEE_1_ID && rawToken === updatedTokens[ATTENDEE_1_ID]) {
+          return Promise.resolve({
+            id: ATTENDEE_1_ID,
+            invitation_id: INVITATION_ID,
+            full_name: "Synthetic Guest",
+            status: "approved",
+            checked_in: false,
+            checked_in_at: null,
+          });
+        }
+        return Promise.resolve(null);
+      },
+      authorize: () => Promise.resolve({ actorType: "organizer", actorId: ORGANIZER_ID }),
+      recordCheckIn: () =>
+        Promise.resolve({
+          result: "accepted",
+          attendee: {
+            id: ATTENDEE_1_ID,
+            invitation_id: INVITATION_ID,
+            full_name: "Synthetic Guest",
+            status: "approved",
+            checked_in: true,
+            checked_in_at: now.toISOString(),
+          },
+          checkedInAt: now.toISOString(),
+          totalCheckedIn: 1,
+        }),
+    });
+
+    const scanRes = await scanHandler(
+      new Request("http://localhost/functions/v1/checkin/scan", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer valid-org-jwt",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          qr_token: updatedTokens[ATTENDEE_1_ID],
+          event_id: EVENT_ID,
+        }),
+      }),
+    );
+    assert(scanRes.status === 200, `checkin/scan should accept qr-bundle token, got ${scanRes.status}`);
+    const scanBody = await scanRes.json();
+    assert(scanBody.result === "accepted", `Expected accepted scan result, got ${scanBody.result}`);
 
     // Email and audit logs recorded per spec
     assert(emailLogsInserted.length === 1, "1 email_log row inserted");
