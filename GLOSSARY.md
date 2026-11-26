@@ -31,3 +31,11 @@ _Avoid_: Custom HTML, HTML template
 **Scan Job**:
 A single malware-scanning submission tied to one uploaded HTML Invitation Design, whose verdict applies only while that upload is still the event's active pending design.
 _Avoid_: Scan request, validation run
+
+**Party Size Limit**:
+The maximum number of attendees permitted on a single invitation's roster, including the primary attendee and any additional attendees.
+_Avoid_: Roster ceiling, allocated party ceiling, party slots
+
+**Headcount Increase Request**:
+A guest's request to raise an accepted invitation's party size limit by a specified number of additional attendees, which an organizer either approves in full or rejects.
+_Avoid_: Extra headcount ticket, capacity bump request

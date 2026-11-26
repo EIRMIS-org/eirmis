@@ -4065,10 +4065,20 @@ export interface operations {
                     "application/json": components["schemas"]["HeadcountIncreaseRequest"];
                 };
             };
+            400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             /** @description Request not found or not accessible. */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict — the headcount increase request has already been decided. */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -268,12 +268,20 @@
           application/json:
             schema:
               $ref: '../components/schemas/HeadcountIncreaseRequest.yaml#/HeadcountIncreaseRequest'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
       '401':
         $ref: '../components/responses.yaml#/Unauthorized'
       '403':
         $ref: '../components/responses.yaml#/Forbidden'
       '404':
         description: Request not found or not accessible.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/Error.yaml#/Error'
+      '409':
+        description: Conflict — the headcount increase request has already been decided.
         content:
           application/json:
             schema:

@@ -1,28 +1,22 @@
 -- =============================================================================
--- EIRMIS pgTAP: approved headcount-increase request persistence contract
+-- EIRMIS pgTAP: decide_headcount_request RPC persistence & security contract
 --
--- Covers the README §6 / §7 rules that:
---   - A pending HeadcountIncreaseRequest does not increase max_party_size.
---   - Approval raises max_party_size by the full requested amount (v1 has no
---     partial approval), records reviewer metadata, and writes an audit row.
---   - The guest can then add the newly allocated attendee rows.
---   - The invitation still cannot exceed its newly approved max_party_size.
---   - Replaying an already-completed approval must not increase the ceiling a
---     second time; rejection must not increase the ceiling.
---
--- IMPORTANT TEST SCOPE:
---   pgTAP runs inside PostgreSQL and cannot invoke the HTTP
---   decideHeadcountRequest Edge Function. The DO block below exercises the
---   documented atomic database write contract (request decision + invitation
---   ceiling + audit entry) as a test-local transaction. It does NOT prove that
---   the deployed Edge Function uses this exact transaction. Add an HTTP
---   integration test for that function, or move this decision into a SQL RPC
---   and call that RPC from this pgTAP test.
+-- Exercises public.decide_headcount_request directly to verify:
+--   - A pending Headcount Increase Request does not increase Party Size Limit.
+--   - Approval atomically raises invitations.max_party_size in full, records
+--     reviewer metadata, and writes an audit_log_entries row.
+--   - The guest can then add the newly allocated attendee rows up to the new
+--     Party Size Limit.
+--   - Replaying an already-decided request fails with P0001 and leaves
+--     max_party_size unchanged; rejection leaves max_party_size unchanged.
+--   - Unauthorized organizers are rejected with 42501.
+--   - Execute permission is restricted to service_role (revoked from anon and
+--     authenticated).
 -- =============================================================================
 
 BEGIN;
 
-SELECT plan(21);
+SELECT plan(25);
 
 INSERT INTO public.events (
     id, organizer_id, title, slug, starts_at, ends_at, capacity,
@@ -53,8 +47,8 @@ VALUES
       'pgTAP Headcount Rejected Guest'
     );
 
--- Invitation A has a ceiling of two: its primary guest plus one additional
--- pending attendee already occupy the two allocated roster slots.
+-- Invitation A has a Party Size Limit of 2: its Primary Attendee plus one
+-- Additional Attendee (pending) already occupy the limit.
 INSERT INTO public.invitations (
     id, event_id, guest_id, status, max_party_size
 ) VALUES
@@ -99,7 +93,7 @@ INSERT INTO public.headcount_increase_requests (
       'This request will be rejected.'
     );
 
--- 1-3. A pending request does not itself grant more attendee slots or affect
+-- 1-3. A pending request does not itself grant more attendee places or affect
 -- the approved-headcount cache.
 SELECT is(
     (SELECT status::text FROM public.headcount_increase_requests
@@ -122,8 +116,7 @@ SELECT is(
     'pending additional attendees do not increase the approved party_size cache'
 );
 
--- 4. The guest cannot use a pending request as permission to exceed the current
--- roster ceiling.
+-- 4. The guest cannot use a pending request to exceed the current limit.
 SELECT throws_ok(
     $$INSERT INTO public.attendees (id, invitation_id, full_name, status)
       VALUES (
@@ -137,81 +130,18 @@ SELECT throws_ok(
     'additional attendee is rejected until the headcount request is approved'
 );
 
--- Set a service-role claim for the privileged decision transaction.
+-- Set a service-role claim for the privileged RPC invocation.
 SELECT set_config('request.jwt.claims', '{"role":"service_role"}', true);
 
--- 5. Simulate the documented atomic decision transaction. Updating the
--- request, increasing the invitation ceiling, and inserting the audit row are
--- wrapped in one PostgreSQL statement/transaction. If any operation fails,
--- lives_ok reports the error and the statement's writes are rolled back.
+-- 5. Approve request #1 via public.decide_headcount_request.
 SELECT lives_ok(
-    $decision$
-    DO $body$
-    DECLARE
-      v_request public.headcount_increase_requests%ROWTYPE;
-      v_old_max integer;
-      v_new_max integer;
-    BEGIN
-      SELECT *
-        INTO v_request
-      FROM public.headcount_increase_requests
-      WHERE id = 'aa500000-0000-4000-8000-000000000001'
-        AND status = 'pending'
-      FOR UPDATE;
-
-      IF NOT FOUND THEN
-        RAISE EXCEPTION 'Headcount request is not pending.'
-          USING ERRCODE = 'P0001';
-      END IF;
-
-      SELECT max_party_size
-        INTO v_old_max
-      FROM public.invitations
-      WHERE id = v_request.invitation_id
-      FOR UPDATE;
-
-      v_new_max := v_old_max + v_request.requested_additional_heads;
-
-      UPDATE public.invitations
-      SET max_party_size = v_new_max
-      WHERE id = v_request.invitation_id;
-
-      UPDATE public.headcount_increase_requests
-      SET status = 'approved',
-          reviewed_by = '11111111-1111-1111-1111-111111111111',
-          reviewed_at = now(),
-          review_reason = 'Approved in the pgTAP transaction test.'
-      WHERE id = v_request.id
-        AND status = 'pending';
-
-      IF NOT FOUND THEN
-        RAISE EXCEPTION 'Headcount request was already decided.'
-          USING ERRCODE = 'P0001';
-      END IF;
-
-      INSERT INTO public.audit_log_entries (
-        actor_type, actor_id, action, entity_type, entity_id,
-        old_value, new_value, reason
-      ) VALUES (
-        'organizer',
-        '11111111-1111-1111-1111-111111111111',
-        'headcount_request.approved',
-        'headcount_increase_request',
-        v_request.id,
-        jsonb_build_object(
-          'status', 'pending',
-          'max_party_size', v_old_max
-        ),
-        jsonb_build_object(
-          'status', 'approved',
-          'max_party_size', v_new_max
-        ),
-        'Approved in the pgTAP transaction test.'
-      );
-    END;
-    $body$;
-    $decision$,
-    'approval atomically updates the request, invitation ceiling, and audit log'
+    $$SELECT public.decide_headcount_request(
+        'aa500000-0000-4000-8000-000000000001'::uuid,
+        'approve',
+        '11111111-1111-1111-1111-111111111111'::uuid,
+        'Approved via decide_headcount_request RPC.'
+    )$$,
+    'decide_headcount_request atomically approves the request, raises max_party_size, and logs audit'
 );
 
 -- 6-10. Verify the approved decision and its audit metadata.
@@ -252,7 +182,7 @@ SELECT is(
     'approval writes one headcount_request.approved audit entry'
 );
 
--- 11-14. The newly approved slots become usable, but the updated roster ceiling
+-- 11-14. The newly approved places become usable, while the updated limit
 -- remains enforced and pending rows still do not consume party_size.
 SELECT lives_ok(
     $$INSERT INTO public.attendees (id, invitation_id, full_name, status)
@@ -299,36 +229,18 @@ SELECT throws_ok(
     'the roster cannot exceed the newly approved max_party_size'
 );
 
--- 15-16. Replaying an approval must not grant the same additional places twice.
-SELECT lives_ok(
-    $repeat$
-    DO $body$
-    DECLARE
-      v_request public.headcount_increase_requests%ROWTYPE;
-    BEGIN
-      SELECT *
-        INTO v_request
-      FROM public.headcount_increase_requests
-      WHERE id = 'aa500000-0000-4000-8000-000000000001'
-        AND status = 'pending'
-      FOR UPDATE;
-
-      IF FOUND THEN
-        UPDATE public.invitations
-        SET max_party_size = max_party_size + v_request.requested_additional_heads
-        WHERE id = v_request.invitation_id;
-
-        UPDATE public.headcount_increase_requests
-        SET status = 'approved',
-            reviewed_by = '11111111-1111-1111-1111-111111111111',
-            reviewed_at = now()
-        WHERE id = v_request.id
-          AND status = 'pending';
-      END IF;
-    END;
-    $body$;
-    $repeat$,
-    'replaying an already completed approval is a safe no-op'
+-- 15-16. Replaying an already-decided request fails with P0001 and does not
+-- grant the additional places a second time.
+SELECT throws_ok(
+    $$SELECT public.decide_headcount_request(
+        'aa500000-0000-4000-8000-000000000001'::uuid,
+        'approve',
+        '11111111-1111-1111-1111-111111111111'::uuid,
+        'Replay attempt'
+    )$$,
+    'P0001',
+    'HEADCOUNT_REQUEST_NOT_PENDING',
+    'replaying an already completed approval raises HEADCOUNT_REQUEST_NOT_PENDING'
 );
 
 SELECT is(
@@ -338,42 +250,29 @@ SELECT is(
     'repeated approval does not increase max_party_size a second time'
 );
 
--- 17-20. A rejected request records its decision but leaves the invitation's
--- allocated party ceiling unchanged.
+-- 17. An organizer who does not own the event cannot decide the request.
+SELECT throws_ok(
+    $$SELECT public.decide_headcount_request(
+        'aa500000-0000-4000-8000-000000000002'::uuid,
+        'reject',
+        '99999999-9999-9999-9999-999999999999'::uuid,
+        'Unauthorized attempt'
+    )$$,
+    '42501',
+    'ORGANIZER_NOT_AUTHORIZED',
+    'unauthorized actor is rejected with ORGANIZER_NOT_AUTHORIZED'
+);
+
+-- 18-21. A rejected request records its decision and audit entry while leaving
+-- the invitation Party Size Limit unchanged.
 SELECT lives_ok(
-    $reject$
-    DO $body$
-    BEGIN
-      UPDATE public.headcount_increase_requests
-      SET status = 'rejected',
-          reviewed_by = '11111111-1111-1111-1111-111111111111',
-          reviewed_at = now(),
-          review_reason = 'Not approved in the pgTAP transaction test.'
-      WHERE id = 'aa500000-0000-4000-8000-000000000002'
-        AND status = 'pending';
-
-      IF NOT FOUND THEN
-        RAISE EXCEPTION 'Headcount request was already decided.'
-          USING ERRCODE = 'P0001';
-      END IF;
-
-      INSERT INTO public.audit_log_entries (
-        actor_type, actor_id, action, entity_type, entity_id,
-        old_value, new_value, reason
-      ) VALUES (
-        'organizer',
-        '11111111-1111-1111-1111-111111111111',
-        'headcount_request.rejected',
-        'headcount_increase_request',
-        'aa500000-0000-4000-8000-000000000002',
-        jsonb_build_object('status', 'pending'),
-        jsonb_build_object('status', 'rejected'),
-        'Not approved in the pgTAP transaction test.'
-      );
-    END;
-    $body$;
-    $reject$,
-    'organizer can record a rejected request and its audit entry atomically'
+    $$SELECT public.decide_headcount_request(
+        'aa500000-0000-4000-8000-000000000002'::uuid,
+        'reject',
+        '11111111-1111-1111-1111-111111111111'::uuid,
+        'Not approved via decide_headcount_request RPC.'
+    )$$,
+    'decide_headcount_request atomically rejects the request and writes an audit entry'
 );
 
 SELECT is(
@@ -399,6 +298,7 @@ SELECT is(
     'rejection writes one headcount_request.rejected audit entry'
 );
 
+-- 22. A new pending request is allowed once the previous one is decided.
 SELECT lives_ok(
     $$INSERT INTO public.headcount_increase_requests (
         id, invitation_id, requested_additional_heads, status, note
@@ -410,6 +310,34 @@ SELECT lives_ok(
         'A new request is allowed after the previous request was approved.'
       )$$,
     'a new pending request is allowed after the previous request was approved'
+);
+
+-- 23-25. Execute permissions are restricted to service_role.
+SELECT ok(
+    NOT has_function_privilege(
+        'anon',
+        'public.decide_headcount_request(uuid, text, uuid, text)',
+        'EXECUTE'
+    ),
+    'anon cannot execute decide_headcount_request'
+);
+
+SELECT ok(
+    NOT has_function_privilege(
+        'authenticated',
+        'public.decide_headcount_request(uuid, text, uuid, text)',
+        'EXECUTE'
+    ),
+    'authenticated cannot execute decide_headcount_request'
+);
+
+SELECT ok(
+    has_function_privilege(
+        'service_role',
+        'public.decide_headcount_request(uuid, text, uuid, text)',
+        'EXECUTE'
+    ),
+    'service_role can execute decide_headcount_request'
 );
 
 SELECT * FROM finish();
