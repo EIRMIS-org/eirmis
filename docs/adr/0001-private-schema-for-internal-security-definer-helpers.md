@@ -1,0 +1,3 @@
+# Use a non-exposed `private` schema for internal SECURITY DEFINER helpers
+
+Internal `SECURITY DEFINER` helpers called by `SECURITY INVOKER` row-guard triggers live in a non-exposed `private` schema (not served by PostgREST `/rpc`), with `USAGE` and `EXECUTE` revoked from `PUBLIC`/`anon` and granted to `authenticated` and `service_role`. Keeping the trigger function itself `SECURITY INVOKER` preserves reliable `current_user` checks so `SECURITY DEFINER` RPCs invoked by `authenticated` sessions bypass guest-only write guards, while placing the helper outside `public` prevents direct `/rpc` probing without revoking `EXECUTE` from `authenticated`.

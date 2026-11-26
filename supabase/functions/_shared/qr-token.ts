@@ -21,8 +21,23 @@ function decodeBase64Url(value: string): Uint8Array<ArrayBuffer> {
   return Uint8Array.from(binary, (character) => character.charCodeAt(0));
 }
 
+export function readQrSigningSecret(
+  getEnv: (key: string) => string | undefined = (key) =>
+    (
+      globalThis as {
+        Deno?: { env?: { get(name: string): string | undefined } };
+      }
+    ).Deno?.env?.get(key),
+): string | null {
+  const raw = getEnv("QR_SIGNING_SECRET");
+  if (!raw || raw.trim().length === 0) return null;
+  return raw;
+}
+
 async function importKey(secret: string): Promise<CryptoKey> {
-  if (!secret) throw new Error("QR signing secret is not configured.");
+  if (!secret || secret.trim().length === 0) {
+    throw new Error("QR signing secret is not configured.");
+  }
   return crypto.subtle.importKey(
     "raw",
     encoder.encode(secret),

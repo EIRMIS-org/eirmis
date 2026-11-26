@@ -1,12 +1,12 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createScanHandler, type ScanActor, type ScanAttendee } from "./scan/handler.ts";
-import type { QrTokenClaims } from "../_shared/qr-token.ts";
+import { readQrSigningSecret, type QrTokenClaims } from "../_shared/qr-token.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
 const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-const signingSecret = Deno.env.get("QR_SIGNING_SECRET") ?? "";
+const signingSecret = readQrSigningSecret() ?? "";
 
 if (!supabaseUrl || !anonKey || !serviceRoleKey || !signingSecret) {
   throw new Error("Check-in function is missing required configuration.");
