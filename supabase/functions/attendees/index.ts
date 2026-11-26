@@ -1,7 +1,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { signQrToken } from "../_shared/qr-token.ts";
+import { readQrSigningSecret, signQrToken } from "../_shared/qr-token.ts";
 import { runPostDecisionDispatch } from "./post-decision.ts";
 
 const corsHeaders = {
@@ -42,7 +42,7 @@ serve(async (req) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
   const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  const qrSigningSecret = Deno.env.get("QR_SIGNING_SECRET");
+  const qrSigningSecret = readQrSigningSecret();
   const authorization = req.headers.get("Authorization");
 
   const attendeeId = new URL(req.url).pathname.match(

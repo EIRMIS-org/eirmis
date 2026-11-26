@@ -16,6 +16,10 @@ _Avoid_: Party size total, current count
 The strict first-in, first-out advancement of a waitlisted invitation into accepted status when event capacity permits, reserving a single seat for the primary attendee while leaving any additional attendees pending organizer review.
 _Avoid_: Waitlist bump, auto-approval
 
+**Waitlist Position**:
+A waitlisted invitation's place in the first-in, first-out queue for Waitlist Promotion. Opting out by declining forfeits the position so any subsequent re-entry starts at the back of the line.
+_Avoid_: Queue slot, waitlist rank
+
 **Primary Attendee**:
 The invited guest represented by an invitation, whose seat is reserved when the invitation is accepted or promoted from the waitlist.
 _Avoid_: Main guest, lead attendee

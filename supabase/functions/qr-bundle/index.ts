@@ -4,6 +4,7 @@ import QRCode from "npm:qrcode@1.5.4";
 import { PDFDocument, rgb, StandardFonts } from "npm:pdf-lib@1.17.1";
 import { resolveResendFrom, resolveResendTo } from "../_shared/resend.ts";
 import {
+  readQrSigningSecret,
   signQrToken,
   verifyQrToken,
   type QrTokenClaims,
@@ -335,7 +336,7 @@ export async function handleQrBundleRequest(req: Request): Promise<Response> {
   const resendFromEmail =
     Deno.env.get("RESEND_FROM_EMAIL") || "EIRMIS <noreply@eirmis.local>";
   const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  const qrSigningSecret = Deno.env.get("QR_SIGNING_SECRET")?.trim();
+  const qrSigningSecret = readQrSigningSecret();
   const authorization = req.headers.get("Authorization");
 
   if (

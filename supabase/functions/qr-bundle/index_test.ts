@@ -167,6 +167,145 @@ Deno.test("handleQrBundleRequest fails closed when QR_SIGNING_SECRET is missing 
   }
 });
 
+Deno.test("handleQrBundleRequest preserves raw QR_SIGNING_SECRET whitespace to match checkin verification", async () => {
+  const rawSecret = "  padded-qr-signing-secret-256\n";
+  Deno.env.set("SUPABASE_URL", "http://supabase.mock");
+  Deno.env.set("SUPABASE_ANON_KEY", "anon-key");
+  Deno.env.set("SUPABASE_SERVICE_ROLE_KEY", "service-role-key");
+  Deno.env.set("RESEND_API_KEY", "resend-api-key");
+  Deno.env.set("QR_SIGNING_SECRET", rawSecret);
+
+  const updatedTokens: Record<string, string> = {};
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    const urlStr = typeof input === "string"
+      ? input
+      : input instanceof URL
+      ? input.toString()
+      : input.url;
+    const method = (init?.method ?? "GET").toUpperCase();
+
+    if (urlStr.includes("/auth/v1/user")) {
+      return new Response(
+        JSON.stringify({ id: ORGANIZER_ID, email: "org@eirmis.local" }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+    if (urlStr.includes("/rest/v1/organizer_profiles")) {
+      return new Response(
+        JSON.stringify({ id: ORGANIZER_ID, status: "active" }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+    if (urlStr.includes("/rest/v1/events")) {
+      return new Response(
+        JSON.stringify({
+          id: EVENT_ID,
+          organizer_id: ORGANIZER_ID,
+          title: "Whitespace Secret Gala",
+          starts_at: "2026-12-01T18:00:00Z",
+          venue_name: "Hall A",
+          address: "1 Main St",
+          city: "Manila",
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+    if (urlStr.includes("/rest/v1/invitations")) {
+      return new Response(
+        JSON.stringify({
+          id: INVITATION_ID,
+          event_id: EVENT_ID,
+          guest_id: GUEST_ID,
+          status: "accepted",
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+    if (urlStr.includes("/rest/v1/guests")) {
+      return new Response(
+        JSON.stringify({
+          id: GUEST_ID,
+          full_name: "Alice Primary",
+          email: "alice@example.com",
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+    if (urlStr.includes("/rest/v1/attendees") && method === "GET") {
+      return new Response(
+        JSON.stringify([{
+          id: ATTENDEE_1_ID,
+          invitation_id: INVITATION_ID,
+          full_name: "Alice Primary",
+          email: "alice@example.com",
+          is_primary: true,
+          status: "approved",
+          qr_token: null,
+        }]),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+    if (urlStr.includes("/rest/v1/attendees") && method === "PATCH") {
+      const payload = JSON.parse(String(init?.body ?? "{}"));
+      updatedTokens[ATTENDEE_1_ID] = payload.qr_token;
+      return new Response(JSON.stringify([{ id: ATTENDEE_1_ID }]), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (urlStr.includes("/rest/v1/email_logs") && method === "GET") {
+      return new Response(JSON.stringify([]), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (urlStr.includes("api.resend.com/emails")) {
+      return new Response(JSON.stringify({ id: "resend-raw-secret-1" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (urlStr.includes("/rest/v1/email_logs") || urlStr.includes("/rest/v1/audit_log_entries")) {
+      return new Response(JSON.stringify({}), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    throw new Error(`Unexpected fetch: ${method} ${urlStr}`);
+  };
+
+  try {
+    const res = await handleQrBundleRequest(
+      new Request("http://localhost/functions/v1/qr-bundle", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer valid-org-jwt",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ event_id: EVENT_ID, invitation_id: INVITATION_ID }),
+      }),
+    );
+    assert(res.status === 200, `Expected 200, got ${res.status}`);
+    const mintedToken = updatedTokens[ATTENDEE_1_ID];
+    assert(typeof mintedToken === "string" && mintedToken.length > 0, "Token minted");
+
+    const verified = await verifyQrToken(mintedToken, rawSecret);
+    assert(verified.attendee_id === ATTENDEE_1_ID, "Token verifies with raw secret");
+
+    let trimmedRejected = false;
+    try {
+      await verifyQrToken(mintedToken, rawSecret.trim());
+    } catch {
+      trimmedRejected = true;
+    }
+    assert(trimmedRejected, "Token must NOT verify with trimmed secret");
+  } finally {
+    globalThis.fetch = originalFetch;
+    Deno.env.delete("QR_SIGNING_SECRET");
+  }
+});
+
 Deno.test("handleQrBundleRequest enforces 401, 403, preserves valid tokens, and emits tokens scannable by checkin/scan", async () => {
   Deno.env.set("SUPABASE_URL", "http://supabase.mock");
   Deno.env.set("SUPABASE_ANON_KEY", "anon-key");

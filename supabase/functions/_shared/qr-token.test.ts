@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { signQrToken, verifyQrToken } from "./qr-token.ts";
+import { readQrSigningSecret, signQrToken, verifyQrToken } from "./qr-token.ts";
 
 const claims = {
   attendee_id: "77777777-7777-7777-7777-777777777777",
@@ -26,5 +26,21 @@ describe("QR token signing", () => {
     const token = await signQrToken(claims, secret, { now, expiresInSeconds: 1 });
     const later = new Date(now.getTime() + 1_000);
     await expect(verifyQrToken(token, secret, { now: later })).rejects.toThrow("expired");
+  });
+
+  it("rejects blank or whitespace-only secrets", async () => {
+    expect(readQrSigningSecret(() => undefined)).toBeNull();
+    expect(readQrSigningSecret(() => "")).toBeNull();
+    expect(readQrSigningSecret(() => "   \t\n ")).toBeNull();
+    await expect(signQrToken(claims, "   ", { now })).rejects.toThrow("not configured");
+  });
+
+  it("preserves raw secret whitespace so signers and verifiers always match", async () => {
+    const rawSecret = "  padded-secret-value\n";
+    expect(readQrSigningSecret(() => rawSecret)).toBe(rawSecret);
+
+    const token = await signQrToken(claims, rawSecret, { now, expiresInSeconds: 60 });
+    await expect(verifyQrToken(token, rawSecret, { now })).resolves.toMatchObject(claims);
+    await expect(verifyQrToken(token, rawSecret.trim(), { now })).rejects.toThrow("signature");
   });
 });

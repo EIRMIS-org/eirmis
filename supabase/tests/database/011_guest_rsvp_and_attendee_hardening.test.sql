@@ -8,7 +8,7 @@
 
 BEGIN;
 
-SELECT plan(45);
+SELECT plan(62);
 
 -- ---------------------------------------------------------------------------
 -- Fixtures
@@ -573,6 +573,34 @@ SELECT lives_ok(
     'waitlisted guest can decline to opt out of the waitlist'
 );
 
+SELECT is(
+    (SELECT waitlisted_at FROM public.invitations
+     WHERE id = 'ab300000-0000-4000-8000-000000000003'),
+    NULL::timestamptz,
+    'declining from waitlisted clears waitlisted_at so queue position is forfeited'
+);
+
+SELECT lives_ok(
+    $$UPDATE public.invitations
+      SET status = 'accepted'
+      WHERE id = 'ab300000-0000-4000-8000-000000000003'$$,
+    'declined guest can re-accept at full Event Capacity and re-enter waitlist'
+);
+
+SELECT is(
+    (SELECT status::text FROM public.invitations
+     WHERE id = 'ab300000-0000-4000-8000-000000000003'),
+    'waitlisted',
+    're-accepting at full Event Capacity after declining re-enters waitlisted status'
+);
+
+SELECT ok(
+    (SELECT waitlisted_at > now() - interval '1 hour'
+     FROM public.invitations
+     WHERE id = 'ab300000-0000-4000-8000-000000000003'),
+    're-entering the waitlist stamps a fresh waitlisted_at at the back of the line'
+);
+
 -- 29-35. Invite-only pending -> tentative -> accepted (capacity available).
 SELECT throws_ok(
     $$UPDATE public.invitations
@@ -723,7 +751,7 @@ SELECT throws_ok(
     'guest cannot update an invitation on a soft-deleted published event'
 );
 
--- 43-44. Event organizer can still update max_party_size via PostgREST.
+-- 44-45. Event organizer can still update max_party_size via PostgREST.
 SELECT set_config(
     'request.jwt.claim.sub',
     '11111111-1111-1111-1111-111111111111',
@@ -749,6 +777,102 @@ SELECT is(
     'organizer max_party_size update is persisted'
 );
 
+-- ===========================================================================
+-- Slice 3: Non-exposed private helper & privilege boundaries
+-- ===========================================================================
+
 RESET ROLE;
+
+-- Legacy SECURITY DEFINER capacity helper is dropped from public (not exposed via /rpc).
+SELECT is(
+    to_regprocedure('public.fn_check_guest_invitation_event_capacity(uuid, uuid, boolean)'),
+    NULL::regprocedure,
+    'public.fn_check_guest_invitation_event_capacity is removed and not exposed via /rpc'
+);
+
+-- Internal capacity helper lives in non-exposed private schema.
+SELECT isnt(
+    to_regprocedure('private.fn_check_guest_invitation_event_capacity(uuid, uuid, boolean)'),
+    NULL::regprocedure,
+    'fn_check_guest_invitation_event_capacity lives in non-exposed private schema'
+);
+
+SELECT is(
+    has_schema_privilege('anon', 'private', 'USAGE'),
+    false,
+    'anon does not have USAGE privilege on private schema'
+);
+
+SELECT is(
+    has_function_privilege('public', 'private.fn_check_guest_invitation_event_capacity(uuid, uuid, boolean)', 'EXECUTE'),
+    false,
+    'PUBLIC does not have EXECUTE privilege on private.fn_check_guest_invitation_event_capacity'
+);
+
+SELECT is(
+    has_function_privilege('anon', 'private.fn_check_guest_invitation_event_capacity(uuid, uuid, boolean)', 'EXECUTE'),
+    false,
+    'anon does not have EXECUTE privilege on private.fn_check_guest_invitation_event_capacity'
+);
+
+SELECT is(
+    has_function_privilege('authenticated', 'private.fn_check_guest_invitation_event_capacity(uuid, uuid, boolean)', 'EXECUTE'),
+    true,
+    'authenticated has EXECUTE privilege on private.fn_check_guest_invitation_event_capacity'
+);
+
+-- Trigger function EXECUTE is revoked from PUBLIC and anon, granted to authenticated.
+SELECT is(
+    has_function_privilege('public', 'public.fn_guard_guest_invitation_update()', 'EXECUTE'),
+    false,
+    'PUBLIC does not have EXECUTE privilege on fn_guard_guest_invitation_update'
+);
+
+SELECT is(
+    has_function_privilege('anon', 'public.fn_guard_guest_invitation_update()', 'EXECUTE'),
+    false,
+    'anon does not have EXECUTE privilege on fn_guard_guest_invitation_update'
+);
+
+SELECT is(
+    has_function_privilege('authenticated', 'public.fn_guard_guest_invitation_update()', 'EXECUTE'),
+    true,
+    'authenticated has EXECUTE privilege on fn_guard_guest_invitation_update'
+);
+
+-- 50-51. service_role updates still bypass the SECURITY DEFINER guest guard.
+SET LOCAL ROLE service_role;
+
+SELECT lives_ok(
+    $$UPDATE public.invitations
+      SET max_party_size = 9
+      WHERE id = 'ab300000-0000-4000-8000-000000000001'$$,
+    'service_role can update max_party_size bypassing the guest guard'
+);
+
+SELECT is(
+    (SELECT max_party_size FROM public.invitations
+     WHERE id = 'ab300000-0000-4000-8000-000000000001'),
+    9,
+    'service_role max_party_size update is persisted'
+);
+
+-- 52-53. DB owner updates still bypass the SECURITY DEFINER guest guard.
+RESET ROLE;
+
+SELECT lives_ok(
+    $$UPDATE public.invitations
+      SET max_party_size = 10
+      WHERE id = 'ab300000-0000-4000-8000-000000000001'$$,
+    'DB owner can update max_party_size bypassing the guest guard'
+);
+
+SELECT is(
+    (SELECT max_party_size FROM public.invitations
+     WHERE id = 'ab300000-0000-4000-8000-000000000001'),
+    10,
+    'DB owner max_party_size update is persisted'
+);
+
 SELECT * FROM finish();
 ROLLBACK;
