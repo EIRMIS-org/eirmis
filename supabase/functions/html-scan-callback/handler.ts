@@ -41,11 +41,7 @@ export interface ScanCallbackDependencies {
   supabaseServiceRoleKey: string | undefined;
   scannerWebhookSecret: string | undefined;
   now?: () => Date;
-  findPendingDesign: (eventId: string | null) => Promise<{
-    data: InvitationDesignRow | null;
-    error: { message: string } | null;
-  }>;
-  findDesignByEventId: (eventId: string) => Promise<{
+  findPendingDesign: (scanId: string) => Promise<{
     data: InvitationDesignRow | null;
     error: { message: string } | null;
   }>;
@@ -55,12 +51,18 @@ export interface ScanCallbackDependencies {
   ) => Promise<{ error: { message: string } | null }>;
   updateDesign: (
     id: string,
+    scanId: string,
     update: {
       validation_status: "passed" | "failed";
       validated_at: string;
       validation_notes: string | null;
       html_storage_path: string | null;
     },
+  ) => Promise<{ updated: boolean; error: { message: string } | null }>;
+  updateStoragePath?: (
+    id: string,
+    scanId: string,
+    htmlStoragePath: string,
   ) => Promise<{ error: { message: string } | null }>;
   insertAuditLog: (
     entry: ScanCallbackAuditEntry,
@@ -213,6 +215,9 @@ export function createScanCallbackHandler(
     if (!scanId) {
       return errorResponse("INVALID_REQUEST", "scan_id is required.", 400);
     }
+    if (!uuidPattern.test(scanId)) {
+      return errorResponse("INVALID_REQUEST", "scan_id must be a valid UUID.", 400);
+    }
 
     const rawStatus =
       typeof body.status === "string" ? body.status.toLowerCase().trim() : null;
@@ -238,11 +243,6 @@ export function createScanCallbackHandler(
       );
     }
 
-    const eventId =
-      typeof body.event_id === "string" && uuidPattern.test(body.event_id)
-        ? body.event_id
-        : null;
-
     const threatsDetected = Array.isArray(body.threats_detected)
       ? body.threats_detected
       : [];
@@ -260,8 +260,8 @@ export function createScanCallbackHandler(
         : null;
 
     // ── Design Status Transition ────────────────────────────────────────
-    const { data: pendingDesign, error: fetchPendingError } =
-      await deps.findPendingDesign(eventId);
+    const { data: targetDesign, error: fetchPendingError } =
+      await deps.findPendingDesign(scanId);
 
     if (fetchPendingError) {
       console.error(
@@ -269,23 +269,6 @@ export function createScanCallbackHandler(
         fetchPendingError.message,
       );
       return errorResponse("INTERNAL_ERROR", "Failed to lookup invitation design.", 500);
-    }
-
-    let targetDesign = pendingDesign;
-
-    // Fallback: if not found strictly in pending status, query by event_id regardless of status
-    if (!targetDesign && eventId) {
-      const { data: existingDesign, error: fetchExistingError } =
-        await deps.findDesignByEventId(eventId);
-
-      if (fetchExistingError) {
-        console.error(
-          "Failed to lookup invitation_design by event_id:",
-          fetchExistingError.message,
-        );
-        return errorResponse("INTERNAL_ERROR", "Failed to lookup invitation design.", 500);
-      }
-      targetDesign = existingDesign;
     }
 
     if (!targetDesign) {
@@ -296,7 +279,29 @@ export function createScanCallbackHandler(
     const validatedAt = (deps.now ? deps.now() : new Date()).toISOString();
     let updatedStoragePath = targetDesign.html_storage_path;
 
-    // If scan flags threats: isolate the file in storage
+    // Update invitation_designs row conditionally on matching pending scan_id
+    // before performing any storage quarantine or notification side effects.
+    const { updated, error: updateError } = await deps.updateDesign(
+      targetDesign.id,
+      scanId,
+      {
+        validation_status: resolvedStatus,
+        validated_at: validatedAt,
+        validation_notes: validationNotes,
+        html_storage_path: updatedStoragePath,
+      },
+    );
+
+    if (updateError) {
+      console.error("Failed to update invitation_designs:", updateError.message);
+      return errorResponse("INTERNAL_ERROR", "Failed to update design status.", 500);
+    }
+
+    if (!updated) {
+      return errorResponse("NOT_FOUND", "Associated invitation design not found.", 404);
+    }
+
+    // If scan flags threats: isolate the file in storage after winning the transition
     if (
       resolvedStatus === "failed" &&
       targetDesign.html_storage_path &&
@@ -314,27 +319,26 @@ export function createScanCallbackHandler(
 
         if (moveError) {
           console.warn(
-            `Could not move infected HTML file to quarantine path (${moveError.message}); proceeding with status update.`,
+            `Could not move infected HTML file to quarantine path (${moveError.message}); design remains marked failed.`,
           );
         } else {
           updatedStoragePath = quarantinedPath;
+          if (deps.updateStoragePath) {
+            const { error: pathError } = await deps.updateStoragePath(
+              targetDesign.id,
+              scanId,
+              quarantinedPath,
+            );
+            if (pathError) {
+              console.warn(
+                `Moved infected HTML file to quarantine, but failed to update html_storage_path (${pathError.message}).`,
+              );
+            }
+          }
         }
       } catch (storageErr) {
         console.warn("Storage isolation error:", storageErr);
       }
-    }
-
-    // Update invitation_designs row
-    const { error: updateError } = await deps.updateDesign(targetDesign.id, {
-      validation_status: resolvedStatus,
-      validated_at: validatedAt,
-      validation_notes: validationNotes,
-      html_storage_path: updatedStoragePath,
-    });
-
-    if (updateError) {
-      console.error("Failed to update invitation_designs:", updateError.message);
-      return errorResponse("INTERNAL_ERROR", "Failed to update design status.", 500);
     }
 
     // ── Audit Logging ───────────────────────────────────────────────────

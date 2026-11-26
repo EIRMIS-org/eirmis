@@ -2289,15 +2289,16 @@ export interface components {
         /**
          * @description Request body received by the `handleScanCallback` Edge Function from the third-party file-scanning service (e.g. VirusTotal webhook). This operation is service-role only — it is NOT reachable from the SPA. The function verifies the callback signature, looks up the associated `invitation_designs` row, and flips `validation_status` to `passed` or `failed`. On `failed`, it sets `validation_notes` and sends an `invitation_design_validation_failed` email to the organizer.
          * @example {
-         *       "scan_id": "scan-job-abc123",
+         *       "scan_id": "22222222-2222-2222-2222-222222222222",
          *       "result": "clean",
          *       "notes": null
          *     }
          */
         ScanCallbackRequest: {
             /**
-             * @description The scan job identifier returned by the third-party scanning service.
-             * @example scan-job-abc123
+             * Format: uuid
+             * @description The per-upload scan job UUID assigned when submitting the HTML design to the scanner.
+             * @example 22222222-2222-2222-2222-222222222222
              */
             scan_id: string;
             /**
@@ -3921,6 +3922,7 @@ export interface operations {
             };
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
         };
     };
     decideAttendee: {
