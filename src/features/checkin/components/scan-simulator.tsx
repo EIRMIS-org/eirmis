@@ -12,6 +12,7 @@
 
 import { useState } from 'react'
 import { QrCodeIcon, SendIcon } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
@@ -22,12 +23,14 @@ import type { ScanMachineAction } from '../lib/scan-result-machine'
 interface ScanSimulatorProps {
     dispatch: (action: ScanMachineAction) => void
     isResolving: boolean
+    assignedEventId?: string
     onScanSuccess?: () => void
 }
 
 export function ScanSimulator({
     dispatch,
     isResolving,
+    assignedEventId,
     onScanSuccess,
 }: ScanSimulatorProps) {
     const [tokenInput, setTokenInput] = useState('')
@@ -44,9 +47,13 @@ export function ScanSimulator({
         dispatch({ type: 'SCAN_START', token: tokenToScan })
 
         try {
-            const response = await scanMutation.mutateAsync(tokenToScan)
+            const response = await scanMutation.mutateAsync({
+                qrToken: tokenToScan,
+                eventId: assignedEventId,
+            })
 
             if (response.result === 'accepted') {
+                toast.success('Check-in recorded')
                 dispatch({ type: 'SCAN_RESOLVED_SUCCESS', payload: response })
                 onScanSuccess?.()
             } else if (response.result === 'already_checked_in') {

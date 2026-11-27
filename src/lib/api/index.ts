@@ -407,9 +407,14 @@ export function updateInvitation(
     });
 }
 
-/** GET /rest/v1/attendees — list attendees for an invitation. */
+export type ListAttendeesQuery =
+    operations['listAttendees']['parameters']['query'] & {
+        event_id?: string;
+    };
+
+/** GET /rest/v1/attendees — list attendees for an invitation or event. */
 export function listAttendees(
-    query?: operations['listAttendees']['parameters']['query'],
+    query?: ListAttendeesQuery,
 ): Promise<ListOk<operations['listAttendees']>> {
     return request('GET', '/rest/v1/attendees', { query });
 }
@@ -720,14 +725,24 @@ export function getAssignedEvent(
     });
 }
 
+export interface ScanCheckInParams {
+    qrToken: string;
+    eventId?: string;
+}
+
 /** POST /functions/v1/checkin/scan — scan a QR token and record check-in. */
 export function scanCheckIn(
-    qrToken: string,
-    eventId?: string,
+    params: ScanCheckInParams | string,
+    legacyEventId?: string,
 ): Promise<Ok<operations['scanCheckIn']>> {
+    const qrToken = typeof params === 'string' ? params : params.qrToken;
+    const eventId = typeof params === 'string' ? legacyEventId : params.eventId;
     return request('POST', '/functions/v1/checkin/scan', {
         role: 'checkin',
-        body: { qr_token: qrToken, event_id: eventId } satisfies components['schemas']['ScanCheckInRequest'],
+        body: {
+            qr_token: qrToken,
+            event_id: eventId,
+        } satisfies components['schemas']['ScanCheckInRequest'],
     });
 }
 

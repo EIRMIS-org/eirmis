@@ -48,7 +48,7 @@ export function WalkInModal({ eventId }: WalkInModalProps) {
 
     const invitationsQuery = useListInvitations({ event_id: `eq.${eventId}` })
     const guestsQuery = useListGuests()
-    const attendeesQuery = useListAttendees()
+    const attendeesQuery = useListAttendees({ event_id: `eq.${eventId}` })
     const submitAttendee = useSubmitAttendee()
     const scanCheckIn = useScanCheckIn()
 
@@ -135,7 +135,10 @@ export function WalkInModal({ eventId }: WalkInModalProps) {
                 return
             }
 
-            const result = await scanCheckIn.mutateAsync(attendee.qr_token)
+            const result = await scanCheckIn.mutateAsync({
+                qrToken: attendee.qr_token,
+                eventId,
+            })
             if (result.result === 'invalid_token') {
                 form.setError('root.server', {
                     type: 'server',

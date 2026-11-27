@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { MemoryRouter } from 'react-router-dom'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { toast } from 'sonner'
 import {
     listAttendees,
     listCheckInAssignments,
@@ -941,6 +942,199 @@ describe('check-in staff portal hardening', () => {
                     { timeout: 5000 },
                 ),
             ).toBeInTheDocument()
+        })
+    })
+
+    describe('scan contract hardening', () => {
+        it("does not fire success toast when response has result 'already_checked_in'", async () => {
+            const toastSpy = vi.spyOn(toast, 'success')
+            const user = userEvent.setup()
+
+            renderWithProviders(<StaffScanPage />, '/staff')
+
+            expect(
+                await screen.findByText('Annual Gala 2026', undefined, { timeout: 5000 }),
+            ).toBeInTheDocument()
+
+            await user.click(screen.getByRole('button', { name: /2\. duplicate/i }))
+
+            await waitFor(() => {
+                expect(
+                    screen.getByText(/duplicate scan detected/i),
+                ).toBeInTheDocument()
+            })
+
+            expect(toastSpy).not.toHaveBeenCalled()
+            toastSpy.mockRestore()
+        })
+
+        it('passes event_id in request payload to POST /functions/v1/checkin/scan', async () => {
+            let capturedBody: { qr_token?: string; event_id?: string } | null = null
+            server.use(
+                http.post('*/functions/v1/checkin/scan', async ({ request }) => {
+                    capturedBody = (await request.json()) as { qr_token?: string; event_id?: string }
+                    return HttpResponse.json({
+                        result: 'accepted',
+                        attendee: null,
+                        checked_in_at: new Date().toISOString(),
+                        message: null,
+                    })
+                }),
+            )
+
+            const user = userEvent.setup()
+            renderWithProviders(<StaffScanPage />, '/staff')
+
+            expect(
+                await screen.findByText('Annual Gala 2026', undefined, { timeout: 5000 }),
+            ).toBeInTheDocument()
+
+            await user.click(screen.getByRole('button', { name: /1\. valid qr/i }))
+
+            await waitFor(() => {
+                expect(capturedBody).toMatchObject({
+                    qr_token: 'signed-qr-token-sample',
+                    event_id: ASSIGNED_EVENT_ID,
+                })
+            })
+        })
+
+        it('queries attendees scoped to target event ID without full-table scan', async () => {
+            const requestedUrls: string[] = []
+            server.use(
+                http.get('*/rest/v1/attendees', ({ request }) => {
+                    requestedUrls.push(request.url)
+                    return HttpResponse.json([])
+                }),
+            )
+
+            renderWithProviders(<StaffSearchPage />, '/staff/search')
+
+            await waitFor(() => {
+                expect(requestedUrls.length).toBeGreaterThan(0)
+            })
+
+            for (const url of requestedUrls) {
+                expect(new URL(url).searchParams.get('event_id')).toBe(
+                    `eq.${ASSIGNED_EVENT_ID}`,
+                )
+            }
+        })
+
+        it('transitions to wrong-event state on 422 EVENT_MISMATCH', async () => {
+            server.use(
+                http.post('*/functions/v1/checkin/scan', () =>
+                    HttpResponse.json(
+                        {
+                            code: 'EVENT_MISMATCH',
+                            message: 'Ticket belongs to a different event.',
+                            details: null,
+                            hint: null,
+                        },
+                        { status: 422 },
+                    ),
+                ),
+            )
+
+            const user = userEvent.setup()
+            renderWithProviders(<StaffScanPage />, '/staff')
+
+            expect(
+                await screen.findByText('Annual Gala 2026', undefined, { timeout: 5000 }),
+            ).toBeInTheDocument()
+
+            const input = screen.getByPlaceholderText(/paste or enter signed qr token/i)
+            await user.type(input, 'opaque-real-qr-token')
+            await user.click(screen.getByRole('button', { name: /^scan$/i }))
+
+            await waitFor(() => {
+                expect(screen.getByText(/wrong event/i)).toBeInTheDocument()
+                expect(
+                    screen.getByText(/ticket belongs to a different event\./i),
+                ).toBeInTheDocument()
+            })
+        })
+
+        it('transitions to invalid-token state on general 422 without EVENT_MISMATCH', async () => {
+            server.use(
+                http.post('*/functions/v1/checkin/scan', () =>
+                    HttpResponse.json(
+                        {
+                            code: 'INVALID_QR_TOKEN',
+                            message: 'QR signature could not be verified.',
+                            details: null,
+                            hint: null,
+                        },
+                        { status: 422 },
+                    ),
+                ),
+            )
+
+            const user = userEvent.setup()
+            renderWithProviders(<StaffScanPage />, '/staff')
+
+            expect(
+                await screen.findByText('Annual Gala 2026', undefined, { timeout: 5000 }),
+            ).toBeInTheDocument()
+
+            const input = screen.getByPlaceholderText(/paste or enter signed qr token/i)
+            await user.type(input, 'corrupted-qr-token')
+            await user.click(screen.getByRole('button', { name: /^scan$/i }))
+
+            await waitFor(() => {
+                expect(
+                    screen.getByText(/qr signature could not be verified\./i),
+                ).toBeInTheDocument()
+            })
+        })
+
+        it('handles 200 accepted, 200 duplicate, 200 invalid token, 422 wrong event, and 422 invalid QR transitions in scanResultReducer', () => {
+            const resolving = scanResultReducer(initialScanState, {
+                type: 'SCAN_START',
+                token: 'tok-123',
+            })
+            expect(resolving.status).toBe('resolving')
+
+            const accepted = scanResultReducer(resolving, {
+                type: 'SCAN_RESOLVED_SUCCESS',
+                payload: {
+                    result: 'accepted',
+                    attendee: null,
+                    checked_in_at: '2026-12-15T18:05:00Z',
+                    message: 'Welcome',
+                },
+            })
+            expect(accepted.status).toBe('success')
+
+            const duplicate = scanResultReducer(resolving, {
+                type: 'SCAN_RESOLVED_ALREADY_CHECKED_IN',
+                payload: {
+                    result: 'already_checked_in',
+                    attendee: null,
+                    checked_in_at: '2026-12-15T18:00:00Z',
+                    message: 'Already checked in',
+                },
+            })
+            expect(duplicate.status).toBe('already-checked-in')
+
+            const invalidToken200 = scanResultReducer(resolving, {
+                type: 'SCAN_FAILED_INVALID_TOKEN',
+                message: 'Invalid token',
+            })
+            expect(invalidToken200.status).toBe('invalid-token')
+
+            const wrongEvent422 = scanResultReducer(resolving, {
+                type: 'SCAN_FAILED_WRONG_EVENT',
+                expectedEvent: 'Annual Gala 2026',
+                message: 'EVENT_MISMATCH',
+            })
+            expect(wrongEvent422.status).toBe('wrong-event')
+
+            const invalidQr422 = scanResultReducer(resolving, {
+                type: 'SCAN_FAILED_INVALID_TOKEN',
+                message: 'INVALID_QR_TOKEN',
+            })
+            expect(invalidQr422.status).toBe('invalid-token')
         })
     })
 })

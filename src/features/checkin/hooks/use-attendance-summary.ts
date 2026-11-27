@@ -35,9 +35,14 @@ export function useAttendanceSummary(eventId?: string): AttendanceSummaryMetrics
         refetchInterval: ATTENDANCE_REFETCH_INTERVAL_MS,
     })
 
+    const attendeeQuery = useMemo(
+        () => (eventId ? { event_id: `eq.${eventId}` } : undefined),
+        [eventId],
+    )
+
     const attendees = useQuery({
-        queryKey: qk.listAttendees(),
-        queryFn: () => listAttendees(),
+        queryKey: qk.listAttendees(attendeeQuery),
+        queryFn: () => listAttendees(attendeeQuery),
         enabled: Boolean(eventId),
         refetchInterval: ATTENDANCE_REFETCH_INTERVAL_MS,
     })
