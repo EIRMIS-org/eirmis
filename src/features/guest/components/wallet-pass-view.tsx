@@ -1,6 +1,6 @@
 import { MailIcon, QrCodeIcon } from 'lucide-react'
 import { toast } from 'sonner'
-import type { Event, Invitation } from '@/lib/api'
+import { eq, type Event, type Invitation } from '@/lib/api'
 import { WalletPass } from '@/components/eirmis/wallet-pass'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -44,7 +44,7 @@ export function WalletPassView({
 }: {
   invitation: InvitationMaybeWithEvent
 }) {
-  const attendeesQuery = useListAttendees({ invitation_id: invitation.id })
+  const attendeesQuery = useListAttendees({ invitation_id: eq(invitation.id) })
   const eventsQuery = useListEvents()
   const dispatchQr = useDispatchQr()
 

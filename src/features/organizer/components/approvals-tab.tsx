@@ -36,6 +36,8 @@ import { useListInvitations } from "@/features/organizer/hooks/use-list-invitati
 import { usePromoteWaitlist } from "@/features/organizer/hooks/use-promote-waitlist";
 import {
   ApiError,
+  eq,
+  inList,
   type Attendee,
   type HeadcountIncreaseRequest,
 } from "@/lib/api";
@@ -64,9 +66,18 @@ function isCapacityExceededError(error: unknown): boolean {
 
 export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
   const queryClient = useQueryClient();
-  const invitationsQuery = useListInvitations({ event_id: `eq.${eventId}` });
-  const attendeesQuery = useListAttendees({ event_id: `eq.${eventId}` });
-  const headcountQuery = useListHeadcountRequests({ status: "pending" });
+  const invitationsQuery = useListInvitations({ event_id: eq(eventId) });
+  const invitationIdList = useMemo(
+    () => (invitationsQuery.data ?? []).map((invitation) => invitation.id),
+    [invitationsQuery.data],
+  );
+  const attendeesQuery = useListAttendees(
+    invitationIdList.length > 0
+      ? { invitation_id: inList(invitationIdList) }
+      : undefined,
+    { enabled: invitationIdList.length > 0 },
+  );
+  const headcountQuery = useListHeadcountRequests({ status: eq("pending") });
   const decideAttendee = useDecideAttendee();
   const decideHeadcountRequest = useDecideHeadcountRequest();
   const promoteWaitlist = usePromoteWaitlist();
