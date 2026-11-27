@@ -1,13 +1,13 @@
-/**
- * src/features/checkin/components/scan-simulator.tsx
+﻿/**
+- src/features/checkin/components/scan-simulator.tsx
  *
- * Task 09 — Check-in Staff Portal
+- Task 09 — Check-in Staff Portal
  *
- * Provides manual paste-token input + 5 one-click simulation buttons.
+- Provides manual paste-token input + 4 one-click simulation buttons.
  *
- * User requirement:
- * 1. MUST hit actual API endpoints (`useScanCheckIn` calling POST /functions/v1/checkin/scan).
- * 2. References OpenAPI specification schemas (ScanCheckInRequest, ScanCheckInResponse, Error).
+- User requirement:
+- 1. MUST hit actual API endpoints (`useScanCheckIn` calling POST /functions/v1/checkin/scan).
+- 2. References OpenAPI specification schemas (ScanCheckInRequest, ScanCheckInResponse, Error).
  */
 
 import { useState } from 'react'
@@ -37,9 +37,9 @@ export function ScanSimulator({
     const scanMutation = useScanCheckIn()
 
     /**
-     * Executes the actual scan check-in API endpoint:
-     * POST /functions/v1/checkin/scan
-     * Request body: { qr_token: string }
+- Executes the actual scan check-in API endpoint:
+- POST /functions/v1/checkin/scan
+- Request body: { qr_token: string }
      */
     async function executeScan(tokenToScan: string) {
         if (!tokenToScan.trim()) return
@@ -66,8 +66,8 @@ export function ScanSimulator({
             }
         } catch (error) {
             if (error instanceof ApiError) {
-                if (error.code === 'EVENT_MISMATCH_403' || error.status === 403) {
-                    if (tokenToScan.includes('wrong-event') || error.code === 'EVENT_MISMATCH_403') {
+                if (error.status === 422) {
+                    if (error.code === 'EVENT_MISMATCH') {
                         dispatch({
                             type: 'SCAN_FAILED_WRONG_EVENT',
                             message: error.message,
@@ -78,10 +78,10 @@ export function ScanSimulator({
                             message: error.message,
                         })
                     }
-                } else if (error.code === 'CAPACITY_422' || error.status === 422) {
+                } else if (error.status === 403) {
                     dispatch({
-                        type: 'SCAN_FAILED_CAPACITY_FULL',
-                        message: error.message,
+                        type: 'SCAN_FAILED_UNAUTHORIZED',
+                        message: error.message || "You're not assigned to this event.",
                     })
                 } else {
                     dispatch({
@@ -131,7 +131,7 @@ export function ScanSimulator({
                         <span className="font-semibold text-foreground">Dev Scan Presets</span>
                         <span className="text-[11px]">Dev-only scan seeds</span>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                         <Button
                             type="button"
                             variant="outline"
@@ -140,7 +140,7 @@ export function ScanSimulator({
                             onClick={() => executeScan('signed-qr-token-sample')}
                             className="text-xs text-success border-success-border hover:bg-success-bg/30"
                         >
-                            1. Valid QR
+1. Valid QR
                         </Button>
                         <Button
                             type="button"
@@ -150,7 +150,7 @@ export function ScanSimulator({
                             onClick={() => executeScan('simulate-duplicate')}
                             className="text-xs text-warning border-warning-border hover:bg-warning-bg/30"
                         >
-                            2. Duplicate
+2. Duplicate
                         </Button>
                         <Button
                             type="button"
@@ -160,7 +160,7 @@ export function ScanSimulator({
                             onClick={() => executeScan('invalid.token')}
                             className="text-xs text-error border-error-border hover:bg-error-bg/30"
                         >
-                            3. Bad Token
+3. Bad Token
                         </Button>
                         <Button
                             type="button"
@@ -170,17 +170,7 @@ export function ScanSimulator({
                             onClick={() => executeScan('simulate-wrong-event')}
                             className="text-xs text-warning border-warning-border hover:bg-warning-bg/30"
                         >
-                            4. Wrong Event
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            disabled={isResolving}
-                            onClick={() => executeScan('simulate-capacity-full')}
-                            className="col-span-2 sm:col-span-1 text-xs text-error border-error-border hover:bg-error-bg/30"
-                        >
-                            5. Capacity Full
+4. Wrong Event
                         </Button>
                     </div>
                 </div>
@@ -188,4 +178,3 @@ export function ScanSimulator({
         </Card>
     )
 }
-

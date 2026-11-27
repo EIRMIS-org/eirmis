@@ -1,4 +1,4 @@
-import {
+﻿import {
     AlertTriangleIcon,
     CheckCircle2Icon,
     ClockIcon,
@@ -53,8 +53,8 @@ const OUTCOME_BADGE_META: Record<
         variant: 'warning',
         Icon: AlertTriangleIcon,
     },
-    'capacity-full': {
-        label: 'Capacity Full',
+    unauthorized: {
+        label: 'Not Assigned',
         variant: 'error',
         Icon: XCircleIcon,
     },

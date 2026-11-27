@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { SearchIcon, UserPlusIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -20,6 +20,7 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { useScanCheckIn } from '@/features/checkin/hooks/use-scan-check-in'
+import { notifyScanOutcome } from '@/features/checkin/lib/notify-scan-outcome'
 import { useSubmitAttendee } from '@/features/guest/hooks/use-submit-attendee'
 import { useListAttendees } from '@/features/organizer/hooks/use-list-attendees'
 import { useListGuests } from '@/features/organizer/hooks/use-list-guests'
@@ -139,6 +140,7 @@ export function WalkInModal({ eventId }: WalkInModalProps) {
                 qrToken: attendee.qr_token,
                 eventId,
             })
+            notifyScanOutcome(result)
             if (result.result === 'invalid_token') {
                 form.setError('root.server', {
                     type: 'server',

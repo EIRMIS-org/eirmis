@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { CheckCircle2Icon, SearchIcon } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,6 +13,7 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { useScanCheckIn } from '@/features/checkin/hooks/use-scan-check-in'
+import { notifyScanOutcome } from '@/features/checkin/lib/notify-scan-outcome'
 import { useListAttendees } from '@/features/organizer/hooks/use-list-attendees'
 import { useListInvitations } from '@/features/organizer/hooks/use-list-invitations'
 
@@ -155,10 +156,17 @@ export function ManualSearchTable({ eventId }: ManualSearchTableProps) {
                                                     }
                                                     onClick={() => {
                                                         if (attendee.qr_token) {
-                                                            scanMutation.mutate({
-                                                                qrToken: attendee.qr_token,
-                                                                eventId,
-                                                            })
+                                                            scanMutation.mutate(
+                                                                {
+                                                                    qrToken: attendee.qr_token,
+                                                                    eventId,
+                                                                },
+                                                                {
+                                                                    onSuccess: (response) => {
+                                                                        notifyScanOutcome(response)
+                                                                    },
+                                                                },
+                                                            )
                                                         }
                                                     }}
                                                 >
