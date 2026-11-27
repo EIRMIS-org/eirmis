@@ -825,4 +825,39 @@ describe('Guest Portal (Task 08)', () => {
     ).toBeEnabled()
     expect(screen.getByRole('radio', { name: /Attending/i })).toBeDisabled()
   })
+
+  it('disables Leave waitlist button until Decline is chosen', async () => {
+    server.use(
+      http.get('*/rest/v1/invitations', () =>
+        HttpResponse.json([
+          { ...BASE_INVITATION, status: 'waitlisted', party_size: 0 },
+        ]),
+      ),
+    )
+
+    renderWithProviders(
+      <Routes>
+        <Route
+          path="/guest/invitations/:invitationId"
+          element={<InvitationDetailPage />}
+        />
+      </Routes>,
+      [`/guest/invitations/${BASE_INVITATION.id}`],
+    )
+
+    expect(
+      await screen.findByText(/You are on the waitlist/i),
+    ).toBeInTheDocument()
+
+    const submitButton = screen.getByRole('button', {
+      name: /Leave waitlist/i,
+    })
+    expect(submitButton).toBeDisabled()
+
+    await userEvent
+      .setup()
+      .click(screen.getByRole('radio', { name: /Decline \/ Leave waitlist/i }))
+
+    expect(submitButton).toBeEnabled()
+  })
 })

@@ -432,14 +432,19 @@ export function updateInvitation(
     });
 }
 
-export type ListAttendeesQuery =
-    operations['listAttendees']['parameters']['query'] & {
-        event_id?: string;
-    };
+/** PostgREST equality filter helper: `eq(value)` -> `"eq.<value>"`. */
+export function eq(value: string): string {
+    return `eq.${value}`;
+}
 
-/** GET /rest/v1/attendees — list attendees for an invitation or event. */
+/** PostgREST list inclusion filter helper: `inList(['a', 'b'])` -> `"in.(a,b)"`. */
+export function inList(values: readonly string[]): string {
+    return `in.(${values.join(',')})`;
+}
+
+/** GET /rest/v1/attendees — list attendees for an invitation. */
 export function listAttendees(
-    query?: ListAttendeesQuery,
+    query?: operations['listAttendees']['parameters']['query'],
 ): Promise<ListOk<operations['listAttendees']>> {
     return request('GET', '/rest/v1/attendees', { query });
 }

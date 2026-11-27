@@ -16,6 +16,7 @@ import { useScanCheckIn } from '@/features/checkin/hooks/use-scan-check-in'
 import { notifyScanOutcome } from '@/features/checkin/lib/notify-scan-outcome'
 import { useListAttendees } from '@/features/organizer/hooks/use-list-attendees'
 import { useListInvitations } from '@/features/organizer/hooks/use-list-invitations'
+import { eq, inList } from '@/lib/api'
 
 export interface ManualSearchTableProps {
     eventId: string
@@ -23,8 +24,17 @@ export interface ManualSearchTableProps {
 
 export function ManualSearchTable({ eventId }: ManualSearchTableProps) {
     const [query, setQuery] = useState('')
-    const invitationsQuery = useListInvitations({ event_id: `eq.${eventId}` })
-    const attendeesQuery = useListAttendees({ event_id: `eq.${eventId}` })
+    const invitationsQuery = useListInvitations({ event_id: eq(eventId) })
+    const invitationIdList = useMemo(
+        () => (invitationsQuery.data ?? []).map((invitation) => invitation.id),
+        [invitationsQuery.data],
+    )
+    const attendeesQuery = useListAttendees(
+        invitationIdList.length > 0
+            ? { invitation_id: inList(invitationIdList) }
+            : undefined,
+        { enabled: invitationIdList.length > 0 },
+    )
     const scanMutation = useScanCheckIn()
 
     const invitationIds = useMemo(

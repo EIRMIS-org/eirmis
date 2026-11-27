@@ -25,7 +25,7 @@ import { useSubmitAttendee } from '@/features/guest/hooks/use-submit-attendee'
 import { useListAttendees } from '@/features/organizer/hooks/use-list-attendees'
 import { useListGuests } from '@/features/organizer/hooks/use-list-guests'
 import { useListInvitations } from '@/features/organizer/hooks/use-list-invitations'
-import { ApiError, type Attendee, type AttendeeCreate } from '@/lib/api'
+import { ApiError, eq, inList, type Attendee, type AttendeeCreate } from '@/lib/api'
 import {
     applyContractError,
     attendeeCreateResolver,
@@ -47,9 +47,18 @@ export function WalkInModal({ eventId }: WalkInModalProps) {
     const [invitationFilter, setInvitationFilter] = useState('')
     const [createdAttendee, setCreatedAttendee] = useState<Attendee | null>(null)
 
-    const invitationsQuery = useListInvitations({ event_id: `eq.${eventId}` })
+    const invitationsQuery = useListInvitations({ event_id: eq(eventId) })
     const guestsQuery = useListGuests()
-    const attendeesQuery = useListAttendees({ event_id: `eq.${eventId}` })
+    const invitationIdList = useMemo(
+        () => (invitationsQuery.data ?? []).map((invitation) => invitation.id),
+        [invitationsQuery.data],
+    )
+    const attendeesQuery = useListAttendees(
+        invitationIdList.length > 0
+            ? { invitation_id: inList(invitationIdList) }
+            : undefined,
+        { enabled: invitationIdList.length > 0 },
+    )
     const submitAttendee = useSubmitAttendee()
     const scanCheckIn = useScanCheckIn()
 

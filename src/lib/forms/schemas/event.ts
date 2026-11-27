@@ -16,6 +16,15 @@ const slugSchema = z
     'Event slug may only contain URL-safe letters, numbers, dots, underscores, tildes, and hyphens',
   )
 
+function isValidIanaTimezone(timeZone: string): boolean {
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone })
+    return true
+  } catch {
+    return false
+  }
+}
+
 const eventShape = {
   title: z.string().trim().min(1, 'Event title is required'),
   slug: slugSchema,
@@ -23,7 +32,11 @@ const eventShape = {
   cover_image_url: nullableTextSchema,
   starts_at: dateTimeSchema,
   ends_at: dateTimeSchema,
-  event_timezone: z.string().trim().min(1, 'Event timezone is required'),
+  event_timezone: z
+    .string()
+    .trim()
+    .min(1, 'Event timezone is required')
+    .refine(isValidIanaTimezone, 'Enter a valid IANA timezone (e.g. Asia/Manila)'),
   venue_name: nullableTextSchema,
   address: nullableTextSchema,
   city: nullableTextSchema,

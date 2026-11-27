@@ -29,8 +29,9 @@ export function useRegisterPublicGuest() {
         return { invitation, emailWarning: false }
       } catch (error) {
         // The Edge Function creates the invitation before attempting email
-        // delivery. Preserve that success rather than encouraging a duplicate retry.
-        if (error instanceof ApiError && error.status === 502) {
+        // delivery or logging (502/500 with registration_created: true).
+        // Preserve that success rather than encouraging a duplicate retry.
+        if (error instanceof ApiError) {
           const responseBody = error.responseBody
           if (
             isRecord(responseBody) &&

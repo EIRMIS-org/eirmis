@@ -1102,7 +1102,7 @@ describe('check-in staff portal hardening', () => {
             })
         })
 
-        it('queries attendees scoped to target event ID without full-table scan', async () => {
+        it('queries attendees scoped to target event ID via invitation_id=in.(...) without full-table scan', async () => {
             const requestedUrls: string[] = []
             server.use(
                 http.get('*/rest/v1/attendees', ({ request }) => {
@@ -1118,9 +1118,9 @@ describe('check-in staff portal hardening', () => {
             })
 
             for (const url of requestedUrls) {
-                expect(new URL(url).searchParams.get('event_id')).toBe(
-                    `eq.${ASSIGNED_EVENT_ID}`,
-                )
+                const invitationIdFilter = new URL(url).searchParams.get('invitation_id')
+                expect(invitationIdFilter).toBeTruthy()
+                expect(invitationIdFilter).toMatch(/^in\.\(.+\)$/)
             }
         })
 

@@ -79,6 +79,42 @@ describe('contract form schemas', () => {
     expect(eventUpdateSchema.safeParse({ rsvp_deadline: event.rsvp_deadline }).success).toBe(true)
   })
 
+  it('rejects non-IANA timezone string like Manila on event_timezone', () => {
+    const event = {
+      title: 'Gala',
+      slug: 'gala-2026',
+      starts_at: '2026-12-15T18:00:00+08:00',
+      ends_at: '2026-12-15T19:00:00+08:00',
+      event_timezone: 'Manila',
+      capacity: 1,
+      rsvp_deadline: '2026-12-15T17:00:00+08:00',
+      visibility_mode: 'open_registration',
+    }
+
+    const createResult = eventCreateSchema.safeParse(event)
+    expect(createResult.success).toBe(false)
+    expect(
+      createResult.error?.issues.some(
+        (issue) =>
+          issue.path.includes('event_timezone') &&
+          /IANA timezone/i.test(issue.message),
+      ),
+    ).toBe(true)
+
+    const updateResult = eventUpdateSchema.safeParse({ event_timezone: 'Manila' })
+    expect(updateResult.success).toBe(false)
+    expect(
+      updateResult.error?.issues.some(
+        (issue) => issue.path.includes('event_timezone'),
+      ),
+    ).toBe(true)
+
+    expect(
+      eventCreateSchema.safeParse({ ...event, event_timezone: 'Asia/Manila' })
+        .success,
+    ).toBe(true)
+  })
+
   it('requires an event slug that is safe as one URL path segment', () => {
     const event = {
       title: 'Gala',

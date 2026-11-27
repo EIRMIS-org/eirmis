@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { listAttendees, listInvitations } from '@/lib/api'
+import { eq, inList, listAttendees, listInvitations } from '@/lib/api'
 import { qk } from '@/lib/api/query-keys'
 
 /**
@@ -24,7 +24,7 @@ export interface AttendanceSummaryMetrics {
 
 export function useAttendanceSummary(eventId?: string): AttendanceSummaryMetrics {
     const invitationQuery = useMemo(
-        () => (eventId ? { event_id: `eq.${eventId}` } : undefined),
+        () => (eventId ? { event_id: eq(eventId) } : undefined),
         [eventId],
     )
 
@@ -35,15 +35,23 @@ export function useAttendanceSummary(eventId?: string): AttendanceSummaryMetrics
         refetchInterval: ATTENDANCE_REFETCH_INTERVAL_MS,
     })
 
+    const invitationIdList = useMemo(
+        () => (invitations.data ?? []).map((invitation) => invitation.id),
+        [invitations.data],
+    )
+
     const attendeeQuery = useMemo(
-        () => (eventId ? { event_id: `eq.${eventId}` } : undefined),
-        [eventId],
+        () =>
+            invitationIdList.length > 0
+                ? { invitation_id: inList(invitationIdList) }
+                : undefined,
+        [invitationIdList],
     )
 
     const attendees = useQuery({
         queryKey: qk.listAttendees(attendeeQuery),
         queryFn: () => listAttendees(attendeeQuery),
-        enabled: Boolean(eventId),
+        enabled: Boolean(eventId) && invitationIdList.length > 0,
         refetchInterval: ATTENDANCE_REFETCH_INTERVAL_MS,
     })
 

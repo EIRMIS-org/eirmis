@@ -10,6 +10,7 @@ import {
   type Attendee,
   type HeadcountIncreaseRequest,
   setRole,
+  eq,
 } from "@/lib/api";
 import { qk } from "@/lib/api/query-keys";
 import { resetMockOrganizerState } from "@/mocks/handlers";
@@ -91,10 +92,15 @@ describe("ApprovalsTab waitlist promotion", () => {
     await user.click(rejectButtons[0]);
 
     await waitFor(() => {
-      const cachedAttendees = queryClient.getQueryData<Attendee[]>([
-        ...qk.listAttendeesPrefix(),
-        { event_id: `eq.${EVENT_ID}` },
-      ]);
+      // Attendees are now queried via invitation_id=in.(...) not event_id
+      const queryCache = queryClient.getQueryCache()
+      const attendeesQueries = queryCache.findAll({
+        queryKey: [...qk.listAttendeesPrefix()],
+      })
+      const attendeesQuery = attendeesQueries.find(q =>
+        (q.queryKey[1] as Record<string, unknown> | undefined)?.invitation_id?.toString().startsWith("in.(")
+      )
+      const cachedAttendees = attendeesQuery?.state?.data as Attendee[] | undefined
       expect(cachedAttendees?.[0]?.status).toBe("rejected");
     });
 
@@ -102,12 +108,30 @@ describe("ApprovalsTab waitlist promotion", () => {
     const approveButtons = screen.getAllByRole("button", { name: /approve/i });
     await user.click(approveButtons[1]);
 
+    // After approval the request is no longer pending: the status=eq.pending
+    // query refetches and the approved request drops out of the cached list.
     await waitFor(() => {
-      const cachedHeadcount = queryClient.getQueryData<
-        HeadcountIncreaseRequest[]
-      >(qk.listHeadcountRequests({ status: "pending" }));
-      expect(cachedHeadcount?.[0]?.status).toBe("approved");
+      expect(
+        screen.getByText(
+          "No headcount requests are pending for this event.",
+        ),
+      ).toBeInTheDocument();
     });
+
+    const headcountQueries = queryClient
+      .getQueryCache()
+      .findAll({ queryKey: [...qk.listHeadcountRequestsPrefix()] });
+    const pendingQuery = headcountQueries.find(
+      (q) =>
+        (q.queryKey[1] as Record<string, unknown> | undefined)?.status ===
+        "eq.pending",
+    );
+    const cachedHeadcount = pendingQuery?.state?.data as
+      | HeadcountIncreaseRequest[]
+      | undefined;
+    expect(
+      cachedHeadcount?.some((request) => request.status === "pending"),
+    ).toBe(false);
   });
 
   it("disables confirm override button until non-empty reason is entered", async () => {

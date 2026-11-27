@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react'
 import { AlertCircleIcon, PlusIcon, UsersIcon } from 'lucide-react'
-import type {
-  Attendee,
-  HeadcountIncreaseRequest,
-  Invitation,
+import {
+  eq,
+  type Attendee,
+  type HeadcountIncreaseRequest,
+  type Invitation,
 } from '@/lib/api'
 import {
   AttendeeItem,
@@ -52,9 +53,9 @@ export function RosterEditor({
   const [submittedRequest, setSubmittedRequest] =
     useState<HeadcountIncreaseRequest | null>(null)
 
-  const attendeesQuery = useListAttendees({ invitation_id: invitation.id })
+  const attendeesQuery = useListAttendees({ invitation_id: eq(invitation.id) })
   const headcountQuery = useListHeadcountRequests({
-    invitation_id: invitation.id,
+    invitation_id: eq(invitation.id),
   })
 
   const attendees = useMemo(() => {
