@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 import { UserIcon } from 'lucide-react'
 import { useMyInvitations } from '@/features/guest/hooks/use-my-invitations'
@@ -7,14 +9,50 @@ import { WalletPassView } from '@/features/guest/components/wallet-pass-view'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent } from '@/components/ui/card'
-import { useDiscoverPublicEvents } from '@/features/landing/hooks/use-discover-public-events'
+import { listEvents } from '@/lib/api'
+import { qk } from '@/lib/api/query-keys'
+
+function useCurrentTime() {
+  const [now, setNow] = useState(() => Date.now())
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => setNow(Date.now()), 30_000)
+    return () => window.clearInterval(intervalId)
+  }, [])
+
+  return now
+}
 
 export function InvitationDetailPage() {
+  const now = useCurrentTime()
   const { invitationId } = useParams()
   const invitations = useMyInvitations()
   const invitation = invitations.data?.find((item) => item.id === invitationId)
-  const events = useDiscoverPublicEvents()
+  const eventQuery = invitation
+    ? { id: `eq.${invitation.event_id}` }
+    : undefined
+  const events = useQuery({
+    queryKey: qk.listEvents(eventQuery),
+    queryFn: () => listEvents(eventQuery),
+    enabled: Boolean(invitation),
+  })
   const event = events.data?.find((item) => item.id === invitation?.event_id)
+  const formattedDeadline =
+    event?.rsvp_deadline &&
+    new Intl.DateTimeFormat('en-PH', {
+      dateStyle: 'full',
+      timeStyle: 'short',
+      timeZone: event.event_timezone,
+    }).format(new Date(event.rsvp_deadline))
+  const deadlinePassed =
+    Boolean(event?.rsvp_deadline) &&
+    now > Date.parse(event?.rsvp_deadline ?? '')
+  const isLocked = deadlinePassed || event?.status !== 'published'
+  const lockMessage = deadlinePassed
+    ? `RSVP closed on ${formattedDeadline}.`
+    : event
+      ? `RSVP is unavailable because this event is ${event.status}.`
+      : 'RSVP is unavailable because event details are not available or the event is not published.'
 
   if (invitations.isLoading || events.isLoading) {
     return (
@@ -74,20 +112,24 @@ export function InvitationDetailPage() {
           <h1 className="text-2xl font-semibold">
             {event?.title ?? 'Invitation'}
           </h1>
-          {event && (
-            <div className="space-y-1 text-sm text-muted-foreground">
-              <p>
-                {new Intl.DateTimeFormat('en-PH', {
-                  dateStyle: 'full',
-                  timeStyle: 'short',
-                  timeZone: event.event_timezone,
-                }).format(new Date(event.starts_at))}
-              </p>
-              <p>
-                {[event.venue_name, event.city].filter(Boolean).join(' · ')}
-              </p>
-            </div>
-          )}
+          <div className="space-y-1 text-sm text-muted-foreground">
+            {event && (
+              <>
+                <p>
+                  {new Intl.DateTimeFormat('en-PH', {
+                    dateStyle: 'full',
+                    timeStyle: 'short',
+                    timeZone: event.event_timezone,
+                  }).format(new Date(event.starts_at))}
+                </p>
+                <p>
+                  {[event.venue_name, event.city].filter(Boolean).join(' · ')}
+                </p>
+              </>
+            )}
+            <p>Event status: {event?.status ?? 'Unavailable'}</p>
+            <p>RSVP deadline: {formattedDeadline ?? 'Unavailable'}</p>
+          </div>
         </CardContent>
       </Card>
 
@@ -112,27 +154,16 @@ export function InvitationDetailPage() {
         </section>
       )}
 
-      {invitation.status === 'waitlisted' && (
-        <section
-          role="status"
-          className="rounded-2xl border border-warning-border bg-warning-bg p-4"
-        >
-          <h2 className="font-semibold">You are on the waitlist</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            You are currently waitlisted. The organizer may promote you when
-            additional capacity becomes available.
-          </p>
-        </section>
-      )}
-
-      {invitation.status !== 'waitlisted' && (
-        <div id="rsvp-section">
-          <RsvpSection invitation={invitation} />
-        </div>
-      )}
+      <div id="rsvp-section">
+        <RsvpSection
+          invitation={invitation}
+          isLocked={isLocked}
+          lockMessage={lockMessage}
+        />
+      </div>
       {invitation.status !== 'waitlisted' && (
         <>
-          <RosterEditor invitation={invitation} />
+          <RosterEditor invitation={invitation} isLocked={isLocked} />
           <WalletPassView invitation={invitation} />
         </>
       )}

@@ -20,6 +20,7 @@ export interface ResubmitAttendeeModalProps {
   invitationId: string
   open: boolean
   onOpenChange: (open: boolean) => void
+  isLocked?: boolean
   onResubmitted?: (attendee: Attendee) => void
 }
 
@@ -28,6 +29,7 @@ export function ResubmitAttendeeModal({
   invitationId,
   open,
   onOpenChange,
+  isLocked = false,
   onResubmitted,
 }: ResubmitAttendeeModalProps) {
   const queryClient = useQueryClient()
@@ -50,7 +52,7 @@ export function ResubmitAttendeeModal({
   }, [attendee, form, open])
 
   async function submit(values: AttendeeUpdate) {
-    if (!attendee) return
+    if (!attendee || isLocked) return
     try {
       const updated = await mutation.mutateAsync({
         id: attendee.id,
@@ -132,7 +134,7 @@ export function ResubmitAttendeeModal({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
+            <Button type="submit" disabled={isLocked || mutation.isPending}>
               {mutation.isPending ? 'Resubmitting...' : 'Resubmit for Review'}
             </Button>
           </DialogFooter>
