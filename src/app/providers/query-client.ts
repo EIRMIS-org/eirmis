@@ -16,8 +16,10 @@
 
 import { QueryClient } from '@tanstack/react-query'
 
-/** HTTP status threshold below which failures are considered client errors. */
+/** Inclusive lower bound for HTTP 4xx client errors. */
 const CLIENT_ERROR_MIN = 400
+/** Exclusive upper bound for HTTP 4xx client errors (start of 5xx server errors). */
+const SERVER_ERROR_MIN = 500
 
 /** Extracts the HTTP status from a TanStack Query error, if present. */
 function getErrorStatus(error: unknown): number | null {
@@ -38,7 +40,7 @@ export function createQueryClient(): QueryClient {
                 retry: (failureCount, error) => {
                     const status = getErrorStatus(error)
                     // Never retry contract-documented client errors (4xx).
-                    if (status !== null && status >= CLIENT_ERROR_MIN && status < 600) {
+                    if (status !== null && status >= CLIENT_ERROR_MIN && status < SERVER_ERROR_MIN) {
                         return false
                     }
                     // Retry transient failures (5xx / network) once.
