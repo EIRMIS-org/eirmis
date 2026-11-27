@@ -23,7 +23,7 @@ export interface ManualSearchTableProps {
 export function ManualSearchTable({ eventId }: ManualSearchTableProps) {
     const [query, setQuery] = useState('')
     const invitationsQuery = useListInvitations({ event_id: `eq.${eventId}` })
-    const attendeesQuery = useListAttendees()
+    const attendeesQuery = useListAttendees({ event_id: `eq.${eventId}` })
     const scanMutation = useScanCheckIn()
 
     const invitationIds = useMemo(

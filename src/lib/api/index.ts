@@ -407,9 +407,14 @@ export function updateInvitation(
     });
 }
 
-/** GET /rest/v1/attendees — list attendees for an invitation. */
+export type ListAttendeesQuery =
+    operations['listAttendees']['parameters']['query'] & {
+        event_id?: string;
+    };
+
+/** GET /rest/v1/attendees — list attendees for an invitation or event. */
 export function listAttendees(
-    query?: operations['listAttendees']['parameters']['query'],
+    query?: ListAttendeesQuery,
 ): Promise<ListOk<operations['listAttendees']>> {
     return request('GET', '/rest/v1/attendees', { query });
 }

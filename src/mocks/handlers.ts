@@ -644,7 +644,18 @@ export const handlers = [
   // ═══ PostgREST: attendees ═══
   http.get("*/rest/v1/attendees", ({ request }) => {
     if (!hasAuth(request)) return unauthorized();
-    return jsonList(filterByEq(request, mockAttendees, "invitation_id"));
+    const url = new URL(request.url);
+    const eventFilter = url.searchParams.get("event_id");
+    let result = filterByEq(request, mockAttendees, "invitation_id");
+    if (eventFilter?.startsWith("eq.")) {
+      const eventId = eventFilter.slice(3);
+      const allInvs = [mockInvitation, ...mockExtraInvitations];
+      const validIds = new Set(
+        allInvs.filter((inv) => inv.event_id === eventId).map((inv) => inv.id),
+      );
+      result = result.filter((att) => validIds.has(att.invitation_id));
+    }
+    return jsonList(result);
   }),
 
   http.post("*/rest/v1/attendees", async ({ request }) => {

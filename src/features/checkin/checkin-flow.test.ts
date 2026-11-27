@@ -94,4 +94,18 @@ describe('check-in cross-portal flow', () => {
             event_id: eventId,
         })
     })
+
+    it('queries attendees scoped to target event ID without full-table scan', async () => {
+        setRole('checkin')
+        let capturedUrl = ''
+        server.use(
+            http.get('*/rest/v1/attendees', ({ request }) => {
+                capturedUrl = request.url
+                return HttpResponse.json([])
+            }),
+        )
+
+        await listAttendees({ event_id: `eq.${eventId}` })
+        expect(new URL(capturedUrl).searchParams.get('event_id')).toBe(`eq.${eventId}`)
+    })
 })

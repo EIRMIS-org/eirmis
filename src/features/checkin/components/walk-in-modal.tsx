@@ -48,7 +48,7 @@ export function WalkInModal({ eventId }: WalkInModalProps) {
 
     const invitationsQuery = useListInvitations({ event_id: `eq.${eventId}` })
     const guestsQuery = useListGuests()
-    const attendeesQuery = useListAttendees()
+    const attendeesQuery = useListAttendees({ event_id: `eq.${eventId}` })
     const submitAttendee = useSubmitAttendee()
     const scanCheckIn = useScanCheckIn()
 
