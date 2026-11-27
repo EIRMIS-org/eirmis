@@ -7,7 +7,7 @@
  * tests). Usage in a test setup file:
  *
  *   import { server } from '@/mocks/server';
- *   beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+ *   beforeAll(() => server.listen());
  *   afterEach(() => server.resetHandlers());
  *   afterAll(() => server.close());
  */

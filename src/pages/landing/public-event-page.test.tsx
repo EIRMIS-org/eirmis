@@ -64,7 +64,7 @@ async function submitRegistration(email = 'jordan.cruz@example.com') {
 }
 
 beforeAll(() => {
-  server.listen({ onUnhandledRequest: 'error' })
+  server.listen()
 })
 
 afterEach(() => {
