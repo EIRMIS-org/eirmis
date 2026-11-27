@@ -10,6 +10,7 @@ import { toast } from 'sonner'
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { SessionProvider } from '@/app/providers/session-context'
 import type { Attendee, Guest, Invitation } from '@/lib/api'
+import { qk } from '@/lib/api/query-keys'
 import { resetMockCheckInState } from '@/mocks/handlers'
 import { server } from '@/mocks/server'
 import { GuestInvitationsPage } from '@/pages/guest/guest-invitations-page'
@@ -335,6 +336,44 @@ describe('Guest Portal (Task 08)', () => {
     ).toBeInTheDocument()
   })
 
+  it('preserves server waitlisted status in cache when accepting full event', async () => {
+    const user = userEvent.setup()
+    const pendingInvitation: Invitation = {
+      ...BASE_INVITATION,
+      status: 'pending',
+      responded_at: null,
+    }
+    const waitlistedInvitation: Invitation = {
+      ...pendingInvitation,
+      status: 'waitlisted',
+      party_size: 0,
+      waitlisted_at: '2026-11-27T14:00:00+08:00',
+    }
+    server.use(
+      http.patch('*/rest/v1/invitations', () =>
+        HttpResponse.json(waitlistedInvitation),
+      ),
+    )
+    const { queryClient } = renderWithProviders(
+      <RsvpSection invitation={pendingInvitation} />,
+    )
+    queryClient.setQueryData(qk.listInvitations(), [pendingInvitation])
+
+    await user.click(screen.getByRole('radio', { name: /Attending/i }))
+    await user.click(screen.getByRole('button', { name: 'Save RSVP' }))
+
+    expect(await screen.findByText(/You are on the waitlist/i)).toBeInTheDocument()
+    expect(queryClient.getQueryData<Invitation[]>(qk.listInvitations())?.[0].status)
+      .toBe('waitlisted')
+  })
+
+  it('disables tentative when the invitation is already accepted', () => {
+    renderWithProviders(<RsvpSection invitation={BASE_INVITATION} />)
+
+    expect(screen.getByRole('radio', { name: /Tentative/i })).toBeDisabled()
+    expect(screen.getByRole('radio', { name: /Decline/i })).toBeEnabled()
+  })
+
   it('enforces max_party_size ceiling, allows adding under ceiling, and resubmits rejected attendees', async () => {
     const user = userEvent.setup()
     server.use(
@@ -608,6 +647,109 @@ describe('Guest Portal (Task 08)', () => {
     expect(screen.getByText(/Grand Ballroom · Cebu City/i)).toBeInTheDocument()
   })
 
+  it('disables RSVP submission and attendee additions after rsvp_deadline', async () => {
+    server.use(
+      http.get('*/rest/v1/events', () =>
+        HttpResponse.json([
+          {
+            id: BASE_INVITATION.event_id,
+            title: 'Annual Gala 2026',
+            starts_at: '2026-12-15T18:00:00+08:00',
+            event_timezone: 'Asia/Manila',
+            venue_name: 'Grand Ballroom',
+            city: 'Cebu City',
+            rsvp_deadline: '2020-12-01T23:59:59+08:00',
+            status: 'published',
+          },
+        ]),
+      ),
+      http.get('*/rest/v1/attendees', () =>
+        HttpResponse.json(ROSTER_ATTENDEES),
+      ),
+    )
+
+    renderWithProviders(
+      <Routes>
+        <Route
+          path="/guest/invitations/:invitationId"
+          element={<InvitationDetailPage />}
+        />
+      </Routes>,
+      [`/guest/invitations/${BASE_INVITATION.id}`],
+    )
+
+    expect(
+      await screen.findByRole('button', { name: 'Save RSVP' }),
+    ).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Add Member/i })).toBeDisabled()
+    expect(
+      await screen.findByRole('button', { name: /Fix & Resubmit/i }),
+    ).toBeDisabled()
+  })
+
+  it('displays the RSVP deadline notice when the event is locked', async () => {
+    server.use(
+      http.get('*/rest/v1/events', () =>
+        HttpResponse.json([
+          {
+            id: BASE_INVITATION.event_id,
+            title: 'Annual Gala 2026',
+            starts_at: '2026-12-15T18:00:00+08:00',
+            event_timezone: 'Asia/Manila',
+            venue_name: 'Grand Ballroom',
+            city: 'Cebu City',
+            rsvp_deadline: '2020-12-01T23:59:59+08:00',
+            status: 'published',
+          },
+        ]),
+      ),
+    )
+
+    renderWithProviders(
+      <Routes>
+        <Route
+          path="/guest/invitations/:invitationId"
+          element={<InvitationDetailPage />}
+        />
+      </Routes>,
+      [`/guest/invitations/${BASE_INVITATION.id}`],
+    )
+
+    expect(await screen.findByText(/RSVP closed on/i)).toBeInTheDocument()
+    expect(screen.getByText(/Event status: published/i)).toBeInTheDocument()
+    expect(screen.getByText(/RSVP deadline:/i)).toBeInTheDocument()
+  })
+
+  it('disables RSVP changes for an unpublished event', async () => {
+    server.use(
+      http.get('*/rest/v1/events', () =>
+        HttpResponse.json([
+          {
+            id: BASE_INVITATION.event_id,
+            title: 'Annual Gala 2026',
+            starts_at: '2026-12-15T18:00:00+08:00',
+            event_timezone: 'Asia/Manila',
+            rsvp_deadline: '2026-12-01T23:59:59+08:00',
+            status: 'draft',
+          },
+        ]),
+      ),
+    )
+
+    renderWithProviders(
+      <Routes>
+        <Route
+          path="/guest/invitations/:invitationId"
+          element={<InvitationDetailPage />}
+        />
+      </Routes>,
+      [`/guest/invitations/${BASE_INVITATION.id}`],
+    )
+
+    expect(await screen.findByText(/this event is draft/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Save RSVP' })).toBeDisabled()
+  })
+
   it('keeps one page heading when invitation event details are unavailable', async () => {
     server.use(
       http.get('*/rest/v1/events', () => HttpResponse.json([])),
@@ -673,10 +815,14 @@ describe('Guest Portal (Task 08)', () => {
     )
 
     expect(
-      await screen.findByText('You are on the waitlist'),
+      await screen.findByText(/You are on the waitlist/i),
     ).toBeInTheDocument()
     expect(
       screen.getByText(/organizer may promote you/i),
     ).toBeInTheDocument()
+    expect(
+      screen.getByRole('radio', { name: /Decline \/ Leave waitlist/i }),
+    ).toBeEnabled()
+    expect(screen.getByRole('radio', { name: /Attending/i })).toBeDisabled()
   })
 })
