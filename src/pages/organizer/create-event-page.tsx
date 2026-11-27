@@ -20,6 +20,7 @@ import { useCreateEvent } from '@/features/organizer/hooks/use-create-event'
 import { useUnsavedChangesGuard } from '@/features/organizer/hooks/use-unsaved-changes-guard'
 import { eventCreateResolver } from '@/lib/forms'
 import { eventCreateSchema } from '@/lib/forms/schemas/event'
+import { toZonedIsoString, toZonedLocalString } from '@/lib/datetime'
 import { z } from 'zod'
 
 const STEPS = ['Basics', 'Schedule', 'Capacity & rules', 'Review'] as const
@@ -38,29 +39,35 @@ function getStep(searchParams: URLSearchParams) {
     : 1
 }
 
-function toLocalDateTime(value: string) {
-  if (!value) return ''
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return ''
-  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000)
-  return local.toISOString().slice(0, 16)
-}
-
-function toIsoDateTime(value: string) {
-  return value ? new Date(value).toISOString() : ''
-}
-
 function FieldError({ message }: { message?: string }) {
   if (!message) return null
   return <p className="mt-1 text-xs text-error" role="alert">{message}</p>
 }
 
+type LocalDateTimes = {
+  starts_at: string
+  ends_at: string
+  rsvp_deadline: string
+}
+
+function formatReviewDateTime(
+  localValue: string,
+  isoValue: string,
+  timeZone: string,
+) {
+  return localValue || toZonedLocalString(isoValue, timeZone) || 'Not set'
+}
+
 function CreateEventReviewStep({
   control,
   formError,
+  localDateTimes,
+  timeZone,
 }: {
   control: Control<EventFormInput, unknown, EventCreate>
   formError?: string
+  localDateTimes: LocalDateTimes
+  timeZone: string
 }) {
   const [
     title,
@@ -73,6 +80,7 @@ function CreateEventReviewStep({
     venueName,
     city,
     description,
+    eventTimezone,
   ] = useWatch({
     control,
     name: [
@@ -86,6 +94,7 @@ function CreateEventReviewStep({
       'venue_name',
       'city',
       'description',
+      'event_timezone',
     ],
   })
 
@@ -117,19 +126,31 @@ function CreateEventReviewStep({
         <div>
           <dt className="text-xs font-medium text-muted-foreground">Starts</dt>
           <dd className="mt-1 text-sm text-foreground">
-            {startsAt ? new Date(startsAt).toLocaleString() : 'Not set'}
+            {formatReviewDateTime(
+              localDateTimes.starts_at,
+              startsAt || '',
+              eventTimezone || timeZone,
+            )}
           </dd>
         </div>
         <div>
           <dt className="text-xs font-medium text-muted-foreground">Ends</dt>
           <dd className="mt-1 text-sm text-foreground">
-            {endsAt ? new Date(endsAt).toLocaleString() : 'Not set'}
+            {formatReviewDateTime(
+              localDateTimes.ends_at,
+              endsAt || '',
+              eventTimezone || timeZone,
+            )}
           </dd>
         </div>
         <div>
           <dt className="text-xs font-medium text-muted-foreground">RSVP deadline</dt>
           <dd className="mt-1 text-sm text-foreground">
-            {rsvpDeadline ? new Date(rsvpDeadline).toLocaleString() : 'Not set'}
+            {formatReviewDateTime(
+              localDateTimes.rsvp_deadline,
+              rsvpDeadline || '',
+              eventTimezone || timeZone,
+            )}
           </dd>
         </div>
         <div>
@@ -156,21 +177,24 @@ function CreateEventReviewStep({
   )
 }
 
-type PendingNavigation =
-  | { type: 'step'; step: number }
-  | { type: 'leave' }
+type PendingNavigation = { type: 'leave' }
 
 export function CreateEventPage() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [formError, setFormError] = useState<string>()
   const [pendingNav, setPendingNav] = useState<PendingNavigation | null>(null)
+  const [localDateTimes, setLocalDateTimes] = useState<LocalDateTimes>({
+    starts_at: '',
+    ends_at: '',
+    rsvp_deadline: '',
+  })
   const createEvent = useCreateEvent()
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
   const step = getStep(searchParams)
   const {
     control,
-    formState: { errors, isDirty, dirtyFields },
+    formState: { errors, isDirty },
     handleSubmit,
     register,
     trigger,
@@ -196,12 +220,7 @@ export function CreateEventPage() {
   })
 
   useUnsavedChangesGuard(isDirty)
-
-  const currentStepFields = STEP_FIELDS[step] ?? []
-  const isCurrentStepDirty =
-    isDirty &&
-    (currentStepFields.length === 0 ||
-      currentStepFields.some((field) => Boolean(dirtyFields[field])))
+  const eventTimezone = useWatch({ control, name: 'event_timezone' }) || 'UTC'
 
   function applyStep(nextStep: number) {
     setFormError(undefined)
@@ -213,10 +232,6 @@ export function CreateEventPage() {
   }
 
   function setStep(nextStep: number) {
-    if (isCurrentStepDirty || isDirty) {
-      setPendingNav({ type: 'step', step: nextStep })
-      return
-    }
     applyStep(nextStep)
   }
 
@@ -230,13 +245,8 @@ export function CreateEventPage() {
 
   function confirmPendingNavigation() {
     if (!pendingNav) return
-    const target = pendingNav
     setPendingNav(null)
-    if (target.type === 'leave') {
-      navigate('/organizer')
-    } else {
-      applyStep(target.step)
-    }
+    navigate('/organizer')
   }
 
   async function goNext() {
@@ -248,7 +258,21 @@ export function CreateEventPage() {
   async function onSubmit(payload: EventCreate) {
     setFormError(undefined)
     try {
-      const event = await createEvent.mutateAsync(payload)
+      const event = await createEvent.mutateAsync({
+        ...payload,
+        starts_at: toZonedIsoString(
+          localDateTimes.starts_at,
+          payload.event_timezone,
+        ),
+        ends_at: toZonedIsoString(
+          localDateTimes.ends_at,
+          payload.event_timezone,
+        ),
+        rsvp_deadline: toZonedIsoString(
+          localDateTimes.rsvp_deadline,
+          payload.event_timezone,
+        ),
+      })
       navigate(`/organizer/events/${encodeURIComponent(event.id)}`)
     } catch (error) {
       setFormError(
@@ -293,26 +317,32 @@ export function CreateEventPage() {
               <li
                 key={label}
                 aria-current={isCurrent ? 'step' : undefined}
-                className={`flex items-center gap-2 text-sm ${
-                  isCurrent
-                    ? 'font-semibold text-primary'
-                    : isComplete
-                      ? 'font-medium text-foreground'
-                      : 'text-muted-foreground'
-                }`}
               >
-                <span
-                  className={`flex size-7 shrink-0 items-center justify-center rounded-full border text-xs ${
+                <button
+                  type="button"
+                  aria-label={`Go to ${label} step`}
+                  className={`flex items-center gap-2 text-left text-sm ${
                     isCurrent
-                      ? 'border-primary bg-primary text-primary-foreground'
+                      ? 'font-semibold text-primary'
                       : isComplete
-                        ? 'border-success bg-success-bg text-success'
-                        : 'border-border bg-background'
+                        ? 'font-medium text-foreground'
+                        : 'text-muted-foreground'
                   }`}
+                  onClick={() => setStep(stepNumber)}
                 >
-                  {isComplete ? <Check aria-hidden="true" className="size-4" /> : stepNumber}
-                </span>
-                <span>{label}</span>
+                  <span
+                    className={`flex size-7 shrink-0 items-center justify-center rounded-full border text-xs ${
+                      isCurrent
+                        ? 'border-primary bg-primary text-primary-foreground'
+                        : isComplete
+                          ? 'border-success bg-success-bg text-success'
+                          : 'border-border bg-background'
+                    }`}
+                  >
+                    {isComplete ? <Check aria-hidden="true" className="size-4" /> : stepNumber}
+                  </span>
+                  <span>{label}</span>
+                </button>
               </li>
             )
           })}
@@ -393,9 +423,21 @@ export function CreateEventPage() {
                         id="event-start"
                         type="datetime-local"
                         className="mt-1.5"
-                        value={toLocalDateTime(field.value)}
+                        value={
+                          localDateTimes.starts_at ||
+                          toZonedLocalString(field.value, eventTimezone)
+                        }
                         onBlur={field.onBlur}
-                        onChange={(event) => field.onChange(toIsoDateTime(event.target.value))}
+                        onChange={(event) => {
+                          const localValue = event.target.value
+                          setLocalDateTimes((current) => ({
+                            ...current,
+                            starts_at: localValue,
+                          }))
+                          field.onChange(
+                            toZonedIsoString(localValue, eventTimezone),
+                          )
+                        }}
                         aria-invalid={Boolean(errors.starts_at)}
                       />
                     )}
@@ -412,9 +454,21 @@ export function CreateEventPage() {
                         id="event-end"
                         type="datetime-local"
                         className="mt-1.5"
-                        value={toLocalDateTime(field.value)}
+                        value={
+                          localDateTimes.ends_at ||
+                          toZonedLocalString(field.value, eventTimezone)
+                        }
                         onBlur={field.onBlur}
-                        onChange={(event) => field.onChange(toIsoDateTime(event.target.value))}
+                        onChange={(event) => {
+                          const localValue = event.target.value
+                          setLocalDateTimes((current) => ({
+                            ...current,
+                            ends_at: localValue,
+                          }))
+                          field.onChange(
+                            toZonedIsoString(localValue, eventTimezone),
+                          )
+                        }}
                         aria-invalid={Boolean(errors.ends_at)}
                       />
                     )}
@@ -431,9 +485,21 @@ export function CreateEventPage() {
                         id="event-deadline"
                         type="datetime-local"
                         className="mt-1.5"
-                        value={toLocalDateTime(field.value)}
+                        value={
+                          localDateTimes.rsvp_deadline ||
+                          toZonedLocalString(field.value, eventTimezone)
+                        }
                         onBlur={field.onBlur}
-                        onChange={(event) => field.onChange(toIsoDateTime(event.target.value))}
+                        onChange={(event) => {
+                          const localValue = event.target.value
+                          setLocalDateTimes((current) => ({
+                            ...current,
+                            rsvp_deadline: localValue,
+                          }))
+                          field.onChange(
+                            toZonedIsoString(localValue, eventTimezone),
+                          )
+                        }}
                         aria-invalid={Boolean(errors.rsvp_deadline)}
                       />
                     )}
@@ -445,12 +511,10 @@ export function CreateEventPage() {
                   <Input
                     id="event-timezone"
                     className="mt-1.5"
-                    readOnly
-                    aria-readonly="true"
                     {...register('event_timezone')}
                   />
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Times use your device time zone.
+                    Times use the selected time zone.
                   </p>
                 </div>
               </div>
@@ -542,7 +606,12 @@ export function CreateEventPage() {
           )}
 
           {step === 4 && (
-            <CreateEventReviewStep control={control} formError={formError} />
+            <CreateEventReviewStep
+              control={control}
+              formError={formError}
+              localDateTimes={localDateTimes}
+              timeZone={eventTimezone}
+            />
           )}
 
           <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
@@ -590,9 +659,7 @@ export function CreateEventPage() {
           <DialogHeader>
             <DialogTitle>Leave with unsaved changes?</DialogTitle>
             <DialogDescription>
-              {pendingNav?.type === 'leave'
-                ? 'You have unsaved changes in this event wizard. Leaving now will discard your draft progress.'
-                : 'You have unsaved changes on this step. Are you sure you want to navigate to another step?'}
+              You have unsaved changes in this event wizard. Leaving now will discard your draft progress.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -605,10 +672,10 @@ export function CreateEventPage() {
             </Button>
             <Button
               type="button"
-              variant={pendingNav?.type === 'leave' ? 'destructive' : 'default'}
+              variant="destructive"
               onClick={confirmPendingNavigation}
             >
-              {pendingNav?.type === 'leave' ? 'Leave without saving' : 'Continue to step'}
+              Leave without saving
             </Button>
           </DialogFooter>
         </DialogContent>
