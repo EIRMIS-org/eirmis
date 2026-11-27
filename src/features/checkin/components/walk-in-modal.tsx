@@ -135,7 +135,10 @@ export function WalkInModal({ eventId }: WalkInModalProps) {
                 return
             }
 
-            const result = await scanCheckIn.mutateAsync(attendee.qr_token)
+            const result = await scanCheckIn.mutateAsync({
+                qrToken: attendee.qr_token,
+                eventId,
+            })
             if (result.result === 'invalid_token') {
                 form.setError('root.server', {
                     type: 'server',

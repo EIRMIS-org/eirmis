@@ -22,12 +22,14 @@ import type { ScanMachineAction } from '../lib/scan-result-machine'
 interface ScanSimulatorProps {
     dispatch: (action: ScanMachineAction) => void
     isResolving: boolean
+    assignedEventId?: string
     onScanSuccess?: () => void
 }
 
 export function ScanSimulator({
     dispatch,
     isResolving,
+    assignedEventId,
     onScanSuccess,
 }: ScanSimulatorProps) {
     const [tokenInput, setTokenInput] = useState('')
@@ -44,7 +46,10 @@ export function ScanSimulator({
         dispatch({ type: 'SCAN_START', token: tokenToScan })
 
         try {
-            const response = await scanMutation.mutateAsync(tokenToScan)
+            const response = await scanMutation.mutateAsync({
+                qrToken: tokenToScan,
+                eventId: assignedEventId,
+            })
 
             if (response.result === 'accepted') {
                 dispatch({ type: 'SCAN_RESOLVED_SUCCESS', payload: response })

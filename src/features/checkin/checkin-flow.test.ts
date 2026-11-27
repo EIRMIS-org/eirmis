@@ -1,4 +1,5 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { http, HttpResponse } from 'msw'
 import {
     listAttendees,
     listInvitations,
@@ -69,6 +70,28 @@ describe('check-in cross-portal flow', () => {
         expect(storedWalkIn).toMatchObject({
             is_walk_in: true,
             checked_in: true,
+        })
+    })
+
+    it('passes event_id in request payload to POST /functions/v1/checkin/scan', async () => {
+        setRole('checkin')
+        let capturedPayload: unknown = null
+        server.use(
+            http.post('*/functions/v1/checkin/scan', async ({ request }) => {
+                capturedPayload = await request.json()
+                return HttpResponse.json({
+                    result: 'accepted',
+                    attendee: null,
+                    checked_in_at: new Date().toISOString(),
+                    message: null,
+                })
+            }),
+        )
+
+        await scanCheckIn({ qrToken: 'token-with-event-id', eventId })
+        expect(capturedPayload).toEqual({
+            qr_token: 'token-with-event-id',
+            event_id: eventId,
         })
     })
 })

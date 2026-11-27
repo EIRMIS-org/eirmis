@@ -110,6 +110,7 @@ function ScanWorkspace({ eventId }: { eventId: string }) {
             <ScanSimulator
                 dispatch={dispatch}
                 isResolving={sessionState.current.status === 'resolving'}
+                assignedEventId={eventId}
             />
 
             {/* Scan-result state machine UI */}

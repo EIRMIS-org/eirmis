@@ -943,4 +943,37 @@ describe('check-in staff portal hardening', () => {
             ).toBeInTheDocument()
         })
     })
+
+    describe('scan contract hardening', () => {
+        it('passes event_id in request payload to POST /functions/v1/checkin/scan', async () => {
+            let capturedBody: { qr_token?: string; event_id?: string } | null = null
+            server.use(
+                http.post('*/functions/v1/checkin/scan', async ({ request }) => {
+                    capturedBody = (await request.json()) as { qr_token?: string; event_id?: string }
+                    return HttpResponse.json({
+                        result: 'accepted',
+                        attendee: null,
+                        checked_in_at: new Date().toISOString(),
+                        message: null,
+                    })
+                }),
+            )
+
+            const user = userEvent.setup()
+            renderWithProviders(<StaffScanPage />, '/staff')
+
+            expect(
+                await screen.findByText('Annual Gala 2026', undefined, { timeout: 5000 }),
+            ).toBeInTheDocument()
+
+            await user.click(screen.getByRole('button', { name: /1\. valid qr/i }))
+
+            await waitFor(() => {
+                expect(capturedBody).toMatchObject({
+                    qr_token: 'signed-qr-token-sample',
+                    event_id: ASSIGNED_EVENT_ID,
+                })
+            })
+        })
+    })
 })

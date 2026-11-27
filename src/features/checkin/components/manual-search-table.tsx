@@ -55,7 +55,11 @@ export function ManualSearchTable({ eventId }: ManualSearchTableProps) {
 
     const isLoading = invitationsQuery.isLoading || attendeesQuery.isLoading
     const isError = invitationsQuery.isError || attendeesQuery.isError
-    const activeToken = scanMutation.isPending ? scanMutation.variables : undefined
+    const activeToken = scanMutation.isPending
+        ? typeof scanMutation.variables === 'string'
+            ? scanMutation.variables
+            : scanMutation.variables?.qrToken
+        : undefined
     const hasSearchFilter = Boolean(query.trim())
 
     return (
@@ -151,7 +155,10 @@ export function ManualSearchTable({ eventId }: ManualSearchTableProps) {
                                                     }
                                                     onClick={() => {
                                                         if (attendee.qr_token) {
-                                                            scanMutation.mutate(attendee.qr_token)
+                                                            scanMutation.mutate({
+                                                                qrToken: attendee.qr_token,
+                                                                eventId,
+                                                            })
                                                         }
                                                     }}
                                                 >
