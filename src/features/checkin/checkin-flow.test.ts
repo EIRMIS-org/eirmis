@@ -95,7 +95,7 @@ describe('check-in cross-portal flow', () => {
         })
     })
 
-    it('queries attendees scoped to target event ID without full-table scan', async () => {
+    it('queries attendees scoped to target invitation ID without full-table scan', async () => {
         setRole('checkin')
         let capturedUrl = ''
         server.use(
@@ -105,7 +105,8 @@ describe('check-in cross-portal flow', () => {
             }),
         )
 
-        await listAttendees({ event_id: `eq.${eventId}` })
-        expect(new URL(capturedUrl).searchParams.get('event_id')).toBe(`eq.${eventId}`)
+        const invitationId = 'invitation-xyz'
+        await listAttendees({ invitation_id: `eq.${invitationId}` })
+        expect(new URL(capturedUrl).searchParams.get('invitation_id')).toBe(`eq.${invitationId}`)
     })
 })
