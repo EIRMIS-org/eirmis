@@ -195,13 +195,35 @@ describe("AttendanceTab", () => {
     const invitationsQuery = queryClient
       .getQueryCache()
       .find({ queryKey: qk.listInvitations({ event_id: `eq.${EVENT_ID}` }) });
-    const attendeesQuery = queryClient
-      .getQueryCache()
-      .find({ queryKey: qk.listAttendees(undefined) });
+    const attendeesQuery = queryClient.getQueryCache().find({
+      queryKey: [...qk.listAttendeesPrefix(), { event_id: `eq.${EVENT_ID}` }],
+    });
 
     expect(invitationsQuery?.observers[0]?.options.refetchInterval).toBe(
       30_000,
     );
     expect(attendeesQuery?.observers[0]?.options.refetchInterval).toBe(30_000);
+  });
+
+  it("queries attendees scoped to the active event ID", async () => {
+    setRole("organizer");
+    const observedEventFilters: (string | null)[] = [];
+
+    server.use(
+      http.get("*/rest/v1/attendees", ({ request }) => {
+        const url = new URL(request.url);
+        observedEventFilters.push(url.searchParams.get("event_id"));
+        return HttpResponse.json([]);
+      }),
+    );
+
+    renderAttendanceTab();
+
+    expect(
+      await screen.findByText(
+        "No attendees yet — approvals will populate this view",
+      ),
+    ).toBeInTheDocument();
+    expect(observedEventFilters).toContain(`eq.${EVENT_ID}`);
   });
 });
