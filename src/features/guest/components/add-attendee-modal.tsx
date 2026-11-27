@@ -19,6 +19,7 @@ export interface AddAttendeeModalProps {
   invitationId: string
   open: boolean
   onOpenChange: (open: boolean) => void
+  isLocked?: boolean
   onSubmitted?: (attendee: Attendee) => void
 }
 
@@ -26,6 +27,7 @@ export function AddAttendeeModal({
   invitationId,
   open,
   onOpenChange,
+  isLocked = false,
   onSubmitted,
 }: AddAttendeeModalProps) {
   const queryClient = useQueryClient()
@@ -50,6 +52,7 @@ export function AddAttendeeModal({
   }, [form, invitationId, open])
 
   async function submit(values: AttendeeCreate) {
+    if (isLocked) return
     try {
       const created = await mutation.mutateAsync(values)
       queryClient.setQueriesData<Attendee[]>(
@@ -121,7 +124,7 @@ export function AddAttendeeModal({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
+            <Button type="submit" disabled={isLocked || mutation.isPending}>
               {mutation.isPending ? 'Submitting...' : 'Submit Attendee'}
             </Button>
           </DialogFooter>

@@ -36,7 +36,13 @@ const attendeeStatusToItemStatus: Record<
   rejected: 'declined',
 }
 
-export function RosterEditor({ invitation }: { invitation: Invitation }) {
+export function RosterEditor({
+  invitation,
+  isLocked = false,
+}: {
+  invitation: Invitation
+  isLocked?: boolean
+}) {
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [isHeadcountOpen, setIsHeadcountOpen] = useState(false)
   const [resubmitTarget, setResubmitTarget] = useState<Attendee | null>(null)
@@ -112,7 +118,7 @@ export function RosterEditor({ invitation }: { invitation: Invitation }) {
           <Button
             type="button"
             size="sm"
-            disabled={isAtCeiling || !isAccepted}
+            disabled={isLocked || isAtCeiling || !isAccepted}
             onClick={() => setIsAddOpen(true)}
           >
             <PlusIcon className="size-4" aria-hidden="true" />
@@ -199,6 +205,7 @@ export function RosterEditor({ invitation }: { invitation: Invitation }) {
                         type="button"
                         variant="outline"
                         size="sm"
+                        disabled={isLocked}
                         onClick={() => setResubmitTarget(attendee)}
                       >
                         Fix &amp; Resubmit
@@ -236,7 +243,7 @@ export function RosterEditor({ invitation }: { invitation: Invitation }) {
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={!isAccepted}
+                disabled={isLocked || !isAccepted}
                 onClick={() => setIsHeadcountOpen(true)}
               >
                 Request Additional Heads
@@ -255,6 +262,7 @@ export function RosterEditor({ invitation }: { invitation: Invitation }) {
                 variant="link"
                 size="sm"
                 className="h-auto px-0"
+                disabled={isLocked}
                 onClick={() => setIsHeadcountOpen(true)}
               >
                 Request more slots
@@ -301,6 +309,7 @@ export function RosterEditor({ invitation }: { invitation: Invitation }) {
         invitationId={invitation.id}
         open={isAddOpen}
         onOpenChange={setIsAddOpen}
+        isLocked={isLocked}
         onSubmitted={(created) =>
           setLocalAttendeesById((current) => ({
             ...current,
@@ -316,6 +325,7 @@ export function RosterEditor({ invitation }: { invitation: Invitation }) {
         onOpenChange={(open) => {
           if (!open) setResubmitTarget(null)
         }}
+        isLocked={isLocked}
         onResubmitted={(updated) =>
           setLocalAttendeesById((current) => ({
             ...current,
