@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { MemoryRouter } from 'react-router-dom'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { toast } from 'sonner'
 import {
     listAttendees,
     listCheckInAssignments,
@@ -945,6 +946,28 @@ describe('check-in staff portal hardening', () => {
     })
 
     describe('scan contract hardening', () => {
+        it("does not fire success toast when response has result 'already_checked_in'", async () => {
+            const toastSpy = vi.spyOn(toast, 'success')
+            const user = userEvent.setup()
+
+            renderWithProviders(<StaffScanPage />, '/staff')
+
+            expect(
+                await screen.findByText('Annual Gala 2026', undefined, { timeout: 5000 }),
+            ).toBeInTheDocument()
+
+            await user.click(screen.getByRole('button', { name: /2\. duplicate/i }))
+
+            await waitFor(() => {
+                expect(
+                    screen.getByText(/duplicate scan detected/i),
+                ).toBeInTheDocument()
+            })
+
+            expect(toastSpy).not.toHaveBeenCalled()
+            toastSpy.mockRestore()
+        })
+
         it('passes event_id in request payload to POST /functions/v1/checkin/scan', async () => {
             let capturedBody: { qr_token?: string; event_id?: string } | null = null
             server.use(

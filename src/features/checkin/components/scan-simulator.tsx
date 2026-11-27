@@ -12,6 +12,7 @@
 
 import { useState } from 'react'
 import { QrCodeIcon, SendIcon } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
@@ -52,6 +53,7 @@ export function ScanSimulator({
             })
 
             if (response.result === 'accepted') {
+                toast.success('Check-in recorded')
                 dispatch({ type: 'SCAN_RESOLVED_SUCCESS', payload: response })
                 onScanSuccess?.()
             } else if (response.result === 'already_checked_in') {

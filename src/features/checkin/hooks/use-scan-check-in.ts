@@ -6,6 +6,5 @@ export function useScanCheckIn() {
     return useApiMutation(
         (params: Parameters<typeof scanCheckIn>[0]) => scanCheckIn(params),
         [qk.listAttendeesPrefix(), qk.listInvitationsPrefix()],
-        'Check-in recorded',
     );
 }

@@ -23,7 +23,7 @@ interface MutationCallbacks<TData, TVariables> {
 export function useApiMutation<TData, TVariables>(
     mutationFn: MutationFunction<TData, TVariables>,
     invalidationKeys: readonly QueryKey[],
-    successMessage: string,
+    successMessage?: string,
     options?: MutationCallbacks<TData, TVariables>,
 ) {
     const queryClient = useQueryClient();
@@ -31,7 +31,9 @@ export function useApiMutation<TData, TVariables>(
     return useMutation({
         mutationFn,
         onSuccess: async (data, variables) => {
-            toast.success(successMessage);
+            if (successMessage) {
+                toast.success(successMessage);
+            }
             await Promise.all(
                 invalidationKeys.map((queryKey) =>
                     queryClient.invalidateQueries({ queryKey }),
