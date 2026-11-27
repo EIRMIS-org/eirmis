@@ -8,6 +8,8 @@ export interface RsvpSelectorProps {
   value?: RsvpChoice | null
   onChange?: (value: RsvpChoice) => void
   disabled?: boolean
+  allowedChoices?: RsvpChoice[]
+  declineLabel?: string
   ariaLabel?: string
   className?: string
 }
@@ -16,6 +18,8 @@ export function RsvpSelector({
   value,
   onChange,
   disabled,
+  allowedChoices,
+  declineLabel,
   ariaLabel = 'RSVP response',
   className,
 }: RsvpSelectorProps) {
@@ -46,25 +50,38 @@ export function RsvpSelector({
     },
     {
       id: 'decline',
-      label: 'Decline',
-      sublabel: 'Unable to attend event',
+      label: declineLabel ?? 'Decline',
+      sublabel: declineLabel
+        ? 'Remove yourself from the event waitlist'
+        : 'Unable to attend event',
       icon: <XCircleIcon className="size-5 shrink-0 text-error" aria-hidden="true" />,
       activeClass:
         'border-error bg-error-bg/70 text-error shadow-sm ring-1 ring-error/20',
     },
   ]
 
+  const isAllowed = (choice: RsvpChoice) =>
+    !allowedChoices || allowedChoices.includes(choice)
+  const firstAllowedIndex = options.findIndex((option) => isAllowed(option.id))
+  const selectedAllowed = value !== undefined && value !== null && isAllowed(value)
+
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     if (disabled) return
-    let nextIndex: number | null = null
-    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
-      nextIndex = (index + 1) % options.length
-    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
-      nextIndex = (index - 1 + options.length) % options.length
-    }
-    if (nextIndex !== null) {
+    const direction =
+      event.key === 'ArrowRight' || event.key === 'ArrowDown'
+        ? 1
+        : event.key === 'ArrowLeft' || event.key === 'ArrowUp'
+          ? -1
+          : 0
+    if (direction !== 0) {
+      let nextIndex = index
+      do {
+        nextIndex = (nextIndex + direction + options.length) % options.length
+      } while (!isAllowed(options[nextIndex].id) && nextIndex !== index)
       event.preventDefault()
-      onChange?.(options[nextIndex].id)
+      if (isAllowed(options[nextIndex].id)) {
+        onChange?.(options[nextIndex].id)
+      }
       optionRefs.current[nextIndex]?.focus()
     }
   }
@@ -78,7 +95,12 @@ export function RsvpSelector({
     >
       {options.map((option, index) => {
         const isSelected = value === option.id
-        const tabIndex = isSelected || (!value && index === 0) ? 0 : -1
+        const optionDisabled = disabled || !isAllowed(option.id)
+        const tabIndex =
+          !optionDisabled &&
+          (isSelected ? selectedAllowed : !selectedAllowed && index === firstAllowedIndex)
+            ? 0
+            : -1
         return (
           <button
             key={option.id}
@@ -88,14 +110,14 @@ export function RsvpSelector({
             type="button"
             role="radio"
             aria-checked={isSelected}
-            tabIndex={disabled ? -1 : tabIndex}
-            disabled={disabled}
+            tabIndex={tabIndex}
+            disabled={optionDisabled}
             onClick={() => onChange?.(option.id)}
             onKeyDown={(event) => handleKeyDown(event, index)}
             className={cn(
               'group relative flex flex-col items-center justify-center rounded-2xl border-2 p-4 text-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
               'border-border/80 bg-surface hover:border-border-hover hover:bg-muted/50 active:scale-[0.98]',
-              disabled && 'cursor-not-allowed opacity-50',
+              optionDisabled && 'cursor-not-allowed opacity-50',
               isSelected && option.activeClass
             )}
           >
