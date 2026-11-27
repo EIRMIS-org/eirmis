@@ -437,7 +437,67 @@ function jsonList<T>(
   });
 }
 
-/** Simulate PostgREST filter matching on a single `?column=eq.value` param. */
+const RESERVED_POSTGREST_PARAMS = new Set([
+  "select",
+  "limit",
+  "offset",
+  "order",
+]);
+
+const POSTGREST_OPERATOR_PREFIXES = [
+  "eq.",
+  "neq.",
+  "gt.",
+  "gte.",
+  "lt.",
+  "lte.",
+  "like.",
+  "ilike.",
+  "is.",
+  "in.",
+  "cs.",
+  "cd.",
+  "not.",
+];
+
+/**
+ * Validate PostgREST query parameters against allowed columns and operator syntax.
+ * Returns a 400 response if an unknown column or operator-less filter is passed.
+ */
+function validatePostgrestQuery(
+  request: Request,
+  allowedColumns: readonly string[],
+): HttpResponse<DefaultBodyType> | null {
+  const url = new URL(request.url);
+  let errorResponse: HttpResponse<DefaultBodyType> | null = null;
+  url.searchParams.forEach((value, key) => {
+    if (errorResponse) return;
+    if (RESERVED_POSTGREST_PARAMS.has(key)) return;
+    if (!allowedColumns.includes(key)) {
+      errorResponse = HttpResponse.json(
+        errorBody("42703", `column ${key} does not exist`),
+        { status: 400 },
+      );
+      return;
+    }
+    const hasOperator = POSTGREST_OPERATOR_PREFIXES.some((prefix) =>
+      value.startsWith(prefix),
+    );
+    if (!hasOperator) {
+      errorResponse = HttpResponse.json(
+        errorBody(
+          "PGRST100",
+          `"failed to parse filter (${value})" (unexpected syntax)`,
+        ),
+        { status: 400 },
+      );
+      return;
+    }
+  });
+  return errorResponse;
+}
+
+/** Simulate PostgREST filter matching on `?column=eq.value` or `?column=in.(a,b)`. */
 function filterByEq<T extends Record<string, unknown>>(
   request: Request,
   items: T[],
@@ -445,9 +505,22 @@ function filterByEq<T extends Record<string, unknown>>(
 ): T[] {
   const url = new URL(request.url);
   const filter = url.searchParams.get(column);
-  if (!filter || !filter.startsWith("eq.")) return items;
-  const value = filter.slice(3);
-  return items.filter((item) => item[column] === value);
+  if (!filter) return items;
+  if (filter.startsWith("eq.")) {
+    const value = filter.slice(3);
+    return items.filter((item) => item[column] === value);
+  }
+  if (filter.startsWith("in.(") && filter.endsWith(")")) {
+    const values = new Set(
+      filter
+        .slice(4, -1)
+        .split(",")
+        .map((v) => v.trim())
+        .filter(Boolean),
+    );
+    return items.filter((item) => values.has(String(item[column] ?? "")));
+  }
+  return items;
 }
 
 // ─── Handlers ─────────────────────────────────────────────────────────────────
@@ -597,6 +670,13 @@ export const handlers = [
   // ═══ PostgREST: invitations ═══
   http.get("*/rest/v1/invitations", ({ request }) => {
     if (!hasAuth(request)) return unauthorized();
+    const invalid = validatePostgrestQuery(request, [
+      "id",
+      "event_id",
+      "guest_id",
+      "status",
+    ]);
+    if (invalid) return invalid;
     const isGuest =
       request.headers.get("Authorization") === "Bearer fake-guest-jwt";
     const visibleInvitations = isGuest
@@ -644,17 +724,14 @@ export const handlers = [
   // ═══ PostgREST: attendees ═══
   http.get("*/rest/v1/attendees", ({ request }) => {
     if (!hasAuth(request)) return unauthorized();
-    const url = new URL(request.url);
-    const eventFilter = url.searchParams.get("event_id");
+    const invalid = validatePostgrestQuery(request, [
+      "id",
+      "invitation_id",
+      "status",
+    ]);
+    if (invalid) return invalid;
     let result = filterByEq(request, mockAttendees, "invitation_id");
-    if (eventFilter?.startsWith("eq.")) {
-      const eventId = eventFilter.slice(3);
-      const allInvs = [mockInvitation, ...mockExtraInvitations];
-      const validIds = new Set(
-        allInvs.filter((inv) => inv.event_id === eventId).map((inv) => inv.id),
-      );
-      result = result.filter((att) => validIds.has(att.invitation_id));
-    }
+    result = filterByEq(request, result, "status");
     return jsonList(result);
   }),
 
@@ -721,9 +798,15 @@ export const handlers = [
   // ═══ PostgREST: headcount_increase_requests ═══
   http.get("*/rest/v1/headcount_increase_requests", ({ request }) => {
     if (!hasAuth(request)) return unauthorized();
-    return jsonList(
-      filterByEq(request, mockHeadcountRequests, "invitation_id"),
-    );
+    const invalid = validatePostgrestQuery(request, [
+      "id",
+      "invitation_id",
+      "status",
+    ]);
+    if (invalid) return invalid;
+    let result = filterByEq(request, mockHeadcountRequests, "invitation_id");
+    result = filterByEq(request, result, "status");
+    return jsonList(result);
   }),
 
   // ═══ Edge Function: submit headcount request and notify organizer ═══
