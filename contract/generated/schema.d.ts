@@ -110,7 +110,7 @@ export interface paths {
         head?: never;
         /**
          * Update an invitation
-         * @description For organizers: update `max_party_size` or `status` on a guest's invitation. For guests: update RSVP `status`, `dietary_preference`, `special_requests`. The DB trigger blocks guest updates after the RSVP deadline.
+         * @description For organizers: update `max_party_size` or `status` on a guest's invitation. For guests: update RSVP `status`, `dietary_preference`, `special_requests` only (mutating `max_party_size`, cached counts, or provenance fields returns 403). Guest status transitions are enforced server-side: `waitlisted` may only transition to `declined`, `accepted` status is locked, and accepting while Event Capacity is full automatically routes the invitation to `waitlisted`. Blocked after the RSVP deadline or when the event is not `published`.
          */
         patch: operations["updateInvitation"];
         trace?: never;
@@ -408,7 +408,7 @@ export interface paths {
         put?: never;
         /**
          * Approve or reject an attendee
-         * @description Approve or reject an individual attendee submission. This must go through the Edge Function because it atomically: performs the capacity soft-check, issues the signed `qr_token` on approval, writes the audit entry, and triggers the batched notification email when the invitation's pending queue newly clears to zero. A capacity-over-limit approval proceeds (soft check) and is audited as an override.
+         * @description Approve or reject an individual attendee submission. The Edge Function authenticates the organizer and verifies event ownership before calling the transactional database operation. The database operation atomically checks event capacity, updates the attendee, and writes the audit entry. An approval that exceeds capacity requires an explicit override_capacity request with a non-empty reason. Over-capacity approvals proceed only with that override and return capacity_warning: true.
          */
         post: operations["decideAttendee"];
         delete?: never;
@@ -537,7 +537,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/functions/v1/register": {
+    "/functions/v1/register-public": {
         parameters: {
             query?: never;
             header?: never;
@@ -548,7 +548,7 @@ export interface paths {
         put?: never;
         /**
          * Register for an open-registration event
-         * @description Atomically creates/matches a guest row, creates an `accepted` invitation for the specified open-registration event, and dispatches the confirmation email with a magic-link.
+         * @description Creates or matches a guest row and atomically creates an invitation for the specified open-registration event. The invitation is assigned `accepted` when sufficient event capacity is available, or `waitlisted` otherwise. After the database transaction commits, the function generates a Supabase Auth magic link and sends a confirmation email through Resend. Email delivery failure does not roll back the created registration.
          */
         post: operations["registerPublicGuest"];
         delete?: never;
@@ -1315,7 +1315,7 @@ export interface components {
             responded_at?: string | null;
             /**
              * Format: date-time
-             * @description Timestamp when this invitation entered `waitlisted` status.
+             * @description Timestamp recording this invitation's current Waitlist Position in the FIFO queue. Stamped fresh on every transition into `waitlisted`, cleared to `null` on any transition to `pending`, `tentative`, or `declined` (forfeiting queue position), and preserved on Waitlist Promotion to `accepted` as queue history.
              * @example null
              */
             waitlisted_at?: string | null;
@@ -1370,7 +1370,7 @@ export interface components {
             special_requests?: string | null;
         };
         /**
-         * @description Fields a guest may update on their own invitation via PATCH. Primarily used for RSVP status changes and logistics fields. Blocked by a DB trigger after the event's RSVP deadline.
+         * @description Fields a guest may update on their own invitation via PATCH (`status`, `dietary_preference`, `special_requests`). All other columns (including `max_party_size`, cached counts, and provenance timestamps) are rejected with 403. Allowed guest status transitions: `pending`/`tentative`/`declined` may transition to `accepted`, `declined`, or `tentative` (attempting `accepted` when Event Capacity is full automatically routes the invitation to `waitlisted` with a fresh `waitlisted_at` at the back of the FIFO queue); `waitlisted` may only transition to `declined` (which clears `waitlisted_at` and forfeits Waitlist Position); `accepted` status is locked (logistics-only edits permitted). Blocked after the event's RSVP deadline or when the event is not `published`.
          * @example {
          *       "status": "accepted",
          *       "dietary_preference": "Vegetarian",
@@ -1518,7 +1518,7 @@ export interface components {
              */
             full_name: string;
             /**
-             * @description Optional contact email for this attendee (receives QR code and notifications).
+             * @description Optional contact email address for the attendee.
              * @example jose.santos@example.com
              */
             email?: string | null;
@@ -1543,10 +1543,11 @@ export interface components {
             email?: string | null;
         };
         /**
-         * @description Request body for the `decideAttendee` Edge Function. Approve or reject an individual attendee. Approved attendees receive a signed `qr_token`. Approval performs a capacity soft-check and records an audit entry. A capacity-over-limit approval is audited as an override.
+         * @description Request body for the `decideAttendee` Edge Function. Approve or reject an individual attendee. Approval performs an atomic event-capacity check. If approval would exceed capacity, the organizer must explicitly set `override_capacity` to true and provide a non-empty reason. A capacity override is only valid for an approval. The Edge Function validates these conditional requirements before invoking the transactional database operation.
          * @example {
          *       "decision": "approve",
-         *       "reason": "Verified team member"
+         *       "override_capacity": false,
+         *       "reason": null
          *     }
          */
         AttendeeDecisionRequest: {
@@ -1557,13 +1558,19 @@ export interface components {
              */
             decision: "approve" | "reject";
             /**
-             * @description Organizer's optional note on the decision, stored in the audit log.
-             * @example Verified team member
+             * @description Explicitly authorizes approval beyond event capacity. Defaults to false. Cannot be true when decision is reject.
+             * @default false
+             * @example false
+             */
+            override_capacity: boolean;
+            /**
+             * @description Organizer's optional decision note. A non-empty reason is mandatory whenever override_capacity is true. Stored in review_reason and audit_log_entries.
+             * @example null
              */
             reason?: string | null;
         };
         /**
-         * @description Response from the `decideAttendee` Edge Function. Includes the updated attendee state. If the decision pushed the event over capacity, `capacity_warning` is `true` and the organizer's audited override is recorded.
+         * @description Response from the `decideAttendee` Edge Function. Includes the updated attendee state. If the decision used an explicit over-capacity override, `capacity_warning` is true and the override is recorded in `audit_log_entries`.
          * @example {
          *       "attendee": {
          *         "id": "77777777-7777-7777-7777-777777777777",
@@ -1588,7 +1595,7 @@ export interface components {
         AttendeeDecisionResponse: {
             attendee: components["schemas"]["Attendee"];
             /**
-             * @description `true` when this approval caused the event's approved-attendee count to exceed `events.capacity`. The approval still proceeded (soft check) and the override is recorded in `audit_log_entries`.
+             * @description `true` when an approval used the explicit override because it would cause the event's approved-attendee count to exceed `events.capacity`. The override is recorded in `audit_log_entries`.
              * @example false
              */
             capacity_warning: boolean;
@@ -2095,6 +2102,11 @@ export interface components {
          */
         ScanCheckInRequest: {
             /**
+             * Format: uuid
+             * @description Selected scanner event. When provided, must match the signed event claim or the scan returns 422.
+             */
+            event_id?: string;
+            /**
              * @description The signed QR token scanned from the attendee's QR code.
              * @example eyJhbGciOiJIUzI1NiJ9.attendee-token-payload.signature
              */
@@ -2103,7 +2115,7 @@ export interface components {
         /**
          * @description Response from the `scanCheckIn` Edge Function. Discriminated by `result`: - `accepted`         — first-time successful check-in. - `already_checked_in` — attendee was previously checked in (re-scan/re-entry).
          *       The organizer UI should surface this distinctly from an error.
-         *     - `invalid_token`    — the token is malformed, expired, or not found.
+         *     - `invalid_token`    — the signed token does not resolve to an approved attendee. Malformed, expired, or tampered tokens are rejected with HTTP 422.
          * @example {
          *       "result": "accepted",
          *       "attendee": {
@@ -2134,7 +2146,8 @@ export interface components {
              * @enum {string}
              */
             result: "accepted" | "already_checked_in" | "invalid_token";
-            attendee: components["schemas"]["Attendee"];
+            /** @description Null when the signed token does not resolve to an approved attendee. */
+            attendee: components["schemas"]["Attendee"] | null;
             /**
              * Format: date-time
              * @description Set when `result = accepted` or `already_checked_in`.
@@ -2189,7 +2202,7 @@ export interface components {
             invitation_ids?: string[];
         };
         /**
-         * @description Request body for the `promoteWaitlist` Edge Function (service-role only). Promotes the next `waitlisted` invitation(s) for an event in strict FIFO order (keyed by `waitlisted_at`). Promotion unblocks the invitation for RSVP only; any attendees already submitted remain `pending` and still require organizer review. This operation is privileged and runs atomically — it may not be called from the SPA.
+         * @description Request body for the `promoteWaitlist` Edge Function (callable by the event's organizer or with the service-role key; the underlying database RPC is restricted to service-role). Promotes the next `waitlisted` invitation(s) for an event in strict FIFO order (keyed by `waitlisted_at`) while enforcing event capacity atomically. Promotion reserves one seat for the primary attendee; any additional attendees already submitted remain `pending` and still require organizer review.
          * @example {
          *       "event_id": "55555555-5555-5555-5555-555555555555",
          *       "max_promotions": 1
@@ -2276,15 +2289,16 @@ export interface components {
         /**
          * @description Request body received by the `handleScanCallback` Edge Function from the third-party file-scanning service (e.g. VirusTotal webhook). This operation is service-role only — it is NOT reachable from the SPA. The function verifies the callback signature, looks up the associated `invitation_designs` row, and flips `validation_status` to `passed` or `failed`. On `failed`, it sets `validation_notes` and sends an `invitation_design_validation_failed` email to the organizer.
          * @example {
-         *       "scan_id": "scan-job-abc123",
+         *       "scan_id": "22222222-2222-2222-2222-222222222222",
          *       "result": "clean",
          *       "notes": null
          *     }
          */
         ScanCallbackRequest: {
             /**
-             * @description The scan job identifier returned by the third-party scanning service.
-             * @example scan-job-abc123
+             * Format: uuid
+             * @description The per-upload scan job UUID assigned when submitting the HTML design to the scanner.
+             * @example 22222222-2222-2222-2222-222222222222
              */
             scan_id: string;
             /**
@@ -2399,6 +2413,22 @@ export interface components {
          */
         OrganizerStatus: "pending" | "active";
         /**
+         * @description Present only when the structural scan failed (HTTP 422). Each entry describes one rule violation found in the uploaded file.
+         * @example []
+         */
+        errors: {
+            /**
+             * @description Which scan rule was violated.
+             * @example external_href
+             */
+            rule: string;
+            /**
+             * @description Human-readable description of the violation.
+             * @example Found external href: https://external.example.com/script.js
+             */
+            detail: string;
+        }[];
+        /**
          * @description Request payload for public self-registration to an open event.
          * @example {
          *       "event_id": "55555555-5555-5555-5555-555555555555",
@@ -2456,6 +2486,15 @@ export interface components {
         };
         /** @description Bad request — invalid query parameters or request body. */
         BadRequest: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Unprocessable Entity — the request was syntactically valid but failed a domain-level validation (e.g. HTML structural scan rejected the uploaded file). */
+        UnprocessableEntity: {
             headers: {
                 [name: string]: unknown;
             };
@@ -3826,16 +3865,33 @@ export interface operations {
                     "application/json": components["schemas"]["HtmlUploadResponse"];
                 };
             };
+            400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            /** @description Upload exceeds the file or multipart size limit. */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Structural scan failed — the file contains prohibited external references. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HtmlUploadResponse"];
+                    "application/json": {
+                        errors: components["schemas"]["errors"];
+                    };
                 };
+            };
+            /** @description Scanner unavailable or submission failed. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -3866,6 +3922,7 @@ export interface operations {
             };
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
         };
     };
     decideAttendee: {
@@ -3887,7 +3944,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Decision recorded. See `capacity_warning` for soft-check outcome. */
+            /** @description Decision recorded. `capacity_warning` is true when an explicit capacity override was used. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -3896,10 +3953,28 @@ export interface operations {
                     "application/json": components["schemas"]["AttendeeDecisionResponse"];
                 };
             };
+            /** @description Invalid attendee ID or decision request. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             /** @description Attendee not found or not accessible. */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict — the attendee is no longer pending, or approval would exceed event capacity without an explicit capacity override. */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3990,10 +4065,20 @@ export interface operations {
                     "application/json": components["schemas"]["HeadcountIncreaseRequest"];
                 };
             };
+            400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             /** @description Request not found or not accessible. */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict — the headcount increase request has already been decided. */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4053,6 +4138,7 @@ export interface operations {
             };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            422: components["responses"]["UnprocessableEntity"];
         };
     };
     sendReminders: {
@@ -4125,7 +4211,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Guest registered and invitation created. */
+            /** @description Registration created and confirmation email successfully sent. The invitation status is `accepted` or `waitlisted`, depending on available event capacity. */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -4134,14 +4220,70 @@ export interface operations {
                     "application/json": components["schemas"]["Invitation"];
                 };
             };
-            400: components["responses"]["BadRequest"];
-            /** @description Conflict — guest already registered for this event. */
+            /** @description Invalid JSON, event ID, email address, or full name. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description The requested event does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Method not allowed. Only POST is supported. */
+            405: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Registration conflict. The guest may already be registered for this event, or the event may not currently accept public registrations. */
             409: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal server error. Depending on when the error occurred, the registration may not have been created, or it may already exist. If `registration_created` is true, the invitation was created. If `email_sent` is true, the confirmation email was sent but its log could not be saved. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        error: string;
+                        /** @description Present and true when the invitation was created. */
+                        registration_created?: boolean;
+                        /** @description Present and true when the email was sent successfully. */
+                        email_sent?: boolean;
+                        invitation?: components["schemas"]["Invitation"];
+                    };
+                };
+            };
+            /** @description The registration was created, but Supabase Auth could not generate a magic link or Resend could not send the confirmation email. The invitation remains saved and is not rolled back. */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        error: string;
+                        /** @enum {boolean} */
+                        registration_created: true;
+                        invitation: components["schemas"]["Invitation"];
+                    };
                 };
             };
         };
