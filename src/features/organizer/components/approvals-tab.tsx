@@ -34,7 +34,11 @@ import { useListAttendees } from "@/features/organizer/hooks/use-list-attendees"
 import { useListHeadcountRequests } from "@/features/organizer/hooks/use-list-headcount-requests";
 import { useListInvitations } from "@/features/organizer/hooks/use-list-invitations";
 import { usePromoteWaitlist } from "@/features/organizer/hooks/use-promote-waitlist";
-import type { Attendee, HeadcountIncreaseRequest } from "@/lib/api";
+import {
+  ApiError,
+  type Attendee,
+  type HeadcountIncreaseRequest,
+} from "@/lib/api";
 import { qk } from "@/lib/api/query-keys";
 
 interface ApprovalsTabProps {
@@ -45,12 +49,23 @@ interface ApprovalsTabProps {
 interface OverrideState {
   attendee: Attendee;
   decision: "approve" | "reject";
+  reason: string;
+}
+
+function isCapacityExceededError(error: unknown): boolean {
+  if (!(error instanceof ApiError) || error.status !== 409) {
+    return false;
+  }
+  const details = [error.code, error.message, error.details, error.hint]
+    .filter(Boolean)
+    .join(" ");
+  return /capacity/i.test(details);
 }
 
 export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
   const queryClient = useQueryClient();
   const invitationsQuery = useListInvitations({ event_id: `eq.${eventId}` });
-  const attendeesQuery = useListAttendees();
+  const attendeesQuery = useListAttendees({ event_id: `eq.${eventId}` });
   const headcountQuery = useListHeadcountRequests({ status: "pending" });
   const decideAttendee = useDecideAttendee();
   const decideHeadcountRequest = useDecideHeadcountRequest();
@@ -145,6 +160,19 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
               ),
           );
         },
+        onError: (error) => {
+          if (
+            decision === "approve" &&
+            !overrideCapacity &&
+            isCapacityExceededError(error)
+          ) {
+            setOverrideTarget({
+              attendee,
+              decision: "approve",
+              reason: reason ?? "",
+            });
+          }
+        },
       },
     );
   };
@@ -158,21 +186,27 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
     const nextApproved =
       decision === "approve" ? approvedCount + 1 : approvedCount;
     if (decision === "approve" && nextApproved > capacity) {
-      setOverrideTarget({ attendee, decision });
+      setOverrideTarget({
+        attendee,
+        decision: "approve",
+        reason: reason ?? "",
+      });
       return;
     }
 
-    submitAttendeeDecision(attendee, decision, reason || null);
+    submitAttendeeDecision(attendee, decision, reason || null, false);
   };
 
   const confirmOverride = () => {
     if (!overrideTarget) return;
 
-    const reason = reviewReasonById[overrideTarget.attendee.id]?.trim();
+    const overrideReason = overrideTarget.reason.trim();
+    if (!overrideReason) return;
+
     submitAttendeeDecision(
       overrideTarget.attendee,
-      overrideTarget.decision,
-      reason || null,
+      "approve",
+      overrideReason,
       true,
     );
     setOverrideTarget(null);
@@ -642,6 +676,23 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
             </p>
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="capacity-override-reason">Override reason</Label>
+            <Textarea
+              id="capacity-override-reason"
+              value={overrideTarget?.reason ?? ""}
+              onChange={(event) =>
+                setOverrideTarget((current) =>
+                  current
+                    ? { ...current, reason: event.target.value }
+                    : current,
+                )
+              }
+              placeholder="Provide a reason for overriding event capacity"
+              className="min-h-22.5"
+            />
+          </div>
+
           <DialogFooter>
             <Button
               type="button"
@@ -650,7 +701,15 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
             >
               Cancel
             </Button>
-            <Button type="button" onClick={confirmOverride}>
+            <Button
+              type="button"
+              onClick={confirmOverride}
+              disabled={
+                !overrideTarget ||
+                overrideTarget.reason.trim().length === 0 ||
+                decideAttendee.isPending
+              }
+            >
               Confirm override
             </Button>
           </DialogFooter>
