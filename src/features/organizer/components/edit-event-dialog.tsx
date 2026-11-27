@@ -15,22 +15,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useUpdateEvent } from "@/features/organizer/hooks/use-update-event";
 import type { Event, EventUpdate } from "@/lib/api";
+import { toZonedIsoString, toZonedLocalString } from "@/lib/datetime";
 import { eventUpdateResolver } from "@/lib/forms";
 import { eventUpdateSchema } from "@/lib/forms/schemas/event";
 
 type EventUpdateInput = z.input<typeof eventUpdateSchema>;
-
-function toLocalDateTime(value: string | undefined) {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
-  return local.toISOString().slice(0, 16);
-}
-
-function toIsoDateTime(value: string) {
-  return value ? new Date(value).toISOString() : "";
-}
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -155,10 +144,12 @@ export function EditEventDialog({
                     id="edit-event-starts-at"
                     type="datetime-local"
                     className="mt-1.5"
-                    value={toLocalDateTime(field.value)}
+                    value={toZonedLocalString(field.value || "", event.event_timezone)}
                     onBlur={field.onBlur}
                     onChange={(e) =>
-                      field.onChange(toIsoDateTime(e.target.value))
+                      field.onChange(
+                        toZonedIsoString(e.target.value, event.event_timezone),
+                      )
                     }
                     aria-invalid={Boolean(errors.starts_at)}
                   />
@@ -177,10 +168,12 @@ export function EditEventDialog({
                     id="edit-event-ends-at"
                     type="datetime-local"
                     className="mt-1.5"
-                    value={toLocalDateTime(field.value)}
+                    value={toZonedLocalString(field.value || "", event.event_timezone)}
                     onBlur={field.onBlur}
                     onChange={(e) =>
-                      field.onChange(toIsoDateTime(e.target.value))
+                      field.onChange(
+                        toZonedIsoString(e.target.value, event.event_timezone),
+                      )
                     }
                     aria-invalid={Boolean(errors.ends_at)}
                   />
@@ -199,10 +192,12 @@ export function EditEventDialog({
                     id="edit-event-rsvp-deadline"
                     type="datetime-local"
                     className="mt-1.5"
-                    value={toLocalDateTime(field.value)}
+                    value={toZonedLocalString(field.value || "", event.event_timezone)}
                     onBlur={field.onBlur}
                     onChange={(e) =>
-                      field.onChange(toIsoDateTime(e.target.value))
+                      field.onChange(
+                        toZonedIsoString(e.target.value, event.event_timezone),
+                      )
                     }
                     aria-invalid={Boolean(errors.rsvp_deadline)}
                   />
