@@ -7,6 +7,7 @@ import { ApiError } from '@/lib/api'
 import type { RegisterPublicRequest } from '@/lib/api'
 import { FormRow, registerPublicResolver } from '@/lib/forms'
 import { useRegisterPublicGuest } from '@/features/landing/hooks/use-register-public-guest'
+import type { PublicRegistrationResult } from '@/features/landing/hooks/use-register-public-guest'
 
 interface PublicRegistrationFormProps {
   eventId: string
@@ -21,7 +22,8 @@ export function PublicRegistrationForm({
   const navigate = useNavigate()
   const { signIn } = useSession()
   const registration = useRegisterPublicGuest()
-  const [submitted, setSubmitted] = useState(false)
+  const [registrationResult, setRegistrationResult] =
+    useState<PublicRegistrationResult | null>(null)
   const [formError, setFormError] = useState<string>()
   const {
     clearErrors,
@@ -43,14 +45,19 @@ export function PublicRegistrationForm({
   async function onSubmit(values: RegisterPublicRequest) {
     setFormError(undefined)
     try {
-      await registration.mutateAsync(values)
-      setSubmitted(true)
+      const result = await registration.mutateAsync(values)
+      setRegistrationResult(result)
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
-        setError('email', {
-          type: 'server',
-          message: 'This email is already registered for this event.',
-        })
+        const conflictMessage = `${error.message} ${error.details ?? ''} ${error.hint ?? ''}`
+        if (conflictMessage.toLowerCase().includes('already registered')) {
+          setError('email', {
+            type: 'server',
+            message: 'This email is already registered for this event.',
+          })
+        } else {
+          setFormError(error.message)
+        }
       } else {
         setFormError(
           error instanceof ApiError || error instanceof Error
@@ -66,19 +73,39 @@ export function PublicRegistrationForm({
     navigate('/guest')
   }
 
-  if (submitted) {
+  if (registrationResult) {
+    const isWaitlisted = registrationResult.invitation.status === 'waitlisted'
+    const { emailWarning } = registrationResult
+    const panelClass = isWaitlisted
+      ? 'border-warning-border bg-warning-bg'
+      : emailWarning
+        ? 'border-info-border bg-info-bg'
+        : 'border-success-border bg-success-bg'
+    const headingClass = emailWarning
+      ? 'text-info'
+      : isWaitlisted
+        ? 'text-warning'
+        : 'text-success'
+
     return (
       <div
-        className="rounded-2xl border border-success-border bg-success-bg p-5"
+        className={`rounded-2xl border p-5 ${panelClass}`}
         role="status"
         aria-live="polite"
       >
-        <p className="font-heading text-sm font-bold text-success">
-          Registration confirmed
+        <p className={`font-heading text-sm font-bold ${headingClass}`}>
+          {emailWarning
+            ? 'Registration saved!'
+            : isWaitlisted
+              ? 'You have been added to the waitlist'
+              : 'Registration confirmed'}
         </p>
         <p className="mt-1 text-xs leading-relaxed text-foreground">
-          Your mock registration for <strong>{eventTitle}</strong> was
-          successful. Check your email - your invitation is on its way.
+          {isWaitlisted
+            ? `You have been added to the waitlist for ${eventTitle}. The event is currently at capacity. We will notify you if a place becomes available.${emailWarning ? ' However, we could not deliver your confirmation email. You can sign in to your guest portal directly.' : ''}`
+            : emailWarning
+              ? 'However, we could not deliver your confirmation email. You can sign in to your guest portal directly.'
+              : `Your mock registration for ${eventTitle} was successful. Check your email - your invitation is on its way.`}
         </p>
         <div className="mt-3">
           <Button
