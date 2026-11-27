@@ -13,9 +13,7 @@ export const qk = {
     ) => ['listInvitations', query] as const,
     listAttendeesPrefix: () => ['listAttendees'] as const,
     listAttendees: (
-        query?: operations['listAttendees']['parameters']['query'] & {
-            event_id?: string;
-        },
+        query?: operations['listAttendees']['parameters']['query'],
     ) => ['listAttendees', query] as const,
     listHeadcountRequestsPrefix: () => ['listHeadcountRequests'] as const,
     listHeadcountRequests: (
