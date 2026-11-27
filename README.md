@@ -132,7 +132,7 @@ EIRMIS leans on this boundary hard, because it has four differently-trusted clie
 
 ### Local setup
 
-EIRMIS tests (`npm run test`) require **Node 22.13+** (Node 22 LTS, pinned in `.nvmrc`). The test toolchain (`vitest@5.1.0`, `msw@3.0.3`, `jsdom@29.1.1`) uses Node 22+ APIs (`Set.prototype.intersection`, `Map.groupBy`) — running on Node 20 fails all MSW-backed suites, and older/mismatched Node installs can fail all 19 suites with `"Vitest failed to find the runner"` / `"Cannot read properties of undefined (reading 'config')"`. A `pretest` script checks your active Node version and exits early with a clear reminder if it is below `22.13.0`.
+EIRMIS tests (`npm run test`) require **Node 22.13+** (Node 22 LTS, pinned in `.nvmrc`). The test toolchain (`vitest@5.1.0`, `msw@3.0.3`, `jsdom@29.1.1`) uses Node 22+ APIs (`Set.prototype.intersection`, `Map.groupBy`) — running on Node 20 fails all MSW-backed suites, and older/mismatched Node installs can fail test suites with `"Vitest failed to find the runner"` / `"Cannot read properties of undefined (reading 'config')"`. A `pretest` script checks your active Node version and exits early with a clear reminder if it is below `22.13.0`.
 
 - **Windows (`nvm-windows`):** *(install `nvm-windows` to a space-free path like `C:\nvm`)*
   ```powershell
@@ -220,8 +220,12 @@ The app runs at `http://localhost:5173`.
 | `npm run preview` | Serve the production bundle locally |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | `tsc --noEmit` |
-| `npm run test` | Unit/component tests (Vitest + RTL) |
-| `npm run test:e2e` | End-to-end tests (Playwright) |
+| `npm run test` | Unit/component tests (Vitest: frontend `src/` + Supabase Edge Function unit tests) |
+| `npm run test:watch` | Run Vitest in watch mode |
+| `npm run test:deno` | Deno Edge Function tests (`supabase/functions/**/*_test.ts`) |
+| `npm run test:db` | pgTAP database tests (`supabase test db`) |
+| `npm run test:db:concurrency` | Capacity concurrency integration tests (PowerShell + local Supabase) |
+| `npm run test:e2e` | End-to-end tests (Playwright — deferred to M5; see §11) |
 | `npm run contract:lint` | Lint `contract/openapi.yaml` (`redocly lint`) |
 | `npm run contract:gen` | Regenerate the typed API client from the contract |
 | `npm run contract:check` | Fail if the generated client is stale or PostgREST has drifted from the contract |
@@ -917,9 +921,10 @@ Workflows in `.github/workflows/` run on every PR:
 - Contract check (`npm run contract:check`) — fails if the committed generated client is stale, or if the live PostgREST schema has drifted from what the contract documents
 - Lint (`npm run lint`)
 - Typecheck (`npm run typecheck`)
-- Unit/component tests (`npm run test`)
+- Unit/component tests (`npm run test` for frontend & Supabase Edge Function Vitest suites, plus `npm run test:deno` for Deno Edge Function tests)
+- Database & integration tests (`npm run test:db` pgTAP suite + `npm run test:db:concurrency` capacity concurrency scenarios)
 - Build (`npm run build`)
-- E2E tests (`npm run test:e2e`) against a Supabase instance seeded via `supabase/seed.sql`, run with an authenticated test role (not the service role key) so RLS is actually exercised — including at least one case per role, since role separation is entirely server-side.
+- E2E tests (`npm run test:e2e`, deferred to M5 — see §11) against a Supabase instance seeded via `supabase/seed.sql`, run with an authenticated test role (not the service role key) so RLS is actually exercised — including at least one case per role, since role separation is entirely server-side.
 
 The contract jobs run first: a PR that changes schema without updating `contract/openapi.yaml` fails before anything else runs, which is the point of the boundary.
 

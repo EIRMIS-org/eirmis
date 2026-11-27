@@ -1,11 +1,12 @@
 WaitlistPromoteRequest:
   type: object
   description: >
-    Request body for the `promoteWaitlist` Edge Function (service-role only).
+    Request body for the `promoteWaitlist` Edge Function (callable by the event's organizer
+    or with the service-role key; the underlying database RPC is restricted to service-role).
     Promotes the next `waitlisted` invitation(s) for an event in strict FIFO order
-    (keyed by `waitlisted_at`). Promotion unblocks the invitation for RSVP only;
-    any attendees already submitted remain `pending` and still require organizer review.
-    This operation is privileged and runs atomically — it may not be called from the SPA.
+    (keyed by `waitlisted_at`) while enforcing event capacity atomically. Promotion reserves
+    one seat for the primary attendee; any additional attendees already submitted remain
+    `pending` and still require organizer review.
   example:
     event_id: 55555555-5555-5555-5555-555555555555
     max_promotions: 1
