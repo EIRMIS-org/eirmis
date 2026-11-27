@@ -27,16 +27,20 @@ interface QrDispatchTabProps {
 }
 
 export function QrDispatchTab({ eventId }: QrDispatchTabProps) {
-  const invitationsQuery = useListInvitations({ event_id: eventId });
+  const invitationsQuery = useListInvitations(
+    eventId ? { event_id: `eq.${eventId}` } : undefined,
+  );
   const dispatchQrBundle = useDispatchQrBundle();
   const [selectedIds, setSelectedIds] = useState<Record<string, boolean>>({});
 
   const approvedInvitations = useMemo(
     () =>
-        (invitationsQuery.data ?? []).filter(
-        (invitation) => invitation.status === "accepted",
-        ),
-    [invitationsQuery.data],
+      (invitationsQuery.data ?? []).filter(
+        (invitation) =>
+          invitation.status === "accepted" &&
+          (!eventId || invitation.event_id === eventId),
+      ),
+    [eventId, invitationsQuery.data],
   );
 
   const selectedInvitations = approvedInvitations.filter(
