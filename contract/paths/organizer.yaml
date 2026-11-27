@@ -558,8 +558,13 @@
     summary: Update an invitation
     description: >
       For organizers: update `max_party_size` or `status` on a guest's invitation.
-      For guests: update RSVP `status`, `dietary_preference`, `special_requests`.
-      The DB trigger blocks guest updates after the RSVP deadline.
+      For guests: update RSVP `status`, `dietary_preference`, `special_requests`
+      only (mutating `max_party_size`, cached counts, or provenance fields returns
+      403). Guest status transitions are enforced server-side: `waitlisted` may
+      only transition to `declined`, `accepted` status is locked, and accepting
+      while Event Capacity is full automatically routes the invitation to
+      `waitlisted`. Blocked after the RSVP deadline or when the event is not
+      `published`.
     tags: [Organizer — Invitations]
     parameters:
       - $ref: '../components/parameters.yaml#/IdFilterParam'
