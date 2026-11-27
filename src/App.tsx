@@ -23,7 +23,8 @@ export function SessionCacheGuard() {
     const previousRole = previousRoleRef.current
     previousRoleRef.current = role
 
-    if (previousRole !== 'public' && role === 'public') {
+    // Clear cache whenever the active role identity transitions.
+    if (previousRole !== role) {
       queryClient.clear()
     }
   }, [queryClient, role])

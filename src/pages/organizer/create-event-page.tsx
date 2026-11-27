@@ -177,13 +177,10 @@ function CreateEventReviewStep({
   )
 }
 
-type PendingNavigation = { type: 'leave' }
-
 export function CreateEventPage() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [formError, setFormError] = useState<string>()
-  const [pendingNav, setPendingNav] = useState<PendingNavigation | null>(null)
   const [localDateTimes, setLocalDateTimes] = useState<LocalDateTimes>({
     starts_at: '',
     ends_at: '',
@@ -219,7 +216,7 @@ export function CreateEventPage() {
     },
   })
 
-  useUnsavedChangesGuard(isDirty)
+  const { blocker, allowNextNavigation } = useUnsavedChangesGuard(isDirty)
   const eventTimezone = useWatch({ control, name: 'event_timezone' }) || 'UTC'
 
   function applyStep(nextStep: number) {
@@ -236,16 +233,6 @@ export function CreateEventPage() {
   }
 
   function handleBackToEvents() {
-    if (isDirty) {
-      setPendingNav({ type: 'leave' })
-      return
-    }
-    navigate('/organizer')
-  }
-
-  function confirmPendingNavigation() {
-    if (!pendingNav) return
-    setPendingNav(null)
     navigate('/organizer')
   }
 
@@ -273,6 +260,7 @@ export function CreateEventPage() {
           payload.event_timezone,
         ),
       })
+      allowNextNavigation()
       navigate(`/organizer/events/${encodeURIComponent(event.id)}`)
     } catch (error) {
       setFormError(
@@ -650,9 +638,11 @@ export function CreateEventPage() {
       </section>
 
       <Dialog
-        open={Boolean(pendingNav)}
+        open={blocker.state === 'blocked'}
         onOpenChange={(open) => {
-          if (!open) setPendingNav(null)
+          if (!open && blocker.state === 'blocked') {
+            blocker.reset()
+          }
         }}
       >
         <DialogContent className="sm:max-w-md">
@@ -666,14 +656,18 @@ export function CreateEventPage() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => setPendingNav(null)}
+              onClick={() => {
+                if (blocker.state === 'blocked') blocker.reset()
+              }}
             >
               Stay on step
             </Button>
             <Button
               type="button"
               variant="destructive"
-              onClick={confirmPendingNavigation}
+              onClick={() => {
+                if (blocker.state === 'blocked') blocker.proceed()
+              }}
             >
               Leave without saving
             </Button>

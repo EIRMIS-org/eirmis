@@ -12,6 +12,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useListOrganizerProfile } from "@/features/organizer/hooks/use-list-organizer-profile";
 import { useUnsavedChangesGuard } from "@/features/organizer/hooks/use-unsaved-changes-guard";
@@ -58,7 +66,7 @@ export function OrganizerSettingsPage() {
     reset({ full_name: profile.full_name });
   }, [profile, reset]);
 
-  useUnsavedChangesGuard(isDirty);
+  const { blocker } = useUnsavedChangesGuard(isDirty);
 
   const onSubmit = (values: ProfileFormOutput) => {
     if (!profile) return;
@@ -197,6 +205,45 @@ export function OrganizerSettingsPage() {
           </CardContent>
         </Card>
       )}
+
+      <Dialog
+        open={blocker.state === "blocked"}
+        onOpenChange={(open) => {
+          if (!open && blocker.state === "blocked") {
+            blocker.reset();
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Leave with unsaved changes?</DialogTitle>
+            <DialogDescription>
+              You have unsaved changes to your organizer profile. Leaving this
+              page now will discard them.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                if (blocker.state === "blocked") blocker.reset();
+              }}
+            >
+              Stay on page
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => {
+                if (blocker.state === "blocked") blocker.proceed();
+              }}
+            >
+              Leave without saving
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

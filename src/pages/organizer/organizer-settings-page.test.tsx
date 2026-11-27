@@ -1,11 +1,17 @@
 // @vitest-environment jsdom
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
-import { MemoryRouter } from "react-router-dom";
+import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { SessionCacheGuard } from "@/App";
 import { SessionProvider } from "@/app/providers/session-context";
@@ -15,7 +21,7 @@ import { resetMockOrganizerState } from "@/mocks/handlers";
 import { server } from "@/mocks/server";
 import { OrganizerSettingsPage } from "./organizer-settings-page";
 
-function renderSettingsPage() {
+function renderSettingsPage(initialPath = "/organizer/settings") {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -23,13 +29,22 @@ function renderSettingsPage() {
     },
   });
 
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter>
-        <OrganizerSettingsPage />
-      </MemoryRouter>
-    </QueryClientProvider>,
+  const router = createMemoryRouter(
+    [
+      { path: "/organizer", element: <div>Organizer Events List</div> },
+      { path: "/organizer/settings", element: <OrganizerSettingsPage /> },
+    ],
+    { initialEntries: [initialPath] },
   );
+
+  return {
+    router,
+    ...render(
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>,
+    ),
+  };
 }
 
 describe("OrganizerSettingsPage", () => {
@@ -37,6 +52,7 @@ describe("OrganizerSettingsPage", () => {
 
   afterEach(() => {
     cleanup();
+    window.localStorage.removeItem("eirmis.session.role");
     resetMockOrganizerState();
     server.resetHandlers();
   });
@@ -110,9 +126,52 @@ describe("OrganizerSettingsPage", () => {
     expect(unloadEvent.defaultPrevented).toBe(true);
   });
 
+  it("blocks in-app navigation when settings form is dirty", async () => {
+    setRole("organizer");
+    const user = userEvent.setup();
+    const { router } = renderSettingsPage();
+
+    const nameInput = await screen.findByLabelText(/display name/i);
+    await user.type(nameInput, " Jr.");
+
+    // Attempt in-app navigation while dirty -> blocked with confirmation dialog
+    await user.click(screen.getByRole("link", { name: /back to events/i }));
+
+    const dialog = await screen.findByRole("dialog");
+    expect(
+      within(dialog).getByText("Leave with unsaved changes?"),
+    ).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe("/organizer/settings");
+
+    // Staying on page closes the dialog and preserves edits
+    await user.click(
+      within(dialog).getByRole("button", { name: /stay on page/i }),
+    );
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
+    expect(router.state.location.pathname).toBe("/organizer/settings");
+    expect(screen.getByLabelText(/display name/i)).toHaveValue(
+      "Jomari Barrera Jr.",
+    );
+
+    // Confirming discard proceeds with in-app navigation
+    await user.click(screen.getByRole("link", { name: /back to events/i }));
+    const confirmDialog = await screen.findByRole("dialog");
+    await user.click(
+      within(confirmDialog).getByRole("button", {
+        name: /leave without saving/i,
+      }),
+    );
+
+    expect(
+      await screen.findByText("Organizer Events List"),
+    ).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe("/organizer");
+  });
+
   it("clears the query cache when signing out to public role", async () => {
     const queryClient = new QueryClient();
-    queryClient.setQueryData(["organizer-secret"], { count: 42 });
 
     function SignOutHarness() {
       const { role, signIn, signOut } = useSession();
@@ -141,6 +200,8 @@ describe("OrganizerSettingsPage", () => {
 
     await user.click(screen.getByRole("button", { name: /sign in organizer/i }));
     expect(screen.getByTestId("active-role")).toHaveTextContent("organizer");
+
+    queryClient.setQueryData(["organizer-secret"], { count: 42 });
     expect(queryClient.getQueryData(["organizer-secret"])).toEqual({
       count: 42,
     });
