@@ -11,7 +11,7 @@ import {
 import "@testing-library/jest-dom/vitest";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import {
   afterAll,
   afterEach,
@@ -34,14 +34,18 @@ function renderWizard(initialEntry = "/organizer/events/new") {
     },
   });
 
+  const router = createMemoryRouter(
+    [
+      { path: "/organizer", element: <div>Organizer Events List</div> },
+      { path: "/organizer/events/new", element: <CreateEventPage /> },
+      { path: "/organizer/events/:eventId", element: <div>Event Workspace</div> },
+    ],
+    { initialEntries: [initialEntry] },
+  );
+
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={[initialEntry]}>
-        <Routes>
-          <Route path="/organizer" element={<div>Organizer Events List</div>} />
-          <Route path="/organizer/events/new" element={<CreateEventPage />} />
-        </Routes>
-      </MemoryRouter>
+      <RouterProvider router={router} />
     </QueryClientProvider>,
   );
 }
