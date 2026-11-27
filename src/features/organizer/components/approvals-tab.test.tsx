@@ -6,12 +6,7 @@ import "@testing-library/jest-dom/vitest";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
-import {
-  type Attendee,
-  type HeadcountIncreaseRequest,
-  setRole,
-  eq,
-} from "@/lib/api";
+import { type Attendee, type HeadcountIncreaseRequest, setRole } from "@/lib/api";
 import { qk } from "@/lib/api/query-keys";
 import { resetMockOrganizerState } from "@/mocks/handlers";
 import { server } from "@/mocks/server";
