@@ -125,42 +125,66 @@ export function getRole(): Role {
 
 // ─── Unified error path ───────────────────────────────────────────────────────
 
-/** Unified error matching `contract/components/schemas/Error.yaml`. */
+/** Unified API error with the original response body retained when available. */
 export class ApiError extends Error {
     readonly code: string;
     readonly details: string | null;
     readonly hint: string | null;
     readonly status: number;
+    /** Original JSON response body for endpoints with structured error data. */
+    readonly responseBody: unknown;
 
-    constructor(payload: ErrorSchema, status: number) {
+    constructor(
+        payload: ErrorSchema,
+        status: number,
+        responseBody: unknown = null,
+    ) {
         super(payload.message);
         this.name = 'ApiError';
         this.code = payload.code;
         this.details = payload.details ?? null;
         this.hint = payload.hint ?? null;
         this.status = status;
+        this.responseBody = responseBody;
     }
 }
 
 /**
- * Parse any non-2xx response body into the unified Error schema.
- * Falls back to a synthesized payload when the body is not JSON / Error-shaped.
+ * Parse non-2xx responses from both the shared Error schema and Edge Functions
+ * that use an `{ error: string }` message field. Preserve the original body for
+ * callers that need structured partial-success data, such as public registration.
  */
 async function toApiError(response: Response): Promise<ApiError> {
     let payload: Partial<ErrorSchema> | null = null;
+    let responseBody: unknown = null;
 
     try {
         const contentType = response.headers.get('content-type') ?? '';
         if (contentType.includes('application/json')) {
-            const body = (await response.json()) as unknown;
+            responseBody = (await response.json()) as unknown;
             // PostgREST may return an array of errors; Edge Functions return the object.
-            const candidate = Array.isArray(body) ? body[0] : body;
-            if (
-                candidate &&
-                typeof candidate === 'object' &&
-                'message' in candidate
-            ) {
-                payload = candidate as Partial<ErrorSchema>;
+            const candidate = Array.isArray(responseBody)
+                ? responseBody[0]
+                : responseBody;
+            if (candidate && typeof candidate === 'object') {
+                const body = candidate as Record<string, unknown>;
+                // The register-public Edge Function uses `error`, while standard
+                // PostgREST responses use the shared Error schema's `message`.
+                const message =
+                    typeof body.message === 'string'
+                        ? body.message
+                        : typeof body.error === 'string'
+                            ? body.error
+                            : undefined;
+
+                if (message) {
+                    payload = {
+                        code: typeof body.code === 'string' ? body.code : undefined,
+                        message,
+                        details: typeof body.details === 'string' ? body.details : null,
+                        hint: typeof body.hint === 'string' ? body.hint : null,
+                    };
+                }
             }
         }
     } catch {
@@ -176,6 +200,7 @@ async function toApiError(response: Response): Promise<ApiError> {
             hint: payload?.hint ?? null,
         },
         response.status,
+        responseBody,
     );
 }
 
