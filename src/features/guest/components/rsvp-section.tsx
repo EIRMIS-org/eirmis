@@ -170,7 +170,14 @@ export function RsvpSection({
               {rootError}
             </p>
           )}
-          <Button type="submit" disabled={isLocked || mutation.isPending}>
+          <Button
+            type="submit"
+            disabled={
+              isLocked ||
+              mutation.isPending ||
+              (status === 'waitlisted' && selectedChoice !== 'decline')
+            }
+          >
             {mutation.isPending ? 'Saving...' : status === 'waitlisted' ? 'Leave waitlist' : 'Save RSVP'}
           </Button>
         </form>
