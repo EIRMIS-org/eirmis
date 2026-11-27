@@ -195,9 +195,13 @@ describe("AttendanceTab", () => {
     const invitationsQuery = queryClient
       .getQueryCache()
       .find({ queryKey: qk.listInvitations({ event_id: `eq.${EVENT_ID}` }) });
-    const attendeesQuery = queryClient.getQueryCache().find({
-      queryKey: [...qk.listAttendeesPrefix(), { event_id: `eq.${EVENT_ID}` }],
+    // Attendees are now queried via invitation_id=in.(...) not event_id
+    const attendeesQueries = queryClient.getQueryCache().findAll({
+      queryKey: [...qk.listAttendeesPrefix()],
     });
+    const attendeesQuery = attendeesQueries.find(q =>
+      (q.queryKey[1] as Record<string, unknown> | undefined)?.invitation_id?.toString().startsWith("in.(")
+    );
 
     expect(invitationsQuery?.observers[0]?.options.refetchInterval).toBe(
       30_000,
@@ -205,14 +209,14 @@ describe("AttendanceTab", () => {
     expect(attendeesQuery?.observers[0]?.options.refetchInterval).toBe(30_000);
   });
 
-  it("queries attendees scoped to the active event ID", async () => {
+  it("queries attendees scoped to the active event ID via invitation_id=in.(...)", async () => {
     setRole("organizer");
-    const observedEventFilters: (string | null)[] = [];
+    const observedInvitationFilters: (string | null)[] = [];
 
     server.use(
       http.get("*/rest/v1/attendees", ({ request }) => {
         const url = new URL(request.url);
-        observedEventFilters.push(url.searchParams.get("event_id"));
+        observedInvitationFilters.push(url.searchParams.get("invitation_id"));
         return HttpResponse.json([]);
       }),
     );
@@ -224,6 +228,7 @@ describe("AttendanceTab", () => {
         "No attendees yet — approvals will populate this view",
       ),
     ).toBeInTheDocument();
-    expect(observedEventFilters).toContain(`eq.${EVENT_ID}`);
+    // Should use invitation_id=in.(...) with the invitation IDs from the event
+    expect(observedInvitationFilters.some(f => f?.startsWith("in.("))).toBe(true);
   });
 });

@@ -140,6 +140,32 @@ describe('Public event registration outcomes', () => {
     expect(screen.queryByText('Registration confirmed')).not.toBeInTheDocument()
   })
 
+  it('treats 500 with registration_created: true as saved registration with email warning', async () => {
+    server.use(
+      http.post('*/functions/v1/register-public', () =>
+        HttpResponse.json(
+          {
+            error: 'Registration was created, but the confirmation email could not be sent.',
+            registration_created: true,
+            invitation: invitation('waitlisted'),
+          },
+          { status: 500 },
+        ),
+      ),
+    )
+    renderPublicEventPage()
+
+    await submitRegistration()
+
+    expect(await screen.findByText('Registration saved!')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'You have been added to the waitlist for Annual Gala 2026. The event is currently at capacity. We will notify you if a place becomes available. However, we could not deliver your confirmation email. You can sign in to your guest portal directly.',
+      ),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Registration confirmed')).not.toBeInTheDocument()
+  })
+
   it('displays form banner error on 409 event not accepting registrations', async () => {
     const serverMessage =
       'This event is not currently accepting public registrations.'
