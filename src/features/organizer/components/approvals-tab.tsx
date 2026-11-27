@@ -114,6 +114,7 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
     attendee: Attendee,
     decision: "approve" | "reject",
     reason: string | null,
+    overrideCapacity = false,
   ) => {
     const nextStatus: Attendee["status"] =
       decision === "approve" ? "approved" : "rejected";
@@ -123,6 +124,7 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
         id: attendee.id,
         body: {
           decision,
+          override_capacity: overrideCapacity,
           reason,
         },
       },
@@ -171,6 +173,7 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
       overrideTarget.attendee,
       overrideTarget.decision,
       reason || null,
+      true,
     );
     setOverrideTarget(null);
   };
