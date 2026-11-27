@@ -1189,10 +1189,10 @@ export const handlers = [
     if (body.qr_token === "simulate-wrong-event") {
       return HttpResponse.json(
         errorBody(
-          "EVENT_MISMATCH_403",
+          "EVENT_MISMATCH",
           "Token belongs to another event: Tech Forward Gala 2025",
         ),
-        { status: 403 },
+        { status: 422 },
       );
     }
     if (body.qr_token === "simulate-capacity-full") {

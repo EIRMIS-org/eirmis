@@ -74,10 +74,10 @@ export function ScanOutcomeDisplay({
             subtitle = data.message || `Token belongs to ${data.expectedEvent || 'another event'}`
             break
 
-        case 'capacity-full':
+        case 'unauthorized':
             status = 'rejected'
-            title = 'Capacity Limit Reached'
-            subtitle = data.message || 'Event maximum capacity has been reached.'
+            title = 'Not Assigned to Event'
+            subtitle = data.message || "You're not assigned to this event."
             notes = 'Override requires organizer approval or manual check-in verification.'
             break
     }

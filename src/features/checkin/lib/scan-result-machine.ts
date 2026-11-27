@@ -17,7 +17,7 @@ export type ScanStatus =
     | 'already-checked-in'
     | 'invalid-token'
     | 'wrong-event'
-    | 'capacity-full'
+    | 'unauthorized'
 
 export interface ScanResultData {
     status: ScanStatus
@@ -37,7 +37,7 @@ export type ScanMachineAction =
     | { type: 'SCAN_RESOLVED_ALREADY_CHECKED_IN'; payload: ScanCheckInResponse }
     | { type: 'SCAN_FAILED_INVALID_TOKEN'; message?: string }
     | { type: 'SCAN_FAILED_WRONG_EVENT'; expectedEvent?: string; message?: string }
-    | { type: 'SCAN_FAILED_CAPACITY_FULL'; message?: string }
+    | { type: 'SCAN_FAILED_UNAUTHORIZED'; message?: string }
     | { type: 'SCAN_RESET' }
 
 export const initialScanState: ScanResultData = {
@@ -99,11 +99,11 @@ export function scanResultReducer(
                 message: action.message ?? 'This token belongs to a different event.',
             }
 
-        case 'SCAN_FAILED_CAPACITY_FULL':
+        case 'SCAN_FAILED_UNAUTHORIZED':
             return {
-                status: 'capacity-full',
+                status: 'unauthorized',
                 ticketCode: state.ticketCode,
-                message: action.message ?? 'Event has reached maximum capacity. Please verify manually.',
+                message: action.message ?? "You're not assigned to this event.",
             }
 
         case 'SCAN_RESET':
@@ -156,7 +156,7 @@ const TERMINAL_SCAN_OUTCOMES: ReadonlySet<ScanStatus> = new Set<ScanLogOutcome>(
     'already-checked-in',
     'invalid-token',
     'wrong-event',
-    'capacity-full',
+    'unauthorized',
 ])
 
 export function isScanLogOutcome(status: ScanStatus): status is ScanLogOutcome {
