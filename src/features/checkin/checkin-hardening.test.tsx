@@ -1,4 +1,4 @@
-// @vitest-environment jsdom
+﻿// @vitest-environment jsdom
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
@@ -318,7 +318,7 @@ describe('check-in staff portal hardening', () => {
 
     describe('scan session log on StaffScanPage', () => {
         it(
-            'records all 5 outcomes most-recent-first, updates the counter, clears, and persists across reload',
+            'records outcomes most-recent-first, updates the counter, clears, and persists across reload',
             async () => {
                 setRole('checkin')
                 const user = userEvent.setup()
@@ -351,7 +351,7 @@ describe('check-in staff portal hardening', () => {
                 await user.click(screen.getByRole('button', { name: /3\. bad token/i }))
                 await waitFor(
                     () => {
-                        expect(screen.getByText('1 OK / 3 total')).toBeInTheDocument()
+                        expect(screen.getByText(/1 OK \/ 3 total/i)).toBeInTheDocument()
                     },
                     { timeout: 5000 },
                 )
@@ -364,29 +364,20 @@ describe('check-in staff portal hardening', () => {
                     { timeout: 5000 },
                 )
 
-                await user.click(screen.getByRole('button', { name: /5\. capacity full/i }))
-                await waitFor(
-                    () => {
-                        expect(screen.getByText('1 OK / 5 total')).toBeInTheDocument()
-                    },
-                    { timeout: 5000 },
-                )
-
                 const logList = screen.getByRole('list', { name: /recent session scans/i })
                 const items = within(logList).getAllByRole('listitem')
-                expect(items).toHaveLength(5)
-                expect(items[0]).toHaveTextContent(/capacity full/i)
-                expect(items[1]).toHaveTextContent(/wrong event/i)
-                expect(items[2]).toHaveTextContent(/invalid/i)
-                expect(items[3]).toHaveTextContent(/already checked in/i)
-                expect(items[4]).toHaveTextContent(/maria santos/i)
-                expect(items[4]).toHaveTextContent(/success/i)
+                expect(items).toHaveLength(4)
+                expect(items[0]).toHaveTextContent(/wrong event/i)
+                expect(items[1]).toHaveTextContent(/invalid/i)
+                expect(items[2]).toHaveTextContent(/already checked in/i)
+                expect(items[3]).toHaveTextContent(/maria santos/i)
+                expect(items[3]).toHaveTextContent(/success/i)
 
                 // Verify sessionStorage persistence across remount
                 unmount()
                 renderWithProviders(<StaffScanPage />, '/staff')
                 expect(
-                    await screen.findByText('1 OK / 5 total', undefined, {
+                    await screen.findByText('1 OK / 4 total', undefined, {
                         timeout: 5000,
                     }),
                 ).toBeInTheDocument()
@@ -527,6 +518,121 @@ describe('check-in staff portal hardening', () => {
                     screen.getByRole('button', { name: /checked in/i }),
                 ).toBeDisabled()
             })
+        })
+
+        it('shows toast feedback for accepted, already_checked_in, and invalid_token in ManualSearchTable', async () => {
+            setRole('checkin')
+            const user = userEvent.setup()
+            const successSpy = vi.spyOn(toast, 'success')
+            const warningSpy = vi.spyOn(toast, 'warning')
+            const errorSpy = vi.spyOn(toast, 'error')
+
+            const attendees: Attendee[] = [
+                {
+                    id: '77777777-7777-7777-7777-777777777771',
+                    invitation_id: ASSIGNED_INVITATION_ID,
+                    full_name: 'Accepted Guest',
+                    email: 'accepted@example.com',
+                    is_primary: true,
+                    status: 'approved',
+                    submitted_at: '2026-10-05T14:00:00+08:00',
+                    reviewed_by: null,
+                    reviewed_at: null,
+                    review_reason: null,
+                    qr_token: 'tok-accepted',
+                    checked_in: false,
+                    checked_in_at: null,
+                    checked_in_by: null,
+                    is_walk_in: false,
+                },
+                {
+                    id: '77777777-7777-7777-7777-777777777772',
+                    invitation_id: ASSIGNED_INVITATION_ID,
+                    full_name: 'Duplicate Guest',
+                    email: 'duplicate@example.com',
+                    is_primary: false,
+                    status: 'approved',
+                    submitted_at: '2026-10-05T14:00:00+08:00',
+                    reviewed_by: null,
+                    reviewed_at: null,
+                    review_reason: null,
+                    qr_token: 'tok-duplicate',
+                    checked_in: false,
+                    checked_in_at: null,
+                    checked_in_by: null,
+                    is_walk_in: false,
+                },
+                {
+                    id: '77777777-7777-7777-7777-777777777773',
+                    invitation_id: ASSIGNED_INVITATION_ID,
+                    full_name: 'Invalid Token Guest',
+                    email: 'invalid@example.com',
+                    is_primary: false,
+                    status: 'approved',
+                    submitted_at: '2026-10-05T14:00:00+08:00',
+                    reviewed_by: null,
+                    reviewed_at: null,
+                    review_reason: null,
+                    qr_token: 'tok-invalid',
+                    checked_in: false,
+                    checked_in_at: null,
+                    checked_in_by: null,
+                    is_walk_in: false,
+                },
+            ]
+
+            server.use(
+                http.get('*/rest/v1/attendees', () => HttpResponse.json(attendees)),
+                http.post('*/functions/v1/checkin/scan', async ({ request }) => {
+                    const body = (await request.json()) as { qr_token?: string }
+                    if (body.qr_token === 'tok-accepted') {
+                        return HttpResponse.json({
+                            result: 'accepted',
+                            attendee: attendees[0],
+                            checked_in_at: '2026-12-15T18:10:00+08:00',
+                            message: null,
+                        })
+                    }
+                    if (body.qr_token === 'tok-duplicate') {
+                        return HttpResponse.json({
+                            result: 'already_checked_in',
+                            attendee: attendees[1],
+                            checked_in_at: '2026-12-15T17:30:00+08:00',
+                            message: 'Already checked in earlier',
+                        })
+                    }
+                    return HttpResponse.json({
+                        result: 'invalid_token',
+                        attendee: null,
+                        checked_in_at: null,
+                        message: 'Expired QR token',
+                    })
+                }),
+            )
+
+            renderWithProviders(<StaffSearchPage />, '/staff/search')
+
+            const buttons = await screen.findAllByRole('button', { name: /^check in$/i })
+            expect(buttons).toHaveLength(3)
+
+            await user.click(buttons[0])
+            await waitFor(() => {
+                expect(successSpy).toHaveBeenCalledWith('Check-in recorded')
+            })
+
+            await user.click(buttons[1])
+            await waitFor(() => {
+                expect(warningSpy).toHaveBeenCalledWith('Already checked in earlier')
+            })
+
+            await user.click(buttons[2])
+            await waitFor(() => {
+                expect(errorSpy).toHaveBeenCalledWith('Expired QR token')
+            })
+
+            successSpy.mockRestore()
+            warningSpy.mockRestore()
+            errorSpy.mockRestore()
         })
     })
 
@@ -888,9 +994,6 @@ describe('check-in staff portal hardening', () => {
             expect(
                 screen.queryByRole('button', { name: /4\. wrong event/i }),
             ).not.toBeInTheDocument()
-            expect(
-                screen.queryByRole('button', { name: /5\. capacity full/i }),
-            ).not.toBeInTheDocument()
         })
     })
 
@@ -1021,7 +1124,7 @@ describe('check-in staff portal hardening', () => {
             }
         })
 
-        it('transitions to wrong-event state on 422 EVENT_MISMATCH', async () => {
+        it('maps 422 EVENT_MISMATCH to wrong-event outcome', async () => {
             server.use(
                 http.post('*/functions/v1/checkin/scan', () =>
                     HttpResponse.json(
@@ -1048,14 +1151,14 @@ describe('check-in staff portal hardening', () => {
             await user.click(screen.getByRole('button', { name: /^scan$/i }))
 
             await waitFor(() => {
-                expect(screen.getByText(/wrong event/i)).toBeInTheDocument()
+                expect(screen.getByText(/wrong event assignment/i)).toBeInTheDocument()
                 expect(
                     screen.getByText(/ticket belongs to a different event\./i),
                 ).toBeInTheDocument()
             })
         })
 
-        it('transitions to invalid-token state on general 422 without EVENT_MISMATCH', async () => {
+        it('maps 422 INVALID_QR_TOKEN to invalid-token outcome', async () => {
             server.use(
                 http.post('*/functions/v1/checkin/scan', () =>
                     HttpResponse.json(
@@ -1088,7 +1191,40 @@ describe('check-in staff portal hardening', () => {
             })
         })
 
-        it('handles 200 accepted, 200 duplicate, 200 invalid token, 422 wrong event, and 422 invalid QR transitions in scanResultReducer', () => {
+        it('maps 403 FORBIDDEN to unassigned event message', async () => {
+            server.use(
+                http.post('*/functions/v1/checkin/scan', () =>
+                    HttpResponse.json(
+                        {
+                            code: 'FORBIDDEN',
+                            message: 'Staff is not assigned to this event.',
+                            details: null,
+                            hint: null,
+                        },
+                        { status: 403 },
+                    ),
+                ),
+            )
+
+            const user = userEvent.setup()
+            renderWithProviders(<StaffScanPage />, '/staff')
+
+            expect(
+                await screen.findByText('Annual Gala 2026', undefined, { timeout: 5000 }),
+            ).toBeInTheDocument()
+
+            const input = screen.getByPlaceholderText(/paste or enter signed qr token/i)
+            await user.type(input, 'unassigned-staff-token')
+            await user.click(screen.getByRole('button', { name: /^scan$/i }))
+
+            await waitFor(() => {
+                expect(
+                    screen.getByText(/staff is not assigned to this event\./i),
+                ).toBeInTheDocument()
+            })
+        })
+
+        it('handles 200 accepted, 200 duplicate, 200 invalid token, 422 wrong event, 422 invalid QR, and 403 unauthorized in scanResultReducer', () => {
             const resolving = scanResultReducer(initialScanState, {
                 type: 'SCAN_START',
                 token: 'tok-123',
@@ -1135,6 +1271,13 @@ describe('check-in staff portal hardening', () => {
                 message: 'INVALID_QR_TOKEN',
             })
             expect(invalidQr422.status).toBe('invalid-token')
+
+            const unauthorized403 = scanResultReducer(resolving, {
+                type: 'SCAN_FAILED_UNAUTHORIZED',
+                message: 'Not assigned to this event',
+            })
+            expect(unauthorized403.status).toBe('unauthorized')
         })
     })
 })
+
