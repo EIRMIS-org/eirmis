@@ -39,9 +39,10 @@ export function AttendanceTab({ eventId }: AttendanceTabProps) {
     { event_id: `eq.${eventId}` },
     { refetchInterval: ATTENDANCE_REFETCH_INTERVAL_MS },
   );
-  const attendeesQuery = useListAttendees(undefined, {
-    refetchInterval: ATTENDANCE_REFETCH_INTERVAL_MS,
-  });
+  const attendeesQuery = useListAttendees(
+    { event_id: `eq.${eventId}` },
+    { refetchInterval: ATTENDANCE_REFETCH_INTERVAL_MS },
+  );
 
   const invitations = useMemo(
     () => invitationsQuery.data ?? [],
