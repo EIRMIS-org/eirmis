@@ -459,11 +459,29 @@ export function inList(values: readonly string[]): string {
 /** Maximum invitation UUIDs per `invitation_id=in.(...)` request (~2.8KB query string). */
 export const ATTENDEE_IN_LIST_CHUNK_SIZE = 75;
 
+/** Maximum invitation UUIDs per headcount request `invitation_id=in.(...)` (~2.8KB query string). */
+export const HEADCOUNT_IN_LIST_CHUNK_SIZE = 75;
+
 /** GET /rest/v1/attendees — list attendees for an invitation. */
 export function listAttendees(
     query?: operations['listAttendees']['parameters']['query'],
 ): Promise<ListOk<operations['listAttendees']>> {
     return request('GET', '/rest/v1/attendees', { query });
+}
+
+/**
+ * Helper to paginate through all pages of a request until fewer than limit rows return.
+ */
+export async function allPages<T>(
+    load: (page: { limit: number; offset: number }) => Promise<T[]>,
+    limit = 500,
+): Promise<T[]> {
+    const rows: T[] = [];
+    for (let offset = 0; ; offset += limit) {
+        const page = await load({ limit, offset });
+        rows.push(...page);
+        if (page.length < limit) return rows;
+    }
 }
 
 /**
@@ -487,7 +505,11 @@ export async function listAttendeesByInvitationIds(
     }
 
     const batches = await Promise.all(
-        chunks.map((chunk) => listAttendees({ invitation_id: inList(chunk) })),
+        chunks.map((chunk) =>
+            allPages((page) =>
+                listAttendees({ ...page, invitation_id: inList(chunk) }),
+            ),
+        ),
     );
 
     const seen = new Set<string>();
@@ -530,6 +552,47 @@ export function listHeadcountRequests(
     query?: operations['listHeadcountRequests']['parameters']['query'],
 ): Promise<ListOk<operations['listHeadcountRequests']>> {
     return request('GET', '/rest/v1/headcount_increase_requests', { query });
+}
+
+/**
+ * GET /rest/v1/headcount_increase_requests — fetch headcount requests across arbitrarily many invitations
+ * by chunking `invitation_id=in.(...)` requests in parallel and deduplicating
+ * the merged result by request ID.
+ */
+export async function listHeadcountRequestsByInvitationIds(
+    invitationIds: readonly string[],
+    chunkSize = HEADCOUNT_IN_LIST_CHUNK_SIZE,
+): Promise<ListOk<operations['listHeadcountRequests']>> {
+    const uniqueIds = Array.from(new Set(invitationIds.filter(Boolean)));
+    if (uniqueIds.length === 0) {
+        return [];
+    }
+
+    const safeChunkSize = Math.max(1, Math.floor(chunkSize));
+    const chunks: string[][] = [];
+    for (let index = 0; index < uniqueIds.length; index += safeChunkSize) {
+        chunks.push(uniqueIds.slice(index, index + safeChunkSize));
+    }
+
+    const batches = await Promise.all(
+        chunks.map((chunk) =>
+            allPages((page) =>
+                listHeadcountRequests({ ...page, invitation_id: inList(chunk) }),
+            ),
+        ),
+    );
+
+    const seen = new Set<string>();
+    const merged: HeadcountIncreaseRequest[] = [];
+    for (const batch of batches) {
+        for (const req of batch) {
+            if (!seen.has(req.id)) {
+                seen.add(req.id);
+                merged.push(req);
+            }
+        }
+    }
+    return merged;
 }
 
 /** POST /functions/v1/submit-headcount-request — submit a headcount request (guest). */
@@ -655,10 +718,12 @@ export function listEmailLogs(
 }
 
 /** GET /rest/v1/audit_log_entries — list audit log entries. */
-export function listAuditLogEntries(): Promise<
+export function listAuditLogEntries(
+    query?: operations['listAuditLogEntries']['parameters']['query'],
+): Promise<
     ListOk<operations['listAuditLogEntries']>
 > {
-    return request('GET', '/rest/v1/audit_log_entries');
+    return request('GET', '/rest/v1/audit_log_entries', { query });
 }
 
 /** GET /rest/v1/organizer_profiles — read own organizer profile. */
@@ -833,6 +898,7 @@ export function scanCheckIn(
 // ─── Default export: namespaced client ────────────────────────────────────────
 
 const api = {
+    allPages,
     // config
     API_BASE,
     setRole,
@@ -858,6 +924,7 @@ const api = {
     submitAttendee,
     updateAttendee,
     listHeadcountRequests,
+    listHeadcountRequestsByInvitationIds,
     submitHeadcountRequest,
     listInvitationDesigns,
     createInvitationDesign,

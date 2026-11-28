@@ -21,6 +21,8 @@ export const qk = {
     listHeadcountRequests: (
         query?: operations['listHeadcountRequests']['parameters']['query'],
     ) => ['listHeadcountRequests', query] as const,
+    listHeadcountRequestsByInvitationIds: (invitationIds: readonly string[]) =>
+        ['listHeadcountRequests', 'byInvitationIds', invitationIds] as const,
     listReminderSchedules: (eventId?: string) =>
         ['listReminderSchedules', eventId] as const,
     listReminderSchedulesPrefix: () => ['listReminderSchedules'] as const,

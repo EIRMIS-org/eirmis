@@ -1020,7 +1020,28 @@ export const handlers = [
 
   http.get("*/rest/v1/audit_log_entries", ({ request }) => {
     if (!hasAuth(request)) return unauthorized();
-    return jsonList(exampleAuditEntries);
+    const invalid = validatePostgrestQuery(request, [
+      "entity_type",
+      "entity_id",
+    ]);
+    if (invalid) return invalid;
+    const url = new URL(request.url);
+    const order = url.searchParams.get("order");
+    let rows = [...exampleAuditEntries];
+    if (order === "created_at.desc") {
+      rows.sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      );
+    } else if (order === "created_at.asc") {
+      rows.sort(
+        (a, b) =>
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+      );
+    }
+    rows = filterByEq(request, rows, "entity_type");
+    rows = filterByEq(request, rows, "entity_id");
+    return paginatedList(request, rows);
   }),
 
   // ═══ PostgREST: organizer_profiles ═══

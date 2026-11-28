@@ -1,37 +1,40 @@
 import { useQuery } from '@tanstack/react-query';
 import {
-    listAttendees, listAuditLogEntries, listCheckInAssignments,
-    listHeadcountRequests, listInvitations, listInvitationDesigns, listReminderSchedules,
+    allPages,
+    listAttendeesByInvitationIds,
+    listAuditLogEntries,
+    listCheckInAssignments,
+    listHeadcountRequestsByInvitationIds,
+    listInvitations,
+    listInvitationDesigns,
+    listReminderSchedules,
 } from '@/lib/api';
 import { qk } from '@/lib/api/query-keys';
 import { AUDIT_LOG_REFETCH_INTERVAL_MS } from './use-list-audit-log-entries';
-
-// Read all pages: a partial membership set would silently hide valid audit history.
-async function allPages<T>(load: (page: { limit: number; offset: number }) => Promise<T[]>): Promise<T[]> {
-    const rows: T[] = [];
-    const limit = 500;
-    for (let offset = 0; ; offset += limit) {
-        const page = await load({ limit, offset });
-        rows.push(...page);
-        if (page.length < limit) return rows;
-    }
-}
 
 export function useEventAuditLogEntries(eventId: string) {
     return useQuery({
         queryKey: [...qk.listAuditLogEntries(), 'event', eventId],
         refetchInterval: AUDIT_LOG_REFETCH_INTERVAL_MS,
         queryFn: async () => {
-            const [logs, invitations, attendees, requests, reminders, designs, assignments] = await Promise.all([
-                listAuditLogEntries(),
+            const [invitations, reminders, designs, assignments] = await Promise.all([
                 allPages((page) => listInvitations({ ...page, event_id: `eq.${eventId}` })),
-                allPages(listAttendees),
-                allPages(listHeadcountRequests),
                 listReminderSchedules(eventId),
                 listInvitationDesigns(eventId),
                 listCheckInAssignments(eventId),
             ]);
-            const invitationIds = new Set(invitations.filter((row) => row.event_id === eventId).map((row) => row.id));
+
+            const invitationIdsList = invitations
+                .filter((row) => row.event_id === eventId)
+                .map((row) => row.id);
+            const invitationIds = new Set(invitationIdsList);
+
+            const [attendees, requests, logs] = await Promise.all([
+                listAttendeesByInvitationIds(invitationIdsList),
+                listHeadcountRequestsByInvitationIds(invitationIdsList),
+                allPages((page) => listAuditLogEntries({ ...page, order: 'created_at.desc' })),
+            ]);
+
             const entities = new Map<string, Set<string>>([
                 ['event', new Set([eventId])],
                 ['invitation', invitationIds],
