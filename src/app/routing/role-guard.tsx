@@ -13,8 +13,8 @@
  * decides whether content renders.
  */
 
-import type { ReactNode } from 'react'
-import { Navigate, useLocation } from 'react-router-dom'
+import { useEffect, type ReactNode } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useSession } from '@/app/providers/use-session'
 import type { Role } from '@/lib/api'
 import { ForbiddenPage } from './forbidden-page'
@@ -28,20 +28,30 @@ export interface RoleGuardProps {
     children: ReactNode
 }
 
-export function RoleGuard({ allow, children }: RoleGuardProps) {
-    const location = useLocation()
-    const { role, isAuthenticated } = useSession()
+function RedirectToLanding({ target }: { target: string }) {
+    const navigate = useNavigate()
 
-    if (!isAuthenticated) {
+    useEffect(() => {
         try {
-            const target = `${location.pathname}${location.search}${location.hash}`
             if (target.startsWith('/') && !target.startsWith('//') && target !== '/') {
                 window.sessionStorage.setItem(REDIRECT_STORAGE_KEY, target)
             }
         } catch {
             // Ignore sessionStorage errors (restricted browsing contexts).
         }
-        return <Navigate to="/" replace />
+        navigate('/', { replace: true })
+    }, [navigate, target])
+
+    return null
+}
+
+export function RoleGuard({ allow, children }: RoleGuardProps) {
+    const location = useLocation()
+    const { role, isAuthenticated } = useSession()
+
+    if (!isAuthenticated) {
+        const target = `${location.pathname}${location.search}${location.hash}`
+        return <RedirectToLanding target={target} />
     }
 
     if (!allow.includes(role)) {

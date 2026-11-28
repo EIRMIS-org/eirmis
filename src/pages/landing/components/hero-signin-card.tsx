@@ -71,6 +71,26 @@ const ROLE_PORTAL_PREFIXES: Record<AuthenticatedRole, string> = {
     checkin: '/staff',
 }
 
+const DUMMY_ORIGIN = 'https://eirmis.invalid'
+
+function isPortalRoute(saved: string, portalPrefix: string): boolean {
+    if (!saved.startsWith('/') || saved.startsWith('//')) {
+        return false
+    }
+    try {
+        const url = new URL(saved, DUMMY_ORIGIN)
+        if (url.origin !== DUMMY_ORIGIN) {
+            return false
+        }
+        return (
+            url.pathname === portalPrefix ||
+            url.pathname.startsWith(`${portalPrefix}/`)
+        )
+    } catch {
+        return false
+    }
+}
+
 /**
  * Honor the RoleGuard redirect-memory key only when the saved route belongs
  * to the portal being signed into. A stale redirect for a different portal
@@ -83,8 +103,7 @@ function resolveDestination(role: AuthenticatedRole, destination: string): strin
         const saved = window.sessionStorage.getItem(REDIRECT_STORAGE_KEY)
         if (saved) {
             window.sessionStorage.removeItem(REDIRECT_STORAGE_KEY)
-            // Prefix match also rejects protocol-relative targets like //evil.com.
-            if (saved.startsWith(portalPrefix)) {
+            if (isPortalRoute(saved, portalPrefix)) {
                 return saved
             }
         }

@@ -65,4 +65,36 @@ describe('downloadCSV', () => {
             ].join('\r\n'),
         );
     });
+
+    it('neutralizes formula-triggering leading characters while preserving RFC 4180 quoting', async () => {
+        let capturedBlob: Blob | null = null;
+        vi.spyOn(URL, 'createObjectURL').mockImplementation((obj) => {
+            capturedBlob = obj as Blob;
+            return 'blob:mock-csv-url';
+        });
+        vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+        vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+
+        downloadCSV(
+            'guests',
+            ['Name', 'Formula', 'Payload', 'Number'],
+            [
+                ['=SUM(A1:A2)', '+cmd|calc', '-1+1', -5],
+                ['@SUM(1,1)', '\tmalicious', '\rmalicious', 42],
+                ['=HYPERLINK("http://evil","x")', 'Normal Guest', 'guest@example.com', new Date('2026-12-10T09:15:00Z')],
+            ],
+        );
+
+        expect(capturedBlob).not.toBeNull();
+        const content = await capturedBlob!.text();
+        expect(content).toBe(
+            [
+                'Name,Formula,Payload,Number',
+                '\'=SUM(A1:A2),\'+cmd|calc,\'-1+1,\'-5',
+                '"\'@SUM(1,1)",\'\tmalicious,"\'\rmalicious",42',
+                '"\'=HYPERLINK(""http://evil"",""x"")",Normal Guest,guest@example.com,2026-12-10T09:15:00.000Z',
+                '',
+            ].join('\r\n'),
+        );
+    });
 });
