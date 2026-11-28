@@ -43,11 +43,14 @@ function renderWizard(initialEntry = "/organizer/events/new") {
     { initialEntries: [initialEntry] },
   );
 
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>,
-  );
+  return {
+    router,
+    ...render(
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>,
+    ),
+  };
 }
 
 describe("CreateEventPage dirty-guard", () => {
@@ -93,16 +96,20 @@ describe("CreateEventPage dirty-guard", () => {
       screen.getByRole("button", { name: /go to schedule step/i }),
     );
 
-    expect(screen.getByLabelText(/starts/i)).toBeInTheDocument();
+    expect(await screen.findByLabelText(/^starts/i)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /previous/i }));
-    expect(screen.getByLabelText(/event title/i)).toHaveValue("Tech Summit 2027");
+    expect(await screen.findByLabelText(/event title/i)).toHaveValue(
+      "Tech Summit 2027",
+    );
     expect(screen.getByLabelText(/event slug/i)).toHaveValue("tech-summit-2027");
-    expect(screen.queryByText("Leave with unsaved changes?")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Leave with unsaved changes?"),
+    ).not.toBeInTheDocument();
 
     await user.click(
       screen.getByRole("button", { name: /go to schedule step/i }),
     );
-    fireEvent.change(screen.getByLabelText(/^starts/i), {
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
       target: { value: "2026-12-01T18:00" },
     });
     fireEvent.change(screen.getByLabelText(/^ends/i), {
@@ -115,9 +122,11 @@ describe("CreateEventPage dirty-guard", () => {
       screen.getByRole("button", { name: /go to capacity & rules step/i }),
     );
 
-    expect(screen.getByLabelText(/total capacity/i)).toBeInTheDocument();
+    expect(await screen.findByLabelText(/total capacity/i)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /previous/i }));
-    expect(screen.getByLabelText(/^starts/i)).toHaveValue("2026-12-01T18:00");
+    expect(await screen.findByLabelText(/^starts/i)).toHaveValue(
+      "2026-12-01T18:00",
+    );
     expect(
       screen.queryByText("Leave with unsaved changes?"),
     ).not.toBeInTheDocument();
@@ -126,8 +135,10 @@ describe("CreateEventPage dirty-guard", () => {
       screen.getByRole("button", { name: /go to basics step/i }),
     );
 
-    expect(screen.getByLabelText(/event title/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/event title/i)).toHaveValue("Tech Summit 2027");
+    expect(await screen.findByLabelText(/event title/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/event title/i)).toHaveValue(
+      "Tech Summit 2027",
+    );
     expect(screen.getByLabelText(/event slug/i)).toHaveValue("tech-summit-2027");
     expect(
       screen.queryByText("Leave with unsaved changes?"),
@@ -182,7 +193,7 @@ describe("CreateEventPage dirty-guard", () => {
     await user.click(
       screen.getByRole("button", { name: /go to schedule step/i }),
     );
-    fireEvent.change(screen.getByLabelText(/^starts/i), {
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
       target: { value: "2026-12-01T18:00" },
     });
     fireEvent.change(screen.getByLabelText(/^ends/i), {
@@ -197,11 +208,13 @@ describe("CreateEventPage dirty-guard", () => {
       screen.getByRole("button", { name: /go to capacity & rules step/i }),
     );
 
-    fireEvent.change(screen.getByLabelText(/total capacity/i), {
+    fireEvent.change(await screen.findByLabelText(/total capacity/i), {
       target: { value: "100" },
     });
     await user.click(screen.getByRole("button", { name: /go to review step/i }));
-    await user.click(screen.getByRole("button", { name: /create event/i }));
+    await user.click(
+      await screen.findByRole("button", { name: /create event/i }),
+    );
 
     await waitFor(() => {
       expect(submittedBody).toHaveBeenCalled();
@@ -210,5 +223,108 @@ describe("CreateEventPage dirty-guard", () => {
       event_timezone: "Asia/Manila",
       starts_at: "2026-12-01T10:00:00.000Z",
     });
+  });
+
+  it("blocks Basics -> Review when Basics is empty and displays title and slug errors", async () => {
+    const user = userEvent.setup();
+    renderWizard();
+
+    await user.click(screen.getByRole("button", { name: /go to review step/i }));
+
+    expect(await screen.findByText(/event title is required/i)).toBeInTheDocument();
+    expect(screen.getByText(/event slug is required/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /event basics/i })).toBeInTheDocument();
+  });
+
+  it("stops on Schedule when Basics is valid but Schedule is invalid", async () => {
+    const user = userEvent.setup();
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Annual Summit" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "annual-summit" },
+    });
+
+    await user.click(screen.getByRole("button", { name: /go to review step/i }));
+
+    expect(
+      await screen.findByRole("heading", { name: /schedule and location/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/^starts/i)).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByLabelText(/^ends/i)).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByLabelText(/rsvp deadline/i)).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+  });
+
+  it("stops on Capacity when Basics and Schedule are valid but Capacity is invalid", async () => {
+    const user = userEvent.setup();
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Annual Summit" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "annual-summit" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
+      target: { value: "2026-12-01T18:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-01T20:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-01T17:00" },
+    });
+
+    await user.click(screen.getByRole("button", { name: /go to review step/i }));
+
+    expect(
+      await screen.findByRole("heading", { name: /capacity and registration/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/total capacity/i)).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+  });
+
+  it("allows forward step navigation with valid prerequisites and preserves unrelated query params", async () => {
+    const user = userEvent.setup();
+    const { router } = renderWizard("/organizer/events/new?source=dashboard&step=1");
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Annual Summit" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "annual-summit" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
+      target: { value: "2026-12-01T18:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-01T20:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-01T17:00" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/total capacity/i), {
+      target: { value: "250" },
+    });
+    await user.click(screen.getByRole("button", { name: /go to review step/i }));
+
+    expect(
+      await screen.findByRole("heading", { name: /review your event/i }),
+    ).toBeInTheDocument();
+    expect(router.state.location.search).toContain("source=dashboard");
+    expect(router.state.location.search).toContain("step=4");
   });
 });

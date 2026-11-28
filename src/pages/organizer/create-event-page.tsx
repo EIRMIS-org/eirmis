@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Controller, useForm, useWatch, type Control, type FieldPath } from 'react-hook-form'
 import { ArrowLeft, ArrowRight, Check, ChevronLeft } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -219,6 +219,8 @@ export function CreateEventPage() {
   const { blocker, allowNextNavigation } = useUnsavedChangesGuard(isDirty)
   const eventTimezone = useWatch({ control, name: 'event_timezone' }) || 'UTC'
 
+  const isNavigatingRef = useRef(false)
+
   function applyStep(nextStep: number) {
     setFormError(undefined)
     setSearchParams((current) => {
@@ -228,18 +230,42 @@ export function CreateEventPage() {
     })
   }
 
-  function setStep(nextStep: number) {
-    applyStep(nextStep)
+  async function navigateToStep(targetStep: number) {
+    if (
+      isNavigatingRef.current ||
+      targetStep < 1 ||
+      targetStep > STEPS.length ||
+      targetStep === step
+    ) {
+      return
+    }
+
+    if (targetStep < step) {
+      applyStep(targetStep)
+      return
+    }
+
+    isNavigatingRef.current = true
+    try {
+      for (let prerequisiteStep = 1; prerequisiteStep < targetStep; prerequisiteStep += 1) {
+        const fields = STEP_FIELDS[prerequisiteStep]
+        if (!fields) continue
+        const isValid = await trigger(fields)
+        if (!isValid) {
+          if (prerequisiteStep !== step) {
+            applyStep(prerequisiteStep)
+          }
+          return
+        }
+      }
+      applyStep(targetStep)
+    } finally {
+      isNavigatingRef.current = false
+    }
   }
 
   function handleBackToEvents() {
     navigate('/organizer')
-  }
-
-  async function goNext() {
-    if (step < 4 && (await trigger(STEP_FIELDS[step]))) {
-      applyStep(step + 1)
-    }
   }
 
   async function onSubmit(payload: EventCreate) {
@@ -316,7 +342,7 @@ export function CreateEventPage() {
                         ? 'font-medium text-foreground'
                         : 'text-muted-foreground'
                   }`}
-                  onClick={() => setStep(stepNumber)}
+                  onClick={() => void navigateToStep(stepNumber)}
                 >
                   <span
                     className={`flex size-7 shrink-0 items-center justify-center rounded-full border text-xs ${
@@ -608,7 +634,7 @@ export function CreateEventPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setStep(step - 1)}
+                  onClick={() => void navigateToStep(step - 1)}
                 >
                   <ArrowLeft aria-hidden="true" />
                   Previous
@@ -623,7 +649,7 @@ export function CreateEventPage() {
               )}
             </div>
             {step < 4 ? (
-              <Button type="button" onClick={() => void goNext()}>
+              <Button type="button" onClick={() => void navigateToStep(step + 1)}>
                 Continue
                 <ArrowRight aria-hidden="true" />
               </Button>
