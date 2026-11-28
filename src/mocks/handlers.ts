@@ -498,6 +498,13 @@ function validatePostgrestQuery(
 }
 
 /** Simulate PostgREST filter matching on `?column=eq.value` or `?column=in.(a,b)`. */
+function paginatedList<T>(request: Request, rows: T[]) {
+  const params = new URL(request.url).searchParams;
+  const offset = Math.max(0, Number(params.get("offset") ?? 0));
+  const limit = Math.max(0, Number(params.get("limit") ?? rows.length));
+  return jsonList(rows.slice(offset, offset + limit), rows.length, offset);
+}
+
 function filterByEq<T extends Record<string, unknown>>(
   request: Request,
   items: T[],
@@ -599,6 +606,11 @@ export const handlers = [
         item.days_before_event === body.days_before_event,
     );
     if (existingIndex >= 0) {
+      const preferences = (request.headers.get("Prefer") ?? "").split(",").map((value) => value.trim());
+      if (!preferences.includes("resolution=merge-duplicates") ||
+          new URL(request.url).searchParams.get("on_conflict") !== "event_id,days_before_event") {
+        return HttpResponse.json({ code: "23505", message: "A reminder already exists for this day.", details: null, hint: null }, { status: 409 });
+      }
       const updated: ReminderSchedule = {
         ...mockReminderSchedules[existingIndex],
         ...body,
@@ -606,7 +618,7 @@ export const handlers = [
       mockReminderSchedules = mockReminderSchedules.map((item, idx) =>
         idx === existingIndex ? updated : item,
       );
-      return HttpResponse.json(updated, { status: 201 });
+      return HttpResponse.json([updated], { status: 201 });
     }
     const created: ReminderSchedule = {
       ...exampleReminder,
@@ -617,7 +629,31 @@ export const handlers = [
       last_sent_at: null,
     };
     mockReminderSchedules = [...mockReminderSchedules, created];
-    return HttpResponse.json(created, { status: 201 });
+    return HttpResponse.json([created], { status: 201 });
+  }),
+
+  http.patch("*/rest/v1/reminder_schedules", async ({ request }) => {
+    if (!hasAuth(request)) return unauthorized();
+    const filter = new URL(request.url).searchParams.get("id");
+    if (!filter?.startsWith("eq.")) {
+      return HttpResponse.json({ code: "PGRST100", message: "An id equality filter is required.", details: null, hint: null }, { status: 400 });
+    }
+    const index = mockReminderSchedules.findIndex((item) => item.id === filter.slice(3));
+    if (index < 0) return HttpResponse.json([]);
+    const body = (await request.json()) as components["schemas"]["ReminderScheduleUpdate"];
+    const original = mockReminderSchedules[index];
+    const updated = {
+      ...original,
+      days_before_event: body.days_before_event ?? original.days_before_event,
+      send_time_of_day: body.send_time_of_day ?? original.send_time_of_day,
+      enabled: body.enabled ?? original.enabled,
+    };
+    if (mockReminderSchedules.some((item) => item.id !== original.id &&
+        item.event_id === original.event_id && item.days_before_event === updated.days_before_event)) {
+      return HttpResponse.json({ code: "23505", message: "A reminder already exists for this day.", details: null, hint: null }, { status: 409 });
+    }
+    mockReminderSchedules = mockReminderSchedules.map((item, i) => i === index ? updated : item);
+    return HttpResponse.json([updated]);
   }),
 
   http.delete("*/rest/v1/reminder_schedules", ({ request }) => {
@@ -682,7 +718,7 @@ export const handlers = [
     const visibleInvitations = isGuest
       ? [mockInvitation]
       : [mockInvitation, ...mockExtraInvitations];
-    return jsonList(filterByEq(request, visibleInvitations, "event_id"));
+    return paginatedList(request, filterByEq(request, visibleInvitations, "event_id"));
   }),
 
   http.post("*/rest/v1/invitations", async ({ request }) => {
@@ -732,7 +768,7 @@ export const handlers = [
     if (invalid) return invalid;
     let result = filterByEq(request, mockAttendees, "invitation_id");
     result = filterByEq(request, result, "status");
-    return jsonList(result);
+    return paginatedList(request, result);
   }),
 
   http.post("*/rest/v1/attendees", async ({ request }) => {
@@ -806,7 +842,7 @@ export const handlers = [
     if (invalid) return invalid;
     let result = filterByEq(request, mockHeadcountRequests, "invitation_id");
     result = filterByEq(request, result, "status");
-    return jsonList(result);
+    return paginatedList(request, result);
   }),
 
   // ═══ Edge Function: submit headcount request and notify organizer ═══

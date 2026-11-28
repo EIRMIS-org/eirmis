@@ -58,6 +58,7 @@ export type AdminProfile = components['schemas']['AdminProfile'];
 export type ScanCheckInResponse = components['schemas']['ScanCheckInResponse'];
 export type ReminderScheduleUpsert =
     components['schemas']['ReminderScheduleUpsert'];
+export type ReminderScheduleUpdate = components['schemas']['ReminderScheduleUpdate'];
 
 // ─── Configuration ────────────────────────────────────────────────────────────
 
@@ -384,6 +385,19 @@ export function upsertReminderSchedule(
     body: ReminderScheduleUpsert,
 ): Promise<Ok<operations['upsertReminderSchedule']>> {
     return request('POST', '/rest/v1/reminder_schedules', {
+        body,
+        query: { on_conflict: 'event_id,days_before_event' },
+        headers: { Prefer: 'resolution=merge-duplicates,return=representation' },
+    });
+}
+
+/** PATCH /rest/v1/reminder_schedules?id=eq.{id} — update an existing schedule. */
+export function updateReminderSchedule(
+    id: string,
+    body: ReminderScheduleUpdate,
+): Promise<Ok<operations['updateReminderSchedule']>> {
+    return request('PATCH', '/rest/v1/reminder_schedules', {
+        query: { id: `eq.${id}` },
         body,
         headers: { Prefer: 'return=representation' },
     });
@@ -793,6 +807,7 @@ const api = {
     updateEvent,
     listReminderSchedules,
     upsertReminderSchedule,
+    updateReminderSchedule,
     deleteReminderSchedule,
     listGuests,
     listInvitations,

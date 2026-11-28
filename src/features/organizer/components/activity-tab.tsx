@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useListAuditLogEntries } from "@/features/organizer/hooks/use-list-audit-log-entries";
+import { useEventAuditLogEntries } from "@/features/organizer/hooks/use-event-audit-log-entries";
 import { useListEmailLogs } from "@/features/organizer/hooks/use-list-email-logs";
 
 function emailStatusVariant(status: string) {
@@ -41,7 +41,7 @@ export interface ActivityTabProps {
 
 export function ActivityTab({ eventId }: ActivityTabProps) {
   const emailLogsQuery = useListEmailLogs(eventId);
-  const auditLogsQuery = useListAuditLogEntries();
+  const auditLogsQuery = useEventAuditLogEntries(eventId);
 
   const emailLogs = emailLogsQuery.data ?? [];
   const auditLogs = auditLogsQuery.data ?? [];

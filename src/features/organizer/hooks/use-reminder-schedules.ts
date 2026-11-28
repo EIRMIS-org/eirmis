@@ -3,6 +3,7 @@ import {
     deleteReminderSchedule,
     listReminderSchedules,
     upsertReminderSchedule,
+    updateReminderSchedule,
 } from '@/lib/api';
 import { qk } from '@/lib/api/query-keys';
 import { useApiMutation } from '@/lib/api/use-api-mutation';
@@ -29,5 +30,14 @@ export function useDeleteReminderSchedule() {
             deleteReminderSchedule(id),
         [qk.listReminderSchedulesPrefix()],
         'Reminder schedule deleted',
+    );
+}
+
+export function useUpdateReminderSchedule() {
+    return useApiMutation(
+        ({ id, body }: { id: string; body: Parameters<typeof updateReminderSchedule>[1] }) =>
+            updateReminderSchedule(id, body),
+        [qk.listReminderSchedulesPrefix()],
+        'Reminder schedule saved',
     );
 }

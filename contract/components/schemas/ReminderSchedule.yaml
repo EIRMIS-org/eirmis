@@ -30,10 +30,10 @@ ReminderSchedule:
       example: 7
     send_time_of_day:
       type: string
-      pattern: '^([01]\d|2[0-3]):[0-5]\d$'
+      pattern: '^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$'
       description: >
         Local time (in the event's `event_timezone`) at which the reminder fires
-        on the target day. Stored as `HH:MM`.
+        on the target day. Accepts `HH:MM` and PostgreSQL `HH:MM:SS` values.
       example: '09:00'
     enabled:
       type: boolean
@@ -50,7 +50,8 @@ ReminderScheduleUpsert:
   description: >
     Request body to create or replace a reminder schedule for an event.
     Because UNIQUE(event_id, days_before_event) is enforced, the organizer
-    can safely POST with `Prefer: resolution=merge-duplicates` to upsert.
+    can POST with `Prefer: resolution=merge-duplicates` and
+    `on_conflict=event_id,days_before_event` to upsert.
   example:
     event_id: 55555555-5555-5555-5555-555555555555
     days_before_event: 7
@@ -70,10 +71,24 @@ ReminderScheduleUpsert:
       example: 7
     send_time_of_day:
       type: string
-      pattern: '^([01]\d|2[0-3]):[0-5]\d$'
-      description: Defaults to `09:00` if omitted. Local 24-hour time string (HH:MM).
+      pattern: '^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$'
+      description: Defaults to `09:00` if omitted. Local time in HH:MM or HH:MM:SS format.
       example: '09:00'
     enabled:
       type: boolean
       description: Defaults to `true` if omitted. Set to false to disable this scheduled reminder.
       example: true
+
+ReminderScheduleUpdate:
+  type: object
+  description: Editable fields for an existing reminder, addressed by its ID.
+  additionalProperties: false
+  properties:
+    days_before_event:
+      type: integer
+      minimum: 1
+    send_time_of_day:
+      type: string
+      pattern: '^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$'
+    enabled:
+      type: boolean

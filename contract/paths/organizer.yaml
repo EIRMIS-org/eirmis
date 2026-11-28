@@ -309,12 +309,23 @@
     operationId: upsertReminderSchedule
     summary: Create or update a reminder schedule
     description: >
-      Creates a reminder schedule. Use `Prefer: resolution=merge-duplicates` to
-      upsert — the UNIQUE(event_id, days_before_event) constraint means a
-      duplicate silently updates the existing row.
+      Creates a reminder schedule. Use `Prefer: resolution=merge-duplicates,return=representation`
+      and `on_conflict=event_id,days_before_event` to merge an existing schedule
+      for the same event and day. Without that conflict target, upsert uses the primary key.
     tags: [Organizer — Reminders]
     parameters:
-      - $ref: '../components/parameters.yaml#/PreferReturnParam'
+      - name: Prefer
+        in: header
+        schema:
+          type: string
+          enum: ['return=representation', 'resolution=merge-duplicates,return=representation']
+        description: Return affected rows and optionally merge duplicates on the specified conflict target.
+      - name: on_conflict
+        in: query
+        schema:
+          type: string
+          enum: ['event_id,days_before_event']
+        description: Unique columns used to match an existing reminder during upsert.
     requestBody:
       required: true
       content:
@@ -323,13 +334,51 @@
             $ref: '../components/schemas/ReminderSchedule.yaml#/ReminderScheduleUpsert'
     responses:
       '201':
-        description: Reminder schedule created or updated.
+        description: Created or updated rows with return=representation.
         content:
           application/json:
             schema:
-              $ref: '../components/schemas/ReminderSchedule.yaml#/ReminderSchedule'
+              type: array
+              items:
+                $ref: '../components/schemas/ReminderSchedule.yaml#/ReminderSchedule'
       '401':
         $ref: '../components/responses.yaml#/Unauthorized'
+      '409':
+        $ref: '../components/responses.yaml#/Conflict'
+
+  patch:
+    operationId: updateReminderSchedule
+    summary: Update an existing reminder schedule by ID
+    description: Updates editable fields without changing the reminder ID or event. Use return=representation.
+    tags: [Organizer — Reminders]
+    parameters:
+      - name: id
+        in: query
+        required: true
+        schema:
+          type: string
+          pattern: '^eq\.[0-9a-fA-F-]{36}$'
+          example: eq.aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa
+      - $ref: '../components/parameters.yaml#/PreferReturnParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/ReminderSchedule.yaml#/ReminderScheduleUpdate'
+    responses:
+      '200':
+        description: Updated rows with return=representation; empty if no visible row matches.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/ReminderSchedule.yaml#/ReminderSchedule'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '409':
+        $ref: '../components/responses.yaml#/Conflict'
 
   delete:
     operationId: deleteReminderSchedule
