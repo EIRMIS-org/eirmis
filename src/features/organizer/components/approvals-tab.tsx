@@ -63,7 +63,7 @@ function isCapacityExceededError(error: unknown): boolean {
   return /capacity/i.test(details);
 }
 
-export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
+export function ApprovalsTab({ eventId, capacity }: ApprovalsTabProps) {
   const queryClient = useQueryClient();
   const invitationsQuery = useListInvitations({ event_id: eq(eventId) });
   const invitationIdList = useMemo(
@@ -190,7 +190,11 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
 
     const nextApproved =
       decision === "approve" ? approvedCount + 1 : approvedCount;
-    if (decision === "approve" && nextApproved > capacity) {
+    if (
+      decision === "approve" &&
+      typeof capacity === "number" &&
+      nextApproved > capacity
+    ) {
       setOverrideTarget({
         attendee,
         decision: "approve",
@@ -427,7 +431,9 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
             </div>
             <div className="flex items-center gap-2 rounded-full border border-border bg-muted/40 px-3 py-1.5 text-xs text-muted-foreground">
               <AlertTriangle className="h-3.5 w-3.5" />
-              {approvedCount}/{capacity} approved
+              {typeof capacity === "number"
+                ? `${approvedCount}/${capacity} approved`
+                : `${approvedCount} approved`}
             </div>
           </CardHeader>
           <CardContent>{renderQueue()}</CardContent>
@@ -667,7 +673,9 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
             <DialogTitle>Capacity override confirmation</DialogTitle>
             <DialogDescription>
               Approving {overrideTarget?.attendee.full_name ?? "this attendee"}{" "}
-              would take the event beyond the configured capacity of {capacity}.
+              {typeof capacity === "number"
+                ? `would take the event beyond the configured capacity of ${capacity}.`
+                : "would take the event beyond its configured capacity."}{" "}
               This action is still recorded as an audited override.
             </DialogDescription>
           </DialogHeader>
