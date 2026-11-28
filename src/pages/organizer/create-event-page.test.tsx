@@ -43,11 +43,14 @@ function renderWizard(initialEntry = "/organizer/events/new") {
     { initialEntries: [initialEntry] },
   );
 
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>,
-  );
+  return {
+    router,
+    ...render(
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>,
+    ),
+  };
 }
 
 describe("CreateEventPage dirty-guard", () => {
@@ -93,16 +96,20 @@ describe("CreateEventPage dirty-guard", () => {
       screen.getByRole("button", { name: /go to schedule step/i }),
     );
 
-    expect(screen.getByLabelText(/starts/i)).toBeInTheDocument();
+    expect(await screen.findByLabelText(/^starts/i)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /previous/i }));
-    expect(screen.getByLabelText(/event title/i)).toHaveValue("Tech Summit 2027");
+    expect(await screen.findByLabelText(/event title/i)).toHaveValue(
+      "Tech Summit 2027",
+    );
     expect(screen.getByLabelText(/event slug/i)).toHaveValue("tech-summit-2027");
-    expect(screen.queryByText("Leave with unsaved changes?")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Leave with unsaved changes?"),
+    ).not.toBeInTheDocument();
 
     await user.click(
       screen.getByRole("button", { name: /go to schedule step/i }),
     );
-    fireEvent.change(screen.getByLabelText(/^starts/i), {
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
       target: { value: "2026-12-01T18:00" },
     });
     fireEvent.change(screen.getByLabelText(/^ends/i), {
@@ -115,9 +122,11 @@ describe("CreateEventPage dirty-guard", () => {
       screen.getByRole("button", { name: /go to capacity & rules step/i }),
     );
 
-    expect(screen.getByLabelText(/total capacity/i)).toBeInTheDocument();
+    expect(await screen.findByLabelText(/total capacity/i)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /previous/i }));
-    expect(screen.getByLabelText(/^starts/i)).toHaveValue("2026-12-01T18:00");
+    expect(await screen.findByLabelText(/^starts/i)).toHaveValue(
+      "2026-12-01T18:00",
+    );
     expect(
       screen.queryByText("Leave with unsaved changes?"),
     ).not.toBeInTheDocument();
@@ -126,8 +135,10 @@ describe("CreateEventPage dirty-guard", () => {
       screen.getByRole("button", { name: /go to basics step/i }),
     );
 
-    expect(screen.getByLabelText(/event title/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/event title/i)).toHaveValue("Tech Summit 2027");
+    expect(await screen.findByLabelText(/event title/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/event title/i)).toHaveValue(
+      "Tech Summit 2027",
+    );
     expect(screen.getByLabelText(/event slug/i)).toHaveValue("tech-summit-2027");
     expect(
       screen.queryByText("Leave with unsaved changes?"),
@@ -182,7 +193,7 @@ describe("CreateEventPage dirty-guard", () => {
     await user.click(
       screen.getByRole("button", { name: /go to schedule step/i }),
     );
-    fireEvent.change(screen.getByLabelText(/^starts/i), {
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
       target: { value: "2026-12-01T18:00" },
     });
     fireEvent.change(screen.getByLabelText(/^ends/i), {
@@ -197,11 +208,13 @@ describe("CreateEventPage dirty-guard", () => {
       screen.getByRole("button", { name: /go to capacity & rules step/i }),
     );
 
-    fireEvent.change(screen.getByLabelText(/total capacity/i), {
+    fireEvent.change(await screen.findByLabelText(/total capacity/i), {
       target: { value: "100" },
     });
     await user.click(screen.getByRole("button", { name: /go to review step/i }));
-    await user.click(screen.getByRole("button", { name: /create event/i }));
+    await user.click(
+      await screen.findByRole("button", { name: /create event/i }),
+    );
 
     await waitFor(() => {
       expect(submittedBody).toHaveBeenCalled();
@@ -210,5 +223,814 @@ describe("CreateEventPage dirty-guard", () => {
       event_timezone: "Asia/Manila",
       starts_at: "2026-12-01T10:00:00.000Z",
     });
+  });
+
+  it("blocks Basics -> Review when Basics is empty and displays title and slug errors", async () => {
+    const user = userEvent.setup();
+    renderWizard();
+
+    await user.click(screen.getByRole("button", { name: /go to review step/i }));
+
+    expect(await screen.findByText(/event title is required/i)).toBeInTheDocument();
+    expect(screen.getByText(/event slug is required/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /event basics/i })).toBeInTheDocument();
+  });
+
+  it("stops on Schedule when Basics is valid but Schedule is invalid", async () => {
+    const user = userEvent.setup();
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Annual Summit" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "annual-summit" },
+    });
+
+    await user.click(screen.getByRole("button", { name: /go to review step/i }));
+
+    expect(
+      await screen.findByRole("heading", { name: /schedule and location/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/^starts/i)).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByLabelText(/^ends/i)).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByLabelText(/rsvp deadline/i)).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+  });
+
+  it("stops on Capacity when Basics and Schedule are valid but Capacity is invalid", async () => {
+    const user = userEvent.setup();
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Annual Summit" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "annual-summit" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
+      target: { value: "2026-12-01T18:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-01T20:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-01T17:00" },
+    });
+
+    await user.click(screen.getByRole("button", { name: /go to review step/i }));
+
+    expect(
+      await screen.findByRole("heading", { name: /capacity and registration/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/total capacity/i)).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+  });
+
+  it("allows forward step navigation with valid prerequisites and preserves unrelated query params", async () => {
+    const user = userEvent.setup();
+    const { router } = renderWizard("/organizer/events/new?source=dashboard&step=1");
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Annual Summit" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "annual-summit" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
+      target: { value: "2026-12-01T18:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-01T20:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-01T17:00" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/total capacity/i), {
+      target: { value: "250" },
+    });
+    await user.click(screen.getByRole("button", { name: /go to review step/i }));
+
+    expect(
+      await screen.findByRole("heading", { name: /review your event/i }),
+    ).toBeInTheDocument();
+    expect(router.state.location.search).toContain("source=dashboard");
+    expect(router.state.location.search).toContain("step=4");
+  });
+
+  it("deep-linking to ?step=4 and clicking Create redirects to Basics with visible errors and zero POST requests", async () => {
+    const user = userEvent.setup();
+    const submittedBody = vi.fn();
+    setRole("organizer");
+    server.use(
+      http.post("*/rest/v1/events", async ({ request }) => {
+        submittedBody(await request.json());
+        return HttpResponse.json({}, { status: 201 });
+      }),
+    );
+
+    renderWizard("/organizer/events/new?step=4");
+
+    expect(
+      screen.getByRole("heading", { name: /review your event/i }),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /create event/i }));
+
+    expect(
+      await screen.findByRole("heading", { name: /event basics/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/event title is required/i)).toBeInTheDocument();
+    expect(screen.getByText(/event slug is required/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByLabelText(/event title/i)).toHaveFocus();
+    });
+    expect(submittedBody).not.toHaveBeenCalled();
+  });
+
+  it("pressing Enter in valid Step 3 advances to Review without creating an event", async () => {
+    const user = userEvent.setup();
+    const submittedBody = vi.fn();
+    setRole("organizer");
+    server.use(
+      http.post("*/rest/v1/events", async ({ request }) => {
+        submittedBody(await request.json());
+        return HttpResponse.json({}, { status: 201 });
+      }),
+    );
+
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Enter Key Summit" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "enter-key-summit" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
+      target: { value: "2026-12-01T18:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-01T20:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-01T17:00" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    const capacityInput = await screen.findByLabelText(/total capacity/i);
+    await user.type(capacityInput, "150{Enter}");
+
+    expect(
+      await screen.findByRole("heading", { name: /review your event/i }),
+    ).toBeInTheDocument();
+    expect(submittedBody).not.toHaveBeenCalled();
+  });
+
+  it("pressing Enter in invalid Step 3 remains on Step 3 with visible errors", async () => {
+    const user = userEvent.setup();
+    const submittedBody = vi.fn();
+    setRole("organizer");
+    server.use(
+      http.post("*/rest/v1/events", async ({ request }) => {
+        submittedBody(await request.json());
+        return HttpResponse.json({}, { status: 201 });
+      }),
+    );
+
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Enter Key Summit" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "enter-key-summit" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
+      target: { value: "2026-12-01T18:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-01T20:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-01T17:00" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    const capacityInput = await screen.findByLabelText(/total capacity/i);
+    await user.click(capacityInput);
+    await user.keyboard("{Enter}");
+
+    expect(
+      screen.getByRole("heading", { name: /capacity and registration/i }),
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(capacityInput).toHaveAttribute("aria-invalid", "true");
+    });
+    expect(submittedBody).not.toHaveBeenCalled();
+  });
+
+  it("sends exactly one create request from Review and navigates to the created event", async () => {
+    const user = userEvent.setup();
+    const submittedBody = vi.fn();
+    setRole("organizer");
+    server.use(
+      http.post("*/rest/v1/events", async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        submittedBody(body);
+        return HttpResponse.json(
+          {
+            ...body,
+            id: "event-created-123",
+            organizer_id: "11111111-1111-1111-1111-111111111111",
+            created_at: "2026-11-27T00:00:00.000Z",
+            updated_at: "2026-11-27T00:00:00.000Z",
+          },
+          { status: 201 },
+        );
+      }),
+    );
+
+    const { router } = renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Created Event" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "created-event" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
+      target: { value: "2026-12-01T18:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-01T20:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-01T17:00" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/total capacity/i), {
+      target: { value: "120" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    await user.click(
+      await screen.findByRole("button", { name: /create event/i }),
+    );
+
+    expect(await screen.findByText("Event Workspace")).toBeInTheDocument();
+    expect(submittedBody).toHaveBeenCalledTimes(1);
+    expect(router.state.location.pathname).toBe(
+      "/organizer/events/event-created-123",
+    );
+    expect(
+      screen.queryByText("Leave with unsaved changes?"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("keeps server failures visible on the Review step", async () => {
+    const user = userEvent.setup();
+    setRole("organizer");
+    server.use(
+      http.post("*/rest/v1/events", () =>
+        HttpResponse.json(
+          {
+            code: "23505",
+            message: "Slug is already in use.",
+            details: null,
+            hint: null,
+          },
+          { status: 409 },
+        ),
+      ),
+    );
+
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Duplicate Event" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "duplicate-event" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
+      target: { value: "2026-12-01T18:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-01T20:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-01T17:00" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/total capacity/i), {
+      target: { value: "120" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    await user.click(
+      await screen.findByRole("button", { name: /create event/i }),
+    );
+
+    expect(
+      await screen.findByText("Slug is already in use."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /review your event/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("recovers all three timestamps when timezone becomes invalid and is restored to Asia/Manila", async () => {
+    const user = userEvent.setup();
+    const submittedBody = vi.fn();
+    setRole("organizer");
+    server.use(
+      http.post("*/rest/v1/events", async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        submittedBody(body);
+        return HttpResponse.json(
+          {
+            ...body,
+            id: "event-tz-restore-1",
+            organizer_id: "11111111-1111-1111-1111-111111111111",
+            created_at: "2026-11-27T00:00:00.000Z",
+            updated_at: "2026-11-27T00:00:00.000Z",
+          },
+          { status: 201 },
+        );
+      }),
+    );
+
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Timezone Restore Event" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "tz-restore-event" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
+      target: { value: "2026-12-01T18:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-01T20:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-01T17:00" },
+    });
+
+    const timezoneInput = screen.getByLabelText(/time zone/i);
+    fireEvent.change(timezoneInput, { target: { value: "Not/A_Zone" } });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    expect(
+      await screen.findByText(/enter a valid iana timezone/i),
+    ).toBeInTheDocument();
+    expect(timezoneInput).toHaveAttribute("aria-invalid", "true");
+
+    fireEvent.change(timezoneInput, { target: { value: "  Asia/Manila  " } });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/total capacity/i), {
+      target: { value: "80" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+    await user.click(
+      await screen.findByRole("button", { name: /create event/i }),
+    );
+
+    await waitFor(() => {
+      expect(submittedBody).toHaveBeenCalledTimes(1);
+    });
+    expect(submittedBody.mock.calls[0][0]).toMatchObject({
+      event_timezone: "Asia/Manila",
+      starts_at: "2026-12-01T10:00:00.000Z",
+      ends_at: "2026-12-01T12:00:00.000Z",
+      rsvp_deadline: "2026-12-01T09:00:00.000Z",
+    });
+  });
+
+  it("synchronizes dates entered while timezone is invalid once timezone is corrected", async () => {
+    const user = userEvent.setup();
+    const submittedBody = vi.fn();
+    setRole("organizer");
+    server.use(
+      http.post("*/rest/v1/events", async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        submittedBody(body);
+        return HttpResponse.json(
+          {
+            ...body,
+            id: "event-tz-invalid-first",
+            organizer_id: "11111111-1111-1111-1111-111111111111",
+            created_at: "2026-11-27T00:00:00.000Z",
+            updated_at: "2026-11-27T00:00:00.000Z",
+          },
+          { status: 201 },
+        );
+      }),
+    );
+
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Invalid First Event" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "invalid-first-event" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    const timezoneInput = await screen.findByLabelText(/time zone/i);
+    fireEvent.change(timezoneInput, { target: { value: "Invalid/Zone" } });
+
+    fireEvent.change(screen.getByLabelText(/^starts/i), {
+      target: { value: "2026-12-02T14:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-02T16:30" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-02T12:00" },
+    });
+
+    fireEvent.change(timezoneInput, { target: { value: "Asia/Manila" } });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/total capacity/i), {
+      target: { value: "60" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+    await user.click(
+      await screen.findByRole("button", { name: /create event/i }),
+    );
+
+    await waitFor(() => {
+      expect(submittedBody).toHaveBeenCalledTimes(1);
+    });
+    expect(submittedBody.mock.calls[0][0]).toMatchObject({
+      event_timezone: "Asia/Manila",
+      starts_at: "2026-12-02T06:00:00.000Z",
+      ends_at: "2026-12-02T08:30:00.000Z",
+      rsvp_deadline: "2026-12-02T04:00:00.000Z",
+    });
+  });
+
+  it("preserves wall-clock inputs when switching UTC to Asia/Manila and updates all three ISO values", async () => {
+    const user = userEvent.setup();
+    const submittedBody = vi.fn();
+    setRole("organizer");
+    server.use(
+      http.post("*/rest/v1/events", async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        submittedBody(body);
+        return HttpResponse.json(
+          {
+            ...body,
+            id: "event-utc-to-manila",
+            organizer_id: "11111111-1111-1111-1111-111111111111",
+            created_at: "2026-11-27T00:00:00.000Z",
+            updated_at: "2026-11-27T00:00:00.000Z",
+          },
+          { status: 201 },
+        );
+      }),
+    );
+
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "UTC to Manila" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "utc-to-manila" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    const timezoneInput = await screen.findByLabelText(/time zone/i);
+    fireEvent.change(timezoneInput, { target: { value: "UTC" } });
+
+    const startsInput = screen.getByLabelText(/^starts/i);
+    const endsInput = screen.getByLabelText(/^ends/i);
+    const deadlineInput = screen.getByLabelText(/rsvp deadline/i);
+
+    fireEvent.change(startsInput, { target: { value: "2026-12-10T18:00" } });
+    fireEvent.change(endsInput, { target: { value: "2026-12-10T21:00" } });
+    fireEvent.change(deadlineInput, { target: { value: "2026-12-10T15:00" } });
+
+    fireEvent.change(timezoneInput, { target: { value: "Asia/Manila" } });
+
+    expect(startsInput).toHaveValue("2026-12-10T18:00");
+    expect(endsInput).toHaveValue("2026-12-10T21:00");
+    expect(deadlineInput).toHaveValue("2026-12-10T15:00");
+
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+    fireEvent.change(await screen.findByLabelText(/total capacity/i), {
+      target: { value: "200" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+    await user.click(
+      await screen.findByRole("button", { name: /create event/i }),
+    );
+
+    await waitFor(() => {
+      expect(submittedBody).toHaveBeenCalledTimes(1);
+    });
+    expect(submittedBody.mock.calls[0][0]).toMatchObject({
+      event_timezone: "Asia/Manila",
+      starts_at: "2026-12-10T10:00:00.000Z",
+      ends_at: "2026-12-10T13:00:00.000Z",
+      rsvp_deadline: "2026-12-10T07:00:00.000Z",
+    });
+  });
+
+  it("blocks progression and displays a visible error when timezone is empty", async () => {
+    const user = userEvent.setup();
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Empty Timezone Event" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "empty-tz-event" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    const timezoneInput = await screen.findByLabelText(/time zone/i);
+    fireEvent.change(screen.getByLabelText(/^starts/i), {
+      target: { value: "2026-12-01T18:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-01T20:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-01T17:00" },
+    });
+    fireEvent.change(timezoneInput, { target: { value: "" } });
+
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    expect(
+      await screen.findByText(/event timezone is required/i),
+    ).toBeInTheDocument();
+    expect(timezoneInput).toHaveAttribute("aria-invalid", "true");
+    expect(
+      screen.getByRole("heading", { name: /schedule and location/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("keeps cleared date fields empty and does not resurrect previous values", async () => {
+    const user = userEvent.setup();
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Clear Date Event" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "clear-date-event" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    const startsInput = await screen.findByLabelText(/^starts/i);
+    const endsInput = screen.getByLabelText(/^ends/i);
+    const deadlineInput = screen.getByLabelText(/rsvp deadline/i);
+    const timezoneInput = screen.getByLabelText(/time zone/i);
+
+    fireEvent.change(startsInput, { target: { value: "2026-12-01T18:00" } });
+    fireEvent.change(endsInput, { target: { value: "2026-12-01T20:00" } });
+    fireEvent.change(deadlineInput, { target: { value: "2026-12-01T17:00" } });
+
+    fireEvent.change(endsInput, { target: { value: "" } });
+    expect(endsInput).toHaveValue("");
+
+    fireEvent.change(timezoneInput, { target: { value: "Asia/Manila" } });
+    expect(endsInput).toHaveValue("");
+
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+    expect(
+      screen.getByRole("heading", { name: /schedule and location/i }),
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(endsInput).toHaveAttribute("aria-invalid", "true");
+    });
+  });
+
+  it("rejects end-before-start and deadline-after-start chronology errors", async () => {
+    const user = userEvent.setup();
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Chronology Check" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "chronology-check" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
+      target: { value: "2026-12-01T18:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-01T17:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-01T19:00" },
+    });
+
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    expect(
+      await screen.findByText(/end time must be after the start time/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/rsvp deadline must be at or before the start time/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /schedule and location/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("completes the full recovery flow from deep-linked Review through timezone recovery and Enter on Capacity", async () => {
+    const user = userEvent.setup();
+    const submittedBodies: Record<string, unknown>[] = [];
+    setRole("organizer");
+    server.use(
+      http.post("*/rest/v1/events", async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        submittedBodies.push(body);
+        return HttpResponse.json(
+          {
+            ...body,
+            id: "event-full-recovery",
+            organizer_id: "11111111-1111-1111-1111-111111111111",
+            created_at: "2026-11-27T00:00:00.000Z",
+            updated_at: "2026-11-27T00:00:00.000Z",
+          },
+          { status: 201 },
+        );
+      }),
+    );
+
+    const { router } = renderWizard("/organizer/events/new?step=4");
+
+    // 1. Open Review directly and submit -> returns to Basics with zero POSTs
+    expect(
+      screen.getByRole("heading", { name: /review your event/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("You have unsaved changes."),
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /create event/i }));
+    expect(
+      await screen.findByRole("heading", { name: /event basics/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/event title is required/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByLabelText(/event title/i)).toHaveFocus();
+    });
+    expect(submittedBodies).toHaveLength(0);
+
+    // 2. Complete Basics and advance to Schedule
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Full Recovery Gala" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "full-recovery-gala" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    // 3. Complete Schedule with an invalid timezone, see error, then recover to Asia/Manila
+    const startsInput = await screen.findByLabelText(/^starts/i);
+    const endsInput = screen.getByLabelText(/^ends/i);
+    const deadlineInput = screen.getByLabelText(/rsvp deadline/i);
+    const timezoneInput = screen.getByLabelText(/time zone/i);
+
+    fireEvent.change(startsInput, { target: { value: "2026-12-15T18:00" } });
+    fireEvent.change(endsInput, { target: { value: "2026-12-15T21:00" } });
+    fireEvent.change(deadlineInput, { target: { value: "2026-12-15T16:00" } });
+    fireEvent.change(timezoneInput, { target: { value: "Mars/Olympus" } });
+
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+    expect(
+      await screen.findByText(/enter a valid iana timezone/i),
+    ).toBeInTheDocument();
+    expect(submittedBodies).toHaveLength(0);
+
+    fireEvent.change(timezoneInput, { target: { value: "Asia/Manila" } });
+    expect(startsInput).toHaveValue("2026-12-15T18:00");
+    expect(endsInput).toHaveValue("2026-12-15T21:00");
+    expect(deadlineInput).toHaveValue("2026-12-15T16:00");
+
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    // 4. Press Enter on Capacity to advance to Review without submitting
+    const capacityInput = await screen.findByLabelText(/total capacity/i);
+    await user.type(capacityInput, "300{Enter}");
+
+    expect(
+      await screen.findByRole("heading", { name: /review your event/i }),
+    ).toBeInTheDocument();
+    expect(submittedBodies).toHaveLength(0);
+
+    // 5. Explicitly create the event and verify single accurate POST and navigation
+    await user.click(screen.getByRole("button", { name: /create event/i }));
+
+    expect(await screen.findByText("Event Workspace")).toBeInTheDocument();
+    expect(submittedBodies).toHaveLength(1);
+    expect(submittedBodies[0]).toMatchObject({
+      title: "Full Recovery Gala",
+      slug: "full-recovery-gala",
+      capacity: 300,
+      event_timezone: "Asia/Manila",
+      starts_at: "2026-12-15T10:00:00.000Z",
+      ends_at: "2026-12-15T13:00:00.000Z",
+      rsvp_deadline: "2026-12-15T08:00:00.000Z",
+    });
+    expect(router.state.location.pathname).toBe(
+      "/organizer/events/event-full-recovery",
+    );
+    expect(
+      screen.queryByText("Leave with unsaved changes?"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("supports browser Back and Forward between wizard steps without losing state or opening leave prompt", async () => {
+    const user = userEvent.setup();
+    const { router } = renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "History Walk Event" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "history-walk-event" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
+      target: { value: "2026-12-20T09:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-20T12:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-19T18:00" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    expect(await screen.findByLabelText(/total capacity/i)).toBeInTheDocument();
+
+    // Browser Back: Step 3 -> Step 2
+    await router.navigate(-1);
+    expect(await screen.findByLabelText(/^starts/i)).toHaveValue(
+      "2026-12-20T09:00",
+    );
+    expect(
+      screen.queryByText("Leave with unsaved changes?"),
+    ).not.toBeInTheDocument();
+
+    // Browser Back: Step 2 -> Step 1
+    await router.navigate(-1);
+    expect(await screen.findByLabelText(/event title/i)).toHaveValue(
+      "History Walk Event",
+    );
+    expect(screen.getByLabelText(/event slug/i)).toHaveValue(
+      "history-walk-event",
+    );
+    expect(
+      screen.queryByText("Leave with unsaved changes?"),
+    ).not.toBeInTheDocument();
+
+    // Browser Forward: Step 1 -> Step 2 -> Step 3
+    await router.navigate(1);
+    expect(await screen.findByLabelText(/^starts/i)).toHaveValue(
+      "2026-12-20T09:00",
+    );
+    await router.navigate(1);
+    expect(await screen.findByLabelText(/total capacity/i)).toBeInTheDocument();
+    expect(
+      screen.queryByText("Leave with unsaved changes?"),
+    ).not.toBeInTheDocument();
   });
 });

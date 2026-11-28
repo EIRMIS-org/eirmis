@@ -1,5 +1,12 @@
-import { useState } from 'react'
-import { Controller, useForm, useWatch, type Control, type FieldPath } from 'react-hook-form'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
+import {
+  Controller,
+  useForm,
+  useWatch,
+  type Control,
+  type FieldErrors,
+  type FieldPath,
+} from 'react-hook-form'
 import { ArrowLeft, ArrowRight, Check, ChevronLeft } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import type { EventCreate } from '@/lib/api'
@@ -39,6 +46,35 @@ function getStep(searchParams: URLSearchParams) {
     : 1
 }
 
+function findFirstInvalidField(
+  fieldErrors: FieldErrors<EventFormInput>,
+): { step: number; field: FieldPath<EventFormInput> } | null {
+  for (let stepNumber = 1; stepNumber < STEPS.length; stepNumber += 1) {
+    const fields = STEP_FIELDS[stepNumber] ?? []
+    for (const field of fields) {
+      if (fieldErrors[field]) {
+        return { step: stepNumber, field }
+      }
+    }
+  }
+  return null
+}
+
+function extractFallbackError(fieldErrors: FieldErrors<EventFormInput>): string {
+  for (const error of Object.values(fieldErrors)) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'message' in error &&
+      typeof error.message === 'string' &&
+      error.message
+    ) {
+      return error.message
+    }
+  }
+  return 'Please review the event details and fix any validation errors.'
+}
+
 function FieldError({ message }: { message?: string }) {
   if (!message) return null
   return <p className="mt-1 text-xs text-error" role="alert">{message}</p>
@@ -50,12 +86,18 @@ type LocalDateTimes = {
   rsvp_deadline: string
 }
 
+const DATE_TIME_FIELDS = ['starts_at', 'ends_at', 'rsvp_deadline'] as const
+
 function formatReviewDateTime(
   localValue: string,
   isoValue: string,
   timeZone: string,
 ) {
-  return localValue || toZonedLocalString(isoValue, timeZone) || 'Not set'
+  return (
+    localValue ||
+    (timeZone ? toZonedLocalString(isoValue, timeZone) : '') ||
+    'Not set'
+  )
 }
 
 function CreateEventReviewStep({
@@ -98,6 +140,8 @@ function CreateEventReviewStep({
     ],
   })
 
+  const reviewTimeZone = (eventTimezone ?? '').trim() || timeZone
+
   return (
     <section aria-labelledby="review-heading" className="space-y-5">
       <div>
@@ -129,7 +173,7 @@ function CreateEventReviewStep({
             {formatReviewDateTime(
               localDateTimes.starts_at,
               startsAt || '',
-              eventTimezone || timeZone,
+              reviewTimeZone,
             )}
           </dd>
         </div>
@@ -139,7 +183,7 @@ function CreateEventReviewStep({
             {formatReviewDateTime(
               localDateTimes.ends_at,
               endsAt || '',
-              eventTimezone || timeZone,
+              reviewTimeZone,
             )}
           </dd>
         </div>
@@ -149,7 +193,7 @@ function CreateEventReviewStep({
             {formatReviewDateTime(
               localDateTimes.rsvp_deadline,
               rsvpDeadline || '',
-              eventTimezone || timeZone,
+              reviewTimeZone,
             )}
           </dd>
         </div>
@@ -192,8 +236,11 @@ export function CreateEventPage() {
   const {
     control,
     formState: { errors, isDirty },
+    getValues,
     handleSubmit,
     register,
+    setFocus,
+    setValue,
     trigger,
   } = useForm<EventFormInput, unknown, EventCreate>({
     resolver: eventCreateResolver,
@@ -217,7 +264,57 @@ export function CreateEventPage() {
   })
 
   const { blocker, allowNextNavigation } = useUnsavedChangesGuard(isDirty)
-  const eventTimezone = useWatch({ control, name: 'event_timezone' }) || 'UTC'
+  const rawEventTimezone = useWatch({ control, name: 'event_timezone' })
+  const trimmedEventTimezone = (rawEventTimezone ?? '').trim()
+  const hasScheduleErrorRef = useRef(false)
+
+  const isNavigatingRef = useRef(false)
+  const isSubmittingRef = useRef(false)
+  const pendingFocusFieldRef = useRef<FieldPath<EventFormInput> | null>(null)
+
+  useEffect(() => {
+    hasScheduleErrorRef.current = Boolean(
+      errors.starts_at ||
+        errors.ends_at ||
+        errors.rsvp_deadline ||
+        errors.event_timezone,
+    )
+  }, [
+    errors.starts_at,
+    errors.ends_at,
+    errors.rsvp_deadline,
+    errors.event_timezone,
+  ])
+
+  useEffect(() => {
+    let changed = false
+    for (const fieldName of DATE_TIME_FIELDS) {
+      const localValue = localDateTimes[fieldName]
+      const nextIso = localValue
+        ? toZonedIsoString(localValue, trimmedEventTimezone)
+        : ''
+      if (getValues(fieldName) !== nextIso) {
+        setValue(fieldName, nextIso, {
+          shouldDirty: true,
+          shouldValidate: false,
+        })
+        changed = true
+      }
+    }
+
+    if (changed && hasScheduleErrorRef.current) {
+      void trigger(STEP_FIELDS[2])
+    }
+  }, [localDateTimes, trimmedEventTimezone, getValues, setValue, trigger])
+
+  useEffect(() => {
+    const field = pendingFocusFieldRef.current
+    if (!field) return
+    const fieldsInStep = STEP_FIELDS[step] ?? []
+    if (!fieldsInStep.includes(field)) return
+    pendingFocusFieldRef.current = null
+    setFocus(field)
+  }, [step, setFocus])
 
   function applyStep(nextStep: number) {
     setFormError(undefined)
@@ -228,38 +325,56 @@ export function CreateEventPage() {
     })
   }
 
-  function setStep(nextStep: number) {
-    applyStep(nextStep)
+  async function navigateToStep(targetStep: number) {
+    if (
+      isNavigatingRef.current ||
+      targetStep < 1 ||
+      targetStep > STEPS.length ||
+      targetStep === step
+    ) {
+      return
+    }
+
+    if (targetStep < step) {
+      applyStep(targetStep)
+      return
+    }
+
+    isNavigatingRef.current = true
+    try {
+      for (let prerequisiteStep = 1; prerequisiteStep < targetStep; prerequisiteStep += 1) {
+        const fields = STEP_FIELDS[prerequisiteStep]
+        if (!fields) continue
+        const isValid = await trigger(fields)
+        if (!isValid) {
+          if (prerequisiteStep !== step) {
+            applyStep(prerequisiteStep)
+          }
+          return
+        }
+      }
+      applyStep(targetStep)
+    } finally {
+      isNavigatingRef.current = false
+    }
   }
 
   function handleBackToEvents() {
     navigate('/organizer')
   }
 
-  async function goNext() {
-    if (step < 4 && (await trigger(STEP_FIELDS[step]))) {
-      applyStep(step + 1)
-    }
-  }
-
   async function onSubmit(payload: EventCreate) {
+    if (
+      step !== STEPS.length ||
+      isSubmittingRef.current ||
+      createEvent.isPending
+    ) {
+      return
+    }
+    isSubmittingRef.current = true
     setFormError(undefined)
     try {
-      const event = await createEvent.mutateAsync({
-        ...payload,
-        starts_at: toZonedIsoString(
-          localDateTimes.starts_at,
-          payload.event_timezone,
-        ),
-        ends_at: toZonedIsoString(
-          localDateTimes.ends_at,
-          payload.event_timezone,
-        ),
-        rsvp_deadline: toZonedIsoString(
-          localDateTimes.rsvp_deadline,
-          payload.event_timezone,
-        ),
-      })
+      const event = await createEvent.mutateAsync(payload)
       allowNextNavigation()
       navigate(`/organizer/events/${encodeURIComponent(event.id)}`)
     } catch (error) {
@@ -268,7 +383,39 @@ export function CreateEventPage() {
           ? error.message
           : 'The event could not be created. Please try again.',
       )
+    } finally {
+      isSubmittingRef.current = false
     }
+  }
+
+  function onInvalid(fieldErrors: FieldErrors<EventFormInput>) {
+    const firstInvalid = findFirstInvalidField(fieldErrors)
+    if (firstInvalid) {
+      pendingFocusFieldRef.current = firstInvalid.field
+      if (firstInvalid.step !== step) {
+        applyStep(firstInvalid.step)
+      } else {
+        pendingFocusFieldRef.current = null
+        setFocus(firstInvalid.field)
+      }
+      return
+    }
+    setFormError(extractFallbackError(fieldErrors))
+  }
+
+  function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
+    if (step !== STEPS.length) {
+      event.preventDefault()
+      void navigateToStep(step + 1)
+      return
+    }
+
+    if (isSubmittingRef.current || createEvent.isPending) {
+      event.preventDefault()
+      return
+    }
+
+    void handleSubmit(onSubmit, onInvalid)(event)
   }
 
   return (
@@ -316,7 +463,7 @@ export function CreateEventPage() {
                         ? 'font-medium text-foreground'
                         : 'text-muted-foreground'
                   }`}
-                  onClick={() => setStep(stepNumber)}
+                  onClick={() => void navigateToStep(stepNumber)}
                 >
                   <span
                     className={`flex size-7 shrink-0 items-center justify-center rounded-full border text-xs ${
@@ -338,7 +485,7 @@ export function CreateEventPage() {
 
         <form
           noValidate
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleFormSubmit}
           className="space-y-6 p-5 sm:p-7"
         >
           {step === 1 && (
@@ -408,13 +555,11 @@ export function CreateEventPage() {
                     name="starts_at"
                     render={({ field }) => (
                       <Input
+                        ref={field.ref}
                         id="event-start"
                         type="datetime-local"
                         className="mt-1.5"
-                        value={
-                          localDateTimes.starts_at ||
-                          toZonedLocalString(field.value, eventTimezone)
-                        }
+                        value={localDateTimes.starts_at}
                         onBlur={field.onBlur}
                         onChange={(event) => {
                           const localValue = event.target.value
@@ -423,7 +568,9 @@ export function CreateEventPage() {
                             starts_at: localValue,
                           }))
                           field.onChange(
-                            toZonedIsoString(localValue, eventTimezone),
+                            localValue
+                              ? toZonedIsoString(localValue, trimmedEventTimezone)
+                              : '',
                           )
                         }}
                         aria-invalid={Boolean(errors.starts_at)}
@@ -439,13 +586,11 @@ export function CreateEventPage() {
                     name="ends_at"
                     render={({ field }) => (
                       <Input
+                        ref={field.ref}
                         id="event-end"
                         type="datetime-local"
                         className="mt-1.5"
-                        value={
-                          localDateTimes.ends_at ||
-                          toZonedLocalString(field.value, eventTimezone)
-                        }
+                        value={localDateTimes.ends_at}
                         onBlur={field.onBlur}
                         onChange={(event) => {
                           const localValue = event.target.value
@@ -454,7 +599,9 @@ export function CreateEventPage() {
                             ends_at: localValue,
                           }))
                           field.onChange(
-                            toZonedIsoString(localValue, eventTimezone),
+                            localValue
+                              ? toZonedIsoString(localValue, trimmedEventTimezone)
+                              : '',
                           )
                         }}
                         aria-invalid={Boolean(errors.ends_at)}
@@ -470,13 +617,11 @@ export function CreateEventPage() {
                     name="rsvp_deadline"
                     render={({ field }) => (
                       <Input
+                        ref={field.ref}
                         id="event-deadline"
                         type="datetime-local"
                         className="mt-1.5"
-                        value={
-                          localDateTimes.rsvp_deadline ||
-                          toZonedLocalString(field.value, eventTimezone)
-                        }
+                        value={localDateTimes.rsvp_deadline}
                         onBlur={field.onBlur}
                         onChange={(event) => {
                           const localValue = event.target.value
@@ -485,7 +630,9 @@ export function CreateEventPage() {
                             rsvp_deadline: localValue,
                           }))
                           field.onChange(
-                            toZonedIsoString(localValue, eventTimezone),
+                            localValue
+                              ? toZonedIsoString(localValue, trimmedEventTimezone)
+                              : '',
                           )
                         }}
                         aria-invalid={Boolean(errors.rsvp_deadline)}
@@ -499,11 +646,13 @@ export function CreateEventPage() {
                   <Input
                     id="event-timezone"
                     className="mt-1.5"
+                    aria-invalid={Boolean(errors.event_timezone)}
                     {...register('event_timezone')}
                   />
                   <p className="mt-1 text-xs text-muted-foreground">
                     Times use the selected time zone.
                   </p>
+                  <FieldError message={errors.event_timezone?.message} />
                 </div>
               </div>
               <div className="grid gap-5 sm:grid-cols-2">
@@ -598,7 +747,7 @@ export function CreateEventPage() {
               control={control}
               formError={formError}
               localDateTimes={localDateTimes}
-              timeZone={eventTimezone}
+              timeZone={trimmedEventTimezone}
             />
           )}
 
@@ -608,7 +757,7 @@ export function CreateEventPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setStep(step - 1)}
+                  onClick={() => void navigateToStep(step - 1)}
                 >
                   <ArrowLeft aria-hidden="true" />
                   Previous
@@ -623,12 +772,16 @@ export function CreateEventPage() {
               )}
             </div>
             {step < 4 ? (
-              <Button type="button" onClick={() => void goNext()}>
+              <Button key="continue-step" type="submit">
                 Continue
                 <ArrowRight aria-hidden="true" />
               </Button>
             ) : (
-              <Button type="submit" disabled={createEvent.isPending}>
+              <Button
+                key="create-event"
+                type="submit"
+                disabled={createEvent.isPending}
+              >
                 {createEvent.isPending ? 'Creating event…' : 'Create event'}
                 {!createEvent.isPending && <Check aria-hidden="true" />}
               </Button>
