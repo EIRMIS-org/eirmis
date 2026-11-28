@@ -30,7 +30,7 @@ export function ManualSearchTable({ eventId }: ManualSearchTableProps) {
         [invitationsQuery.data],
     )
     const attendeesQuery = useListAttendeesByInvitationIds(invitationIdList)
-    const scanMutation = useScanCheckIn()
+    const scanMutation = useScanCheckIn({ showErrorToast: true })
 
     const invitationIds = useMemo(
         () =>
