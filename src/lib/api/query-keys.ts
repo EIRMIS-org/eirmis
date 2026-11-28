@@ -15,6 +15,8 @@ export const qk = {
     listAttendees: (
         query?: operations['listAttendees']['parameters']['query'],
     ) => ['listAttendees', query] as const,
+    listAttendeesByInvitationIds: (invitationIds: readonly string[]) =>
+        ['listAttendees', 'byInvitationIds', invitationIds] as const,
     listHeadcountRequestsPrefix: () => ['listHeadcountRequests'] as const,
     listHeadcountRequests: (
         query?: operations['listHeadcountRequests']['parameters']['query'],
