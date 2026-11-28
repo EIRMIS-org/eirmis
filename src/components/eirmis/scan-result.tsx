@@ -43,7 +43,7 @@ const statusConfig: Record<
     subtitle: 'Credential verified & recorded successfully',
     badgeVariant: 'success',
     badgeText: 'Verified Entry',
-    icon: <CheckCircle2Icon className="size-6 text-success" />,
+    icon: <CheckCircle2Icon className="size-6 text-success" aria-hidden="true" />,
     containerClass: 'border-success-border bg-success-bg/40',
     iconBoxClass: 'bg-success-bg text-success ring-2 ring-success/20',
   },
@@ -52,7 +52,7 @@ const statusConfig: Record<
     subtitle: 'This pass has already been processed at Gate B',
     badgeVariant: 'warning',
     badgeText: 'Already Checked In',
-    icon: <ClockIcon className="size-6 text-warning" />,
+    icon: <ClockIcon className="size-6 text-warning" aria-hidden="true" />,
     containerClass: 'border-warning-border bg-warning-bg/40',
     iconBoxClass: 'bg-warning-bg text-warning ring-2 ring-warning/20',
   },
@@ -61,7 +61,7 @@ const statusConfig: Record<
     subtitle: 'Attendee requires ID check or badge exchange',
     badgeVariant: 'warning',
     badgeText: 'Attention Needed',
-    icon: <AlertTriangleIcon className="size-6 text-warning" />,
+    icon: <AlertTriangleIcon className="size-6 text-warning" aria-hidden="true" />,
     containerClass: 'border-warning-border bg-warning-bg/40',
     iconBoxClass: 'bg-warning-bg text-warning ring-2 ring-warning/20',
   },
@@ -70,7 +70,7 @@ const statusConfig: Record<
     subtitle: 'Ticket invalid, revoked, or non-matching cryptographic signature',
     badgeVariant: 'error',
     badgeText: 'Invalid Credential',
-    icon: <XCircleIcon className="size-6 text-error" />,
+    icon: <XCircleIcon className="size-6 text-error" aria-hidden="true" />,
     containerClass: 'border-error-border bg-error-bg/40',
     iconBoxClass: 'bg-error-bg text-error ring-2 ring-error/20',
   },
@@ -93,8 +93,13 @@ export function ScanResult({
   const displayTitle = title ?? config.title
   const displaySubtitle = subtitle ?? config.subtitle
 
+  const isUrgent = status === 'rejected'
+
   return (
     <div
+      role={isUrgent ? 'alert' : 'status'}
+      aria-live={isUrgent ? 'assertive' : 'polite'}
+      aria-atomic="true"
       className={cn(
         'rounded-2xl border p-5 shadow-xs transition-all duration-200',
         config.containerClass,
@@ -169,7 +174,7 @@ export function ScanResult({
       <div className="mt-4 flex flex-wrap items-center gap-2">
         {onNextScan && (
           <Button size="sm" onClick={onNextScan} className="flex-1 sm:flex-initial">
-            <RotateCcwIcon className="mr-1.5 size-3.5" />
+            <RotateCcwIcon className="mr-1.5 size-3.5" aria-hidden="true" />
             Next Scan
           </Button>
         )}

@@ -46,7 +46,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "22"
           cache: "npm"
 
       - name: Install dependencies
@@ -71,7 +71,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "22"
           cache: "npm"
 
       - name: Restore node_modules from cache
@@ -94,7 +94,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "22"
           cache: "npm"
 
       - name: Restore node_modules from cache
@@ -117,7 +117,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "22"
           cache: "npm"
 
       - name: Restore node_modules from cache
@@ -151,7 +151,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "22"
           cache: "npm"
 
       - name: Restore node_modules from cache
@@ -185,7 +185,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "22"
           cache: "npm"
 
       - name: Restore node_modules from cache
@@ -219,7 +219,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "22"
 
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
@@ -233,8 +233,29 @@ jobs:
           pwsh --version
           docker --version
 
+      # `supabase start` can flake on GitHub-hosted runners when a stale
+      # container or docker-proxy from the runner image snapshot still holds
+      # the DB port (54322): "address already in use". Clean up any leftovers
+      # and retry a few times before giving up.
       - name: Start Supabase locally
-        run: supabase start
+        run: |
+          set -e
+          for attempt in 1 2 3; do
+            echo "Attempt ${attempt}: starting Supabase stack..."
+            # Remove stale supabase containers and free the DB port.
+            docker ps -aq --filter "name=supabase" | xargs -r docker rm -f || true
+            sudo fuser -k 54322/tcp 2>/dev/null || true
+            sleep 2
+            if supabase start; then
+              echo "Supabase started successfully on attempt ${attempt}."
+              exit 0
+            fi
+            echo "::warning::supabase start failed on attempt ${attempt} — cleaning up and retrying..."
+            supabase stop --no-backup || true
+            sleep 5
+          done
+          echo "::error::supabase start failed after 3 attempts (port 54322 conflict persisted)."
+          exit 1
 
       - name: Reset local database and apply migrations
         run: supabase db reset
@@ -261,7 +282,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "22"
           cache: "npm"
 
       - name: Restore node_modules from cache
@@ -284,7 +305,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "22"
           cache: "npm"
 
       - name: Restore node_modules from cache
@@ -301,4 +322,3 @@ jobs:
         with:
           name: redoc-api-docs
           path: contract/generated/docs/index.html
-

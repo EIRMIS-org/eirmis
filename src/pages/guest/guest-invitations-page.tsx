@@ -1,0 +1,83 @@
+import { useMemo } from 'react'
+import { Link } from 'react-router-dom'
+import { UserIcon } from 'lucide-react'
+import { useMyInvitations } from '@/features/guest/hooks/use-my-invitations'
+import { InvitationCard } from '@/features/guest/components/invitation-card'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useDiscoverPublicEvents } from '@/features/landing/hooks/use-discover-public-events'
+
+export function GuestInvitationsPage() {
+  const invitations = useMyInvitations()
+  const events = useDiscoverPublicEvents()
+  const eventsById = useMemo(
+    () => new Map((events.data ?? []).map((event) => [event.id, event])),
+    [events.data],
+  )
+
+  if (invitations.isLoading) {
+    return (
+      <main className="mx-auto w-full max-w-lg space-y-4 p-4">
+        <Skeleton className="h-8 w-40" />
+        <Skeleton className="h-36 w-full" />
+        <Skeleton className="h-36 w-full" />
+      </main>
+    )
+  }
+
+  if (invitations.isError) {
+    return (
+      <main className="mx-auto w-full max-w-lg space-y-3 p-4">
+        <h1 className="text-2xl font-semibold">My invitations</h1>
+        <p role="alert" className="text-sm text-destructive">
+          We could not load your invitations.
+        </p>
+        <Button variant="outline" onClick={() => invitations.refetch()}>
+          Try again
+        </Button>
+      </main>
+    )
+  }
+
+  const invitationList = invitations.data ?? []
+
+  return (
+    <main className="mx-auto w-full max-w-lg space-y-6 p-4">
+      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Guest portal</p>
+          <h1 className="text-2xl font-semibold">My invitations</h1>
+        </div>
+        <Link
+          to="/guest/profile"
+          className="inline-flex h-8 items-center gap-1.5 rounded-2xl border border-border px-3 text-sm font-medium hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          <UserIcon className="size-3.5" aria-hidden="true" />
+          <span>Profile</span>
+        </Link>
+      </header>
+      {invitationList.length === 0 ? (
+        <section className="rounded-2xl border border-dashed p-6 text-center">
+          <p className="font-medium">You have no invitations yet</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Invitations from your hosts will appear here.
+          </p>
+        </section>
+      ) : (
+        <div className="space-y-4">
+          {invitationList.map((invitation) => (
+            <InvitationCard
+              key={invitation.id}
+              invitation={invitation}
+              event={eventsById.get(invitation.event_id)}
+              loadingEvent={events.isLoading}
+            />
+          ))}
+        </div>
+      )}
+      <Link to="/guest" className="sr-only">
+        My invitations
+      </Link>
+    </main>
+  )
+}

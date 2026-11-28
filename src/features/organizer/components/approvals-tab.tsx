@@ -1,0 +1,733 @@
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  AlertTriangle,
+  ArrowUpCircle,
+  CheckCircle2,
+  ShieldAlert,
+  XCircle,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import { useDecideAttendee } from "@/features/organizer/hooks/use-decide-attendee";
+import { useDecideHeadcountRequest } from "@/features/organizer/hooks/use-decide-headcount-request";
+import { useListAttendeesByInvitationIds } from "@/features/organizer/hooks/use-list-attendees";
+import { useListHeadcountRequests } from "@/features/organizer/hooks/use-list-headcount-requests";
+import { useListInvitations } from "@/features/organizer/hooks/use-list-invitations";
+import { usePromoteWaitlist } from "@/features/organizer/hooks/use-promote-waitlist";
+import {
+  ApiError,
+  eq,
+  type Attendee,
+  type HeadcountIncreaseRequest,
+} from "@/lib/api";
+import { qk } from "@/lib/api/query-keys";
+
+interface ApprovalsTabProps {
+  eventId: string;
+  capacity?: number;
+}
+
+interface OverrideState {
+  attendee: Attendee;
+  decision: "approve" | "reject";
+  reason: string;
+}
+
+function isCapacityExceededError(error: unknown): boolean {
+  if (!(error instanceof ApiError) || error.status !== 409) {
+    return false;
+  }
+  const details = [error.code, error.message, error.details, error.hint]
+    .filter(Boolean)
+    .join(" ");
+  return /capacity/i.test(details);
+}
+
+export function ApprovalsTab({ eventId, capacity }: ApprovalsTabProps) {
+  const queryClient = useQueryClient();
+  const invitationsQuery = useListInvitations({ event_id: eq(eventId) });
+  const invitationIdList = useMemo(
+    () => (invitationsQuery.data ?? []).map((invitation) => invitation.id),
+    [invitationsQuery.data],
+  );
+  const attendeesQuery = useListAttendeesByInvitationIds(invitationIdList);
+  const headcountQuery = useListHeadcountRequests({ status: eq("pending") });
+  const decideAttendee = useDecideAttendee();
+  const decideHeadcountRequest = useDecideHeadcountRequest();
+  const promoteWaitlist = usePromoteWaitlist();
+
+  const [reviewReasonById, setReviewReasonById] = useState<
+    Record<string, string>
+  >({});
+  const [headcountReasonById, setHeadcountReasonById] = useState<
+    Record<string, string>
+  >({});
+  const [overrideTarget, setOverrideTarget] = useState<OverrideState | null>(
+    null,
+  );
+  const [isPromoteOpen, setIsPromoteOpen] = useState(false);
+  const [promoteCount, setPromoteCount] = useState(1);
+
+  const invitationIds = useMemo(
+    () =>
+      new Set((invitationsQuery.data ?? []).map((invitation) => invitation.id)),
+    [invitationsQuery.data],
+  );
+
+  const waitlistedInvitations = useMemo(
+    () =>
+      (invitationsQuery.data ?? []).filter(
+        (invitation) => invitation.status === "waitlisted",
+      ),
+    [invitationsQuery.data],
+  );
+
+  const eventAttendees = useMemo(
+    () =>
+      (attendeesQuery.data ?? [])
+        .filter((attendee) => invitationIds.has(attendee.invitation_id))
+        .sort(
+          (left, right) =>
+            new Date(right.submitted_at).getTime() -
+            new Date(left.submitted_at).getTime(),
+        ),
+    [attendeesQuery.data, invitationIds],
+  );
+
+  const approvedCount = eventAttendees.filter(
+    (attendee) => attendee.status === "approved",
+  ).length;
+
+  const eventHeadcountRequests = useMemo(
+    () =>
+      (headcountQuery.data ?? [])
+        .filter((request) => invitationIds.has(request.invitation_id))
+        .sort(
+          (left, right) =>
+            new Date(right.requested_at).getTime() -
+            new Date(left.requested_at).getTime(),
+        ),
+    [headcountQuery.data, invitationIds],
+  );
+
+  const submitAttendeeDecision = (
+    attendee: Attendee,
+    decision: "approve" | "reject",
+    reason: string | null,
+    overrideCapacity = false,
+  ) => {
+    const nextStatus: Attendee["status"] =
+      decision === "approve" ? "approved" : "rejected";
+
+    decideAttendee.mutate(
+      {
+        id: attendee.id,
+        body: {
+          decision,
+          override_capacity: overrideCapacity,
+          reason,
+        },
+      },
+      {
+        onSuccess: (response) => {
+          queryClient.setQueriesData<Attendee[]>(
+            { queryKey: qk.listAttendeesPrefix() },
+            (current) =>
+              current?.map((item) =>
+                item.id === attendee.id
+                  ? {
+                      ...item,
+                      ...(response?.attendee ?? {}),
+                      status: nextStatus,
+                      review_reason: reason,
+                    }
+                  : item,
+              ),
+          );
+        },
+        onError: (error) => {
+          if (
+            decision === "approve" &&
+            !overrideCapacity &&
+            isCapacityExceededError(error)
+          ) {
+            setOverrideTarget({
+              attendee,
+              decision: "approve",
+              reason: reason ?? "",
+            });
+          }
+        },
+      },
+    );
+  };
+
+  const requestDecision = (
+    attendee: Attendee,
+    decision: "approve" | "reject",
+  ) => {
+    const reason = reviewReasonById[attendee.id]?.trim();
+
+    const nextApproved =
+      decision === "approve" ? approvedCount + 1 : approvedCount;
+    if (
+      decision === "approve" &&
+      typeof capacity === "number" &&
+      nextApproved > capacity
+    ) {
+      setOverrideTarget({
+        attendee,
+        decision: "approve",
+        reason: reason ?? "",
+      });
+      return;
+    }
+
+    submitAttendeeDecision(attendee, decision, reason || null, false);
+  };
+
+  const confirmOverride = () => {
+    if (!overrideTarget) return;
+
+    const overrideReason = overrideTarget.reason.trim();
+    if (!overrideReason) return;
+
+    submitAttendeeDecision(
+      overrideTarget.attendee,
+      "approve",
+      overrideReason,
+      true,
+    );
+    setOverrideTarget(null);
+  };
+
+  const decideHeadcount = (
+    request: HeadcountIncreaseRequest,
+    decision: "approve" | "reject",
+  ) => {
+    const reason = headcountReasonById[request.id]?.trim() || null;
+    const nextStatus: HeadcountIncreaseRequest["status"] =
+      decision === "approve" ? "approved" : "rejected";
+
+    decideHeadcountRequest.mutate(
+      {
+        id: request.id,
+        body: {
+          decision,
+          reason,
+        },
+      },
+      {
+        onSuccess: (updated) => {
+          queryClient.setQueriesData<HeadcountIncreaseRequest[]>(
+            { queryKey: qk.listHeadcountRequestsPrefix() },
+            (current) =>
+              current?.map((item) =>
+                item.id === request.id
+                  ? {
+                      ...item,
+                      ...(updated ?? {}),
+                      status: nextStatus,
+                      review_reason: reason,
+                    }
+                  : item,
+              ),
+          );
+        },
+      },
+    );
+  };
+
+  const handleConfirmPromote = () => {
+    const safeCount = Math.max(
+      1,
+      Math.min(promoteCount, Math.max(1, waitlistedInvitations.length)),
+    );
+    promoteWaitlist.mutate(
+      { event_id: eventId, max_promotions: safeCount },
+      {
+        onSuccess: () => {
+          setIsPromoteOpen(false);
+          setPromoteCount(1);
+        },
+      },
+    );
+  };
+
+  const renderQueue = () => {
+    if (invitationsQuery.isPending || attendeesQuery.isPending) {
+      return (
+        <div className="space-y-3">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+        </div>
+      );
+    }
+
+    if (invitationsQuery.isError || attendeesQuery.isError) {
+      return (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+          Unable to load the attendee queue.
+        </div>
+      );
+    }
+
+    if (eventAttendees.length === 0) {
+      return (
+        <div className="rounded-xl border border-dashed border-border bg-muted/30 p-8 text-center text-sm text-muted-foreground">
+          No attendees are waiting for review for this event yet.
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4">
+        {eventAttendees.map((attendee) => {
+          const statusTone =
+            attendee.status === "approved"
+              ? "bg-emerald-500/10 text-emerald-700 border-emerald-200"
+              : attendee.status === "rejected"
+                ? "bg-red-500/10 text-red-700 border-red-200"
+                : "bg-amber-500/10 text-amber-700 border-amber-200";
+
+          return (
+            <Card key={attendee.id} className="border-border/80">
+              <CardHeader className="flex flex-row items-start justify-between gap-4 pb-3">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-base">
+                      {attendee.full_name}
+                    </CardTitle>
+                    {attendee.is_primary ? (
+                      <Badge variant="secondary">Primary</Badge>
+                    ) : null}
+                  </div>
+                  <CardDescription>
+                    {attendee.email ?? "No email recorded"}
+                  </CardDescription>
+                </div>
+                <Badge className={statusTone} variant="outline">
+                  {attendee.status}
+                </Badge>
+              </CardHeader>
+
+              <CardContent className="space-y-4">
+                <div className="grid gap-3 text-sm text-muted-foreground md:grid-cols-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground/80">
+                      Submitted
+                    </p>
+                    <p className="mt-1 font-medium text-foreground">
+                      {new Date(attendee.submitted_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground/80">
+                      Invitation
+                    </p>
+                    <p className="mt-1 font-medium text-foreground">
+                      {attendee.invitation_id.slice(0, 8)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground/80">
+                      Walk-in
+                    </p>
+                    <p className="mt-1 font-medium text-foreground">
+                      {attendee.is_walk_in ? "Yes" : "No"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Review note
+                  </label>
+                  <Textarea
+                    value={
+                      reviewReasonById[attendee.id] ??
+                      attendee.review_reason ??
+                      ""
+                    }
+                    onChange={(event) =>
+                      setReviewReasonById((current) => ({
+                        ...current,
+                        [attendee.id]: event.target.value,
+                      }))
+                    }
+                    placeholder="Optional note for the approval or rejection decision"
+                    className="min-h-22.5"
+                  />
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="text-emerald-700 hover:bg-emerald-500/10"
+                    onClick={() => requestDecision(attendee, "approve")}
+                    disabled={decideAttendee.isPending}
+                  >
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    Approve
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="text-red-700 hover:bg-red-500/10"
+                    onClick={() => requestDecision(attendee, "reject")}
+                    disabled={decideAttendee.isPending}
+                  >
+                    <XCircle className="mr-2 h-4 w-4" />
+                    Reject
+                  </Button>
+                  {attendee.status === "approved" && (
+                    <span className="ml-auto inline-flex items-center gap-2 text-xs text-emerald-700">
+                      <ShieldAlert className="h-3.5 w-3.5" />
+                      Approved for check-in
+                    </span>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    );
+  };
+
+  return (
+    <>
+      <div className="space-y-6">
+        <Card>
+          <CardHeader className="flex flex-row items-start justify-between gap-3">
+            <div>
+              <CardTitle>Attendee approvals</CardTitle>
+              <CardDescription>
+                Review guest-party registrations for this event and decide each
+                one.
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2 rounded-full border border-border bg-muted/40 px-3 py-1.5 text-xs text-muted-foreground">
+              <AlertTriangle className="h-3.5 w-3.5" />
+              {typeof capacity === "number"
+                ? `${approvedCount}/${capacity} approved`
+                : `${approvedCount} approved`}
+            </div>
+          </CardHeader>
+          <CardContent>{renderQueue()}</CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Headcount requests</CardTitle>
+            <CardDescription>
+              Review guest requests to increase the invitation party limit.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {headcountQuery.isPending ? (
+              <div className="space-y-3">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </div>
+            ) : headcountQuery.isError ? (
+              <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+                Unable to load headcount requests.
+              </div>
+            ) : eventHeadcountRequests.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-border bg-muted/30 p-8 text-center text-sm text-muted-foreground">
+                No headcount requests are pending for this event.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {eventHeadcountRequests.map((request) => (
+                  <Card key={request.id} className="border-border/80">
+                    <CardHeader className="flex flex-row items-start justify-between gap-4 pb-3">
+                      <div className="space-y-2">
+                        <CardTitle className="text-base">
+                          +{request.requested_additional_heads} additional heads
+                        </CardTitle>
+                        <CardDescription>
+                          Invitation {request.invitation_id.slice(0, 8)}
+                        </CardDescription>
+                      </div>
+                      <Badge
+                        variant="outline"
+                        className={
+                          request.status === "approved"
+                            ? "border-emerald-200 bg-emerald-500/10 text-emerald-700"
+                            : request.status === "rejected"
+                              ? "border-red-200 bg-red-500/10 text-red-700"
+                              : "border-amber-200 bg-amber-500/10 text-amber-700"
+                        }
+                      >
+                        {request.status}
+                      </Badge>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-sm text-muted-foreground">
+                        {request.note ?? "No note provided."}
+                      </p>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-foreground">
+                          Review reason
+                        </label>
+                        <Textarea
+                          value={
+                            headcountReasonById[request.id] ??
+                            request.review_reason ??
+                            ""
+                          }
+                          onChange={(event) =>
+                            setHeadcountReasonById((current) => ({
+                              ...current,
+                              [request.id]: event.target.value,
+                            }))
+                          }
+                          placeholder="Optional note for this headcount decision"
+                          className="min-h-22.5"
+                        />
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="text-emerald-700 hover:bg-emerald-500/10"
+                          onClick={() => decideHeadcount(request, "approve")}
+                          disabled={decideHeadcountRequest.isPending}
+                        >
+                          <CheckCircle2 className="mr-2 h-4 w-4" />
+                          Approve
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="text-red-700 hover:bg-red-500/10"
+                          onClick={() => decideHeadcount(request, "reject")}
+                          disabled={decideHeadcountRequest.isPending}
+                        >
+                          <XCircle className="mr-2 h-4 w-4" />
+                          Reject
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-start justify-between gap-3">
+            <div>
+              <CardTitle>Waitlist</CardTitle>
+              <CardDescription>
+                Promote waitlisted invitations to accepted status as capacity
+                opens up.
+              </CardDescription>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={
+                waitlistedInvitations.length === 0 || promoteWaitlist.isPending
+              }
+              onClick={() => {
+                setPromoteCount(1);
+                setIsPromoteOpen(true);
+              }}
+            >
+              <ArrowUpCircle className="h-4 w-4" />
+              Promote from waitlist
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {invitationsQuery.isPending ? (
+              <div className="space-y-2">
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ) : invitationsQuery.isError ? (
+              <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+                Unable to load waitlist.
+              </div>
+            ) : waitlistedInvitations.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-border bg-muted/30 p-8 text-center text-sm text-muted-foreground">
+                No invitations are currently on the waitlist for this event.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {waitlistedInvitations.map((invitation) => (
+                  <div
+                    key={invitation.id}
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/80 p-4 text-sm"
+                  >
+                    <div>
+                      <p className="font-medium text-foreground">
+                        Invitation {invitation.id.slice(0, 8)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Guest {invitation.guest_id.slice(0, 8)} • Max party{" "}
+                        {invitation.max_party_size}
+                      </p>
+                    </div>
+                    <Badge variant="warning">waitlisted</Badge>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <Dialog open={isPromoteOpen} onOpenChange={setIsPromoteOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Promote from waitlist</DialogTitle>
+            <DialogDescription>
+              Promote the next waitlisted invitation(s) in FIFO order to
+              accepted status. Promoted guests will be notified by email.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            <div className="rounded-xl border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">
+                {waitlistedInvitations.length}
+              </span>{" "}
+              waitlisted{" "}
+              {waitlistedInvitations.length === 1
+                ? "invitation"
+                : "invitations"}{" "}
+              available for promotion.
+            </div>
+            <div>
+              <Label htmlFor="waitlist-max-promotions">
+                Number of invitations to promote
+              </Label>
+              <Input
+                id="waitlist-max-promotions"
+                type="number"
+                min={1}
+                max={Math.max(1, waitlistedInvitations.length)}
+                className="mt-1.5"
+                value={promoteCount}
+                onChange={(event) =>
+                  setPromoteCount(Math.max(1, Number(event.target.value) || 1))
+                }
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsPromoteOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              disabled={promoteWaitlist.isPending}
+              onClick={handleConfirmPromote}
+            >
+              {promoteWaitlist.isPending ? "Promoting…" : "Confirm promotion"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(overrideTarget)}
+        onOpenChange={(open) => {
+          if (!open) setOverrideTarget(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Capacity override confirmation</DialogTitle>
+            <DialogDescription>
+              Approving {overrideTarget?.attendee.full_name ?? "this attendee"}{" "}
+              {typeof capacity === "number"
+                ? `would take the event beyond the configured capacity of ${capacity}.`
+                : "would take the event beyond its configured capacity."}{" "}
+              This action is still recorded as an audited override.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            <p className="font-medium">
+              Current approved total: {approvedCount}
+            </p>
+            <p className="mt-1">
+              After approval, the total would be {approvedCount + 1}.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="capacity-override-reason">Override reason</Label>
+            <Textarea
+              id="capacity-override-reason"
+              value={overrideTarget?.reason ?? ""}
+              onChange={(event) =>
+                setOverrideTarget((current) =>
+                  current
+                    ? { ...current, reason: event.target.value }
+                    : current,
+                )
+              }
+              placeholder="Provide a reason for overriding event capacity"
+              className="min-h-22.5"
+            />
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOverrideTarget(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={confirmOverride}
+              disabled={
+                !overrideTarget ||
+                overrideTarget.reason.trim().length === 0 ||
+                decideAttendee.isPending
+              }
+            >
+              Confirm override
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}

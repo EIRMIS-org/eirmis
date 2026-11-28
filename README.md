@@ -99,7 +99,7 @@ EIRMIS centralizes event creation, guest list management, invitation delivery, R
 | CI/CD | GitHub Actions |
 | Project Management | GitHub Issues, Milestones, Projects (board), Pull Requests |
 | Hosting | Vercel (static SPA build) + hosted Supabase project (database/auth/storage/realtime) |
-| Node | 20.x (pin via `.nvmrc`) |
+| Node | 22.x LTS (`>=22.13.0`, pin via `.nvmrc`) |
 | Package manager | npm — one lockfile (`package-lock.json`); do not introduce a second package manager |
 
 ### Contract-First Convention
@@ -122,13 +122,26 @@ EIRMIS leans on this boundary hard, because it has four differently-trusted clie
 
 ### Prerequisites
 
-- Node.js 20.x (`nvm use`)
+- Node.js 22.x LTS (`>=22.13.0`; `nvm use` — pinned in `.nvmrc`)
 - npm — the canonical package manager for this project; commit only `package-lock.json`
 - Docker (for local Supabase)
 - A Supabase project (Database, Auth, Storage, Realtime enabled), remote for staging/production
 - A Google Cloud OAuth client for organizer/admin Google Sign-In — a standard OAuth consent screen is sufficient; no Google Workspace domain restriction is required or configured
 - A Resend account/API key, also configured as Supabase Auth's custom SMTP provider (Supabase dashboard → Auth → SMTP Settings)
 - A file-scanning API key (e.g. VirusTotal) for HTML invitation validation
+
+### Local setup
+
+EIRMIS tests (`npm run test`) require **Node 22.13+** (Node 22 LTS, pinned in `.nvmrc`). The test toolchain (`vitest@5.1.0`, `msw@3.0.3`, `jsdom@29.1.1`) uses Node 22+ APIs (`Set.prototype.intersection`, `Map.groupBy`) — running on Node 20 fails all MSW-backed suites, and older/mismatched Node installs can fail test suites with `"Vitest failed to find the runner"` / `"Cannot read properties of undefined (reading 'config')"`. A `pretest` script checks your active Node version and exits early with a clear reminder if it is below `22.13.0`.
+
+- **Windows (`nvm-windows`):** *(install `nvm-windows` to a space-free path like `C:\nvm`)*
+  ```powershell
+  nvm install 22 && nvm use 22
+  ```
+- **macOS / Linux (`nvm`):**
+  ```bash
+  nvm install && nvm use
+  ```
 
 ### Environment Variables
 
@@ -207,8 +220,12 @@ The app runs at `http://localhost:5173`.
 | `npm run preview` | Serve the production bundle locally |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | `tsc --noEmit` |
-| `npm run test` | Unit/component tests (Vitest + RTL) |
-| `npm run test:e2e` | End-to-end tests (Playwright) |
+| `npm run test` | Unit/component tests (Vitest: frontend `src/` + Supabase Edge Function unit tests) |
+| `npm run test:watch` | Run Vitest in watch mode |
+| `npm run test:deno` | Deno Edge Function tests (`supabase/functions/**/*_test.ts`) |
+| `npm run test:db` | pgTAP database tests (`supabase test db`) |
+| `npm run test:db:concurrency` | Capacity concurrency integration tests (PowerShell + local Supabase) |
+| `npm run test:e2e` | End-to-end tests (Playwright — deferred to M5; see §11) |
 | `npm run contract:lint` | Lint `contract/openapi.yaml` (`redocly lint`) |
 | `npm run contract:gen` | Regenerate the typed API client from the contract |
 | `npm run contract:check` | Fail if the generated client is stale or PostgREST has drifted from the contract |
@@ -812,6 +829,15 @@ SQL migrations live in `supabase/migrations/`, one logical change per file, name
 - Video or animated invitation formats.
 - Partial approval of headcount-increase requests (v1 is approve-in-full or reject).
 
+### Deferred to M5 (from the M4 audit)
+
+- Global 401/session-expiry handling and post-login redirect memory
+- Request cancellation (`AbortController`) in the API client
+- Offline detection and queued-action retry
+- End-to-end tests for the RSVP → approve → scan flow
+- i18n / RTL (strings are hardcoded English; `Intl` is already used for dates)
+- Error reporting service hookup (the `TODO(M5)` in `src/app/errors/error-boundary.tsx:34`)
+
 ---
 
 ## 12. Assumptions & Decisions Log
@@ -895,9 +921,10 @@ Workflows in `.github/workflows/` run on every PR:
 - Contract check (`npm run contract:check`) — fails if the committed generated client is stale, or if the live PostgREST schema has drifted from what the contract documents
 - Lint (`npm run lint`)
 - Typecheck (`npm run typecheck`)
-- Unit/component tests (`npm run test`)
+- Unit/component tests (`npm run test` for frontend & Supabase Edge Function Vitest suites, plus `npm run test:deno` for Deno Edge Function tests)
+- Database & integration tests (`npm run test:db` pgTAP suite + `npm run test:db:concurrency` capacity concurrency scenarios)
 - Build (`npm run build`)
-- E2E tests (`npm run test:e2e`) against a Supabase instance seeded via `supabase/seed.sql`, run with an authenticated test role (not the service role key) so RLS is actually exercised — including at least one case per role, since role separation is entirely server-side.
+- E2E tests (`npm run test:e2e`, deferred to M5 — see §11) against a Supabase instance seeded via `supabase/seed.sql`, run with an authenticated test role (not the service role key) so RLS is actually exercised — including at least one case per role, since role separation is entirely server-side.
 
 The contract jobs run first: a PR that changes schema without updating `contract/openapi.yaml` fails before anything else runs, which is the point of the boundary.
 

@@ -36,15 +36,15 @@
   --primary-glow: rgba(79, 70, 229, 0.18);
 
   /* Secondary → EIRMIS Teal */
-  --secondary: #0D9488;
+  --secondary: #0F766E;
   --secondary-foreground: #FFFFFF;
-  --secondary-hover: #0F766E;
+  --secondary-hover: #115E59;
   --secondary-subtle: #F0FDFA;
   --secondary-border: #99F6E4;
 
   /* Neutral surface scale */
   --muted: #F1F5F9;
-  --muted-foreground: #64748B;
+  --muted-foreground: #475569;
   --skeleton: #F1F5F9;
   --accent: #EEF2FF;
   --accent-foreground: #4F46E5;
@@ -99,8 +99,8 @@
   --surface: #FFFFFF;
   --surface-glass: rgba(255, 255, 255, 0.92);
   --text-main: #0F172A;
-  --text-muted: #64748B;
-  --text-subtle: #94A3B8;
+  --text-muted: #475569;
+  --text-subtle: #64748B;
 
   /* Chart */
   --chart-1: #4F46E5;
@@ -231,9 +231,9 @@
   --surface-glass: rgba(15, 23, 42, 0.92);
 
   /* Brand Primary (Indigo, brightened for dark) */
-  --primary: #818CF8;
+  --primary: #A5B4FC;
   --primary-foreground: #0B1120;
-  --primary-hover: #A5B4FC;
+  --primary-hover: #C7D2FE;
   --primary-subtle: rgba(99, 102, 241, 0.15);
   --primary-border: rgba(129, 140, 248, 0.4);
   --primary-glow: rgba(129, 140, 248, 0.25);
@@ -294,7 +294,7 @@
   /* Legacy tokens retained for component compatibility */
   --text-main: #F1F5F9;
   --text-muted: #94A3B8;
-  --text-subtle: #64748B;
+  --text-subtle: #94A3B8;
 
   /* Chart */
   --chart-1: #818CF8;
@@ -371,5 +371,74 @@
     line-height: 135%;
     padding: 4px 8px;
     background: var(--muted);
+  }
+}
+/* Landing hero backdrop: slow infinite crossfade, CSS-only (no JS timers).
+   The first slide is the static base layer; the rest fade in and out in
+   staggered 8s slots across a shared 32s cycle. Opacity-only animation so
+   it stays on the compositor. */
+.hero-backdrop-slide {
+  opacity: 0;
+}
+
+.hero-backdrop-slide:first-child {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-backdrop-slide + .hero-backdrop-slide {
+    animation: hero-backdrop-fade 32s linear infinite;
+  }
+
+  .hero-backdrop-slide:nth-child(2) {
+    animation-delay: 0s;
+  }
+
+  .hero-backdrop-slide:nth-child(3) {
+    animation-delay: 8s;
+  }
+
+  .hero-backdrop-slide:nth-child(4) {
+    animation-delay: 16s;
+  }
+
+  .hero-backdrop-slide:nth-child(5) {
+    animation-delay: 24s;
+  }
+}
+
+@keyframes hero-backdrop-fade {
+  0% {
+    opacity: 0;
+  }
+
+  6.25% {
+    opacity: 1;
+  }
+
+  18.75% {
+    opacity: 1;
+  }
+
+  25% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-in,
+  [class*="animate-in"] {
+    animation: none !important;
+  }
+
+  .transition-transform,
+  [class*="hover:-translate-y-"],
+  [class*="hover:scale-"] {
+    transform: none !important;
+    transition-property: opacity, color, background-color, border-color, box-shadow !important;
   }
 }

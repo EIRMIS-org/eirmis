@@ -44,6 +44,12 @@ export type AttendeeCreate = components['schemas']['AttendeeCreate'];
 export type AttendeeUpdate = components['schemas']['AttendeeUpdate'];
 export type HeadcountIncreaseRequest =
     components['schemas']['HeadcountIncreaseRequest'];
+export type HeadcountIncreaseRequestCreate =
+    components['schemas']['HeadcountIncreaseRequestCreate'];
+export type OrgSettings = components['schemas']['OrgSettings'];
+export type OrgSettingsUpdate = components['schemas']['OrgSettingsUpdate'];
+export type RegisterPublicRequest =
+    components['schemas']['RegisterPublicRequest'];
 export type OrganizerProfile = components['schemas']['OrganizerProfile'];
 export type OrganizerStatus = components['schemas']['OrganizerStatus'];
 export type OrganizerStatusUpdate =
@@ -52,6 +58,7 @@ export type AdminProfile = components['schemas']['AdminProfile'];
 export type ScanCheckInResponse = components['schemas']['ScanCheckInResponse'];
 export type ReminderScheduleUpsert =
     components['schemas']['ReminderScheduleUpsert'];
+export type ReminderScheduleUpdate = components['schemas']['ReminderScheduleUpdate'];
 
 // ─── Configuration ────────────────────────────────────────────────────────────
 
@@ -119,42 +126,66 @@ export function getRole(): Role {
 
 // ─── Unified error path ───────────────────────────────────────────────────────
 
-/** Unified error matching `contract/components/schemas/Error.yaml`. */
+/** Unified API error with the original response body retained when available. */
 export class ApiError extends Error {
     readonly code: string;
     readonly details: string | null;
     readonly hint: string | null;
     readonly status: number;
+    /** Original JSON response body for endpoints with structured error data. */
+    readonly responseBody: unknown;
 
-    constructor(payload: ErrorSchema, status: number) {
+    constructor(
+        payload: ErrorSchema,
+        status: number,
+        responseBody: unknown = null,
+    ) {
         super(payload.message);
         this.name = 'ApiError';
         this.code = payload.code;
         this.details = payload.details ?? null;
         this.hint = payload.hint ?? null;
         this.status = status;
+        this.responseBody = responseBody;
     }
 }
 
 /**
- * Parse any non-2xx response body into the unified Error schema.
- * Falls back to a synthesized payload when the body is not JSON / Error-shaped.
+ * Parse non-2xx responses from both the shared Error schema and Edge Functions
+ * that use an `{ error: string }` message field. Preserve the original body for
+ * callers that need structured partial-success data, such as public registration.
  */
 async function toApiError(response: Response): Promise<ApiError> {
     let payload: Partial<ErrorSchema> | null = null;
+    let responseBody: unknown = null;
 
     try {
         const contentType = response.headers.get('content-type') ?? '';
         if (contentType.includes('application/json')) {
-            const body = (await response.json()) as unknown;
+            responseBody = (await response.json()) as unknown;
             // PostgREST may return an array of errors; Edge Functions return the object.
-            const candidate = Array.isArray(body) ? body[0] : body;
-            if (
-                candidate &&
-                typeof candidate === 'object' &&
-                'message' in candidate
-            ) {
-                payload = candidate as Partial<ErrorSchema>;
+            const candidate = Array.isArray(responseBody)
+                ? responseBody[0]
+                : responseBody;
+            if (candidate && typeof candidate === 'object') {
+                const body = candidate as Record<string, unknown>;
+                // The register-public Edge Function uses `error`, while standard
+                // PostgREST responses use the shared Error schema's `message`.
+                const message =
+                    typeof body.message === 'string'
+                        ? body.message
+                        : typeof body.error === 'string'
+                            ? body.error
+                            : undefined;
+
+                if (message) {
+                    payload = {
+                        code: typeof body.code === 'string' ? body.code : undefined,
+                        message,
+                        details: typeof body.details === 'string' ? body.details : null,
+                        hint: typeof body.hint === 'string' ? body.hint : null,
+                    };
+                }
             }
         }
     } catch {
@@ -170,6 +201,7 @@ async function toApiError(response: Response): Promise<ApiError> {
             hint: payload?.hint ?? null,
         },
         response.status,
+        responseBody,
     );
 }
 
@@ -354,6 +386,19 @@ export function upsertReminderSchedule(
 ): Promise<Ok<operations['upsertReminderSchedule']>> {
     return request('POST', '/rest/v1/reminder_schedules', {
         body,
+        query: { on_conflict: 'event_id,days_before_event' },
+        headers: { Prefer: 'resolution=merge-duplicates,return=representation' },
+    });
+}
+
+/** PATCH /rest/v1/reminder_schedules?id=eq.{id} — update an existing schedule. */
+export function updateReminderSchedule(
+    id: string,
+    body: ReminderScheduleUpdate,
+): Promise<Ok<operations['updateReminderSchedule']>> {
+    return request('PATCH', '/rest/v1/reminder_schedules', {
+        query: { id: `eq.${id}` },
+        body,
         headers: { Prefer: 'return=representation' },
     });
 }
@@ -401,11 +446,83 @@ export function updateInvitation(
     });
 }
 
+/** PostgREST equality filter helper: `eq(value)` -> `"eq.<value>"`. */
+export function eq(value: string): string {
+    return `eq.${value}`;
+}
+
+/** PostgREST list inclusion filter helper: `inList(['a', 'b'])` -> `"in.(a,b)"`. */
+export function inList(values: readonly string[]): string {
+    return `in.(${values.join(',')})`;
+}
+
+/** Maximum invitation UUIDs per `invitation_id=in.(...)` request (~2.8KB query string). */
+export const ATTENDEE_IN_LIST_CHUNK_SIZE = 75;
+
+/** Maximum invitation UUIDs per headcount request `invitation_id=in.(...)` (~2.8KB query string). */
+export const HEADCOUNT_IN_LIST_CHUNK_SIZE = 75;
+
 /** GET /rest/v1/attendees — list attendees for an invitation. */
 export function listAttendees(
     query?: operations['listAttendees']['parameters']['query'],
 ): Promise<ListOk<operations['listAttendees']>> {
     return request('GET', '/rest/v1/attendees', { query });
+}
+
+/**
+ * Helper to paginate through all pages of a request until fewer than limit rows return.
+ */
+export async function allPages<T>(
+    load: (page: { limit: number; offset: number }) => Promise<T[]>,
+    limit = 500,
+): Promise<T[]> {
+    const rows: T[] = [];
+    for (let offset = 0; ; offset += limit) {
+        const page = await load({ limit, offset });
+        rows.push(...page);
+        if (page.length < limit) return rows;
+    }
+}
+
+/**
+ * GET /rest/v1/attendees — fetch attendees across arbitrarily many invitations
+ * by chunking `invitation_id=in.(...)` requests in parallel and deduplicating
+ * the merged result by attendee ID.
+ */
+export async function listAttendeesByInvitationIds(
+    invitationIds: readonly string[],
+    chunkSize = ATTENDEE_IN_LIST_CHUNK_SIZE,
+): Promise<ListOk<operations['listAttendees']>> {
+    const uniqueIds = Array.from(new Set(invitationIds.filter(Boolean)));
+    if (uniqueIds.length === 0) {
+        return [];
+    }
+
+    const safeChunkSize = Math.max(1, Math.floor(chunkSize));
+    const chunks: string[][] = [];
+    for (let index = 0; index < uniqueIds.length; index += safeChunkSize) {
+        chunks.push(uniqueIds.slice(index, index + safeChunkSize));
+    }
+
+    const batches = await Promise.all(
+        chunks.map((chunk) =>
+            allPages((page) =>
+                listAttendees({ ...page, invitation_id: inList(chunk) }),
+            ),
+        ),
+    );
+
+    const seen = new Set<string>();
+    const merged: Attendee[] = [];
+    for (const batch of batches) {
+        for (const attendee of batch) {
+            if (!seen.has(attendee.id)) {
+                seen.add(attendee.id);
+                merged.push(attendee);
+            }
+        }
+    }
+    return merged;
 }
 
 /** POST /rest/v1/attendees — submit an additional attendee (guest). */
@@ -435,6 +552,47 @@ export function listHeadcountRequests(
     query?: operations['listHeadcountRequests']['parameters']['query'],
 ): Promise<ListOk<operations['listHeadcountRequests']>> {
     return request('GET', '/rest/v1/headcount_increase_requests', { query });
+}
+
+/**
+ * GET /rest/v1/headcount_increase_requests — fetch headcount requests across arbitrarily many invitations
+ * by chunking `invitation_id=in.(...)` requests in parallel and deduplicating
+ * the merged result by request ID.
+ */
+export async function listHeadcountRequestsByInvitationIds(
+    invitationIds: readonly string[],
+    chunkSize = HEADCOUNT_IN_LIST_CHUNK_SIZE,
+): Promise<ListOk<operations['listHeadcountRequests']>> {
+    const uniqueIds = Array.from(new Set(invitationIds.filter(Boolean)));
+    if (uniqueIds.length === 0) {
+        return [];
+    }
+
+    const safeChunkSize = Math.max(1, Math.floor(chunkSize));
+    const chunks: string[][] = [];
+    for (let index = 0; index < uniqueIds.length; index += safeChunkSize) {
+        chunks.push(uniqueIds.slice(index, index + safeChunkSize));
+    }
+
+    const batches = await Promise.all(
+        chunks.map((chunk) =>
+            allPages((page) =>
+                listHeadcountRequests({ ...page, invitation_id: inList(chunk) }),
+            ),
+        ),
+    );
+
+    const seen = new Set<string>();
+    const merged: HeadcountIncreaseRequest[] = [];
+    for (const batch of batches) {
+        for (const req of batch) {
+            if (!seen.has(req.id)) {
+                seen.add(req.id);
+                merged.push(req);
+            }
+        }
+    }
+    return merged;
 }
 
 /** POST /functions/v1/submit-headcount-request — submit a headcount request (guest). */
@@ -514,10 +672,11 @@ export function deleteInvitationImage(id: string): Promise<void> {
 
 /** GET /rest/v1/checkin_assignments — list check-in staff assignments. */
 export function listCheckInAssignments(
-    eventId: string,
+    eventId?: string,
 ): Promise<ListOk<operations['listCheckInAssignments']>> {
     return request('GET', '/rest/v1/checkin_assignments', {
-        query: { event_id: `eq.${eventId}` },
+        // Staff callers omit eventId: RLS scopes rows to the caller's auth_user_id.
+        query: eventId ? { event_id: `eq.${eventId}` } : undefined,
     });
 }
 
@@ -559,10 +718,12 @@ export function listEmailLogs(
 }
 
 /** GET /rest/v1/audit_log_entries — list audit log entries. */
-export function listAuditLogEntries(): Promise<
+export function listAuditLogEntries(
+    query?: operations['listAuditLogEntries']['parameters']['query'],
+): Promise<
     ListOk<operations['listAuditLogEntries']>
 > {
-    return request('GET', '/rest/v1/audit_log_entries');
+    return request('GET', '/rest/v1/audit_log_entries', { query });
 }
 
 /** GET /rest/v1/organizer_profiles — read own organizer profile. */
@@ -667,6 +828,25 @@ export function updateOrganizerStatus(
     });
 }
 
+/** GET /rest/v1/org_settings — read organization settings singleton. */
+export function getOrgSettings(): Promise<
+    ListOk<operations['getOrgSettings']>
+> {
+    return request('GET', '/rest/v1/org_settings', { role: 'admin' });
+}
+
+/** PATCH /rest/v1/org_settings?id=eq.{id} — update org settings singleton. */
+export function updateOrgSettings(
+    body: components['schemas']['OrgSettingsUpdate'],
+): Promise<Ok<operations['updateOrgSettings']>> {
+    return request('PATCH', '/rest/v1/org_settings', {
+        role: 'admin',
+        query: { id: 'eq.00000000-0000-0000-0000-000000000001' },
+        body,
+        headers: { Prefer: 'return=representation' },
+    });
+}
+
 // ─── Guest operations ─────────────────────────────────────────────────────────
 
 /** PATCH /rest/v1/guests?id=eq.{id} — update own guest profile. */
@@ -694,20 +874,31 @@ export function getAssignedEvent(
     });
 }
 
+export interface ScanCheckInParams {
+    qrToken: string;
+    eventId?: string;
+}
+
 /** POST /functions/v1/checkin/scan — scan a QR token and record check-in. */
 export function scanCheckIn(
-    qrToken: string,
-    eventId?: string,
+    params: ScanCheckInParams | string,
+    legacyEventId?: string,
 ): Promise<Ok<operations['scanCheckIn']>> {
+    const qrToken = typeof params === 'string' ? params : params.qrToken;
+    const eventId = typeof params === 'string' ? legacyEventId : params.eventId;
     return request('POST', '/functions/v1/checkin/scan', {
         role: 'checkin',
-        body: { qr_token: qrToken, event_id: eventId } satisfies components['schemas']['ScanCheckInRequest'],
+        body: {
+            qr_token: qrToken,
+            event_id: eventId,
+        } satisfies components['schemas']['ScanCheckInRequest'],
     });
 }
 
 // ─── Default export: namespaced client ────────────────────────────────────────
 
 const api = {
+    allPages,
     // config
     API_BASE,
     setRole,
@@ -722,15 +913,18 @@ const api = {
     updateEvent,
     listReminderSchedules,
     upsertReminderSchedule,
+    updateReminderSchedule,
     deleteReminderSchedule,
     listGuests,
     listInvitations,
     createInvitation,
     updateInvitation,
     listAttendees,
+    listAttendeesByInvitationIds,
     submitAttendee,
     updateAttendee,
     listHeadcountRequests,
+    listHeadcountRequestsByInvitationIds,
     submitHeadcountRequest,
     listInvitationDesigns,
     createInvitationDesign,
@@ -755,6 +949,8 @@ const api = {
     getAdminProfile,
     getAdminOrganizers,
     updateOrganizerStatus,
+    getOrgSettings,
+    updateOrgSettings,
     // guest
     updateGuestProfile,
     // check-in staff

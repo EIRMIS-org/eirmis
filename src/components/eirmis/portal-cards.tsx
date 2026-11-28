@@ -21,7 +21,9 @@ export interface SolutionCardProps {
   tags?: string[]
   badge?: string
   href?: string
+  headingLevel?: 'h2' | 'h3' | 'h4'
   className?: string
+  children?: ReactNode
 }
 
 export function SolutionCard({
@@ -31,19 +33,23 @@ export function SolutionCard({
   tags = [],
   badge,
   href,
+  headingLevel = 'h3',
   className,
+  children,
 }: SolutionCardProps) {
+  const Heading = headingLevel
+
   return (
     <div
       className={cn(
-        'group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-surface p-6 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary-border hover:shadow-md',
+        'group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-surface p-6 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary-border hover:shadow-md focus-within:-translate-y-1 focus-within:border-primary-border focus-within:shadow-md',
         className
       )}
     >
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex size-10 items-center justify-center rounded-xl bg-primary-subtle text-primary ring-1 ring-primary-glow transition-transform group-hover:scale-105">
-            {icon ?? <SparklesIcon className="size-5" />}
+          <div className="flex size-10 items-center justify-center rounded-xl bg-primary-subtle text-primary ring-1 ring-primary-glow transition-transform group-hover:scale-105 group-focus-within:scale-105">
+            {icon ?? <SparklesIcon className="size-5" aria-hidden="true" />}
           </div>
           {badge && (
             <Badge variant="outline" size="sm">
@@ -53,32 +59,38 @@ export function SolutionCard({
         </div>
 
         <div>
-          <h4 className="font-heading text-base font-bold text-foreground group-hover:text-primary transition-colors">
+          <Heading className="font-heading text-base font-bold text-foreground group-hover:text-primary group-focus-within:text-primary transition-colors">
             {title}
-          </h4>
+          </Heading>
           <p className="mt-1 text-xs text-muted-foreground leading-relaxed line-clamp-3">
             {description}
           </p>
         </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-border/50 pt-4">
-        <div className="flex flex-wrap gap-1.5">
-          {tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+      {children ?? (
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-border/50 pt-4">
+          <div className="flex flex-wrap gap-1.5">
+            {tags.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+          {href && (
+            <a
+              href={href}
+              className="flex items-center gap-1 rounded text-xs font-semibold text-primary group-hover:translate-x-0.5 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              {tag}
-            </span>
-          ))}
+              Explore <span className="sr-only">{title}</span>
+              <ChevronRightIcon className="size-3.5" aria-hidden="true" />
+            </a>
+          )}
         </div>
-        {href && (
-          <span className="flex items-center gap-1 text-xs font-semibold text-primary group-hover:translate-x-0.5 transition-transform">
-            Explore <ChevronRightIcon className="size-3.5" />
-          </span>
-        )}
-      </div>
+      )}
     </div>
   )
 }
@@ -116,6 +128,8 @@ export function QuotaBar({
 
       <Progress
         value={percent}
+        aria-label={label}
+        aria-valuetext={`${current} of ${max} ${unit} (${percent}%)`}
         className={cn(
           'h-2',
           isFull && '[&>div]:bg-error',
@@ -159,16 +173,13 @@ export function AttendeeItem({
     declined: <Badge variant="error" size="sm">Declined</Badge>,
   }
 
-  return (
-    <div
-      onClick={onClick}
-      className={cn(
-        'flex items-center justify-between gap-3 px-4 py-3 bg-surface transition-colors hover:bg-muted/80',
-        onClick && 'cursor-pointer'
-      )}
-    >
+  const content = (
+    <>
       <div className="flex items-center gap-3 min-w-0">
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-subtle text-primary font-bold text-xs">
+        <div
+          aria-hidden="true"
+          className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-subtle text-primary font-bold text-xs"
+        >
           {name.charAt(0)}
         </div>
         <div className="min-w-0">
@@ -182,8 +193,31 @@ export function AttendeeItem({
       </div>
       <div className="flex items-center gap-2 shrink-0">
         {statusBadges[status]}
-        {onClick && <ChevronRightIcon className="size-4 text-muted-foreground" />}
+        {onClick && (
+          <ChevronRightIcon
+            className="size-4 text-muted-foreground"
+            aria-hidden="true"
+          />
+        )}
       </div>
+    </>
+  )
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className="flex w-full cursor-pointer items-center justify-between gap-3 bg-surface px-4 py-3 text-left transition-colors hover:bg-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+      >
+        {content}
+      </button>
+    )
+  }
+
+  return (
+    <div className="flex items-center justify-between gap-3 bg-surface px-4 py-3 transition-colors hover:bg-muted/80">
+      {content}
     </div>
   )
 }
@@ -224,8 +258,12 @@ export function WorkflowStep({
   status = 'upcoming',
 }: WorkflowStepProps) {
   return (
-    <div className="flex items-start gap-3 text-xs">
+    <div
+      aria-current={status === 'current' ? 'step' : undefined}
+      className="flex items-start gap-3 text-xs"
+    >
       <div
+        aria-hidden="true"
         className={cn(
           'flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition-all',
           status === 'completed' && 'bg-success text-success-foreground',
@@ -233,7 +271,7 @@ export function WorkflowStep({
           status === 'upcoming' && 'bg-border text-muted-foreground'
         )}
       >
-        {status === 'completed' ? <CheckIcon className="size-3.5" /> : step}
+        {status === 'completed' ? <CheckIcon className="size-3.5" aria-hidden="true" /> : step}
       </div>
       <div className="min-w-0">
         <strong
@@ -311,7 +349,8 @@ export function AccountCard({
           <button
             type="button"
             onClick={onSwitch}
-            className="text-[11px] font-semibold text-primary hover:text-primary"
+            aria-label={`Switch account from ${name}`}
+            className="rounded text-[11px] font-semibold text-primary hover:text-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
           >
             Switch
           </button>
@@ -353,7 +392,7 @@ export function AuditCallout({
     >
       <div className="flex items-center justify-between pb-2 border-b border-primary-border">
         <div className="flex items-center gap-1.5 font-bold text-foreground">
-          <ShieldAlertIcon className="size-4 text-primary" />
+          <ShieldAlertIcon className="size-4 text-primary" aria-hidden="true" />
           <span>{title}</span>
         </div>
         <span className="font-mono text-[10px] font-bold text-primary bg-surface px-2 py-0.5 rounded-full border border-primary-border">
@@ -406,7 +445,7 @@ export function ErrorPage({
       )}
     >
       <div className="flex size-14 items-center justify-center rounded-2xl bg-error-bg text-error shadow-xs ring-4 ring-error-bg/50 mb-4">
-        <ShieldAlertIcon className="size-7" />
+        <ShieldAlertIcon className="size-7" aria-hidden="true" />
       </div>
 
       <span className="font-mono text-xs font-bold uppercase tracking-wider text-error">
@@ -454,7 +493,7 @@ export function NoticeBox({
         className
       )}
     >
-      <InfoIcon className="size-4 shrink-0 text-primary mt-0.5" />
+      <InfoIcon className="size-4 shrink-0 text-primary mt-0.5" aria-hidden="true" />
       <div className="min-w-0">
         {title && <strong className="block font-bold text-foreground">{title}</strong>}
         <div className="text-muted-foreground text-xs">{children}</div>

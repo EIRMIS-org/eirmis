@@ -53,14 +53,18 @@ export interface paths {
         put?: never;
         /**
          * Create or update a reminder schedule
-         * @description Creates a reminder schedule. Use `Prefer: resolution=merge-duplicates` to upsert — the UNIQUE(event_id, days_before_event) constraint means a duplicate silently updates the existing row.
+         * @description Creates a reminder schedule. Use `Prefer: resolution=merge-duplicates,return=representation` and `on_conflict=event_id,days_before_event` to merge an existing schedule for the same event and day. Without that conflict target, upsert uses the primary key.
          */
         post: operations["upsertReminderSchedule"];
         /** Delete a reminder schedule */
         delete: operations["deleteReminderSchedule"];
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Update an existing reminder schedule by ID
+         * @description Updates editable fields without changing the reminder ID or event. Use return=representation.
+         */
+        patch: operations["updateReminderSchedule"];
         trace?: never;
     };
     "/rest/v1/guests": {
@@ -1105,7 +1109,7 @@ export interface components {
              */
             days_before_event: number;
             /**
-             * @description Local time (in the event's `event_timezone`) at which the reminder fires on the target day. Stored as `HH:MM`.
+             * @description Local time (in the event's `event_timezone`) at which the reminder fires on the target day. Accepts `HH:MM` and PostgreSQL `HH:MM:SS` values.
              * @example 09:00
              */
             send_time_of_day: string;
@@ -1122,7 +1126,7 @@ export interface components {
             last_sent_at?: string | null;
         };
         /**
-         * @description Request body to create or replace a reminder schedule for an event. Because UNIQUE(event_id, days_before_event) is enforced, the organizer can safely POST with `Prefer: resolution=merge-duplicates` to upsert.
+         * @description Request body to create or replace a reminder schedule for an event. Because UNIQUE(event_id, days_before_event) is enforced, the organizer can POST with `Prefer: resolution=merge-duplicates` and `on_conflict=event_id,days_before_event` to upsert.
          * @example {
          *       "event_id": "55555555-5555-5555-5555-555555555555",
          *       "days_before_event": 7,
@@ -1143,7 +1147,7 @@ export interface components {
              */
             days_before_event: number;
             /**
-             * @description Defaults to `09:00` if omitted. Local 24-hour time string (HH:MM).
+             * @description Defaults to `09:00` if omitted. Local time in HH:MM or HH:MM:SS format.
              * @example 09:00
              */
             send_time_of_day?: string;
@@ -2323,6 +2327,12 @@ export interface components {
          * @enum {string}
          */
         EventStatus: "draft" | "published" | "closed" | "archived";
+        /** @description Editable fields for an existing reminder, addressed by its ID. */
+        ReminderScheduleUpdate: {
+            days_before_event?: number;
+            send_time_of_day?: string;
+            enabled?: boolean;
+        };
         /**
          * @description `pending`    — invitation sent; guest has not yet responded. `accepted`   — guest confirmed attendance. `declined`   — guest declined; no roster submission needed. `tentative`  — guest indicated interest but not committed; no capacity reservation. `waitlisted` — event at capacity; invitation queued in strict FIFO order.
          * @enum {string}
@@ -2468,6 +2478,15 @@ export interface components {
         };
         /** @description Forbidden — the caller's JWT is valid but RLS denied the operation. An undocumented 403 here is a contract bug. */
         Forbidden: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Conflict — a unique constraint was violated. */
+        Conflict: {
             headers: {
                 [name: string]: unknown;
             };
@@ -2732,13 +2751,13 @@ export interface operations {
     };
     upsertReminderSchedule: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Unique columns used to match an existing reminder during upsert. */
+                on_conflict?: "event_id,days_before_event";
+            };
             header?: {
-                /**
-                 * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
-                 * @example return=representation
-                 */
-                Prefer?: components["parameters"]["PreferReturnParam"];
+                /** @description Return affected rows and optionally merge duplicates on the specified conflict target. */
+                Prefer?: "return=representation" | "resolution=merge-duplicates,return=representation";
             };
             path?: never;
             cookie?: never;
@@ -2749,16 +2768,17 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Reminder schedule created or updated. */
+            /** @description Created or updated rows with return=representation. */
             201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ReminderSchedule"];
+                    "application/json": components["schemas"]["ReminderSchedule"][];
                 };
             };
             401: components["responses"]["Unauthorized"];
+            409: components["responses"]["Conflict"];
         };
     };
     deleteReminderSchedule: {
@@ -2784,6 +2804,40 @@ export interface operations {
                 content?: never;
             };
             401: components["responses"]["Unauthorized"];
+        };
+    };
+    updateReminderSchedule: {
+        parameters: {
+            query: {
+                id: string;
+            };
+            header?: {
+                /**
+                 * @description Control whether mutated row(s) are returned in the response body. `return=representation` returns the full row.
+                 * @example return=representation
+                 */
+                Prefer?: components["parameters"]["PreferReturnParam"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReminderScheduleUpdate"];
+            };
+        };
+        responses: {
+            /** @description Updated rows with return=representation; empty if no visible row matches. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReminderSchedule"][];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            409: components["responses"]["Conflict"];
         };
     };
     listGuests: {

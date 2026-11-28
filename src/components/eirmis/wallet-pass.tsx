@@ -33,14 +33,20 @@ export function WalletPass({
       )}
     >
       {/* Background glow and subtle patterns */}
-      <div className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-indigo-500/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-16 -left-16 size-48 rounded-full bg-teal-500/10 blur-3xl" />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-indigo-500/20 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-16 -left-16 size-48 rounded-full bg-teal-500/10 blur-3xl"
+      />
 
       {/* Header with Brand & Tier */}
       <div className="relative flex items-center justify-between border-b border-white/10 pb-4">
         <div className="flex items-center gap-2">
           <div className="flex size-7 items-center justify-center rounded-lg bg-indigo-500/30 text-indigo-300 ring-1 ring-indigo-400/30">
-            <ShieldCheckIcon className="size-4" />
+            <ShieldCheckIcon className="size-4" aria-hidden="true" />
           </div>
           <span className="text-xs font-bold uppercase tracking-wider text-indigo-300">
             EIRMIS Pass
@@ -58,11 +64,11 @@ export function WalletPass({
         </h3>
         <div className="flex flex-wrap items-center gap-3 text-xs text-slate-300">
           <span className="flex items-center gap-1.5">
-            <CalendarIcon className="size-3.5 text-indigo-400" />
+            <CalendarIcon className="size-3.5 text-indigo-400" aria-hidden="true" />
             {eventDate}
           </span>
           <span className="flex items-center gap-1.5">
-            <MapPinIcon className="size-3.5 text-teal-400" />
+            <MapPinIcon className="size-3.5 text-teal-400" aria-hidden="true" />
             {eventLocation}
           </span>
         </div>
@@ -75,7 +81,7 @@ export function WalletPass({
             Pass Holder
           </span>
           <span className="flex items-center gap-2 text-base font-bold text-white">
-            <UserIcon className="size-4 text-indigo-300" />
+            <UserIcon className="size-4 text-indigo-300" aria-hidden="true" />
             {attendeeName}
           </span>
           <span className="mt-1 font-mono text-xs text-indigo-300">
@@ -84,10 +90,14 @@ export function WalletPass({
         </div>
 
         <div className="mt-4 flex flex-col items-center sm:mt-0">
-          <div className="flex size-24 items-center justify-center rounded-xl bg-white p-2 shadow-inner">
+          <div
+            role="img"
+            aria-label={`QR code pass for ${attendeeName}, ticket ${ticketCode}, ${ticketTier}`}
+            className="flex size-24 items-center justify-center rounded-xl bg-white p-2 shadow-inner"
+          >
             {/* High fidelity QR Placeholder with SVG */}
             <div className="flex size-full items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 text-slate-800">
-              <QrCodeIcon className="size-14 text-slate-800" />
+              <QrCodeIcon className="size-14 text-slate-800" aria-hidden="true" />
             </div>
           </div>
           <span className="mt-1 text-[10px] font-mono text-slate-400">
@@ -101,16 +111,18 @@ export function WalletPass({
         <button
           type="button"
           onClick={onAddToWallet}
-          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-slate-900 transition-all hover:bg-slate-100 active:scale-[0.99]"
+          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-slate-900 transition-all hover:bg-slate-100 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
         >
-          <span> Add to Apple Wallet</span>
+          <span>
+            <span aria-hidden="true"> </span>Add to Apple Wallet
+          </span>
         </button>
         <button
           type="button"
           onClick={onDownload}
-          className="flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-xs font-semibold text-white transition-all hover:bg-white/20 active:scale-[0.99]"
+          className="flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-xs font-semibold text-white transition-all hover:bg-white/20 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
         >
-          <DownloadIcon className="size-3.5" />
+          <DownloadIcon className="size-3.5" aria-hidden="true" />
           <span>Save PDF</span>
         </button>
       </div>
