@@ -6,7 +6,7 @@ import "@testing-library/jest-dom/vitest";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
-import { setRole } from "@/lib/api";
+import { listAttendees, listHeadcountRequests, listInvitations, setRole } from "@/lib/api";
 import { resetMockOrganizerState } from "@/mocks/handlers";
 import { server } from "@/mocks/server";
 import { ActivityTab } from "./activity-tab";
@@ -75,6 +75,16 @@ describe("ActivityTab", () => {
 
   afterAll(() => {
     server.close();
+  });
+
+  it("uses mock membership endpoints that honor pagination", async () => {
+    setRole("organizer");
+    for (const load of [listInvitations, listAttendees, listHeadcountRequests]) {
+      const rows = await load();
+      expect(rows.length).toBeGreaterThan(0);
+      expect(await load({ limit: 1, offset: 0 })).toEqual(rows.slice(0, 1));
+      expect(await load({ limit: 1, offset: rows.length })).toEqual([]);
+    }
   });
 
   it("renders loading skeletons then email logs and audit trail", async () => {
@@ -205,5 +215,26 @@ describe("ActivityTab", () => {
     await user.click(screen.getByRole("button", { name: /retry/i }));
     await screen.findByText("event0.event");
     expect(screen.queryByText("event1.event")).not.toBeInTheDocument();
+  });
+
+  it("includes child audit history whose membership is on a later page", async () => {
+    setRole("organizer");
+    seedEventAuditHistory();
+    const offsets: number[] = [];
+    const attendees = [
+      ...Array.from({ length: 500 }, (_, index) => ({ id: `other-${index}`, invitation_id: `${OTHER_EVENT}-invitation` })),
+      { id: `${EVENT_ID}-attendee`, invitation_id: `${EVENT_ID}-invitation` },
+    ];
+    server.use(http.get("*/rest/v1/attendees", ({ request }) => {
+      const url = new URL(request.url);
+      const offset = Number(url.searchParams.get("offset"));
+      const limit = Number(url.searchParams.get("limit"));
+      offsets.push(offset);
+      return HttpResponse.json(attendees.slice(offset, offset + limit));
+    }));
+    renderActivityTab();
+    expect(await screen.findByText("event0.attendee")).toBeInTheDocument();
+    expect(screen.queryByText("event1.attendee")).not.toBeInTheDocument();
+    expect(offsets).toEqual([0, 500]);
   });
 });

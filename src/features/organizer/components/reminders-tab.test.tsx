@@ -184,4 +184,31 @@ describe("RemindersTab", () => {
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(await listReminderSchedules(EVENT_ID)).toEqual(before);
   });
+
+  it("creates and repeatedly edits the same row through the dialog", async () => {
+    setRole("organizer");
+    const before = await listReminderSchedules(EVENT_ID);
+    const user = userEvent.setup();
+    renderRemindersTab();
+    await screen.findByText("7 days before");
+    await user.click(screen.getByRole("button", { name: /add schedule/i }));
+    await user.click(screen.getByRole("button", { name: /save schedule/i }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    const created = (await listReminderSchedules(EVENT_ID)).find((row) => row.days_before_event === 3)!;
+    expect(created).toBeDefined();
+    for (const [field, value] of [[/send time/i, "11:45:30"], [/days before event/i, "5"]] as const) {
+      const row = screen.getByText("3 days before").closest("tr")!;
+      await user.click(within(row).getByRole("button", { name: "Edit" }));
+      await user.clear(screen.getByLabelText(field));
+      await user.type(screen.getByLabelText(field), value);
+      await user.click(screen.getByRole("button", { name: /save schedule/i }));
+      await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+      expect(await listReminderSchedules(EVENT_ID)).toHaveLength(before.length + 1);
+    }
+    expect(await listReminderSchedules(EVENT_ID)).toEqual([
+      ...before, { ...created, days_before_event: 5, send_time_of_day: "11:45:30" },
+    ]);
+    expect(screen.getByText("5 days before")).toBeInTheDocument();
+    expect(screen.queryByText("3 days before")).not.toBeInTheDocument();
+  });
 });
