@@ -1,5 +1,12 @@
-import { useRef, useState } from 'react'
-import { Controller, useForm, useWatch, type Control, type FieldPath } from 'react-hook-form'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
+import {
+  Controller,
+  useForm,
+  useWatch,
+  type Control,
+  type FieldErrors,
+  type FieldPath,
+} from 'react-hook-form'
 import { ArrowLeft, ArrowRight, Check, ChevronLeft } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import type { EventCreate } from '@/lib/api'
@@ -37,6 +44,35 @@ function getStep(searchParams: URLSearchParams) {
   return Number.isInteger(value) && value >= 1 && value <= STEPS.length
     ? value
     : 1
+}
+
+function findFirstInvalidField(
+  fieldErrors: FieldErrors<EventFormInput>,
+): { step: number; field: FieldPath<EventFormInput> } | null {
+  for (let stepNumber = 1; stepNumber < STEPS.length; stepNumber += 1) {
+    const fields = STEP_FIELDS[stepNumber] ?? []
+    for (const field of fields) {
+      if (fieldErrors[field]) {
+        return { step: stepNumber, field }
+      }
+    }
+  }
+  return null
+}
+
+function extractFallbackError(fieldErrors: FieldErrors<EventFormInput>): string {
+  for (const error of Object.values(fieldErrors)) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'message' in error &&
+      typeof error.message === 'string' &&
+      error.message
+    ) {
+      return error.message
+    }
+  }
+  return 'Please review the event details and fix any validation errors.'
 }
 
 function FieldError({ message }: { message?: string }) {
@@ -194,6 +230,7 @@ export function CreateEventPage() {
     formState: { errors, isDirty },
     handleSubmit,
     register,
+    setFocus,
     trigger,
   } = useForm<EventFormInput, unknown, EventCreate>({
     resolver: eventCreateResolver,
@@ -220,6 +257,17 @@ export function CreateEventPage() {
   const eventTimezone = useWatch({ control, name: 'event_timezone' }) || 'UTC'
 
   const isNavigatingRef = useRef(false)
+  const isSubmittingRef = useRef(false)
+  const pendingFocusFieldRef = useRef<FieldPath<EventFormInput> | null>(null)
+
+  useEffect(() => {
+    const field = pendingFocusFieldRef.current
+    if (!field) return
+    const fieldsInStep = STEP_FIELDS[step] ?? []
+    if (!fieldsInStep.includes(field)) return
+    pendingFocusFieldRef.current = null
+    setFocus(field)
+  }, [step, setFocus])
 
   function applyStep(nextStep: number) {
     setFormError(undefined)
@@ -269,6 +317,14 @@ export function CreateEventPage() {
   }
 
   async function onSubmit(payload: EventCreate) {
+    if (
+      step !== STEPS.length ||
+      isSubmittingRef.current ||
+      createEvent.isPending
+    ) {
+      return
+    }
+    isSubmittingRef.current = true
     setFormError(undefined)
     try {
       const event = await createEvent.mutateAsync({
@@ -294,7 +350,39 @@ export function CreateEventPage() {
           ? error.message
           : 'The event could not be created. Please try again.',
       )
+    } finally {
+      isSubmittingRef.current = false
     }
+  }
+
+  function onInvalid(fieldErrors: FieldErrors<EventFormInput>) {
+    const firstInvalid = findFirstInvalidField(fieldErrors)
+    if (firstInvalid) {
+      pendingFocusFieldRef.current = firstInvalid.field
+      if (firstInvalid.step !== step) {
+        applyStep(firstInvalid.step)
+      } else {
+        pendingFocusFieldRef.current = null
+        setFocus(firstInvalid.field)
+      }
+      return
+    }
+    setFormError(extractFallbackError(fieldErrors))
+  }
+
+  function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
+    if (step !== STEPS.length) {
+      event.preventDefault()
+      void navigateToStep(step + 1)
+      return
+    }
+
+    if (isSubmittingRef.current || createEvent.isPending) {
+      event.preventDefault()
+      return
+    }
+
+    void handleSubmit(onSubmit, onInvalid)(event)
   }
 
   return (
@@ -364,7 +452,7 @@ export function CreateEventPage() {
 
         <form
           noValidate
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleFormSubmit}
           className="space-y-6 p-5 sm:p-7"
         >
           {step === 1 && (
@@ -434,6 +522,7 @@ export function CreateEventPage() {
                     name="starts_at"
                     render={({ field }) => (
                       <Input
+                        ref={field.ref}
                         id="event-start"
                         type="datetime-local"
                         className="mt-1.5"
@@ -465,6 +554,7 @@ export function CreateEventPage() {
                     name="ends_at"
                     render={({ field }) => (
                       <Input
+                        ref={field.ref}
                         id="event-end"
                         type="datetime-local"
                         className="mt-1.5"
@@ -496,6 +586,7 @@ export function CreateEventPage() {
                     name="rsvp_deadline"
                     render={({ field }) => (
                       <Input
+                        ref={field.ref}
                         id="event-deadline"
                         type="datetime-local"
                         className="mt-1.5"
@@ -649,12 +740,16 @@ export function CreateEventPage() {
               )}
             </div>
             {step < 4 ? (
-              <Button type="button" onClick={() => void navigateToStep(step + 1)}>
+              <Button key="continue-step" type="submit">
                 Continue
                 <ArrowRight aria-hidden="true" />
               </Button>
             ) : (
-              <Button type="submit" disabled={createEvent.isPending}>
+              <Button
+                key="create-event"
+                type="submit"
+                disabled={createEvent.isPending}
+              >
                 {createEvent.isPending ? 'Creating event…' : 'Create event'}
                 {!createEvent.isPending && <Check aria-hidden="true" />}
               </Button>

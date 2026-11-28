@@ -327,4 +327,235 @@ describe("CreateEventPage dirty-guard", () => {
     expect(router.state.location.search).toContain("source=dashboard");
     expect(router.state.location.search).toContain("step=4");
   });
+
+  it("deep-linking to ?step=4 and clicking Create redirects to Basics with visible errors and zero POST requests", async () => {
+    const user = userEvent.setup();
+    const submittedBody = vi.fn();
+    setRole("organizer");
+    server.use(
+      http.post("*/rest/v1/events", async ({ request }) => {
+        submittedBody(await request.json());
+        return HttpResponse.json({}, { status: 201 });
+      }),
+    );
+
+    renderWizard("/organizer/events/new?step=4");
+
+    expect(
+      screen.getByRole("heading", { name: /review your event/i }),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /create event/i }));
+
+    expect(
+      await screen.findByRole("heading", { name: /event basics/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/event title is required/i)).toBeInTheDocument();
+    expect(screen.getByText(/event slug is required/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByLabelText(/event title/i)).toHaveFocus();
+    });
+    expect(submittedBody).not.toHaveBeenCalled();
+  });
+
+  it("pressing Enter in valid Step 3 advances to Review without creating an event", async () => {
+    const user = userEvent.setup();
+    const submittedBody = vi.fn();
+    setRole("organizer");
+    server.use(
+      http.post("*/rest/v1/events", async ({ request }) => {
+        submittedBody(await request.json());
+        return HttpResponse.json({}, { status: 201 });
+      }),
+    );
+
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Enter Key Summit" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "enter-key-summit" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
+      target: { value: "2026-12-01T18:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-01T20:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-01T17:00" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    const capacityInput = await screen.findByLabelText(/total capacity/i);
+    await user.type(capacityInput, "150{Enter}");
+
+    expect(
+      await screen.findByRole("heading", { name: /review your event/i }),
+    ).toBeInTheDocument();
+    expect(submittedBody).not.toHaveBeenCalled();
+  });
+
+  it("pressing Enter in invalid Step 3 remains on Step 3 with visible errors", async () => {
+    const user = userEvent.setup();
+    const submittedBody = vi.fn();
+    setRole("organizer");
+    server.use(
+      http.post("*/rest/v1/events", async ({ request }) => {
+        submittedBody(await request.json());
+        return HttpResponse.json({}, { status: 201 });
+      }),
+    );
+
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Enter Key Summit" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "enter-key-summit" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
+      target: { value: "2026-12-01T18:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-01T20:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-01T17:00" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    const capacityInput = await screen.findByLabelText(/total capacity/i);
+    await user.click(capacityInput);
+    await user.keyboard("{Enter}");
+
+    expect(
+      screen.getByRole("heading", { name: /capacity and registration/i }),
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(capacityInput).toHaveAttribute("aria-invalid", "true");
+    });
+    expect(submittedBody).not.toHaveBeenCalled();
+  });
+
+  it("sends exactly one create request from Review and navigates to the created event", async () => {
+    const user = userEvent.setup();
+    const submittedBody = vi.fn();
+    setRole("organizer");
+    server.use(
+      http.post("*/rest/v1/events", async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        submittedBody(body);
+        return HttpResponse.json(
+          {
+            ...body,
+            id: "event-created-123",
+            organizer_id: "11111111-1111-1111-1111-111111111111",
+            created_at: "2026-11-27T00:00:00.000Z",
+            updated_at: "2026-11-27T00:00:00.000Z",
+          },
+          { status: 201 },
+        );
+      }),
+    );
+
+    const { router } = renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Created Event" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "created-event" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
+      target: { value: "2026-12-01T18:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-01T20:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-01T17:00" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/total capacity/i), {
+      target: { value: "120" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    await user.click(
+      await screen.findByRole("button", { name: /create event/i }),
+    );
+
+    expect(await screen.findByText("Event Workspace")).toBeInTheDocument();
+    expect(submittedBody).toHaveBeenCalledTimes(1);
+    expect(router.state.location.pathname).toBe(
+      "/organizer/events/event-created-123",
+    );
+    expect(
+      screen.queryByText("Leave with unsaved changes?"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("keeps server failures visible on the Review step", async () => {
+    const user = userEvent.setup();
+    setRole("organizer");
+    server.use(
+      http.post("*/rest/v1/events", () =>
+        HttpResponse.json(
+          {
+            code: "23505",
+            message: "Slug is already in use.",
+            details: null,
+            hint: null,
+          },
+          { status: 409 },
+        ),
+      ),
+    );
+
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Duplicate Event" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "duplicate-event" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
+      target: { value: "2026-12-01T18:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-01T20:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-01T17:00" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/total capacity/i), {
+      target: { value: "120" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    await user.click(
+      await screen.findByRole("button", { name: /create event/i }),
+    );
+
+    expect(
+      await screen.findByText("Slug is already in use."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /review your event/i }),
+    ).toBeInTheDocument();
+  });
 });
