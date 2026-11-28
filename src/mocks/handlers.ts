@@ -498,6 +498,13 @@ function validatePostgrestQuery(
 }
 
 /** Simulate PostgREST filter matching on `?column=eq.value` or `?column=in.(a,b)`. */
+function paginatedList<T>(request: Request, rows: T[]) {
+  const params = new URL(request.url).searchParams;
+  const offset = Math.max(0, Number(params.get("offset") ?? 0));
+  const limit = Math.max(0, Number(params.get("limit") ?? rows.length));
+  return jsonList(rows.slice(offset, offset + limit), rows.length, offset);
+}
+
 function filterByEq<T extends Record<string, unknown>>(
   request: Request,
   items: T[],
@@ -711,7 +718,7 @@ export const handlers = [
     const visibleInvitations = isGuest
       ? [mockInvitation]
       : [mockInvitation, ...mockExtraInvitations];
-    return jsonList(filterByEq(request, visibleInvitations, "event_id"));
+    return paginatedList(request, filterByEq(request, visibleInvitations, "event_id"));
   }),
 
   http.post("*/rest/v1/invitations", async ({ request }) => {
@@ -761,7 +768,7 @@ export const handlers = [
     if (invalid) return invalid;
     let result = filterByEq(request, mockAttendees, "invitation_id");
     result = filterByEq(request, result, "status");
-    return jsonList(result);
+    return paginatedList(request, result);
   }),
 
   http.post("*/rest/v1/attendees", async ({ request }) => {
@@ -835,7 +842,7 @@ export const handlers = [
     if (invalid) return invalid;
     let result = filterByEq(request, mockHeadcountRequests, "invitation_id");
     result = filterByEq(request, result, "status");
-    return jsonList(result);
+    return paginatedList(request, result);
   }),
 
   // ═══ Edge Function: submit headcount request and notify organizer ═══
