@@ -41,6 +41,7 @@ import {
   useDeleteReminderSchedule,
   useReminderSchedules,
   useUpsertReminderSchedule,
+  useUpdateReminderSchedule,
 } from "@/features/organizer/hooks/use-reminder-schedules";
 import type { ReminderScheduleUpsert } from "@/lib/api";
 import { FormRow, reminderScheduleUpsertResolver } from "@/lib/forms";
@@ -59,6 +60,8 @@ export interface RemindersTabProps {
 export function RemindersTab({ eventId }: RemindersTabProps) {
   const schedulesQuery = useReminderSchedules(eventId);
   const upsertSchedule = useUpsertReminderSchedule();
+  const updateSchedule = useUpdateReminderSchedule();
+  const isSaving = upsertSchedule.isPending || updateSchedule.isPending;
   const deleteSchedule = useDeleteReminderSchedule();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -114,20 +117,22 @@ export function RemindersTab({ eventId }: RemindersTabProps) {
   };
 
   const onSubmit = (values: ReminderScheduleUpsert) => {
-    upsertSchedule.mutate(
-      {
-        event_id: eventId,
+    const body = {
         days_before_event: values.days_before_event,
         send_time_of_day: values.send_time_of_day ?? "09:00",
         enabled: values.enabled ?? true,
-      },
-      {
+    };
+    const callbacks = {
         onSuccess: () => {
           setIsDialogOpen(false);
           setEditingSchedule(null);
         },
-      },
-    );
+    };
+    if (editingSchedule) {
+      updateSchedule.mutate({ id: editingSchedule.id, body }, callbacks);
+    } else {
+      upsertSchedule.mutate({ event_id: eventId, ...body }, callbacks);
+    }
   };
 
   const confirmDelete = () => {
@@ -208,9 +213,7 @@ export function RemindersTab({ eventId }: RemindersTabProps) {
           {schedules.map((schedule) => (
             <TableRow key={schedule.id}>
               <TableCell className="font-medium text-foreground">
-                {schedule.days_before_event === 0
-                  ? "Day of event"
-                  : `${schedule.days_before_event} ${schedule.days_before_event === 1 ? "day" : "days"} before`}
+                {`${schedule.days_before_event} ${schedule.days_before_event === 1 ? "day" : "days"} before`}
               </TableCell>
               <TableCell>{schedule.send_time_of_day}</TableCell>
               <TableCell>
@@ -295,16 +298,15 @@ export function RemindersTab({ eventId }: RemindersTabProps) {
               id="reminder-days-before"
               label="Days before event"
               type="number"
-              min={0}
+              min={1}
               max={365}
-              readOnly={Boolean(editingSchedule)}
               error={errors.days_before_event?.message}
               {...register("days_before_event", { valueAsNumber: true })}
             />
 
             <FormRow
               id="reminder-send-time"
-              label="Send time (24h HH:MM)"
+              label="Send time (24h HH:MM or HH:MM:SS)"
               placeholder="09:00"
               error={errors.send_time_of_day?.message}
               {...register("send_time_of_day")}
@@ -340,9 +342,9 @@ export function RemindersTab({ eventId }: RemindersTabProps) {
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting || upsertSchedule.isPending}
+                disabled={isSubmitting || isSaving}
               >
-                {upsertSchedule.isPending ? "Saving…" : "Save schedule"}
+                {isSaving ? "Saving…" : "Save schedule"}
               </Button>
             </DialogFooter>
           </form>
