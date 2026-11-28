@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
+import { renderToStaticMarkup } from 'react-dom/server'
 import '@testing-library/jest-dom/vitest'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
@@ -19,6 +20,7 @@ beforeAll(() => {
 afterEach(() => {
   vi.useRealTimers()
   vi.restoreAllMocks()
+  window.localStorage.clear()
   window.sessionStorage.clear()
   server.resetHandlers()
   cleanup()
@@ -185,6 +187,112 @@ describe('Redirect memory across RoleGuard and LandingPage', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('location-path')).toHaveTextContent('/organizer')
+    })
+    expect(window.sessionStorage.getItem(REDIRECT_STORAGE_KEY)).toBeNull()
+  })
+
+  it('does not write to sessionStorage during render when RoleGuard handles an unauthenticated visit', () => {
+    const setItemSpy = vi.spyOn(Storage.prototype, 'setItem')
+
+    renderToStaticMarkup(
+      <SessionProvider>
+        <MemoryRouter initialEntries={['/organizer/events']}>
+          <RoleGuard allow={['organizer']}>
+            <div>Organizer Events Workspace</div>
+          </RoleGuard>
+        </MemoryRouter>
+      </SessionProvider>
+    )
+
+    expect(setItemSpy).not.toHaveBeenCalled()
+    expect(window.sessionStorage.getItem(REDIRECT_STORAGE_KEY)).toBeNull()
+  })
+
+  it('rejects sibling-prefix redirect /guestfoo and falls back to /guest on Guest sign-in', async () => {
+    const user = userEvent.setup()
+    window.sessionStorage.setItem(REDIRECT_STORAGE_KEY, '/guestfoo')
+
+    renderWithProviders(
+      <>
+        <LocationProbe />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/guest" element={<div>Guest Home</div>} />
+          <Route path="/guestfoo" element={<div>Sibling Route</div>} />
+        </Routes>
+      </>,
+      ['/']
+    )
+
+    await user.click(screen.getByRole('button', { name: /Continue as Guest/i }))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('location-path')).toHaveTextContent(/^\/guest$/)
+    })
+    expect(window.sessionStorage.getItem(REDIRECT_STORAGE_KEY)).toBeNull()
+  })
+
+  it('rejects path traversal redirect /guest/../admin and accepts valid /guest/rsvp and /guest?tab=1', async () => {
+    const user = userEvent.setup()
+    window.sessionStorage.setItem(REDIRECT_STORAGE_KEY, '/guest/../admin')
+
+    const { unmount } = renderWithProviders(
+      <>
+        <LocationProbe />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/guest" element={<div>Guest Home</div>} />
+          <Route path="/admin" element={<div>Admin Home</div>} />
+        </Routes>
+      </>,
+      ['/']
+    )
+
+    await user.click(screen.getByRole('button', { name: /Continue as Guest/i }))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('location-path')).toHaveTextContent(/^\/guest$/)
+    })
+    expect(window.sessionStorage.getItem(REDIRECT_STORAGE_KEY)).toBeNull()
+    unmount()
+
+    window.sessionStorage.setItem(REDIRECT_STORAGE_KEY, '/guest/rsvp?tab=1')
+    renderWithProviders(
+      <>
+        <LocationProbe />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/guest" element={<div>Guest Home</div>} />
+          <Route path="/guest/rsvp" element={<div>Guest RSVP</div>} />
+        </Routes>
+      </>,
+      ['/']
+    )
+
+    await user.click(screen.getByRole('button', { name: /Continue as Guest/i }))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('location-path')).toHaveTextContent(/^\/guest\/rsvp\?tab=1$/)
+    })
+    expect(window.sessionStorage.getItem(REDIRECT_STORAGE_KEY)).toBeNull()
+    cleanup()
+
+    window.sessionStorage.setItem(REDIRECT_STORAGE_KEY, '/guest?tab=1')
+    renderWithProviders(
+      <>
+        <LocationProbe />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/guest" element={<div>Guest Home</div>} />
+        </Routes>
+      </>,
+      ['/']
+    )
+
+    await user.click(screen.getByRole('button', { name: /Continue as Guest/i }))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('location-path')).toHaveTextContent(/^\/guest\?tab=1$/)
     })
     expect(window.sessionStorage.getItem(REDIRECT_STORAGE_KEY)).toBeNull()
   })
