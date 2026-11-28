@@ -19,9 +19,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useListAttendees } from "@/features/organizer/hooks/use-list-attendees";
+import { useListAttendeesByInvitationIds } from "@/features/organizer/hooks/use-list-attendees";
 import { useListInvitations } from "@/features/organizer/hooks/use-list-invitations";
-import { eq, inList } from "@/lib/api";
+import { eq } from "@/lib/api";
 
 /**
  * 30s live polling interval for organizer attendance dashboard queries,
@@ -48,15 +48,9 @@ export function AttendanceTab({ eventId }: AttendanceTabProps) {
     () => invitations.map((invitation) => invitation.id),
     [invitations],
   );
-  const attendeesQuery = useListAttendees(
-    invitationIdList.length > 0
-      ? { invitation_id: inList(invitationIdList) }
-      : undefined,
-    {
-      enabled: invitationIdList.length > 0,
-      refetchInterval: ATTENDANCE_REFETCH_INTERVAL_MS,
-    },
-  );
+  const attendeesQuery = useListAttendeesByInvitationIds(invitationIdList, {
+    refetchInterval: ATTENDANCE_REFETCH_INTERVAL_MS,
+  });
 
   const invitationById = useMemo(
     () =>

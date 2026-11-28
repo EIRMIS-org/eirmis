@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { SearchIcon, UserPlusIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -22,10 +22,10 @@ import {
 import { useScanCheckIn } from '@/features/checkin/hooks/use-scan-check-in'
 import { notifyScanOutcome } from '@/features/checkin/lib/notify-scan-outcome'
 import { useSubmitAttendee } from '@/features/guest/hooks/use-submit-attendee'
-import { useListAttendees } from '@/features/organizer/hooks/use-list-attendees'
+import { useListAttendeesByInvitationIds } from '@/features/organizer/hooks/use-list-attendees'
 import { useListGuests } from '@/features/organizer/hooks/use-list-guests'
 import { useListInvitations } from '@/features/organizer/hooks/use-list-invitations'
-import { ApiError, eq, inList, type Attendee, type AttendeeCreate } from '@/lib/api'
+import { ApiError, eq, type Attendee, type AttendeeCreate } from '@/lib/api'
 import {
     applyContractError,
     attendeeCreateResolver,
@@ -53,12 +53,7 @@ export function WalkInModal({ eventId }: WalkInModalProps) {
         () => (invitationsQuery.data ?? []).map((invitation) => invitation.id),
         [invitationsQuery.data],
     )
-    const attendeesQuery = useListAttendees(
-        invitationIdList.length > 0
-            ? { invitation_id: inList(invitationIdList) }
-            : undefined,
-        { enabled: invitationIdList.length > 0 },
-    )
+    const attendeesQuery = useListAttendeesByInvitationIds(invitationIdList)
     const submitAttendee = useSubmitAttendee()
     const scanCheckIn = useScanCheckIn()
 

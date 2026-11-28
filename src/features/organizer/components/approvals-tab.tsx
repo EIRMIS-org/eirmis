@@ -30,14 +30,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useDecideAttendee } from "@/features/organizer/hooks/use-decide-attendee";
 import { useDecideHeadcountRequest } from "@/features/organizer/hooks/use-decide-headcount-request";
-import { useListAttendees } from "@/features/organizer/hooks/use-list-attendees";
+import { useListAttendeesByInvitationIds } from "@/features/organizer/hooks/use-list-attendees";
 import { useListHeadcountRequests } from "@/features/organizer/hooks/use-list-headcount-requests";
 import { useListInvitations } from "@/features/organizer/hooks/use-list-invitations";
 import { usePromoteWaitlist } from "@/features/organizer/hooks/use-promote-waitlist";
 import {
   ApiError,
   eq,
-  inList,
   type Attendee,
   type HeadcountIncreaseRequest,
 } from "@/lib/api";
@@ -71,12 +70,7 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
     () => (invitationsQuery.data ?? []).map((invitation) => invitation.id),
     [invitationsQuery.data],
   );
-  const attendeesQuery = useListAttendees(
-    invitationIdList.length > 0
-      ? { invitation_id: inList(invitationIdList) }
-      : undefined,
-    { enabled: invitationIdList.length > 0 },
-  );
+  const attendeesQuery = useListAttendeesByInvitationIds(invitationIdList);
   const headcountQuery = useListHeadcountRequests({ status: eq("pending") });
   const decideAttendee = useDecideAttendee();
   const decideHeadcountRequest = useDecideHeadcountRequest();

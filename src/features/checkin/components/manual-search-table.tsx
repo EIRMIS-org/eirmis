@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { CheckCircle2Icon, SearchIcon } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -14,9 +14,9 @@ import {
 } from '@/components/ui/table'
 import { useScanCheckIn } from '@/features/checkin/hooks/use-scan-check-in'
 import { notifyScanOutcome } from '@/features/checkin/lib/notify-scan-outcome'
-import { useListAttendees } from '@/features/organizer/hooks/use-list-attendees'
+import { useListAttendeesByInvitationIds } from '@/features/organizer/hooks/use-list-attendees'
 import { useListInvitations } from '@/features/organizer/hooks/use-list-invitations'
-import { eq, inList } from '@/lib/api'
+import { eq } from '@/lib/api'
 
 export interface ManualSearchTableProps {
     eventId: string
@@ -29,12 +29,7 @@ export function ManualSearchTable({ eventId }: ManualSearchTableProps) {
         () => (invitationsQuery.data ?? []).map((invitation) => invitation.id),
         [invitationsQuery.data],
     )
-    const attendeesQuery = useListAttendees(
-        invitationIdList.length > 0
-            ? { invitation_id: inList(invitationIdList) }
-            : undefined,
-        { enabled: invitationIdList.length > 0 },
-    )
+    const attendeesQuery = useListAttendeesByInvitationIds(invitationIdList)
     const scanMutation = useScanCheckIn()
 
     const invitationIds = useMemo(

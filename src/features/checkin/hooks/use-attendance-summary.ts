@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { eq, inList, listAttendees, listInvitations } from '@/lib/api'
+import { useListAttendeesByInvitationIds } from '@/features/organizer/hooks/use-list-attendees'
+import { eq, listInvitations } from '@/lib/api'
 import { qk } from '@/lib/api/query-keys'
 
 /**
@@ -40,18 +41,8 @@ export function useAttendanceSummary(eventId?: string): AttendanceSummaryMetrics
         [invitations.data],
     )
 
-    const attendeeQuery = useMemo(
-        () =>
-            invitationIdList.length > 0
-                ? { invitation_id: inList(invitationIdList) }
-                : undefined,
-        [invitationIdList],
-    )
-
-    const attendees = useQuery({
-        queryKey: qk.listAttendees(attendeeQuery),
-        queryFn: () => listAttendees(attendeeQuery),
-        enabled: Boolean(eventId) && invitationIdList.length > 0,
+    const attendees = useListAttendeesByInvitationIds(invitationIdList, {
+        enabled: Boolean(eventId),
         refetchInterval: ATTENDANCE_REFETCH_INTERVAL_MS,
     })
 
