@@ -15,7 +15,8 @@ import { ApprovalsTab } from "./approvals-tab";
 const EVENT_ID = "55555555-5555-5555-5555-555555555555";
 const ATTENDEE_ID = "77777777-7777-7777-7777-777777777777";
 
-function renderApprovalsTab(capacity = 500) {
+function renderApprovalsTab(...args: [capacity?: number]) {
+  const capacity = args.length === 0 ? 500 : args[0];
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -87,15 +88,20 @@ describe("ApprovalsTab waitlist promotion", () => {
     await user.click(rejectButtons[0]);
 
     await waitFor(() => {
-      // Attendees are now queried via invitation_id=in.(...) not event_id
-      const queryCache = queryClient.getQueryCache()
+      // Attendees are queried via chunked invitation_id=in.(...) requests
+      const queryCache = queryClient.getQueryCache();
       const attendeesQueries = queryCache.findAll({
         queryKey: [...qk.listAttendeesPrefix()],
-      })
-      const attendeesQuery = attendeesQueries.find(q =>
-        (q.queryKey[1] as Record<string, unknown> | undefined)?.invitation_id?.toString().startsWith("in.(")
-      )
-      const cachedAttendees = attendeesQuery?.state?.data as Attendee[] | undefined
+      });
+      const attendeesQuery = attendeesQueries.find(
+        (q) =>
+          q.queryKey[1] === "byInvitationIds" &&
+          Array.isArray(q.queryKey[2]) &&
+          q.queryKey[2].length > 0,
+      );
+      const cachedAttendees = attendeesQuery?.state?.data as
+        | Attendee[]
+        | undefined;
       expect(cachedAttendees?.[0]?.status).toBe("rejected");
     });
 
@@ -351,6 +357,182 @@ describe("ApprovalsTab waitlist promotion", () => {
       decision: "approve",
       override_capacity: true,
       reason: "Approved after concurrent capacity fill",
+    });
+  });
+
+  it("skips client-side 120 capacity guard and omits /120 badge when capacity is undefined", async () => {
+    setRole("organizer");
+    const submittedPayloads: Array<{
+      id: string;
+      body: Record<string, unknown>;
+    }> = [];
+
+    const pendingAttendee: Attendee = {
+      id: "77777777-7777-7777-7777-000000000999",
+      invitation_id: "66666666-6666-6666-6666-666666666666",
+      full_name: "Elena Reyes",
+      email: "elena.reyes@example.com",
+      is_primary: false,
+      status: "pending",
+      submitted_at: "2026-10-10T14:00:00+08:00",
+      reviewed_by: null,
+      reviewed_at: null,
+      review_reason: null,
+      qr_token: null,
+      checked_in: false,
+      checked_in_at: null,
+      checked_in_by: null,
+      is_walk_in: false,
+    };
+
+    const existingApproved: Attendee[] = Array.from({ length: 120 }, (_, i) => ({
+      id: `77777777-7777-7777-7777-${String(i + 1).padStart(12, "0")}`,
+      invitation_id: "66666666-6666-6666-6666-666666666666",
+      full_name: `Approved Guest ${i + 1}`,
+      email: `approved-${i + 1}@example.com`,
+      is_primary: i === 0,
+      status: "approved",
+      submitted_at: "2026-10-05T14:00:00+08:00",
+      reviewed_by: "11111111-1111-1111-1111-111111111111",
+      reviewed_at: "2026-10-06T09:00:00+08:00",
+      review_reason: null,
+      qr_token: `qr-approved-${i + 1}`,
+      checked_in: false,
+      checked_in_at: null,
+      checked_in_by: null,
+      is_walk_in: false,
+    }));
+
+    server.use(
+      http.get("*/rest/v1/attendees", () =>
+        HttpResponse.json([pendingAttendee, ...existingApproved]),
+      ),
+      http.post(
+        "*/functions/v1/attendees/:id/decision",
+        async ({ request, params }) => {
+          const body = (await request.json()) as Record<string, unknown>;
+          const id = String(params.id);
+          submittedPayloads.push({ id, body });
+          return HttpResponse.json({
+            attendee: {
+              ...pendingAttendee,
+              id,
+              status: "approved",
+            },
+            capacity_warning: false,
+          });
+        },
+      ),
+    );
+
+    const user = userEvent.setup();
+    renderApprovalsTab(undefined);
+
+    await screen.findByText("Elena Reyes");
+
+    expect(screen.getByText("120 approved")).toBeInTheDocument();
+    expect(screen.queryByText(/\/120/i)).not.toBeInTheDocument();
+
+    const approveButtons = screen.getAllByRole("button", { name: /approve/i });
+    await user.click(approveButtons[0]);
+
+    await waitFor(() => {
+      expect(submittedPayloads).toHaveLength(1);
+    });
+    expect(
+      screen.queryByText("Capacity override confirmation"),
+    ).not.toBeInTheDocument();
+    expect(submittedPayloads[0]).toEqual({
+      id: pendingAttendee.id,
+      body: {
+        decision: "approve",
+        override_capacity: false,
+        reason: null,
+      },
+    });
+  });
+
+  it("opens override dialog with clean copy when capacity is undefined and server returns 409 CAPACITY_EXCEEDED", async () => {
+    setRole("organizer");
+    let callCount = 0;
+    const submittedBodies: Array<Record<string, unknown>> = [];
+
+    server.use(
+      http.post(
+        "*/functions/v1/attendees/:id/decision",
+        async ({ request }) => {
+          callCount += 1;
+          const body = (await request.json()) as Record<string, unknown>;
+          submittedBodies.push(body);
+
+          if (callCount === 1) {
+            return HttpResponse.json(
+              {
+                code: "CAPACITY_EXCEEDED",
+                message:
+                  "Event capacity has been reached. An explicit organizer override is required.",
+                details: null,
+                hint: null,
+              },
+              { status: 409 },
+            );
+          }
+
+          return HttpResponse.json({
+            attendee: {
+              id: ATTENDEE_ID,
+              invitation_id: "66666666-6666-6666-6666-666666666666",
+              full_name: "Maria Santos",
+              email: "maria.santos@example.com",
+              is_primary: true,
+              status: "approved",
+              submitted_at: "2026-10-05T14:00:00+08:00",
+              reviewed_by: "11111111-1111-1111-1111-111111111111",
+              reviewed_at: "2026-10-06T09:00:00+08:00",
+              review_reason: String(body.reason ?? ""),
+              qr_token: "signed-qr-token-sample",
+              checked_in: false,
+              checked_in_at: null,
+              checked_in_by: null,
+              is_walk_in: false,
+            },
+            capacity_warning: true,
+          });
+        },
+      ),
+    );
+
+    const user = userEvent.setup();
+    renderApprovalsTab(undefined);
+
+    await screen.findByText("Maria Santos");
+
+    const approveButtons = screen.getAllByRole("button", { name: /approve/i });
+    await user.click(approveButtons[0]);
+
+    expect(
+      await screen.findByText("Capacity override confirmation"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/would take the event beyond its configured capacity\./i),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/undefined/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/capacity of 120/i)).not.toBeInTheDocument();
+
+    const reasonInput = screen.getByLabelText(/override reason/i);
+    await user.type(reasonInput, "Server-confirmed capacity override");
+
+    await user.click(
+      screen.getByRole("button", { name: /confirm override/i }),
+    );
+
+    await waitFor(() => {
+      expect(submittedBodies).toHaveLength(2);
+    });
+    expect(submittedBodies[1]).toEqual({
+      decision: "approve",
+      override_capacity: true,
+      reason: "Server-confirmed capacity override",
     });
   });
 });

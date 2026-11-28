@@ -195,12 +195,15 @@ describe("AttendanceTab", () => {
     const invitationsQuery = queryClient
       .getQueryCache()
       .find({ queryKey: qk.listInvitations({ event_id: `eq.${EVENT_ID}` }) });
-    // Attendees are now queried via invitation_id=in.(...) not event_id
+    // Attendees are queried via chunked invitation_id=in.(...) requests
     const attendeesQueries = queryClient.getQueryCache().findAll({
       queryKey: [...qk.listAttendeesPrefix()],
     });
-    const attendeesQuery = attendeesQueries.find(q =>
-      (q.queryKey[1] as Record<string, unknown> | undefined)?.invitation_id?.toString().startsWith("in.(")
+    const attendeesQuery = attendeesQueries.find(
+      (q) =>
+        q.queryKey[1] === "byInvitationIds" &&
+        Array.isArray(q.queryKey[2]) &&
+        q.queryKey[2].length > 0,
     );
 
     expect(invitationsQuery?.observers[0]?.options.refetchInterval).toBe(
