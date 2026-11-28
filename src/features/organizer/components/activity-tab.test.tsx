@@ -237,4 +237,90 @@ describe("ActivityTab", () => {
     expect(screen.queryByText("event1.attendee")).not.toBeInTheDocument();
     expect(offsets).toEqual([0, 500]);
   });
+
+  it("requests audit log entries ordered created_at.desc and pages through all results", async () => {
+    setRole("organizer");
+    seedEventAuditHistory();
+
+    const capturedOrders: (string | null)[] = [];
+    const capturedOffsets: number[] = [];
+    // Generate 1200 audit log entries to test past the 1,000-row Supabase boundary (3 pages of limit 500)
+    const largeAuditList = Array.from({ length: 1200 }, (_, i) => ({
+      id: `large-audit-${i}`,
+      entity_type: "event",
+      entity_id: EVENT_ID,
+      actor_type: "organizer",
+      action: i === 0 ? "newest.action" : i === 1199 ? "oldest.action" : `middle.action.${i}`,
+      reason: null,
+      created_at: new Date(Date.now() - i * 1000).toISOString(),
+    }));
+
+    server.use(
+      http.get("*/rest/v1/audit_log_entries", ({ request }) => {
+        const url = new URL(request.url);
+        capturedOrders.push(url.searchParams.get("order"));
+        const offset = Number(url.searchParams.get("offset") ?? 0);
+        const limit = Number(url.searchParams.get("limit") ?? 500);
+        capturedOffsets.push(offset);
+        return HttpResponse.json(largeAuditList.slice(offset, offset + limit));
+      }),
+    );
+
+    renderActivityTab();
+
+    // Verify newest entry is rendered and oldest entry on page 3 is also included
+    expect(await screen.findByText("newest.action")).toBeInTheDocument();
+    expect(capturedOrders[0]).toBe("created_at.desc");
+    expect(capturedOffsets).toEqual([0, 500, 1000]);
+  });
+
+  it("scopes headcount request queries to event invitation IDs via chunking", async () => {
+    setRole("organizer");
+    seedEventAuditHistory();
+
+    const capturedInvitationFilters: (string | null)[] = [];
+    server.use(
+      http.get("*/rest/v1/headcount_increase_requests", ({ request }) => {
+        const url = new URL(request.url);
+        capturedInvitationFilters.push(url.searchParams.get("invitation_id"));
+        return HttpResponse.json([]);
+      }),
+    );
+
+    renderActivityTab();
+    await screen.findByText("event0.event");
+
+    expect(capturedInvitationFilters.length).toBeGreaterThan(0);
+    // The filter must use in.(<invitation_id>) rather than querying all headcount requests
+    expect(capturedInvitationFilters[0]).toContain(`in.(${EVENT_ID}-invitation)`);
+  });
+
+  it("renders correctly for events with zero invitations, attendees, headcount requests, and audit entries", async () => {
+    setRole("organizer");
+
+    const EMPTY_EVENT_ID = "55555555-5555-5555-5555-555555555500";
+    server.use(
+      http.get("*/rest/v1/invitations", () => HttpResponse.json([])),
+      http.get("*/rest/v1/attendees", () => HttpResponse.json([])),
+      http.get("*/rest/v1/headcount_increase_requests", () => HttpResponse.json([])),
+      http.get("*/rest/v1/reminder_schedules", () => HttpResponse.json([])),
+      http.get("*/rest/v1/invitation_designs", () => HttpResponse.json([])),
+      http.get("*/rest/v1/checkin_assignments", () => HttpResponse.json([])),
+      http.get("*/rest/v1/email_logs", () => HttpResponse.json([])),
+      http.get("*/rest/v1/audit_log_entries", () => HttpResponse.json([])),
+    );
+
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ActivityTab eventId={EMPTY_EVENT_ID} />
+      </QueryClientProvider>,
+    );
+
+    expect(await screen.findByText("No emails sent for this event yet")).toBeInTheDocument();
+    expect(await screen.findByText("No audit log entries recorded yet")).toBeInTheDocument();
+  });
 });

@@ -7,7 +7,7 @@ export const AUDIT_LOG_REFETCH_INTERVAL_MS = 30_000;
 export function useListAuditLogEntries() {
     return useQuery({
         queryKey: qk.listAuditLogEntries(),
-        queryFn: listAuditLogEntries,
+        queryFn: () => listAuditLogEntries(),
         refetchInterval: AUDIT_LOG_REFETCH_INTERVAL_MS,
     });
 }
