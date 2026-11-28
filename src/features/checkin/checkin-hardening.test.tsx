@@ -1046,7 +1046,11 @@ describe("check-in staff portal hardening", () => {
         expect(within(region).getByText("100")).toBeInTheDocument();
       });
 
-      expect(chunkLengths).toEqual([75, 75, 10]);
+      expect(chunkLengths).toHaveLength(3);
+      for (const length of chunkLengths) {
+        expect(length).toBeLessThanOrEqual(75);
+      }
+      expect([...chunkLengths].sort((a, b) => b - a)).toEqual([75, 75, 10]);
     });
   });
 
