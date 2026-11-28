@@ -870,4 +870,167 @@ describe("CreateEventPage dirty-guard", () => {
       screen.getByRole("heading", { name: /schedule and location/i }),
     ).toBeInTheDocument();
   });
+
+  it("completes the full recovery flow from deep-linked Review through timezone recovery and Enter on Capacity", async () => {
+    const user = userEvent.setup();
+    const submittedBodies: Record<string, unknown>[] = [];
+    setRole("organizer");
+    server.use(
+      http.post("*/rest/v1/events", async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        submittedBodies.push(body);
+        return HttpResponse.json(
+          {
+            ...body,
+            id: "event-full-recovery",
+            organizer_id: "11111111-1111-1111-1111-111111111111",
+            created_at: "2026-11-27T00:00:00.000Z",
+            updated_at: "2026-11-27T00:00:00.000Z",
+          },
+          { status: 201 },
+        );
+      }),
+    );
+
+    const { router } = renderWizard("/organizer/events/new?step=4");
+
+    // 1. Open Review directly and submit -> returns to Basics with zero POSTs
+    expect(
+      screen.getByRole("heading", { name: /review your event/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("You have unsaved changes."),
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /create event/i }));
+    expect(
+      await screen.findByRole("heading", { name: /event basics/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/event title is required/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByLabelText(/event title/i)).toHaveFocus();
+    });
+    expect(submittedBodies).toHaveLength(0);
+
+    // 2. Complete Basics and advance to Schedule
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Full Recovery Gala" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "full-recovery-gala" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    // 3. Complete Schedule with an invalid timezone, see error, then recover to Asia/Manila
+    const startsInput = await screen.findByLabelText(/^starts/i);
+    const endsInput = screen.getByLabelText(/^ends/i);
+    const deadlineInput = screen.getByLabelText(/rsvp deadline/i);
+    const timezoneInput = screen.getByLabelText(/time zone/i);
+
+    fireEvent.change(startsInput, { target: { value: "2026-12-15T18:00" } });
+    fireEvent.change(endsInput, { target: { value: "2026-12-15T21:00" } });
+    fireEvent.change(deadlineInput, { target: { value: "2026-12-15T16:00" } });
+    fireEvent.change(timezoneInput, { target: { value: "Mars/Olympus" } });
+
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+    expect(
+      await screen.findByText(/enter a valid iana timezone/i),
+    ).toBeInTheDocument();
+    expect(submittedBodies).toHaveLength(0);
+
+    fireEvent.change(timezoneInput, { target: { value: "Asia/Manila" } });
+    expect(startsInput).toHaveValue("2026-12-15T18:00");
+    expect(endsInput).toHaveValue("2026-12-15T21:00");
+    expect(deadlineInput).toHaveValue("2026-12-15T16:00");
+
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    // 4. Press Enter on Capacity to advance to Review without submitting
+    const capacityInput = await screen.findByLabelText(/total capacity/i);
+    await user.type(capacityInput, "300{Enter}");
+
+    expect(
+      await screen.findByRole("heading", { name: /review your event/i }),
+    ).toBeInTheDocument();
+    expect(submittedBodies).toHaveLength(0);
+
+    // 5. Explicitly create the event and verify single accurate POST and navigation
+    await user.click(screen.getByRole("button", { name: /create event/i }));
+
+    expect(await screen.findByText("Event Workspace")).toBeInTheDocument();
+    expect(submittedBodies).toHaveLength(1);
+    expect(submittedBodies[0]).toMatchObject({
+      title: "Full Recovery Gala",
+      slug: "full-recovery-gala",
+      capacity: 300,
+      event_timezone: "Asia/Manila",
+      starts_at: "2026-12-15T10:00:00.000Z",
+      ends_at: "2026-12-15T13:00:00.000Z",
+      rsvp_deadline: "2026-12-15T08:00:00.000Z",
+    });
+    expect(router.state.location.pathname).toBe(
+      "/organizer/events/event-full-recovery",
+    );
+    expect(
+      screen.queryByText("Leave with unsaved changes?"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("supports browser Back and Forward between wizard steps without losing state or opening leave prompt", async () => {
+    const user = userEvent.setup();
+    const { router } = renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "History Walk Event" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "history-walk-event" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
+      target: { value: "2026-12-20T09:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-20T12:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-19T18:00" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    expect(await screen.findByLabelText(/total capacity/i)).toBeInTheDocument();
+
+    // Browser Back: Step 3 -> Step 2
+    await router.navigate(-1);
+    expect(await screen.findByLabelText(/^starts/i)).toHaveValue(
+      "2026-12-20T09:00",
+    );
+    expect(
+      screen.queryByText("Leave with unsaved changes?"),
+    ).not.toBeInTheDocument();
+
+    // Browser Back: Step 2 -> Step 1
+    await router.navigate(-1);
+    expect(await screen.findByLabelText(/event title/i)).toHaveValue(
+      "History Walk Event",
+    );
+    expect(screen.getByLabelText(/event slug/i)).toHaveValue(
+      "history-walk-event",
+    );
+    expect(
+      screen.queryByText("Leave with unsaved changes?"),
+    ).not.toBeInTheDocument();
+
+    // Browser Forward: Step 1 -> Step 2 -> Step 3
+    await router.navigate(1);
+    expect(await screen.findByLabelText(/^starts/i)).toHaveValue(
+      "2026-12-20T09:00",
+    );
+    await router.navigate(1);
+    expect(await screen.findByLabelText(/total capacity/i)).toBeInTheDocument();
+    expect(
+      screen.queryByText("Leave with unsaved changes?"),
+    ).not.toBeInTheDocument();
+  });
 });
