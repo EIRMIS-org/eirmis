@@ -30,14 +30,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useDecideAttendee } from "@/features/organizer/hooks/use-decide-attendee";
 import { useDecideHeadcountRequest } from "@/features/organizer/hooks/use-decide-headcount-request";
-import { useListAttendees } from "@/features/organizer/hooks/use-list-attendees";
+import { useListAttendeesByInvitationIds } from "@/features/organizer/hooks/use-list-attendees";
 import { useListHeadcountRequests } from "@/features/organizer/hooks/use-list-headcount-requests";
 import { useListInvitations } from "@/features/organizer/hooks/use-list-invitations";
 import { usePromoteWaitlist } from "@/features/organizer/hooks/use-promote-waitlist";
 import {
   ApiError,
   eq,
-  inList,
   type Attendee,
   type HeadcountIncreaseRequest,
 } from "@/lib/api";
@@ -64,19 +63,14 @@ function isCapacityExceededError(error: unknown): boolean {
   return /capacity/i.test(details);
 }
 
-export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
+export function ApprovalsTab({ eventId, capacity }: ApprovalsTabProps) {
   const queryClient = useQueryClient();
   const invitationsQuery = useListInvitations({ event_id: eq(eventId) });
   const invitationIdList = useMemo(
     () => (invitationsQuery.data ?? []).map((invitation) => invitation.id),
     [invitationsQuery.data],
   );
-  const attendeesQuery = useListAttendees(
-    invitationIdList.length > 0
-      ? { invitation_id: inList(invitationIdList) }
-      : undefined,
-    { enabled: invitationIdList.length > 0 },
-  );
+  const attendeesQuery = useListAttendeesByInvitationIds(invitationIdList);
   const headcountQuery = useListHeadcountRequests({ status: eq("pending") });
   const decideAttendee = useDecideAttendee();
   const decideHeadcountRequest = useDecideHeadcountRequest();
@@ -196,7 +190,11 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
 
     const nextApproved =
       decision === "approve" ? approvedCount + 1 : approvedCount;
-    if (decision === "approve" && nextApproved > capacity) {
+    if (
+      decision === "approve" &&
+      typeof capacity === "number" &&
+      nextApproved > capacity
+    ) {
       setOverrideTarget({
         attendee,
         decision: "approve",
@@ -433,7 +431,9 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
             </div>
             <div className="flex items-center gap-2 rounded-full border border-border bg-muted/40 px-3 py-1.5 text-xs text-muted-foreground">
               <AlertTriangle className="h-3.5 w-3.5" />
-              {approvedCount}/{capacity} approved
+              {typeof capacity === "number"
+                ? `${approvedCount}/${capacity} approved`
+                : `${approvedCount} approved`}
             </div>
           </CardHeader>
           <CardContent>{renderQueue()}</CardContent>
@@ -673,7 +673,9 @@ export function ApprovalsTab({ eventId, capacity = 120 }: ApprovalsTabProps) {
             <DialogTitle>Capacity override confirmation</DialogTitle>
             <DialogDescription>
               Approving {overrideTarget?.attendee.full_name ?? "this attendee"}{" "}
-              would take the event beyond the configured capacity of {capacity}.
+              {typeof capacity === "number"
+                ? `would take the event beyond the configured capacity of ${capacity}.`
+                : "would take the event beyond its configured capacity."}{" "}
               This action is still recorded as an audited override.
             </DialogDescription>
           </DialogHeader>

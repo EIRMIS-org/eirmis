@@ -456,11 +456,51 @@ export function inList(values: readonly string[]): string {
     return `in.(${values.join(',')})`;
 }
 
+/** Maximum invitation UUIDs per `invitation_id=in.(...)` request (~2.8KB query string). */
+export const ATTENDEE_IN_LIST_CHUNK_SIZE = 75;
+
 /** GET /rest/v1/attendees — list attendees for an invitation. */
 export function listAttendees(
     query?: operations['listAttendees']['parameters']['query'],
 ): Promise<ListOk<operations['listAttendees']>> {
     return request('GET', '/rest/v1/attendees', { query });
+}
+
+/**
+ * GET /rest/v1/attendees — fetch attendees across arbitrarily many invitations
+ * by chunking `invitation_id=in.(...)` requests in parallel and deduplicating
+ * the merged result by attendee ID.
+ */
+export async function listAttendeesByInvitationIds(
+    invitationIds: readonly string[],
+    chunkSize = ATTENDEE_IN_LIST_CHUNK_SIZE,
+): Promise<ListOk<operations['listAttendees']>> {
+    const uniqueIds = Array.from(new Set(invitationIds.filter(Boolean)));
+    if (uniqueIds.length === 0) {
+        return [];
+    }
+
+    const safeChunkSize = Math.max(1, Math.floor(chunkSize));
+    const chunks: string[][] = [];
+    for (let index = 0; index < uniqueIds.length; index += safeChunkSize) {
+        chunks.push(uniqueIds.slice(index, index + safeChunkSize));
+    }
+
+    const batches = await Promise.all(
+        chunks.map((chunk) => listAttendees({ invitation_id: inList(chunk) })),
+    );
+
+    const seen = new Set<string>();
+    const merged: Attendee[] = [];
+    for (const batch of batches) {
+        for (const attendee of batch) {
+            if (!seen.has(attendee.id)) {
+                seen.add(attendee.id);
+                merged.push(attendee);
+            }
+        }
+    }
+    return merged;
 }
 
 /** POST /rest/v1/attendees — submit an additional attendee (guest). */
@@ -814,6 +854,7 @@ const api = {
     createInvitation,
     updateInvitation,
     listAttendees,
+    listAttendeesByInvitationIds,
     submitAttendee,
     updateAttendee,
     listHeadcountRequests,

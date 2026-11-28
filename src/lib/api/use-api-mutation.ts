@@ -15,16 +15,18 @@ function errorDescription(error: unknown): string | undefined {
     return [error.details, error.hint].filter(Boolean).join(' — ') || undefined;
 }
 
-interface MutationCallbacks<TData, TVariables> {
+interface UseApiMutationOptions<TData, TVariables> {
     onSuccess?: (data: TData, variables: TVariables) => void | Promise<void>;
     onError?: (error: unknown, variables: TVariables) => void | Promise<void>;
+    /** Whether to display a global error toast on failure (defaults to `true`). */
+    showErrorToast?: boolean;
 }
 
 export function useApiMutation<TData, TVariables>(
     mutationFn: MutationFunction<TData, TVariables>,
     invalidationKeys: readonly QueryKey[],
     successMessage?: string,
-    options?: MutationCallbacks<TData, TVariables>,
+    options?: UseApiMutationOptions<TData, TVariables>,
 ) {
     const queryClient = useQueryClient();
 
@@ -42,10 +44,12 @@ export function useApiMutation<TData, TVariables>(
             await options?.onSuccess?.(data, variables);
         },
         onError: async (error, variables) => {
-            toast.error(
-                error instanceof ApiError ? error.message : 'Request failed',
-                { description: errorDescription(error) },
-            );
+            if (options?.showErrorToast !== false) {
+                toast.error(
+                    error instanceof ApiError ? error.message : 'Request failed',
+                    { description: errorDescription(error) },
+                );
+            }
             await options?.onError?.(error, variables);
         },
     });
