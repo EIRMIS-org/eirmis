@@ -558,4 +558,316 @@ describe("CreateEventPage dirty-guard", () => {
       screen.getByRole("heading", { name: /review your event/i }),
     ).toBeInTheDocument();
   });
+
+  it("recovers all three timestamps when timezone becomes invalid and is restored to Asia/Manila", async () => {
+    const user = userEvent.setup();
+    const submittedBody = vi.fn();
+    setRole("organizer");
+    server.use(
+      http.post("*/rest/v1/events", async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        submittedBody(body);
+        return HttpResponse.json(
+          {
+            ...body,
+            id: "event-tz-restore-1",
+            organizer_id: "11111111-1111-1111-1111-111111111111",
+            created_at: "2026-11-27T00:00:00.000Z",
+            updated_at: "2026-11-27T00:00:00.000Z",
+          },
+          { status: 201 },
+        );
+      }),
+    );
+
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Timezone Restore Event" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "tz-restore-event" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
+      target: { value: "2026-12-01T18:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-01T20:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-01T17:00" },
+    });
+
+    const timezoneInput = screen.getByLabelText(/time zone/i);
+    fireEvent.change(timezoneInput, { target: { value: "Not/A_Zone" } });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    expect(
+      await screen.findByText(/enter a valid iana timezone/i),
+    ).toBeInTheDocument();
+    expect(timezoneInput).toHaveAttribute("aria-invalid", "true");
+
+    fireEvent.change(timezoneInput, { target: { value: "  Asia/Manila  " } });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/total capacity/i), {
+      target: { value: "80" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+    await user.click(
+      await screen.findByRole("button", { name: /create event/i }),
+    );
+
+    await waitFor(() => {
+      expect(submittedBody).toHaveBeenCalledTimes(1);
+    });
+    expect(submittedBody.mock.calls[0][0]).toMatchObject({
+      event_timezone: "Asia/Manila",
+      starts_at: "2026-12-01T10:00:00.000Z",
+      ends_at: "2026-12-01T12:00:00.000Z",
+      rsvp_deadline: "2026-12-01T09:00:00.000Z",
+    });
+  });
+
+  it("synchronizes dates entered while timezone is invalid once timezone is corrected", async () => {
+    const user = userEvent.setup();
+    const submittedBody = vi.fn();
+    setRole("organizer");
+    server.use(
+      http.post("*/rest/v1/events", async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        submittedBody(body);
+        return HttpResponse.json(
+          {
+            ...body,
+            id: "event-tz-invalid-first",
+            organizer_id: "11111111-1111-1111-1111-111111111111",
+            created_at: "2026-11-27T00:00:00.000Z",
+            updated_at: "2026-11-27T00:00:00.000Z",
+          },
+          { status: 201 },
+        );
+      }),
+    );
+
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Invalid First Event" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "invalid-first-event" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    const timezoneInput = await screen.findByLabelText(/time zone/i);
+    fireEvent.change(timezoneInput, { target: { value: "Invalid/Zone" } });
+
+    fireEvent.change(screen.getByLabelText(/^starts/i), {
+      target: { value: "2026-12-02T14:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-02T16:30" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-02T12:00" },
+    });
+
+    fireEvent.change(timezoneInput, { target: { value: "Asia/Manila" } });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/total capacity/i), {
+      target: { value: "60" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+    await user.click(
+      await screen.findByRole("button", { name: /create event/i }),
+    );
+
+    await waitFor(() => {
+      expect(submittedBody).toHaveBeenCalledTimes(1);
+    });
+    expect(submittedBody.mock.calls[0][0]).toMatchObject({
+      event_timezone: "Asia/Manila",
+      starts_at: "2026-12-02T06:00:00.000Z",
+      ends_at: "2026-12-02T08:30:00.000Z",
+      rsvp_deadline: "2026-12-02T04:00:00.000Z",
+    });
+  });
+
+  it("preserves wall-clock inputs when switching UTC to Asia/Manila and updates all three ISO values", async () => {
+    const user = userEvent.setup();
+    const submittedBody = vi.fn();
+    setRole("organizer");
+    server.use(
+      http.post("*/rest/v1/events", async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        submittedBody(body);
+        return HttpResponse.json(
+          {
+            ...body,
+            id: "event-utc-to-manila",
+            organizer_id: "11111111-1111-1111-1111-111111111111",
+            created_at: "2026-11-27T00:00:00.000Z",
+            updated_at: "2026-11-27T00:00:00.000Z",
+          },
+          { status: 201 },
+        );
+      }),
+    );
+
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "UTC to Manila" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "utc-to-manila" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    const timezoneInput = await screen.findByLabelText(/time zone/i);
+    fireEvent.change(timezoneInput, { target: { value: "UTC" } });
+
+    const startsInput = screen.getByLabelText(/^starts/i);
+    const endsInput = screen.getByLabelText(/^ends/i);
+    const deadlineInput = screen.getByLabelText(/rsvp deadline/i);
+
+    fireEvent.change(startsInput, { target: { value: "2026-12-10T18:00" } });
+    fireEvent.change(endsInput, { target: { value: "2026-12-10T21:00" } });
+    fireEvent.change(deadlineInput, { target: { value: "2026-12-10T15:00" } });
+
+    fireEvent.change(timezoneInput, { target: { value: "Asia/Manila" } });
+
+    expect(startsInput).toHaveValue("2026-12-10T18:00");
+    expect(endsInput).toHaveValue("2026-12-10T21:00");
+    expect(deadlineInput).toHaveValue("2026-12-10T15:00");
+
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+    fireEvent.change(await screen.findByLabelText(/total capacity/i), {
+      target: { value: "200" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+    await user.click(
+      await screen.findByRole("button", { name: /create event/i }),
+    );
+
+    await waitFor(() => {
+      expect(submittedBody).toHaveBeenCalledTimes(1);
+    });
+    expect(submittedBody.mock.calls[0][0]).toMatchObject({
+      event_timezone: "Asia/Manila",
+      starts_at: "2026-12-10T10:00:00.000Z",
+      ends_at: "2026-12-10T13:00:00.000Z",
+      rsvp_deadline: "2026-12-10T07:00:00.000Z",
+    });
+  });
+
+  it("blocks progression and displays a visible error when timezone is empty", async () => {
+    const user = userEvent.setup();
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Empty Timezone Event" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "empty-tz-event" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    const timezoneInput = await screen.findByLabelText(/time zone/i);
+    fireEvent.change(screen.getByLabelText(/^starts/i), {
+      target: { value: "2026-12-01T18:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-01T20:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-01T17:00" },
+    });
+    fireEvent.change(timezoneInput, { target: { value: "" } });
+
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    expect(
+      await screen.findByText(/event timezone is required/i),
+    ).toBeInTheDocument();
+    expect(timezoneInput).toHaveAttribute("aria-invalid", "true");
+    expect(
+      screen.getByRole("heading", { name: /schedule and location/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("keeps cleared date fields empty and does not resurrect previous values", async () => {
+    const user = userEvent.setup();
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Clear Date Event" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "clear-date-event" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    const startsInput = await screen.findByLabelText(/^starts/i);
+    const endsInput = screen.getByLabelText(/^ends/i);
+    const deadlineInput = screen.getByLabelText(/rsvp deadline/i);
+    const timezoneInput = screen.getByLabelText(/time zone/i);
+
+    fireEvent.change(startsInput, { target: { value: "2026-12-01T18:00" } });
+    fireEvent.change(endsInput, { target: { value: "2026-12-01T20:00" } });
+    fireEvent.change(deadlineInput, { target: { value: "2026-12-01T17:00" } });
+
+    fireEvent.change(endsInput, { target: { value: "" } });
+    expect(endsInput).toHaveValue("");
+
+    fireEvent.change(timezoneInput, { target: { value: "Asia/Manila" } });
+    expect(endsInput).toHaveValue("");
+
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+    expect(
+      screen.getByRole("heading", { name: /schedule and location/i }),
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(endsInput).toHaveAttribute("aria-invalid", "true");
+    });
+  });
+
+  it("rejects end-before-start and deadline-after-start chronology errors", async () => {
+    const user = userEvent.setup();
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText(/event title/i), {
+      target: { value: "Chronology Check" },
+    });
+    fireEvent.change(screen.getByLabelText(/event slug/i), {
+      target: { value: "chronology-check" },
+    });
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(await screen.findByLabelText(/^starts/i), {
+      target: { value: "2026-12-01T18:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/^ends/i), {
+      target: { value: "2026-12-01T17:00" },
+    });
+    fireEvent.change(screen.getByLabelText(/rsvp deadline/i), {
+      target: { value: "2026-12-01T19:00" },
+    });
+
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    expect(
+      await screen.findByText(/end time must be after the start time/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/rsvp deadline must be at or before the start time/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /schedule and location/i }),
+    ).toBeInTheDocument();
+  });
 });

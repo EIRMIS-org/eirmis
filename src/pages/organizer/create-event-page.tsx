@@ -86,12 +86,18 @@ type LocalDateTimes = {
   rsvp_deadline: string
 }
 
+const DATE_TIME_FIELDS = ['starts_at', 'ends_at', 'rsvp_deadline'] as const
+
 function formatReviewDateTime(
   localValue: string,
   isoValue: string,
   timeZone: string,
 ) {
-  return localValue || toZonedLocalString(isoValue, timeZone) || 'Not set'
+  return (
+    localValue ||
+    (timeZone ? toZonedLocalString(isoValue, timeZone) : '') ||
+    'Not set'
+  )
 }
 
 function CreateEventReviewStep({
@@ -134,6 +140,8 @@ function CreateEventReviewStep({
     ],
   })
 
+  const reviewTimeZone = (eventTimezone ?? '').trim() || timeZone
+
   return (
     <section aria-labelledby="review-heading" className="space-y-5">
       <div>
@@ -165,7 +173,7 @@ function CreateEventReviewStep({
             {formatReviewDateTime(
               localDateTimes.starts_at,
               startsAt || '',
-              eventTimezone || timeZone,
+              reviewTimeZone,
             )}
           </dd>
         </div>
@@ -175,7 +183,7 @@ function CreateEventReviewStep({
             {formatReviewDateTime(
               localDateTimes.ends_at,
               endsAt || '',
-              eventTimezone || timeZone,
+              reviewTimeZone,
             )}
           </dd>
         </div>
@@ -185,7 +193,7 @@ function CreateEventReviewStep({
             {formatReviewDateTime(
               localDateTimes.rsvp_deadline,
               rsvpDeadline || '',
-              eventTimezone || timeZone,
+              reviewTimeZone,
             )}
           </dd>
         </div>
@@ -228,9 +236,11 @@ export function CreateEventPage() {
   const {
     control,
     formState: { errors, isDirty },
+    getValues,
     handleSubmit,
     register,
     setFocus,
+    setValue,
     trigger,
   } = useForm<EventFormInput, unknown, EventCreate>({
     resolver: eventCreateResolver,
@@ -254,11 +264,48 @@ export function CreateEventPage() {
   })
 
   const { blocker, allowNextNavigation } = useUnsavedChangesGuard(isDirty)
-  const eventTimezone = useWatch({ control, name: 'event_timezone' }) || 'UTC'
+  const rawEventTimezone = useWatch({ control, name: 'event_timezone' })
+  const trimmedEventTimezone = (rawEventTimezone ?? '').trim()
+  const hasScheduleErrorRef = useRef(false)
 
   const isNavigatingRef = useRef(false)
   const isSubmittingRef = useRef(false)
   const pendingFocusFieldRef = useRef<FieldPath<EventFormInput> | null>(null)
+
+  useEffect(() => {
+    hasScheduleErrorRef.current = Boolean(
+      errors.starts_at ||
+        errors.ends_at ||
+        errors.rsvp_deadline ||
+        errors.event_timezone,
+    )
+  }, [
+    errors.starts_at,
+    errors.ends_at,
+    errors.rsvp_deadline,
+    errors.event_timezone,
+  ])
+
+  useEffect(() => {
+    let changed = false
+    for (const fieldName of DATE_TIME_FIELDS) {
+      const localValue = localDateTimes[fieldName]
+      const nextIso = localValue
+        ? toZonedIsoString(localValue, trimmedEventTimezone)
+        : ''
+      if (getValues(fieldName) !== nextIso) {
+        setValue(fieldName, nextIso, {
+          shouldDirty: true,
+          shouldValidate: false,
+        })
+        changed = true
+      }
+    }
+
+    if (changed && hasScheduleErrorRef.current) {
+      void trigger(STEP_FIELDS[2])
+    }
+  }, [localDateTimes, trimmedEventTimezone, getValues, setValue, trigger])
 
   useEffect(() => {
     const field = pendingFocusFieldRef.current
@@ -327,21 +374,7 @@ export function CreateEventPage() {
     isSubmittingRef.current = true
     setFormError(undefined)
     try {
-      const event = await createEvent.mutateAsync({
-        ...payload,
-        starts_at: toZonedIsoString(
-          localDateTimes.starts_at,
-          payload.event_timezone,
-        ),
-        ends_at: toZonedIsoString(
-          localDateTimes.ends_at,
-          payload.event_timezone,
-        ),
-        rsvp_deadline: toZonedIsoString(
-          localDateTimes.rsvp_deadline,
-          payload.event_timezone,
-        ),
-      })
+      const event = await createEvent.mutateAsync(payload)
       allowNextNavigation()
       navigate(`/organizer/events/${encodeURIComponent(event.id)}`)
     } catch (error) {
@@ -526,10 +559,7 @@ export function CreateEventPage() {
                         id="event-start"
                         type="datetime-local"
                         className="mt-1.5"
-                        value={
-                          localDateTimes.starts_at ||
-                          toZonedLocalString(field.value, eventTimezone)
-                        }
+                        value={localDateTimes.starts_at}
                         onBlur={field.onBlur}
                         onChange={(event) => {
                           const localValue = event.target.value
@@ -538,7 +568,9 @@ export function CreateEventPage() {
                             starts_at: localValue,
                           }))
                           field.onChange(
-                            toZonedIsoString(localValue, eventTimezone),
+                            localValue
+                              ? toZonedIsoString(localValue, trimmedEventTimezone)
+                              : '',
                           )
                         }}
                         aria-invalid={Boolean(errors.starts_at)}
@@ -558,10 +590,7 @@ export function CreateEventPage() {
                         id="event-end"
                         type="datetime-local"
                         className="mt-1.5"
-                        value={
-                          localDateTimes.ends_at ||
-                          toZonedLocalString(field.value, eventTimezone)
-                        }
+                        value={localDateTimes.ends_at}
                         onBlur={field.onBlur}
                         onChange={(event) => {
                           const localValue = event.target.value
@@ -570,7 +599,9 @@ export function CreateEventPage() {
                             ends_at: localValue,
                           }))
                           field.onChange(
-                            toZonedIsoString(localValue, eventTimezone),
+                            localValue
+                              ? toZonedIsoString(localValue, trimmedEventTimezone)
+                              : '',
                           )
                         }}
                         aria-invalid={Boolean(errors.ends_at)}
@@ -590,10 +621,7 @@ export function CreateEventPage() {
                         id="event-deadline"
                         type="datetime-local"
                         className="mt-1.5"
-                        value={
-                          localDateTimes.rsvp_deadline ||
-                          toZonedLocalString(field.value, eventTimezone)
-                        }
+                        value={localDateTimes.rsvp_deadline}
                         onBlur={field.onBlur}
                         onChange={(event) => {
                           const localValue = event.target.value
@@ -602,7 +630,9 @@ export function CreateEventPage() {
                             rsvp_deadline: localValue,
                           }))
                           field.onChange(
-                            toZonedIsoString(localValue, eventTimezone),
+                            localValue
+                              ? toZonedIsoString(localValue, trimmedEventTimezone)
+                              : '',
                           )
                         }}
                         aria-invalid={Boolean(errors.rsvp_deadline)}
@@ -616,11 +646,13 @@ export function CreateEventPage() {
                   <Input
                     id="event-timezone"
                     className="mt-1.5"
+                    aria-invalid={Boolean(errors.event_timezone)}
                     {...register('event_timezone')}
                   />
                   <p className="mt-1 text-xs text-muted-foreground">
                     Times use the selected time zone.
                   </p>
+                  <FieldError message={errors.event_timezone?.message} />
                 </div>
               </div>
               <div className="grid gap-5 sm:grid-cols-2">
@@ -715,7 +747,7 @@ export function CreateEventPage() {
               control={control}
               formError={formError}
               localDateTimes={localDateTimes}
-              timeZone={eventTimezone}
+              timeZone={trimmedEventTimezone}
             />
           )}
 
